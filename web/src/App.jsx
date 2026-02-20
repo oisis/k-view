@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Nodes from './components/Nodes';
+import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
-import { LayoutDashboard, Server, LogOut, FlaskConical, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Server, Terminal, LogOut, FlaskConical, ShieldAlert } from 'lucide-react';
 
 function NavLink({ href, icon: Icon, label, active }) {
     return (
@@ -43,13 +44,13 @@ function Sidebar({ user, onLogout }) {
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                 <NavLink href="/" icon={LayoutDashboard} label="Dashboard" active={path === '/'} />
                 <NavLink href="/nodes" icon={Server} label="Nodes" active={path === '/nodes'} />
+                <NavLink href="/console" icon={Terminal} label="Console" active={path === '/console'} />
             </nav>
 
-            {/* Bottom section: user info + admin + logout */}
+            {/* Bottom: user + admin + logout */}
             <div className="p-4 border-t border-gray-700 space-y-2">
                 <div className="text-xs text-gray-500 truncate px-1">{user.email}</div>
 
-                {/* Admin Panel — red, bottom */}
                 {user.role === 'admin' && (
                     <a
                         href="/admin"
@@ -98,9 +99,7 @@ function App() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen text-gray-400">
-                Loading...
-            </div>
+            <div className="flex items-center justify-center min-h-screen text-gray-400">Loading...</div>
         );
     }
 
@@ -108,12 +107,12 @@ function App() {
         <Router>
             <div className="flex h-screen bg-gray-900 text-gray-100">
                 {user && <Sidebar user={user} onLogout={handleLogout} />}
-
-                <main className="flex-1 overflow-auto">
+                <main className="flex-1 overflow-auto flex flex-col">
                     <Routes>
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                         <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
                         <Route path="/nodes" element={user ? <Nodes /> : <Navigate to="/login" />} />
+                        <Route path="/console" element={user ? <Console /> : <Navigate to="/login" />} />
                         <Route
                             path="/admin"
                             element={user && user.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />}
