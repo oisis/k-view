@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 const WELCOME = `K-View Kubernetes Console
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -11,6 +11,10 @@ Connected to: k-view-dev-cluster
 const NAMESPACES = ['default', 'auth', 'database', 'messaging', 'monitoring', 'logging', 'ingress-nginx', 'cert-manager', 'kube-system', 'kube-public', 'kube-node-lease', 'database'];
 
 const PROMPT = '❯';
+
+const VERBS = ['get', 'describe', 'logs', 'top', 'delete', 'apply', 'edit', 'version', 'cluster-info'];
+const RESOURCES = ['pods', 'nodes', 'svc', 'deploy', 'ns', 'all', 'pv', 'pvc', 'cm', 'secret', 'ing', 'events'];
+const FLAGS = ['-A', '-o wide', '-n default', '-w', '--all-namespaces', '-o yaml'];
 
 export default function Console() {
     // Input always starts with "kubectl "
@@ -36,6 +40,60 @@ export default function Console() {
         inputRef.current?.focus();
     }, []);
 
+    // Robust Command fragment suggestions
+    const suggestions = useMemo(() => {
+        const trimmedInput = input.trim();
+        const parts = trimmedInput.split(/\s+/);
+
+        // Only suggest if we start with kubectl/k
+        if (parts[0] !== 'kubectl' && parts[0] !== 'k') return null;
+
+        // Find the Verb (first match from our known list after current 'kubectl' prefix)
+        const verb = parts.slice(1).find(p => VERBS.includes(p));
+        const verbIdx = verb ? parts.indexOf(verb) : -1;
+
+        // Find the potential Resource (the first non-flag after the verb)
+        // Or if no verb, check if any non-flag is present (unlikely for valid kubectl yet)
+        const potentialResource = verbIdx !== -1
+            ? parts.slice(verbIdx + 1).find(p => !p.startsWith('-'))
+            : null;
+
+        // Stage 1: No Verb -> suggest Actions
+        // Also if we are at the very end of 'kubectl '
+        if (!verb) {
+            return {
+                title: 'Actions',
+                items: VERBS.map(v => ({ label: v, val: v }))
+            };
+        }
+
+        // Stage 2: We have Verb but no Resource -> suggest Resources
+        // (Certain verbs don't need resources, but for simple mock mode we assume they do)
+        if (!potentialResource && !['version', 'cluster-info'].includes(verb)) {
+            return {
+                title: 'Resources',
+                items: RESOURCES.map(r => ({ label: r, val: r }))
+            };
+        }
+
+        // Stage 3: We have Verb and Resource -> suggest Flags
+        // Filter out flags that are already in the command (checking by prefix like -n or -o)
+        const currentFlags = parts.filter(p => p.startsWith('-'));
+        const remainingFlags = FLAGS.filter(f => {
+            const flagPrefix = f.split(' ')[0];
+            return !currentFlags.some(cp => cp === flagPrefix || cp.startsWith(flagPrefix + '='));
+        });
+
+        if (remainingFlags.length > 0) {
+            return {
+                title: 'Options',
+                items: remainingFlags.map(f => ({ label: f, val: f }))
+            };
+        }
+
+        return null;
+    }, [input]);
+
     // Tokenize line to find pod names or namespaces
     const renderLine = (line, exitCode, onTokenClick) => {
         let defaultColor = exitCode !== 0 ? 'text-red-400' : 'text-gray-200';
@@ -43,13 +101,11 @@ export default function Console() {
         else if (/Warning|warn/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-yellow-400';
         else if (/Running|Ready|Active|True/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-green-400';
 
-        // Split line into words to detect interactive tokens
         const words = line.split(/(\s+)/);
 
         return words.map((word, idx) => {
             if (/^\s+$/.test(word)) return <span key={idx}>{word}</span>;
 
-            // Check if word looks like a namespace
             if (NAMESPACES.includes(word)) {
                 return (
                     <span
@@ -63,7 +119,6 @@ export default function Console() {
                 );
             }
 
-            // Check if word looks like a pod name
             if (/[a-z0-9]+-[a-z0-9]{5,}(- [a-z0-9]{5,})?/.test(word) || (word.includes('-') && word.length > 8)) {
                 if (!/Running|Ready|Active|True|CrashLoop|Error|Failed|Evicted|OOMKilled|Namespace|Name|Status|Age|Restarts/.test(word)) {
                     return (
@@ -92,6 +147,15 @@ export default function Console() {
             }
             if (trimmed.endsWith(value)) return prev;
             return `${trimmed} ${value} `;
+        });
+        setTimeout(() => inputRef.current?.focus(), 10);
+    };
+
+    const handleSuggestionClick = (val) => {
+        setInput(prev => {
+            // Append with space, ensuring we don't have double spaces
+            const trimmed = prev.trim();
+            return trimmed + ' ' + val + ' ';
         });
         setTimeout(() => inputRef.current?.focus(), 10);
     };
@@ -166,7 +230,7 @@ export default function Console() {
 
     return (
         <div className="flex flex-col h-full bg-gray-950">
-            {/* Terminal output container - using whitespace-pre to preserve alignment */}
+            {/* Terminal output container */}
             <div
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"
                 onClick={(e) => {
@@ -207,8 +271,29 @@ export default function Console() {
                 <div ref={bottomRef} />
             </div>
 
-            {/* Input row */}
-            <div className="border-t border-gray-800 bg-gray-900/50 flex flex-col shrink-0">
+            {/* Input & Suggestions row */}
+            <div className="border-t border-gray-800 bg-gray-900/80 flex flex-col shrink-0">
+                {/* Suggestions bar */}
+                <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-800 h-10 overflow-x-auto no-scrollbar">
+                    {suggestions ? (
+                        <>
+                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                            {suggestions.items.map((s, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => handleSuggestionClick(s.val)}
+                                    className="px-2.5 py-1 bg-gray-800 hover:bg-blue-900/40 text-gray-300 hover:text-blue-300 border border-gray-700 hover:border-blue-700/50 rounded text-xs transition-all whitespace-nowrap"
+                                >
+                                    {s.label}
+                                </button>
+                            ))}
+                        </>
+                    ) : (
+                        <span className="text-[10px] text-gray-600 italic">Type space or more characters to see suggestions...</span>
+                    )}
+                </div>
+
+                {/* Input row */}
                 <div className="flex items-center gap-2 px-4 py-3">
                     <span className="text-blue-400 font-mono font-bold select-none">{PROMPT}</span>
                     <input
@@ -229,7 +314,7 @@ export default function Console() {
                     <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Enter</kbd> execute</span>
                     <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Arrows</kbd> history</span>
                     <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Ctrl+L</kbd> clear</span>
-                    <span className="ml-auto opacity-50">Tip: Click Namespaces or Pods to build commands</span>
+                    <span className="ml-auto opacity-50">Tip: Click output tokens or use suggestions above</span>
                 </div>
             </div>
         </div>
