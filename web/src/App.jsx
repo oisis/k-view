@@ -87,10 +87,9 @@ function Sidebar({ user, onLogout }) {
                 {/* Dashboard — standalone, no section */}
                 <div className="pt-2 pb-1 space-y-0.5">
                     <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={p === '/'} />
-                    <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} />
                 </div>
 
-                <Section label="Workloads">
+                <Section label="Workloads" defaultOpen={false}>
                     <NavItem href="/workloads/pods" icon={Boxes} label="Pods" active={p === '/workloads/pods'} />
                     <NavItem href="/workloads/deployments" icon={Package} label="Deployments" active={p === '/workloads/deployments'} />
                     <NavItem href="/workloads/statefulsets" icon={GitBranch} label="StatefulSets" active={p === '/workloads/statefulsets'} />
@@ -99,18 +98,18 @@ function Sidebar({ user, onLogout }) {
                     <NavItem href="/workloads/cronjobs" icon={Clock} label="CronJobs" active={p === '/workloads/cronjobs'} />
                 </Section>
 
-                <Section label="Services">
+                <Section label="Services" defaultOpen={false}>
                     <NavItem href="/network/services" icon={Network} label="Services" active={p === '/network/services'} />
                     <NavItem href="/network/ingresses" icon={Globe} label="Ingresses" active={p === '/network/ingresses'} />
                 </Section>
 
-                <Section label="Config &amp; Storage">
+                <Section label="Config &amp; Storage" defaultOpen={false}>
                     <NavItem href="/config/configmaps" icon={FileText} label="ConfigMaps" active={p === '/config/configmaps'} />
                     <NavItem href="/config/secrets" icon={Lock} label="Secrets" active={p === '/config/secrets'} />
                     <NavItem href="/config/pvcs" icon={Database} label="PVCs" active={p === '/config/pvcs'} />
                 </Section>
 
-                <Section label="CRD">
+                <Section label="CRD" defaultOpen={false}>
                     <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} />
                 </Section>
 
@@ -125,6 +124,10 @@ function Sidebar({ user, onLogout }) {
                     <NavItem href="/cluster/role-bindings" icon={Key} label="Role Bindings" active={p === '/cluster/role-bindings'} />
                     <NavItem href="/cluster/roles" icon={Key} label="Roles" active={p === '/cluster/roles'} />
                     <NavItem href="/cluster/service-accounts" icon={Users} label="Service Accounts" active={p === '/cluster/service-accounts'} />
+                </Section>
+
+                <Section label="Tools" defaultOpen={false}>
+                    <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} />
                 </Section>
 
             </nav>
