@@ -50,6 +50,7 @@ func main() {
 	podHandler := handlers.NewPodHandler(k8sProvider)
 	nodeHandler := handlers.NewNodeHandler(k8sProvider)
 	consoleHandler := handlers.NewConsoleHandler(devMode)
+	resourceHandler := handlers.NewResourceHandler(devMode)
 	adminHandler := handlers.NewAdminHandler(db)
 
 	router := gin.Default()
@@ -86,6 +87,7 @@ func main() {
 			protected.GET("/namespaces", podHandler.ListNamespaces)
 			protected.GET("/nodes", nodeHandler.ListNodes)
 			protected.POST("/console/exec", consoleHandler.Exec)
+			protected.GET("/resources/:kind", resourceHandler.List)
 
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())
