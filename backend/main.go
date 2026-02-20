@@ -66,17 +66,18 @@ func main() {
 		api.GET("/auth/login", authHandler.Login)
 		api.GET("/auth/callback", authHandler.Callback)
 		api.POST("/auth/logout", authHandler.Logout)
-		api.GET("/auth/me", authHandler.Me)
 
 		// Dev-mode only: bypass SSO login
 		if devMode {
 			api.POST("/auth/dev-login", authHandler.DevLogin)
 		}
 
-		// Protected routes
+		// Protected routes — require a valid auth token
 		protected := api.Group("/")
 		protected.Use(authHandler.AuthMiddleware())
 		{
+			// /auth/me needs to be here so AuthMiddleware populates the email context
+			protected.GET("/auth/me", authHandler.Me)
 			protected.GET("/pods", podHandler.ListPods)
 
 			admin := protected.Group("/admin")
