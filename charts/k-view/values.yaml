@@ -1,70 +1,118 @@
+# Default values for k-view.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Number of replicas for the K-View application pod
 replicaCount: 1
 
 image:
+  # -- Repository containing the K-View image
   repository: k-view
+  # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion
   tag: "latest"
 
+# -- Optionally specify an array of imagePullSecrets.
+# Secrets must be manually created in the namespace.
 imagePullSecrets: []
+
+# -- Overrides the name of the chart.
 nameOverride: ""
+
+# -- Overrides the full name of the resources.
 fullnameOverride: ""
 
 serviceAccount:
+  # -- Specifies whether a service account should be created
   create: true
+  # -- Annotations to add to the service account
   annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
   name: "k-view-sa"
 
+# -- Annotations to add to the pod
 podAnnotations: {}
+
+# -- Pod-level security context
 podSecurityContext: {}
 
+# -- Container-level security context
+# Ensures the container runs as a non-root user (1000) for better security
 securityContext:
   runAsUser: 1000
   runAsGroup: 1000
   fsGroup: 1000
 
 service:
+  # -- Service type (ClusterIP, NodePort, LoadBalancer)
   type: ClusterIP
+  # -- Port on which the service will be exposed
   port: 80
 
 ingress:
+  # -- Enable ingress controller resource
   enabled: true
+  # -- Defines which ingress controller will implement the resource
   className: "nginx"
+  # -- Additional annotations for the Ingress resource.
+  # Use these to configure your ingress controller, e.g., for TLS certificates.
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  
+  # -- Ingress hostnames and routable paths
   hosts:
     - host: kview.local
       paths:
         - path: /
           pathType: ImplementationSpecific
+          
+  # -- TLS configuration for the ingress resource
   tls: []
   #  - secretName: k-view-tls
   #    hosts:
   #      - kview.local
 
+# -- Resource requests and limits for the K-View container.
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube.
 resources: {}
   # limits:
   #   cpu: 100m
-  #   memory: 128Mi
+  #   memory: 256Mi
   # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 10m
+  #   memory: 64Mi
 
-# Persistence for SQLite database
+# -- Persistence configuration for the SQLite database
+# Ensures that user role mappings (RBAC) are not lost upon pod restarts.
 persistence:
+  # -- Enable Persistent Volume Claim creation
   enabled: true
+  # -- Volume size
   size: 1Gi
+  # -- Access mode for the volume
   accessMode: ReadWriteOnce
+  # -- Storage class name. Leave empty to use default storage class.
   # storageClass: "standard"
 
-# Environment Variables
+# -- Application-specific environment variables
 env:
-  # Defaults or configmap values
+  # -- Sets the Gin framework mode (use 'release' for production, 'debug' for development)
   ginMode: "release"
+  # -- OAuth 2.0 Redirect URL configured in your Google Cloud Console.
+  # This must exactly match the Authorized redirect URI, including the domain and scheme.
   oauthRedirectUrl: "http://kview.local/api/auth/callback"
 
-# Secrets (Prefer using external secrets manager in production)
+# -- Sensitive credentials for Google OIDC SSO
+# In a production environment, it is highly recommended to manage these external to Helm
+# (e.g., using External Secrets Operator, AWS Secrets Manager, or HashiCorp Vault)
+# rather than passing them directly via values.yaml.
 secrets:
-  # Replace these with real credentials via Helm set or custom values file
+  # -- Your Google OAuth 2.0 Client ID
   googleClientId: "YOUR_GOOGLE_CLIENT_ID"
+  # -- Your Google OAuth 2.0 Client Secret
   googleClientSecret: "YOUR_GOOGLE_CLIENT_SECRET"
