@@ -125,6 +125,19 @@ const SCHEMAS = {
             { key: 'age', label: 'Age' },
         ],
     },
+    pvs: {
+        title: 'PersistentVolumes',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'status', label: 'Status', badge: true },
+            { key: 'extra.capacity', label: 'Capacity' },
+            { key: 'extra.access-mode', label: 'Access Mode' },
+            { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
+            { key: 'extra.storage-class', label: 'Storage Class' },
+            { key: 'extra.claim', label: 'Claim' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
     crds: {
         title: 'Custom Resource Definitions',
         cols: [
@@ -160,6 +173,8 @@ function StatusBadge({ value }) {
         Degraded: 'bg-orange-900/40 text-orange-400 border-orange-800',
         Pending: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
         Suspended: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
+        Available: 'bg-teal-900/40 text-teal-400 border-teal-800',
+        Released: 'bg-orange-900/40 text-orange-400 border-orange-800',
     };
     const cls = map[v] || 'bg-gray-700 text-gray-400 border-gray-600';
     return (

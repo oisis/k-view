@@ -110,6 +110,7 @@ function Sidebar({ user, onLogout }) {
                     <NavItem href="/config/configmaps" icon={FileText} label="ConfigMaps" active={p === '/config/configmaps'} />
                     <NavItem href="/config/secrets" icon={Lock} label="Secrets" active={p === '/config/secrets'} />
                     <NavItem href="/config/pvcs" icon={Database} label="PVCs" active={p === '/config/pvcs'} />
+                    <NavItem href="/config/pvs" icon={Database} label="PVs" active={p === '/config/pvs'} />
                 </Section>
 
                 <Section label="CRD">
@@ -200,6 +201,7 @@ function App() {
                         <Route path="/config/configmaps" element={protect(<ResourceList kind="configmaps" />)} />
                         <Route path="/config/secrets" element={protect(<ResourceList kind="secrets" />)} />
                         <Route path="/config/pvcs" element={protect(<ResourceList kind="pvcs" />)} />
+                        <Route path="/config/pvs" element={protect(<ResourceList kind="pvs" />)} />
 
                         {/* CRD */}
                         <Route path="/crd" element={protect(<ResourceList kind="crds" />)} />
