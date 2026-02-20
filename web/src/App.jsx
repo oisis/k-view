@@ -6,11 +6,15 @@ import Nodes from './components/Nodes';
 import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
+
+import logo from './assets/k-view-logo.png';
+import background from './assets/background.png';
+
 import {
     LayoutDashboard, Server, Terminal, LogOut, FlaskConical, ShieldAlert,
     Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
-    Shield, Key, Users, Link, AlertTriangle, Globe2
+    Shield, Key, Users, Link, AlertTriangle, Globe2, Activity
 } from 'lucide-react';
 
 // ── Collapsible section ────────────────────────────────────────────────────
@@ -34,7 +38,7 @@ function Section({ label, children, defaultOpen = true }) {
                 onClick={toggle}
                 className="w-full flex items-center justify-between px-2 pt-3 pb-1 group"
             >
-                <span className="text-[10px] font-bold tracking-widest uppercase text-gray-500 group-hover:text-gray-400 transition-colors">
+                <span className="text-[11px] font-bold tracking-widest uppercase text-gray-500 group-hover:text-gray-400 transition-colors">
                     {label}
                 </span>
                 {open
@@ -58,7 +62,7 @@ function NavItem({ href, icon: Icon, label, active }) {
                     : 'text-gray-400 hover:bg-gray-700/60 hover:text-white'}`}
         >
             <Icon size={14} className="shrink-0" />
-            <span className="flex-1 truncate text-[13px]">{label}</span>
+            <span className="flex-1 truncate text-[14px]">{label}</span>
             {active && <ChevronRight size={10} className="text-blue-400" />}
         </a>
     );
@@ -71,21 +75,15 @@ function Sidebar({ user, onLogout }) {
     return (
         <aside className="w-56 bg-gray-800 border-r border-gray-700 flex-col hidden md:flex h-full shrink-0">
             {/* Logo */}
-            <div className="px-4 py-3 border-b border-gray-700">
-                <h1 className="text-lg font-bold text-blue-400 tracking-tight">K-View</h1>
-                <p className="text-[11px] text-gray-500">Kubernetes Dashboard</p>
-                {user.devMode && (
-                    <div className="mt-1.5 flex items-center gap-1 text-[11px] text-yellow-400 bg-yellow-900/30 border border-yellow-700/50 rounded px-2 py-0.5">
-                        <FlaskConical size={10} /> DEV MODE
-                    </div>
-                )}
+            <div className="py-6 border-b border-gray-700 flex flex-col items-center">
+                <img src={logo} alt="K-View Logo" className="w-44 h-auto opacity-95" />
             </div>
 
             {/* Scrollable nav */}
-            <nav className="flex-1 overflow-y-auto px-2 pb-2">
+            <nav className="flex-1 overflow-y-auto px-2 pb-2 mt-2">
 
                 {/* Dashboard — standalone, no section */}
-                <div className="pt-2 pb-1 space-y-0.5">
+                <div className="pb-1 space-y-0.5">
                     <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={p === '/'} />
                 </div>
 
@@ -113,7 +111,6 @@ function Sidebar({ user, onLogout }) {
                     <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} />
                 </Section>
 
-                {/* Cluster — at the bottom */}
                 <Section label="Cluster" defaultOpen={false}>
                     <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} />
                     <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} />
@@ -132,10 +129,8 @@ function Sidebar({ user, onLogout }) {
 
             </nav>
 
-            {/* Bottom: admin + logout */}
+            {/* Bottom: admin + mode label + logout */}
             <div className="px-3 py-3 border-t border-gray-700 space-y-1.5">
-                <div className="text-[11px] text-gray-500 truncate px-1">{user.email}</div>
-
                 {user.role === 'admin' && (
                     <a
                         href="/admin"
@@ -146,6 +141,19 @@ function Sidebar({ user, onLogout }) {
                     >
                         <ShieldAlert size={14} /> Admin Panel
                     </a>
+                )}
+
+                {/* Env Status Label moved here */}
+                {user.devMode ? (
+                    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-green-400 py-1 tracking-[0.2em] uppercase">
+                        <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                        DEV MODE
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-red-500 py-1 tracking-[0.2em] uppercase">
+                        <div className="w-1 h-1 rounded-full bg-red-600" />
+                        PROD MODE
+                    </div>
                 )}
 
                 <button
@@ -186,9 +194,24 @@ function App() {
 
     return (
         <Router>
-            <div className="flex h-screen bg-gray-900 text-gray-100">
-                {user && <Sidebar user={user} onLogout={handleLogout} />}
-                <main className="flex-1 overflow-auto flex flex-col">
+            <div className="flex h-screen bg-gray-900 text-gray-100 relative overflow-hidden">
+                {user && (
+                    <>
+                        {/* Global Background Wallpaper */}
+                        <div
+                            className="absolute inset-0 pointer-events-none opacity-5 z-0"
+                            style={{
+                                backgroundImage: `url(${background})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                filter: 'grayscale(100%) brightness(0.5)'
+                            }}
+                        />
+                        <Sidebar user={user} onLogout={handleLogout} />
+                    </>
+                )}
+                <main className="flex-1 overflow-auto flex flex-col relative z-10">
                     <Routes>
                         {/* Auth */}
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
