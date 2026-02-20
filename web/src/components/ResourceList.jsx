@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Activity, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import NamespaceSelect from './NamespaceSelect';
 
 // Column schema per resource kind
@@ -136,7 +136,7 @@ const SCHEMAS = {
         ],
     },
     pvs: {
-        title: 'PersistentVolumes',
+        title: 'Persistent Volumes',
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'status', label: 'Status', badge: true },
@@ -259,6 +259,7 @@ function StatusBadge({ value }) {
         Suspended: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
         Available: 'bg-teal-900/40 text-teal-400 border-teal-800',
         Released: 'bg-orange-900/40 text-orange-400 border-orange-800',
+        Default: 'bg-blue-900/40 text-blue-400 border-blue-800',
     };
     const cls = map[v] || 'bg-gray-700 text-gray-400 border-gray-600';
     return (
@@ -275,6 +276,9 @@ export default function ResourceList({ kind }) {
     const [namespace, setNamespace] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Sorting state
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
     // Fetch namespaces on mount
     useEffect(() => {
@@ -297,6 +301,43 @@ export default function ResourceList({ kind }) {
 
     useEffect(() => { load(); }, [load]);
 
+    // Sorting logic
+    const sortedItems = useMemo(() => {
+        const result = [...items];
+        if (!sortConfig.key) return result;
+
+        result.sort((a, b) => {
+            let aVal = getVal(a, sortConfig.key);
+            let bVal = getVal(b, sortConfig.key);
+
+            // Special handling for Age or duration (convert to numeric if possible)
+            // For now, simple string/null comparison
+            if (aVal === bVal) return 0;
+            if (aVal === '—') return 1;
+            if (bVal === '—') return -1;
+
+            // Try to compare as numbers if they look like it
+            const aNum = parseFloat(aVal);
+            const bNum = parseFloat(bVal);
+            if (!isNaN(aNum) && !isNaN(bNum) && !aVal.includes(':') && !aVal.includes('-')) {
+                return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+            }
+
+            return sortConfig.direction === 'asc'
+                ? aVal.toString().localeCompare(bVal.toString())
+                : bVal.toString().localeCompare(aVal.toString());
+        });
+        return result;
+    }, [items, sortConfig]);
+
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
     // Only show namespace selector for namespaced resources
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
 
@@ -306,7 +347,7 @@ export default function ResourceList({ kind }) {
                 <div>
                     <h2 className="text-2xl font-bold text-white mb-1">{schema.title}</h2>
                     <p className="text-gray-400 text-sm">
-                        {loading ? 'Loading...' : `${items.length} item${items.length !== 1 ? 's' : ''}`}
+                        {loading ? 'Loading...' : `${sortedItems.length} item${sortedItems.length !== 1 ? 's' : ''}`}
                         {namespace && ` in "${namespace}"`}
                     </p>
                 </div>
@@ -335,16 +376,31 @@ export default function ResourceList({ kind }) {
                         <thead className="text-xs text-gray-400 bg-gray-900/60 uppercase tracking-wider">
                             <tr>
                                 {schema.cols.map(col => (
-                                    <th key={col.key} className="px-6 py-3 whitespace-nowrap">{col.label}</th>
+                                    <th
+                                        key={col.key}
+                                        onClick={() => requestSort(col.key)}
+                                        className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-gray-800/80 hover:text-white transition-colors group select-none"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            {col.label}
+                                            <span className="text-gray-600 group-hover:text-gray-400 transition-colors">
+                                                {sortConfig.key === col.key ? (
+                                                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                                                ) : (
+                                                    <ArrowUpDown size={12} className="opacity-0 group-hover:opacity-100" />
+                                                )}
+                                            </span>
+                                        </div>
+                                    </th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700/50">
-                            {loading && items.length === 0 ? (
+                            {loading && sortedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500 italic">Loading...</td></tr>
-                            ) : items.length === 0 ? (
+                            ) : sortedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500">No {kind.replace(/-/g, ' ')} found.</td></tr>
-                            ) : items.map((item, i) => (
+                            ) : sortedItems.map((item, i) => (
                                 <tr key={i} className="hover:bg-gray-700/30 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
