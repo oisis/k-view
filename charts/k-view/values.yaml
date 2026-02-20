@@ -116,3 +116,15 @@ secrets:
   googleClientId: "YOUR_GOOGLE_CLIENT_ID"
   # -- Your Google OAuth 2.0 Client Secret
   googleClientSecret: "YOUR_GOOGLE_CLIENT_SECRET"
+
+# -- Array of raw Kubernetes manifests to be deployed alongside the chart.
+# These can be any valid Kubernetes object.
+# @default -- []
+extraObjects: []
+#  - apiVersion: v1
+#    kind: ConfigMap
+#    metadata:
+#      name: extra-config
+#    data:
+#      key: value
+
