@@ -11,11 +11,13 @@ FROM golang:1.22-alpine AS backend-builder
 WORKDIR /app/backend
 # Install gcc and musl-dev for SQLite CGO
 RUN apk add --no-cache gcc musl-dev
+ARG TARGETARCH
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ .
-# CGO_ENABLED=1 is required for go-sqlite3
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -a -o k-view-server .
+# CGO_ENABLED=1 is required for go-sqlite3. Pass TARGETARCH to GOARCH.
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=${TARGETARCH} go build -a -o k-view-server .
+
 
 # Final Image
 FROM alpine:3.19
