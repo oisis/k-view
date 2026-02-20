@@ -55,7 +55,7 @@ export default function Console() {
                     <span
                         key={idx}
                         onClick={() => onTokenClick('ns', word)}
-                        className="cursor-pointer font-bold underline decoration-dotted underline-offset-2 hover:text-blue-400 transition-colors"
+                        className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-blue-400 hover:bg-blue-900/30 px-0.5 -mx-0.5 rounded transition-all"
                         title="Click to add namespace to command"
                     >
                         {word}
@@ -63,16 +63,14 @@ export default function Console() {
                 );
             }
 
-            // Check if word looks like a pod name (e.g., frontend-web-5d8f7b)
-            // Pattern: letters/numbers/dashes, usually with a hash-like suffix
+            // Check if word looks like a pod name
             if (/[a-z0-9]+-[a-z0-9]{5,}(- [a-z0-9]{5,})?/.test(word) || (word.includes('-') && word.length > 8)) {
-                // If it's not a known status or something else
                 if (!/Running|Ready|Active|True|CrashLoop|Error|Failed|Evicted|OOMKilled|Namespace|Name|Status|Age|Restarts/.test(word)) {
                     return (
                         <span
                             key={idx}
                             onClick={() => onTokenClick('pod', word)}
-                            className="cursor-pointer font-bold underline decoration-dotted underline-offset-2 hover:text-blue-400 transition-colors"
+                            className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-blue-400 hover:bg-blue-900/30 px-0.5 -mx-0.5 rounded transition-all"
                             title="Click to add pod name to command"
                         >
                             {word}
@@ -89,11 +87,9 @@ export default function Console() {
         setInput(prev => {
             const trimmed = prev.trim();
             if (type === 'ns') {
-                // Add -n namespace if not already present for this namespace
                 if (trimmed.includes(`-n ${value}`) || trimmed.includes(`--namespace ${value}`)) return prev;
                 return `${trimmed} -n ${value} `;
             }
-            // Just add pod name
             if (trimmed.endsWith(value)) return prev;
             return `${trimmed} ${value} `;
         });
@@ -104,7 +100,6 @@ export default function Console() {
         const cmd = raw.trim();
         if (!cmd) return;
 
-        // Hide banner on first command
         if (bannerVisible) {
             setBannerVisible(false);
             setHistory([{ type: 'cmd', text: cmd }]);
@@ -114,7 +109,7 @@ export default function Console() {
 
         setCmdHistory(h => [cmd, ...h]);
         setHistIdx(-1);
-        setInput('kubectl '); // Reset to kubectl prefix
+        setInput('kubectl ');
         setLoading(true);
 
         try {
@@ -142,18 +137,13 @@ export default function Console() {
             e.preventDefault();
             const next = Math.min(histIdx + 1, cmdHistory.length - 1);
             setHistIdx(next);
-            if (next >= 0) {
-                setInput(cmdHistory[next]);
-            }
+            if (next >= 0) setInput(cmdHistory[next]);
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             const next = histIdx - 1;
             setHistIdx(next);
-            if (next < 0) {
-                setInput('kubectl ');
-            } else {
-                setInput(cmdHistory[next]);
-            }
+            if (next < 0) setInput('kubectl ');
+            else setInput(cmdHistory[next]);
         } else if (e.key === 'l' && e.ctrlKey) {
             e.preventDefault();
             setBannerVisible(false);
@@ -163,28 +153,20 @@ export default function Console() {
             setHistory(h => [...h, { type: 'cmd', text: input + ' ^C' }]);
             setInput('kubectl ');
         } else if (e.key === 'Backspace' && input === 'kubectl ') {
-            // Prevent deleting the prefix
             e.preventDefault();
         }
     };
 
-    // Ensure input always starts with kubectl
     const handleInputChange = (e) => {
         const val = e.target.value;
-        if (val.startsWith('kubectl ')) {
-            setInput(val);
-        } else if ('kubectl '.startsWith(val)) {
-            // User tried to delete part of prefix
-            setInput('kubectl ');
-        } else {
-            // User pasted something without prefix? Let's just prepend it.
-            setInput('kubectl ' + val.trim());
-        }
+        if (val.startsWith('kubectl ')) setInput(val);
+        else if ('kubectl '.startsWith(val)) setInput('kubectl ');
+        else setInput('kubectl ' + val.trim());
     };
 
     return (
         <div className="flex flex-col h-full bg-gray-950">
-            {/* Terminal output container */}
+            {/* Terminal output container - using whitespace-pre to preserve alignment */}
             <div
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"
                 onClick={(e) => {
@@ -196,7 +178,7 @@ export default function Console() {
                 {history.map((entry, i) => (
                     <div key={i} className="mb-1">
                         {entry.type === 'banner' && (
-                            <div className="text-green-400 mb-3 whitespace-pre-wrap">{entry.text}</div>
+                            <div className="text-green-400 mb-3 whitespace-pre">{entry.text}</div>
                         )}
                         {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-blue-400">
@@ -205,7 +187,7 @@ export default function Console() {
                             </div>
                         )}
                         {entry.type === 'output' && (
-                            <div className="ml-4 mb-2">
+                            <div className="ml-4 mb-2 whitespace-pre text-gray-200">
                                 {entry.text.split('\n').map((line, li) => (
                                     <div key={li} className="min-h-[1.25rem]">
                                         {renderLine(line, entry.exitCode, appendToInput)}
