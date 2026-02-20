@@ -52,11 +52,13 @@ func main() {
 
 	router := gin.Default()
 
-	// Serve React Frontend
+	// Serve static frontend assets (JS, CSS, images compiled by Vite)
 	router.Static("/assets", "./web/dist/assets")
-	router.LoadHTMLFiles("./web/dist/index.html")
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", nil)
+
+	// SPA catch-all: any path that is not an API route will serve index.html,
+	// allowing React Router to handle client-side routing (e.g. /admin, /login).
+	router.NoRoute(func(c *gin.Context) {
+		c.File("./web/dist/index.html")
 	})
 
 	// API Routes
