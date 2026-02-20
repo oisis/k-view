@@ -110,6 +110,8 @@ function Sidebar({ user, onLogout }) {
                 <Section label="Cluster" defaultOpen={false}>
                     <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} />
                     <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} />
+                    <NavItem href="/cluster/ingress-classes" icon={Globe} label="Ingress Classes" active={p === '/cluster/ingress-classes'} />
+                    <NavItem href="/config/storage-classes" icon={Database} label="Storage Classes" active={p === '/config/storage-classes'} />
                     <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} />
                     <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} />
                     <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} />
@@ -235,6 +237,7 @@ function App() {
                         <Route path="/config/secrets" element={protect(<ResourceList kind="secrets" />)} />
                         <Route path="/config/pvcs" element={protect(<ResourceList kind="pvcs" />)} />
                         <Route path="/config/pvs" element={protect(<ResourceList kind="pvs" />)} />
+                        <Route path="/config/storage-classes" element={protect(<ResourceList kind="storage-classes" />)} />
 
                         {/* CRD */}
                         <Route path="/crd" element={protect(<ResourceList kind="crds" />)} />
@@ -243,6 +246,7 @@ function App() {
                         <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
                         <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
                         <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
+                        <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
                         <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
                         <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />
                         <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />

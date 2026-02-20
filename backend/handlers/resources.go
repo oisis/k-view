@@ -143,6 +143,18 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "api-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "api.example.com", "address", "192.168.1.100")},
 		}
 
+	case "ingress-classes":
+		items = []ResourceItem{
+			{Name: "nginx", Age: "30d", Status: "Default", Extra: ex("controller", "k8s.io/ingress-nginx")},
+			{Name: "gce", Age: "30d", Extra: ex("controller", "k8s.io/gce-ingress-l7")},
+		}
+
+	case "storage-classes":
+		items = []ResourceItem{
+			{Name: "standard", Age: "30d", Status: "Default", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Delete", "volume-binding-mode", "Immediate")},
+			{Name: "premium-rwo", Age: "30d", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Retain", "volume-binding-mode", "WaitForFirstConsumer")},
+		}
+
 	case "configmaps":
 		items = []ResourceItem{
 			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1")},

@@ -95,6 +95,15 @@ const SCHEMAS = {
             { key: 'age', label: 'Age' },
         ],
     },
+    'ingress-classes': {
+        title: 'Ingress Classes',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'extra.controller', label: 'Controller' },
+            { key: 'status', label: 'Default', badge: true },
+            { key: 'age', label: 'Age' },
+        ],
+    },
     configmaps: {
         title: 'ConfigMaps',
         cols: [
@@ -136,6 +145,17 @@ const SCHEMAS = {
             { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
             { key: 'extra.storage-class', label: 'Storage Class' },
             { key: 'extra.claim', label: 'Claim' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    'storage-classes': {
+        title: 'Storage Classes',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'status', label: 'Is Default', badge: true },
+            { key: 'extra.provisioner', label: 'Provisioner' },
+            { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
+            { key: 'extra.volume-binding-mode', label: 'Binding Mode' },
             { key: 'age', label: 'Age' },
         ],
     },
