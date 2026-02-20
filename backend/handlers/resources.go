@@ -24,6 +24,67 @@ type ResourceItem struct {
 	Extra     map[string]string `json:"extra,omitempty"`
 }
 
+type MetricHistory struct {
+	Timestamp string  `json:"timestamp"`
+	Value     float64 `json:"value"`
+}
+
+type ClusterStats struct {
+	K8sVersion     string          `json:"k8sVersion"`
+	NodeCount      int             `json:"nodeCount"`
+	PodCount       int             `json:"podCount"`
+	PodCountFailed int             `json:"podCountFailed"`
+	CPUUsage       float64         `json:"cpuUsage"` // Percentage
+	CPUTotal       string          `json:"cpuTotal"` // e.g., "32 Cores"
+	RAMUsage       float64         `json:"ramUsage"` // Percentage
+	RAMTotal       string          `json:"ramTotal"` // e.g., "128 GiB"
+	ClusterName    string          `json:"clusterName"`
+	ETCDHealth     string          `json:"etcdHealth"`
+	MetricsServer  bool            `json:"metricsServer"`
+	CPUHistory     []MetricHistory `json:"cpuHistory"`
+	RAMHistory     []MetricHistory `json:"ramHistory"`
+}
+
+func (h *ResourceHandler) GetStats(c *gin.Context) {
+	if !h.devMode {
+		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster stats not implemented"})
+		return
+	}
+
+	// Mock data for development
+	stats := ClusterStats{
+		K8sVersion:     "v1.28.2",
+		NodeCount:      7,
+		PodCount:       156,
+		PodCountFailed: 4,
+		CPUUsage:       42.5,
+		CPUTotal:       "32 Cores",
+		RAMUsage:       65.2,
+		RAMTotal:       "128 GiB",
+		ClusterName:    "production-cluster-01",
+		ETCDHealth:     "Healthy",
+		MetricsServer:  true,
+		CPUHistory: []MetricHistory{
+			{Timestamp: "08:00", Value: 35.0},
+			{Timestamp: "09:00", Value: 42.0},
+			{Timestamp: "10:00", Value: 65.0},
+			{Timestamp: "11:00", Value: 45.0},
+			{Timestamp: "12:00", Value: 38.0},
+			{Timestamp: "13:00", Value: 42.5},
+		},
+		RAMHistory: []MetricHistory{
+			{Timestamp: "08:00", Value: 60.0},
+			{Timestamp: "09:00", Value: 62.0},
+			{Timestamp: "10:00", Value: 64.0},
+			{Timestamp: "11:00", Value: 65.0},
+			{Timestamp: "12:00", Value: 65.5},
+			{Timestamp: "13:00", Value: 65.2},
+		},
+	}
+
+	c.JSON(http.StatusOK, stats)
+}
+
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")

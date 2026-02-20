@@ -88,6 +88,7 @@ func main() {
 			protected.GET("/nodes", nodeHandler.ListNodes)
 			protected.POST("/console/exec", consoleHandler.Exec)
 			protected.GET("/resources/:kind", resourceHandler.List)
+			protected.GET("/cluster/stats", resourceHandler.GetStats)
 
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())
