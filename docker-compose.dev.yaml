@@ -1,0 +1,20 @@
+services:
+  k-view:
+    build:
+      context: .
+      args:
+        TARGETARCH: arm64  # Change to amd64 if needed
+    image: k-view-dev:latest
+    ports:
+      - "8080:8080"
+    environment:
+      DEV_MODE: "true"
+      GIN_MODE: debug
+      PORT: "8080"
+      DB_PATH: /data/kview.db
+      # No KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET needed in dev mode
+    volumes:
+      - kview-data:/data
+
+volumes:
+  kview-data:

@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function Login() {
+    const [devError, setDevError] = useState(null);
+
     const handleLogin = () => {
         window.location.href = '/api/auth/login';
+    };
+
+    const handleDevLogin = async () => {
+        setDevError(null);
+        try {
+            const res = await fetch('/api/auth/dev-login', { method: 'POST' });
+            if (!res.ok) {
+                const body = await res.json();
+                setDevError(body.error || 'Dev login failed');
+                return;
+            }
+            window.location.href = '/';
+        } catch (e) {
+            setDevError('Dev login failed');
+        }
     };
 
     return (
@@ -15,10 +32,24 @@ export default function Login() {
 
                 <button
                     onClick={handleLogin}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 transition-colors"
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors mb-4"
                 >
                     Sign in with Google OIDC
                 </button>
+
+                {/* Dev Login button — always visible, backend returns 403 in production */}
+                <div className="border-t border-gray-700 pt-4">
+                    <p className="text-xs text-gray-500 text-center mb-3">Development</p>
+                    <button
+                        onClick={handleDevLogin}
+                        className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-yellow-400 bg-yellow-900/30 hover:bg-yellow-900/50 border border-yellow-800 transition-colors"
+                    >
+                        ⚡ Dev Login (admin@kview.local)
+                    </button>
+                    {devError && (
+                        <p className="text-red-400 text-xs text-center mt-2">{devError}</p>
+                    )}
+                </div>
             </div>
         </div>
     );

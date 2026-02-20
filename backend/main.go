@@ -12,6 +12,11 @@ import (
 )
 
 func main() {
+	devMode := os.Getenv("DEV_MODE") == "true"
+	if devMode {
+		log.Println("⚠️  DEVELOPMENT MODE ENABLED — Do not use in production!")
+	}
+
 	// Initialize SQLite Database
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
@@ -23,25 +28,31 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize Kubernetes Client
-	k8sClient, err := k8s.NewClient()
-	if err != nil {
-		log.Fatalf("Failed to initialize Kubernetes client: %v", err)
+	// Initialize Kubernetes Provider (real or mock based on DEV_MODE)
+	var k8sProvider k8s.KubernetesProvider
+	if devMode {
+		log.Println("Using mock Kubernetes provider")
+		k8sProvider = k8s.NewMockClient()
+	} else {
+		realClient, err := k8s.NewClient()
+		if err != nil {
+			log.Fatalf("Failed to initialize Kubernetes client: %v", err)
+		}
+		k8sProvider = realClient
 	}
 
-	// Initialize OIDC Provider
+	// Initialize Auth Handler (skips OIDC setup in DEV_MODE)
 	authHandler, err := handlers.NewAuthHandler(db)
 	if err != nil {
 		log.Fatalf("Failed to initialize Auth handler: %v", err)
 	}
 
-	podHandler := handlers.NewPodHandler(k8sClient)
+	podHandler := handlers.NewPodHandler(k8sProvider)
 	adminHandler := handlers.NewAdminHandler(db)
 
 	router := gin.Default()
 
-	// Serve React Frontend (assuming it gets built to ../web/dist)
-	// You might want to serve static files differently in production
+	// Serve React Frontend
 	router.Static("/assets", "./web/dist/assets")
 	router.LoadHTMLFiles("./web/dist/index.html")
 	router.GET("/", func(c *gin.Context) {
@@ -55,16 +66,19 @@ func main() {
 		api.GET("/auth/login", authHandler.Login)
 		api.GET("/auth/callback", authHandler.Callback)
 		api.POST("/auth/logout", authHandler.Logout)
-		api.GET("/auth/me", authHandler.Me) // Check current session
+		api.GET("/auth/me", authHandler.Me)
 
-		// Protected routes require authentication
+		// Dev-mode only: bypass SSO login
+		if devMode {
+			api.POST("/auth/dev-login", authHandler.DevLogin)
+		}
+
+		// Protected routes
 		protected := api.Group("/")
 		protected.Use(authHandler.AuthMiddleware())
 		{
-			// Pods
 			protected.GET("/pods", podHandler.ListPods)
 
-			// Admin routes require 'admin' role
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())
 			{

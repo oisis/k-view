@@ -10,10 +10,10 @@ import (
 )
 
 type PodHandler struct {
-	k8sClient *k8s.Client
+	k8sClient k8s.KubernetesProvider
 }
 
-func NewPodHandler(client *k8s.Client) *PodHandler {
+func NewPodHandler(client k8s.KubernetesProvider) *PodHandler {
 	return &PodHandler{k8sClient: client}
 }
 
