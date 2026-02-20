@@ -81,6 +81,7 @@ func main() {
 			// /auth/me needs to be here so AuthMiddleware populates the email context
 			protected.GET("/auth/me", authHandler.Me)
 			protected.GET("/pods", podHandler.ListPods)
+			protected.GET("/namespaces", podHandler.ListNamespaces)
 
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())

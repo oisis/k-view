@@ -18,7 +18,6 @@ func NewPodHandler(client k8s.KubernetesProvider) *PodHandler {
 }
 
 func (h *PodHandler) ListPods(c *gin.Context) {
-	// In a real app we might read namespace from a query param, but let's default to all namespaces (empty string)
 	namespace := c.Query("namespace")
 
 	pods, err := h.k8sClient.ListPods(context.Background(), namespace)
@@ -36,13 +35,30 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 
 	var response []PodResponse
 	for _, p := range pods {
+		// If a container is in CrashLoopBackOff, surface that as the status
+		status := string(p.Status.Phase)
+		for _, cs := range p.Status.ContainerStatuses {
+			if cs.State.Waiting != nil && cs.State.Waiting.Reason != "" {
+				status = cs.State.Waiting.Reason
+				break
+			}
+		}
 		response = append(response, PodResponse{
 			Name:      p.Name,
 			Namespace: p.Namespace,
-			Status:    string(p.Status.Phase),
+			Status:    status,
 			Age:       p.CreationTimestamp.Time.String(),
 		})
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *PodHandler) ListNamespaces(c *gin.Context) {
+	namespaces, err := h.k8sClient.ListNamespaces(context.Background())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list namespaces: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, namespaces)
 }
