@@ -107,16 +107,13 @@ function Sidebar({ user, onLogout }) {
                     <NavItem href="/config/pvcs" icon={Database} label="PVCs" active={p === '/config/pvcs'} />
                 </Section>
 
-                <Section label="CRD" defaultOpen={false}>
-                    <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} />
-                </Section>
-
                 <Section label="Cluster" defaultOpen={false}>
+                    <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} />
+                    <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} />
+                    <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} />
                     <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} />
                     <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} />
-                    <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} />
                     <NavItem href="/cluster/network-policies" icon={AlertTriangle} label="Network Policies" active={p === '/cluster/network-policies'} />
-                    <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} />
                     <NavItem href="/config/pvs" icon={Database} label="Persistent Volumes" active={p === '/config/pvs'} />
                     <NavItem href="/cluster/role-bindings" icon={Key} label="Role Bindings" active={p === '/cluster/role-bindings'} />
                     <NavItem href="/cluster/roles" icon={Key} label="Roles" active={p === '/cluster/roles'} />
