@@ -1,9 +1,79 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Nodes from './components/Nodes';
 import AdminPanel from './components/AdminPanel';
-import { LayoutDashboard, Users, LogOut, FlaskConical } from 'lucide-react';
+import { LayoutDashboard, Server, LogOut, FlaskConical, ShieldAlert } from 'lucide-react';
+
+function NavLink({ href, icon: Icon, label, active }) {
+    return (
+        <a
+            href={href}
+            className={`flex items-center gap-3 p-2 rounded transition-colors
+        ${active
+                    ? 'bg-blue-900/40 text-blue-300 border border-blue-800/50'
+                    : 'text-gray-400 hover:bg-gray-700 hover:text-white'}`}
+        >
+            <Icon size={18} />
+            {label}
+        </a>
+    );
+}
+
+function Sidebar({ user, onLogout }) {
+    const location = useLocation();
+    const path = location.pathname;
+
+    return (
+        <aside className="w-64 bg-gray-800 border-r border-gray-700 flex-col hidden md:flex h-full">
+            {/* Logo */}
+            <div className="p-4 border-b border-gray-700">
+                <h1 className="text-xl font-bold text-blue-400">K-View</h1>
+                <p className="text-xs text-gray-500 mt-0.5">Kubernetes Dashboard</p>
+                {user.devMode && (
+                    <div className="mt-2 flex items-center gap-1 text-xs text-yellow-400 bg-yellow-900/40 border border-yellow-700 rounded px-2 py-1">
+                        <FlaskConical size={12} />
+                        DEVELOPMENT MODE
+                    </div>
+                )}
+            </div>
+
+            {/* Main nav */}
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                <NavLink href="/" icon={LayoutDashboard} label="Dashboard" active={path === '/'} />
+                <NavLink href="/nodes" icon={Server} label="Nodes" active={path === '/nodes'} />
+            </nav>
+
+            {/* Bottom section: user info + admin + logout */}
+            <div className="p-4 border-t border-gray-700 space-y-2">
+                <div className="text-xs text-gray-500 truncate px-1">{user.email}</div>
+
+                {/* Admin Panel — red, bottom */}
+                {user.role === 'admin' && (
+                    <a
+                        href="/admin"
+                        className={`flex items-center gap-3 p-2 rounded transition-colors w-full
+              ${path === '/admin'
+                                ? 'bg-red-900/50 text-red-300 border border-red-700'
+                                : 'text-red-400 hover:bg-red-900/30 border border-red-900/50'}`}
+                    >
+                        <ShieldAlert size={18} />
+                        Admin Panel
+                    </a>
+                )}
+
+                <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-2 justify-center p-2 rounded bg-gray-700/50 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+                >
+                    <LogOut size={16} />
+                    Logout
+                </button>
+            </div>
+        </aside>
+    );
+}
 
 function App() {
     const [user, setUser] = useState(null);
@@ -37,47 +107,13 @@ function App() {
     return (
         <Router>
             <div className="flex h-screen bg-gray-900 text-gray-100">
-                {user && (
-                    <aside className="w-64 bg-gray-800 border-r border-gray-700 flex-col hidden md:flex">
-                        <div className="p-4 border-b border-gray-700">
-                            <h1 className="text-xl font-bold text-blue-400">K-View</h1>
-                            {/* DEV MODE badge */}
-                            {user.devMode && (
-                                <div className="mt-2 flex items-center gap-1 text-xs text-yellow-400 bg-yellow-900/40 border border-yellow-700 rounded px-2 py-1">
-                                    <FlaskConical size={12} />
-                                    DEVELOPMENT MODE
-                                </div>
-                            )}
-                        </div>
-                        <nav className="flex-1 p-4 space-y-2">
-                            <a href="/" className="flex items-center gap-3 p-2 rounded hover:bg-gray-700 text-gray-300 hover:text-white transition-colors">
-                                <LayoutDashboard size={20} />
-                                Dashboard
-                            </a>
-                            {user.role === 'admin' && (
-                                <a href="/admin" className="flex items-center gap-3 p-2 rounded hover:bg-gray-700 text-gray-300 hover:text-white transition-colors">
-                                    <Users size={20} />
-                                    Admin Panel
-                                </a>
-                            )}
-                        </nav>
-                        <div className="p-4 border-t border-gray-700">
-                            <div className="mb-4 truncate text-sm text-gray-400">{user.email}</div>
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-2 justify-center p-2 rounded bg-red-900/40 text-red-400 hover:bg-red-900/60 transition-colors"
-                            >
-                                <LogOut size={16} />
-                                Logout
-                            </button>
-                        </div>
-                    </aside>
-                )}
+                {user && <Sidebar user={user} onLogout={handleLogout} />}
 
                 <main className="flex-1 overflow-auto">
                     <Routes>
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
                         <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+                        <Route path="/nodes" element={user ? <Nodes /> : <Navigate to="/login" />} />
                         <Route
                             path="/admin"
                             element={user && user.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />}

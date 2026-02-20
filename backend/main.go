@@ -48,6 +48,7 @@ func main() {
 	}
 
 	podHandler := handlers.NewPodHandler(k8sProvider)
+	nodeHandler := handlers.NewNodeHandler(k8sProvider)
 	adminHandler := handlers.NewAdminHandler(db)
 
 	router := gin.Default()
@@ -82,6 +83,7 @@ func main() {
 			protected.GET("/auth/me", authHandler.Me)
 			protected.GET("/pods", podHandler.ListPods)
 			protected.GET("/namespaces", podHandler.ListNamespaces)
+			protected.GET("/nodes", nodeHandler.ListNodes)
 
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())

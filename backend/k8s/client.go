@@ -5,7 +5,9 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -14,6 +16,7 @@ import (
 type KubernetesProvider interface {
 	ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error)
 	ListNamespaces(ctx context.Context) ([]string, error)
+	ListNodes(ctx context.Context) ([]corev1.Node, error)
 }
 
 // ---- Real Client ----
@@ -54,9 +57,16 @@ func (c *Client) ListNamespaces(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
+func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
+	nodes, err := c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return nodes.Items, nil
+}
+
 // ---- Mock Client ----
 
-// allMockPods is the full set of mock pods across all namespaces.
 var allMockPods = []corev1.Pod{
 	mockPod("frontend-web-5d8f7b", "default", corev1.PodRunning, -10*time.Minute),
 	mockPod("backend-api-6c9f8c", "default", corev1.PodRunning, -25*time.Minute),
@@ -85,19 +95,68 @@ var allMockPods = []corev1.Pod{
 	mockPod("kube-scheduler-m", "kube-system", corev1.PodRunning, -168*time.Hour),
 }
 
-// mockNamespaces is the ordered list of all namespaces available in the mock cluster.
 var mockNamespaces = []string{
-	"default",
-	"auth",
-	"database",
-	"messaging",
-	"monitoring",
-	"logging",
-	"ingress-nginx",
-	"cert-manager",
-	"kube-system",
-	"kube-public",
-	"kube-node-lease",
+	"default", "auth", "database", "messaging", "monitoring",
+	"logging", "ingress-nginx", "cert-manager",
+	"kube-system", "kube-public", "kube-node-lease",
+}
+
+func mockNode(name, role, arch string, cpuCores, memGiB int64, ready bool, age time.Duration) corev1.Node {
+	conditions := []corev1.NodeCondition{
+		{
+			Type:   corev1.NodeReady,
+			Status: corev1.ConditionFalse,
+		},
+	}
+	if ready {
+		conditions[0].Status = corev1.ConditionTrue
+	}
+
+	labels := map[string]string{
+		"kubernetes.io/arch": arch,
+		"kubernetes.io/os":   "linux",
+	}
+	if role == "control-plane" {
+		labels["node-role.kubernetes.io/control-plane"] = ""
+		labels["node-role.kubernetes.io/master"] = ""
+	} else {
+		labels["node-role.kubernetes.io/worker"] = ""
+	}
+
+	return corev1.Node{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:              name,
+			Labels:            labels,
+			CreationTimestamp: metav1.NewTime(time.Now().Add(age)),
+		},
+		Status: corev1.NodeStatus{
+			Conditions: conditions,
+			Capacity: corev1.ResourceList{
+				corev1.ResourceCPU:    *resource.NewQuantity(cpuCores, resource.DecimalSI),
+				corev1.ResourceMemory: *resource.NewQuantity(memGiB*1024*1024*1024, resource.BinarySI),
+			},
+			Allocatable: corev1.ResourceList{
+				corev1.ResourceCPU:    *resource.NewMilliQuantity((cpuCores*1000)-200, resource.DecimalSI),
+				corev1.ResourceMemory: *resource.NewQuantity((memGiB-1)*1024*1024*1024, resource.BinarySI),
+			},
+			NodeInfo: corev1.NodeSystemInfo{
+				KubeletVersion:          "v1.29.3",
+				ContainerRuntimeVersion: "containerd://1.7.13",
+				OSImage:                 "Alpine Linux v3.19",
+				Architecture:            arch,
+			},
+		},
+	}
+}
+
+var allMockNodes = []corev1.Node{
+	mockNode("master-01", "control-plane", "arm64", 4, 8, true, -720*time.Hour),
+	mockNode("master-02", "control-plane", "arm64", 4, 8, true, -720*time.Hour),
+	mockNode("master-03", "control-plane", "arm64", 4, 8, true, -720*time.Hour),
+	mockNode("worker-01", "worker", "arm64", 8, 32, true, -500*time.Hour),
+	mockNode("worker-02", "worker", "arm64", 8, 32, true, -500*time.Hour),
+	mockNode("worker-03", "worker", "arm64", 16, 64, true, -250*time.Hour),
+	mockNode("worker-04", "worker", "amd64", 16, 64, false, -10*time.Hour), // NotReady
 }
 
 func mockPod(name, namespace string, phase corev1.PodPhase, age time.Duration) corev1.Pod {
@@ -139,3 +198,14 @@ func (m *MockClient) ListPods(_ context.Context, namespace string) ([]corev1.Pod
 func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
 	return mockNamespaces, nil
 }
+
+func (m *MockClient) ListNodes(_ context.Context) ([]corev1.Node, error) {
+	return allMockNodes, nil
+}
+
+// Ensure MockClient satisfies KubernetesProvider at compile time
+var _ KubernetesProvider = (*MockClient)(nil)
+var _ KubernetesProvider = (*Client)(nil)
+
+// Suppress unused import lint warning
+var _ = v1.PodRunning
