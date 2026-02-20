@@ -1,0 +1,6 @@
+apiVersion: v2
+name: k-view
+description: A Kubernetes Dashboard with OIDC and SQLite-backed RBAC
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
