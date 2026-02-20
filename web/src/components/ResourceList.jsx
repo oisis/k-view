@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, RefreshCw } from 'lucide-react';
+import NamespaceSelect from './NamespaceSelect';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -250,61 +251,85 @@ function StatusBadge({ value }) {
 export default function ResourceList({ kind }) {
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
+    const [namespaces, setNamespaces] = useState([]);
+    const [namespace, setNamespace] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const load = () => {
+    // Fetch namespaces on mount
+    useEffect(() => {
+        fetch('/api/namespaces')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => setNamespaces(data || []))
+            .catch(() => { });
+    }, []);
+
+    const load = useCallback(() => {
         setLoading(true);
         setError(null);
-        fetch(`/api/resources/${kind}`)
+        const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : '';
+        fetch(`/api/resources/${kind}${qs}`)
             .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch')))
             .then(data => setItems(data || []))
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
-    };
+    }, [kind, namespace]);
 
-    useEffect(() => { load(); }, [kind]);
+    useEffect(() => { load(); }, [load]);
+
+    // Only show namespace selector for namespaced resources
+    const isNamespaced = schema.cols.some(col => col.key === 'namespace');
 
     return (
         <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
                     <h2 className="text-2xl font-bold text-white mb-1">{schema.title}</h2>
                     <p className="text-gray-400 text-sm">
                         {loading ? 'Loading...' : `${items.length} item${items.length !== 1 ? 's' : ''}`}
+                        {namespace && ` in "${namespace}"`}
                     </p>
                 </div>
-                <button onClick={load} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-600 px-3 py-2 rounded-lg transition-colors">
-                    <RefreshCw size={14} />
-                    Refresh
-                </button>
+                <div className="flex items-center gap-3">
+                    {isNamespaced && (
+                        <NamespaceSelect
+                            namespaces={namespaces}
+                            selected={namespace}
+                            onChange={setNamespace}
+                        />
+                    )}
+                    <button onClick={load} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-600 px-3 py-2 rounded-lg transition-colors h-10">
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             {error && (
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-300">
                         <thead className="text-xs text-gray-400 bg-gray-900/60 uppercase tracking-wider">
                             <tr>
                                 {schema.cols.map(col => (
-                                    <th key={col.key} className="px-4 py-3 whitespace-nowrap">{col.label}</th>
+                                    <th key={col.key} className="px-6 py-3 whitespace-nowrap">{col.label}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr><td colSpan={schema.cols.length} className="px-4 py-8 text-center text-gray-500">Loading...</td></tr>
+                        <tbody className="divide-y divide-gray-700/50">
+                            {loading && items.length === 0 ? (
+                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500 italic">Loading...</td></tr>
                             ) : items.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length} className="px-4 py-8 text-center text-gray-500">No items found.</td></tr>
+                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500">No {kind.replace(/-/g, ' ')} found.</td></tr>
                             ) : items.map((item, i) => (
-                                <tr key={i} className="border-t border-gray-700/50 hover:bg-gray-700/30 transition-colors">
+                                <tr key={i} className="hover:bg-gray-700/30 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
                                         return (
-                                            <td key={col.key} className="px-4 py-3 whitespace-nowrap">
+                                            <td key={col.key} className="px-6 py-3 whitespace-nowrap">
                                                 {col.badge
                                                     ? <StatusBadge value={val} />
                                                     : col.key === 'name'

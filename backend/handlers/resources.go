@@ -45,13 +45,43 @@ func ex(kv ...string) map[string]string {
 	return m
 }
 
+func filter(items []ResourceItem, ns string) []ResourceItem {
+	if ns == "" {
+		return items
+	}
+	var filtered []ResourceItem
+	for _, it := range items {
+		// Non-namespaced resources (like Nodes, CRDs, PVs) have empty Namespace
+		// If ns is provided, we only return those that match it, OR if it's cluster-scoped, we return all?
+		// Actually, standard behavior: if ns is specified, only return namespaced items in that ns.
+		if it.Namespace == ns {
+			filtered = append(filtered, it)
+		}
+	}
+	return filtered
+}
+
 func mockResourceList(kind, ns string) []ResourceItem {
+	var items []ResourceItem
+
 	switch kind {
 	case "pods":
-		return mockPodItems(ns)
+		items = []ResourceItem{
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8")},
+			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3")},
+			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+		}
 
 	case "deployments":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3")},
 			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2")},
 			{Name: "cache-redis", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1")},
@@ -63,7 +93,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "statefulsets":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "1/1", "replicas", "1")},
 			{Name: "postgres-replica", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "2/2", "replicas", "2")},
 			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3")},
@@ -72,7 +102,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "daemonsets":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "fluentbit", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
 			{Name: "kube-proxy", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
 			{Name: "node-exporter", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
@@ -80,7 +110,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "jobs":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "db-migration-20260218", Namespace: "default", Age: "2d", Status: "Complete", Extra: ex("completions", "1/1", "duration", "12s")},
 			{Name: "backup-job-20260219", Namespace: "database", Age: "1d", Status: "Complete", Extra: ex("completions", "1/1", "duration", "45s")},
 			{Name: "cleanup-tokens-20260220", Namespace: "auth", Age: "4h", Status: "Complete", Extra: ex("completions", "1/1", "duration", "3s")},
@@ -88,7 +118,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "cronjobs":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "last-schedule", "4h ago")},
 			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "last-schedule", "1h ago")},
 			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "last-schedule", "7d ago")},
@@ -96,7 +126,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "services":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP")},
 			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP")},
 			{Name: "backend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.56.78", "ports", "8080/TCP")},
@@ -107,14 +137,14 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "ingresses":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "frontend-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "app.example.com", "address", "192.168.1.100")},
 			{Name: "grafana-ingress", Namespace: "monitoring", Age: "28d", Status: "Active", Extra: ex("class", "nginx", "hosts", "grafana.example.com", "address", "192.168.1.100")},
 			{Name: "api-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "api.example.com", "address", "192.168.1.100")},
 		}
 
 	case "configmaps":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1")},
 			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5")},
 			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3")},
@@ -125,7 +155,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "secrets":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3")},
 			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2")},
 			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2")},
@@ -134,7 +164,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "pvcs":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "postgres-data-pvc", Namespace: "database", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
 			{Name: "kafka-data-pvc-0", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
 			{Name: "kafka-data-pvc-1", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
@@ -144,7 +174,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "crds":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "certificates.cert-manager.io", Age: "30d", Status: "Active", Extra: ex("group", "cert-manager.io", "version", "v1", "scope", "Namespaced")},
 			{Name: "clusterissuers.cert-manager.io", Age: "30d", Status: "Active", Extra: ex("group", "cert-manager.io", "version", "v1", "scope", "Cluster")},
 			{Name: "prometheusrules.monitoring.coreos.com", Age: "28d", Status: "Active", Extra: ex("group", "monitoring.coreos.com", "version", "v1", "scope", "Namespaced")},
@@ -153,7 +183,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "kafkatopics.kafka.strimzi.io", Age: "20d", Status: "Active", Extra: ex("group", "kafka.strimzi.io", "version", "v1beta2", "scope", "Namespaced")},
 		}
 	case "pvs":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "pv-postgres-primary", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "database/postgres-data-pvc")},
 			{Name: "pv-kafka-0", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-0")},
 			{Name: "pv-kafka-1", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-1")},
@@ -164,7 +194,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "cluster-role-bindings":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "cluster-admin", Age: "30d", Extra: ex("role", "ClusterRole/cluster-admin", "subjects", "system:masters")},
 			{Name: "kview-sa-binding", Age: "30d", Extra: ex("role", "ClusterRole/kview-cluster-reader", "subjects", "ServiceAccount/kview-sa")},
 			{Name: "ingress-nginx-binding", Age: "30d", Extra: ex("role", "ClusterRole/ingress-nginx", "subjects", "ServiceAccount/ingress-nginx")},
@@ -174,7 +204,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "cluster-roles":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "cluster-admin", Age: "30d", Extra: ex("rules", "* on */*")},
 			{Name: "kview-cluster-reader", Age: "30d", Extra: ex("rules", "get, list, watch on pods, nodes, ns")},
 			{Name: "ingress-nginx", Age: "30d", Extra: ex("rules", "get, list, watch on ingresses, services")},
@@ -185,7 +215,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "namespaces":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "default", Age: "30d", Status: "Active"},
 			{Name: "auth", Age: "30d", Status: "Active"},
 			{Name: "database", Age: "25d", Status: "Active"},
@@ -200,7 +230,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "network-policies":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "deny-all-ingress", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
 			{Name: "allow-frontend-to-backend", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "app=frontend", "policy-types", "Egress")},
 			{Name: "allow-backend-to-db", Namespace: "database", Age: "20d", Extra: ex("pod-selector", "app=postgres", "policy-types", "Ingress")},
@@ -209,7 +239,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "role-bindings":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "admin-binding", Namespace: "default", Age: "30d", Extra: ex("role", "ClusterRole/admin", "subjects", "User/admin@kview.local")},
 			{Name: "db-admin-binding", Namespace: "database", Age: "25d", Extra: ex("role", "Role/db-admin", "subjects", "ServiceAccount/postgres-sa")},
 			{Name: "kafka-admin-binding", Namespace: "messaging", Age: "20d", Extra: ex("role", "Role/kafka-admin", "subjects", "ServiceAccount/kafka-sa")},
@@ -217,7 +247,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "roles":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "db-admin", Namespace: "database", Age: "25d", Extra: ex("rules", "* on pods, services, configmaps")},
 			{Name: "kafka-admin", Namespace: "messaging", Age: "20d", Extra: ex("rules", "* on pods, services, configmaps")},
 			{Name: "viewer", Namespace: "monitoring", Age: "28d", Extra: ex("rules", "get, list on pods, services")},
@@ -225,7 +255,7 @@ func mockResourceList(kind, ns string) []ResourceItem {
 		}
 
 	case "service-accounts":
-		return []ResourceItem{
+		items = []ResourceItem{
 			{Name: "default", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
 			{Name: "kview-sa", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
 			{Name: "postgres-sa", Namespace: "database", Age: "25d", Extra: ex("secrets", "1")},
@@ -236,31 +266,6 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "ingress-nginx", Namespace: "ingress-nginx", Age: "30d", Extra: ex("secrets", "1")},
 		}
 	}
-	return []ResourceItem{}
-}
 
-func mockPodItems(ns string) []ResourceItem {
-	all := []ResourceItem{
-		{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8")},
-		{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-		{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3")},
-		{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-	}
-	if ns == "" {
-		return all
-	}
-	var filtered []ResourceItem
-	for _, it := range all {
-		if it.Namespace == ns {
-			filtered = append(filtered, it)
-		}
-	}
-	return filtered
+	return filter(items, ns)
 }
