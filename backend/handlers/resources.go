@@ -162,6 +162,79 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "pv-released-old", Age: "10d", Status: "Released", Extra: ex("capacity", "5Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "default/old-pvc")},
 			{Name: "pv-available-spare", Age: "3d", Status: "Available", Extra: ex("capacity", "100Gi", "access-mode", "ReadWriteMany", "reclaim-policy", "Retain", "storage-class", "fast-ssd", "claim", "")},
 		}
+
+	case "cluster-role-bindings":
+		return []ResourceItem{
+			{Name: "cluster-admin", Age: "30d", Extra: ex("role", "ClusterRole/cluster-admin", "subjects", "system:masters")},
+			{Name: "kview-sa-binding", Age: "30d", Extra: ex("role", "ClusterRole/kview-cluster-reader", "subjects", "ServiceAccount/kview-sa")},
+			{Name: "ingress-nginx-binding", Age: "30d", Extra: ex("role", "ClusterRole/ingress-nginx", "subjects", "ServiceAccount/ingress-nginx")},
+			{Name: "cert-manager-binding", Age: "30d", Extra: ex("role", "ClusterRole/cert-manager-controller", "subjects", "ServiceAccount/cert-manager")},
+			{Name: "prometheus-binding", Age: "28d", Extra: ex("role", "ClusterRole/prometheus", "subjects", "ServiceAccount/prometheus")},
+			{Name: "calico-binding", Age: "30d", Extra: ex("role", "ClusterRole/calico-node", "subjects", "ServiceAccount/calico-node")},
+		}
+
+	case "cluster-roles":
+		return []ResourceItem{
+			{Name: "cluster-admin", Age: "30d", Extra: ex("rules", "* on */*")},
+			{Name: "kview-cluster-reader", Age: "30d", Extra: ex("rules", "get, list, watch on pods, nodes, ns")},
+			{Name: "ingress-nginx", Age: "30d", Extra: ex("rules", "get, list, watch on ingresses, services")},
+			{Name: "cert-manager-controller", Age: "30d", Extra: ex("rules", "* on certificates, issuers")},
+			{Name: "prometheus", Age: "28d", Extra: ex("rules", "get, list, watch on pods, nodes, services")},
+			{Name: "view", Age: "30d", Extra: ex("rules", "get, list, watch on most resources")},
+			{Name: "edit", Age: "30d", Extra: ex("rules", "get, list, watch, create, update, delete")},
+		}
+
+	case "namespaces":
+		return []ResourceItem{
+			{Name: "default", Age: "30d", Status: "Active"},
+			{Name: "auth", Age: "30d", Status: "Active"},
+			{Name: "database", Age: "25d", Status: "Active"},
+			{Name: "messaging", Age: "20d", Status: "Active"},
+			{Name: "monitoring", Age: "28d", Status: "Active"},
+			{Name: "logging", Age: "28d", Status: "Active"},
+			{Name: "ingress-nginx", Age: "30d", Status: "Active"},
+			{Name: "cert-manager", Age: "30d", Status: "Active"},
+			{Name: "kube-system", Age: "30d", Status: "Active"},
+			{Name: "kube-public", Age: "30d", Status: "Active"},
+			{Name: "kube-node-lease", Age: "30d", Status: "Active"},
+		}
+
+	case "network-policies":
+		return []ResourceItem{
+			{Name: "deny-all-ingress", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
+			{Name: "allow-frontend-to-backend", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "app=frontend", "policy-types", "Egress")},
+			{Name: "allow-backend-to-db", Namespace: "database", Age: "20d", Extra: ex("pod-selector", "app=postgres", "policy-types", "Ingress")},
+			{Name: "deny-all-ingress", Namespace: "messaging", Age: "20d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
+			{Name: "allow-prometheus-scrape", Namespace: "monitoring", Age: "28d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
+		}
+
+	case "role-bindings":
+		return []ResourceItem{
+			{Name: "admin-binding", Namespace: "default", Age: "30d", Extra: ex("role", "ClusterRole/admin", "subjects", "User/admin@kview.local")},
+			{Name: "db-admin-binding", Namespace: "database", Age: "25d", Extra: ex("role", "Role/db-admin", "subjects", "ServiceAccount/postgres-sa")},
+			{Name: "kafka-admin-binding", Namespace: "messaging", Age: "20d", Extra: ex("role", "Role/kafka-admin", "subjects", "ServiceAccount/kafka-sa")},
+			{Name: "grafana-viewer", Namespace: "monitoring", Age: "28d", Extra: ex("role", "Role/viewer", "subjects", "Group/developers")},
+		}
+
+	case "roles":
+		return []ResourceItem{
+			{Name: "db-admin", Namespace: "database", Age: "25d", Extra: ex("rules", "* on pods, services, configmaps")},
+			{Name: "kafka-admin", Namespace: "messaging", Age: "20d", Extra: ex("rules", "* on pods, services, configmaps")},
+			{Name: "viewer", Namespace: "monitoring", Age: "28d", Extra: ex("rules", "get, list on pods, services")},
+			{Name: "log-reader", Namespace: "logging", Age: "28d", Extra: ex("rules", "get, list on pods, configmaps")},
+		}
+
+	case "service-accounts":
+		return []ResourceItem{
+			{Name: "default", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
+			{Name: "kview-sa", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
+			{Name: "postgres-sa", Namespace: "database", Age: "25d", Extra: ex("secrets", "1")},
+			{Name: "kafka-sa", Namespace: "messaging", Age: "20d", Extra: ex("secrets", "1")},
+			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Extra: ex("secrets", "2")},
+			{Name: "grafana", Namespace: "monitoring", Age: "28d", Extra: ex("secrets", "1")},
+			{Name: "cert-manager", Namespace: "cert-manager", Age: "30d", Extra: ex("secrets", "1")},
+			{Name: "ingress-nginx", Namespace: "ingress-nginx", Age: "30d", Extra: ex("secrets", "1")},
+		}
 	}
 	return []ResourceItem{}
 }

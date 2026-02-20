@@ -138,6 +138,69 @@ const SCHEMAS = {
             { key: 'age', label: 'Age' },
         ],
     },
+    'cluster-role-bindings': {
+        title: 'Cluster Role Bindings',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'extra.role', label: 'Role' },
+            { key: 'extra.subjects', label: 'Subjects' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    'cluster-roles': {
+        title: 'Cluster Roles',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'extra.rules', label: 'Rules (summary)' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    namespaces: {
+        title: 'Namespaces',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'status', label: 'Status', badge: true },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    'network-policies': {
+        title: 'Network Policies',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.pod-selector', label: 'Pod Selector' },
+            { key: 'extra.policy-types', label: 'Policy Types' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    'role-bindings': {
+        title: 'Role Bindings',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.role', label: 'Role' },
+            { key: 'extra.subjects', label: 'Subjects' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    roles: {
+        title: 'Roles',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.rules', label: 'Rules (summary)' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    'service-accounts': {
+        title: 'Service Accounts',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.secrets', label: 'Secrets' },
+            { key: 'age', label: 'Age' },
+        ],
+    },
     crds: {
         title: 'Custom Resource Definitions',
         cols: [
