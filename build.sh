@@ -12,7 +12,7 @@ IMAGE_NAME="k-view-local-build"
 CONTAINER_NAME="k-view-extract"
 
 # Default architecture is amd64, but can be overridden (e.g., ./build.sh arm64)
-ARCH=${1:-"amd64"}
+ARCH=${1:-"arm64"}
 
 echo -e "${BLUE}🚀 Starting Docker-based build for K-View ($ARCH)...${NC}"
 

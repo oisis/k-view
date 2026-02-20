@@ -35,7 +35,7 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 	}
 
 	var response []PodResponse
-	for _, p := := pods {
+	for _, p := range pods {
 		response = append(response, PodResponse{
 			Name:      p.Name,
 			Namespace: p.Namespace,

@@ -12,9 +12,9 @@ WORKDIR /app/backend
 # Install gcc and musl-dev for SQLite CGO
 RUN apk add --no-cache gcc musl-dev
 ARG TARGETARCH
-COPY backend/go.mod backend/go.sum ./
-RUN go mod download
+COPY backend/go.mod backend/go.sum* ./
 COPY backend/ .
+RUN go mod tidy
 # CGO_ENABLED=1 is required for go-sqlite3. Pass TARGETARCH to GOARCH.
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=${TARGETARCH} go build -a -o k-view-server .
 
