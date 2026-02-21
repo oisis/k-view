@@ -125,7 +125,9 @@ export default function ResourceDetails({ user }) {
     // Safety check: Ensure we have at least metadata
     if (!data.metadata) return <div className="p-8 text-red-400">Error: Invalid resource data received from API</div>;
 
-    const { metadata, spec = {}, status = {} } = data;
+    const { metadata } = data;
+    const spec = data.spec || {};
+    const status = data.status || {};
     const isPod = kind.toLowerCase().startsWith('pod');
     const isDeployment = kind.toLowerCase().startsWith('deploy');
     const isService = kind.toLowerCase().startsWith('serv');
@@ -307,7 +309,7 @@ export default function ResourceDetails({ user }) {
                                     </StatusItem>
                                 )}
 
-                                {status.loadBalancer?.ingress && (
+                                {status.loadBalancer?.ingress?.length > 0 && (
                                     <StatusItem label="External IP">
                                         <span className="text-blue-300 font-mono text-xs">
                                             {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
