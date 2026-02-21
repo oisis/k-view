@@ -162,6 +162,54 @@ export default function ResourceDetails({ user }) {
             <div className="space-y-6 flex-1 flex flex-col pb-8">
                 {activeTab === 'overview' && (
                     <>
+                        {/* Section: Status Bar */}
+                        <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm mb-6">
+                            <div className="flex flex-wrap items-center gap-x-12 gap-y-6 px-8 py-6 bg-[var(--bg-sidebar)]/20">
+                                <StatusItem label="Phase">
+                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded') ? 'text-green-400' : 'text-yellow-400'}`}>
+                                        <Activity size={14} />
+                                        {status.phase || (isPod ? 'Unknown' : 'N/A')}
+                                    </div>
+                                </StatusItem>
+
+                                {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
+                                    <StatusItem label="Replicas">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-green-400" title="Ready">{status.readyReplicas || status.availableReplicas || 0}</span>
+                                            <span className="text-[var(--text-muted)]">/</span>
+                                            <span className="text-[var(--text-white)]" title="Desired">{spec.replicas || 0}</span>
+                                        </div>
+                                    </StatusItem>
+                                )}
+
+                                {status.loadBalancer?.ingress && (
+                                    <StatusItem label="External IP">
+                                        <span className="text-blue-300 font-mono text-xs">
+                                            {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
+                                        </span>
+                                    </StatusItem>
+                                )}
+
+                                {spec.clusterIP && (
+                                    <StatusItem label="Cluster IP">
+                                        <span className="text-[var(--text-secondary)] font-mono text-xs">{spec.clusterIP}</span>
+                                    </StatusItem>
+                                )}
+
+                                {(status.conditions || []).length > 0 && (
+                                    <div className="flex-1 border-l border-[var(--border-color)]/50 pl-12">
+                                        <StatusItem label="Conditions">
+                                            <div className="flex flex-wrap gap-3">
+                                                {status.conditions.slice(0, 4).map(c => (
+                                                    <ConditionBadge key={c.type} label={c.type} status={c.status} />
+                                                ))}
+                                            </div>
+                                        </StatusItem>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Section: Metadata */}
                         <DetailSection title="Metadata">
                             <table className="w-full text-sm text-left border-collapse">
@@ -188,32 +236,6 @@ export default function ResourceDetails({ user }) {
                                             ))}
                                         </div>
                                     </DetailRow>
-                                </tbody>
-                            </table>
-                        </DetailSection>
-
-                        {/* Section: Status */}
-                        <DetailSection title="Status">
-                            <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-[var(--border-color)]/30">
-                                    <DetailRow label="Phase">
-                                        <div className={`flex items-center gap-2 font-medium ${(status.phase === 'Running' || status.phase === 'Active') ? 'text-green-400' : 'text-yellow-400'
-                                            }`}>
-                                            <Activity size={14} />
-                                            {status.phase || 'Unknown'}
-                                        </div>
-                                    </DetailRow>
-                                    {status.availableReplicas !== undefined && <DetailRow label="Available Replicas" value={status.availableReplicas} />}
-                                    {status.readyReplicas !== undefined && <DetailRow label="Ready Replicas" value={status.readyReplicas} />}
-                                    {(status.conditions || []).length > 0 && (
-                                        <DetailRow label="Conditions">
-                                            <div className="flex flex-wrap gap-4">
-                                                {status.conditions.map(c => (
-                                                    <ConditionBadge key={c.type} label={c.type} status={c.status} />
-                                                ))}
-                                            </div>
-                                        </DetailRow>
-                                    )}
                                 </tbody>
                             </table>
                         </DetailSection>
@@ -427,6 +449,17 @@ export default function ResourceDetails({ user }) {
                         </div>
                     </div>
                 )}
+            </div>
+        </div>
+    );
+}
+
+function StatusItem({ label, value, children }) {
+    return (
+        <div className="flex flex-col gap-2 min-w-[100px]">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{label}</span>
+            <div className="text-sm font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem]">
+                {children || (value ?? '—')}
             </div>
         </div>
     );
