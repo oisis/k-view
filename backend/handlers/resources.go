@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -414,29 +415,62 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	}
 
 	if h.devMode {
-		yamlMock := `apiVersion: apps/v1
-kind: ` + strings.Title(kind) + `
-metadata:
-  name: ` + name + `
-  namespace: default
-  labels:
-    app: ` + name + `
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: ` + name + `
-  template:
-    metadata:
-      labels:
-        app: ` + name + `
-    spec:
-      containers:
-      - name: main
-        image: nginx:1.21
-        ports:
-        - containerPort: 80`
-		c.String(http.StatusOK, yamlMock)
+		mockObj := map[string]interface{}{
+			"apiVersion": "apps/v1",
+			"kind":       strings.Title(kind),
+			"metadata": map[string]interface{}{
+				"name":      name,
+				"namespace": "default",
+				"labels": map[string]string{
+					"app": name,
+				},
+			},
+			"spec": map[string]interface{}{
+				"replicas": 3,
+				"selector": map[string]interface{}{
+					"matchLabels": map[string]string{
+						"app": name,
+					},
+				},
+				"template": map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"labels": map[string]string{
+							"app": name,
+						},
+					},
+					"spec": map[string]interface{}{
+						"containers": []map[string]interface{}{
+							{
+								"name":  "main",
+								"image": "nginx:1.21",
+								"ports": []map[string]interface{}{
+									{"containerPort": 80},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		format := c.DefaultQuery("format", "yaml")
+		var data []byte
+		var marshalErr error
+
+		if format == "json" {
+			data, marshalErr = json.MarshalIndent(mockObj, "", "  ")
+			c.Header("Content-Type", "application/json")
+		} else {
+			data, marshalErr = yaml.Marshal(mockObj)
+			c.Header("Content-Type", "text/yaml")
+		}
+
+		if marshalErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal mock resource"})
+			return
+		}
+
+		c.String(http.StatusOK, string(data))
 		return
 	}
 
@@ -460,16 +494,94 @@ spec:
 		return
 	}
 
-	// Remove noisy managed fields for cleaner YAML formatting
+	// Remove noisy managed fields for cleaner formatting
 	unstructured.RemoveNestedField(item.Object, "metadata", "managedFields")
 
-	yamlData, err := yaml.Marshal(item.Object)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal to YAML"})
+	format := c.DefaultQuery("format", "yaml")
+	var data []byte
+	var marshalErr error
+
+	if format == "json" {
+		data, marshalErr = json.MarshalIndent(item.Object, "", "  ")
+		c.Header("Content-Type", "application/json")
+	} else {
+		data, marshalErr = yaml.Marshal(item.Object)
+		c.Header("Content-Type", "text/yaml")
+	}
+
+	if marshalErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal resource"})
 		return
 	}
 
-	c.String(http.StatusOK, string(yamlData))
+	c.String(http.StatusOK, string(data))
+}
+
+func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
+	name := c.Param("name")
+	kind := strings.ToLower(c.Param("kind"))
+	ns := c.Param("namespace")
+
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if ns != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+			return
+		}
+	}
+
+	// Verify Edit Permissions
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+		return
+	}
+	roleStr := role.(string)
+	if roleStr != "kview-cluster-admin" && roleStr != "admin" && roleStr != "edit" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Editing permissions required (admin or edit role)"})
+		return
+	}
+
+	body, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
+	if h.devMode {
+		fmt.Printf("[DEV MODE] Would update %s/%s/%s with YAML:\n%s\n", kind, ns, name, string(body))
+		c.JSON(http.StatusOK, gin.H{"message": "Resource updated (mocked)"})
+		return
+	}
+
+	var obj unstructured.Unstructured
+	if err := yaml.Unmarshal(body, &obj); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML: " + err.Error()})
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" && ns != "-" {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	// Use Update instead of Apply for simplicity and broad compatibility with unstructured objects
+	_, err = resInterface.Update(c.Request.Context(), &obj, metav1.UpdateOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update resource: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Resource updated successfully"})
 }
 
 func (h *ResourceHandler) GetEvents(c *gin.Context) {

@@ -23,6 +23,8 @@
   --sidebar-hover: #374151;
   --accent: #3b82f6;
   --bg-console: #030712;
+  --bg-editor: #0d1117;
+  --text-editor-code: #93c5fd;
   --wallpaper-opacity: 0.05;
   --wallpaper-brightness: 0.5;
 }
@@ -42,6 +44,8 @@
   --sidebar-hover: #e0e0e8;
   --accent: #0066cc;
   --bg-console: #e0e0e8;
+  --bg-editor: #f8f8fa;
+  --text-editor-code: #1e40af;
   --wallpaper-opacity: 0.06;
   --wallpaper-brightness: 0.8;
 }
@@ -61,6 +65,8 @@
   --sidebar-hover: #171717;
   --accent: #3b82f6;
   --bg-console: #000000;
+  --bg-editor: #000000;
+  --text-editor-code: #60a5fa;
   --wallpaper-opacity: 0.06;
   --wallpaper-brightness: 0.3;
 }

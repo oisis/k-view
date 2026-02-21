@@ -325,7 +325,7 @@ function App() {
                         <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />
                         <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
 
-                        <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails />)} />
+                        <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails user={user} />)} />
                         <Route path="/access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? protect(<AdminPanel />) : <Navigate to="/" />} />
                     </Routes>
                 </main>

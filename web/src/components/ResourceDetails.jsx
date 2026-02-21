@@ -7,17 +7,25 @@ import {
 import NetworkTraceModal from './NetworkTraceModal';
 import TerminalModal from './TerminalModal';
 
-export default function ResourceDetails() {
+export default function ResourceDetails({ user }) {
     const { kind, namespace, name } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [data, setData] = useState(null);
     const [yaml, setYaml] = useState('');
+    const [editedYaml, setEditedYaml] = useState('');
+    const [format, setFormat] = useState('yaml'); // 'yaml' or 'json'
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [traceModalOpen, setTraceModalOpen] = useState(false);
     const [terminalModalOpen, setTerminalModalOpen] = useState(false);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState(null);
+
+    const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,7 +34,7 @@ export default function ResourceDetails() {
                 const nsPath = namespace ? `/${namespace}` : '/-';
                 const [detailsRes, yamlRes, eventsRes] = await Promise.all([
                     fetch(`/api/resources/${kind}${nsPath}/${name}`),
-                    fetch(`/api/resources/${kind}${nsPath}/${name}/yaml`),
+                    fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/events`)
                 ]);
 
@@ -38,6 +46,7 @@ export default function ResourceDetails() {
 
                 setData(detailsData);
                 setYaml(yamlData);
+                setEditedYaml(yamlData);
                 setEvents(eventsData);
             } catch (e) {
                 setError(e.message);
@@ -47,7 +56,7 @@ export default function ResourceDetails() {
         };
 
         fetchData();
-    }, [kind, namespace, name]);
+    }, [kind, namespace, name, format]);
 
     if (loading) return <div className="p-8 text-[var(--text-secondary)]">Loading resource...</div>;
     if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
@@ -268,16 +277,90 @@ export default function ResourceDetails() {
                 )}
 
                 {activeTab === 'yaml' && (
-                    <div className="bg-[#0d1117] rounded-lg border border-[var(--border-color)] overflow-hidden">
-                        <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
-                            <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">Resource Manifest</span>
-                            <button className="text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors">
-                                <Clipboard size={14} />
-                            </button>
+                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col">
+                        <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
+                            <div className="flex items-center gap-4">
+                                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
+                                    {isEditing ? `Editing ${format.toUpperCase()}` : `${format.toUpperCase()} Manifest`}
+                                </span>
+                                {!isEditing && (
+                                    <div className="flex bg-black/30 rounded p-0.5">
+                                        <button
+                                            onClick={() => setFormat('yaml')}
+                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'yaml' ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                        >
+                                            YAML
+                                        </button>
+                                        <button
+                                            onClick={() => setFormat('json')}
+                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'json' ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                        >
+                                            JSON
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {saveError && <span className="text-xs text-red-400 mr-2">{saveError}</span>}
+                                {canEdit && !isEditing && (
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="text-[10px] font-bold px-3 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 transition-colors uppercase tracking-widest"
+                                    >
+                                        Edit {format.toUpperCase()}
+                                    </button>
+                                )}
+                                {isEditing && (
+                                    <>
+                                        <button
+                                            onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
+                                            className="text-[10px] font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
+                                            disabled={isSaving}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                setIsSaving(true);
+                                                setSaveError(null);
+                                                try {
+                                                    const nsPath = namespace ? `/${namespace}` : '/-';
+                                                    const res = await fetch(`/api/resources/${kind}${nsPath}/${name}/yaml`, {
+                                                        method: 'PUT',
+                                                        body: editedYaml
+                                                    });
+                                                    if (!res.ok) {
+                                                        const errData = await res.json();
+                                                        throw new Error(errData.error || 'Failed to save');
+                                                    }
+                                                    setYaml(editedYaml);
+                                                    setIsEditing(false);
+                                                } catch (e) {
+                                                    setSaveError(e.message);
+                                                } finally {
+                                                    setIsSaving(false);
+                                                }
+                                            }}
+                                            className="text-[10px] font-bold px-3 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
+                                            disabled={isSaving}
+                                        >
+                                            {isSaving ? <Activity size={10} className="animate-pulse" /> : <CheckCircle2 size={10} />}
+                                            {isSaving ? 'Saving...' : 'Save Changes'}
+                                        </button>
+                                    </>
+                                )}
+                                {!isEditing && (
+                                    <button className="text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors">
+                                        <Clipboard size={14} />
+                                    </button>
+                                )}
+                            </div>
                         </div>
-                        <pre className="p-6 font-mono text-xs overflow-auto max-h-[700px] text-blue-200 leading-relaxed">
-                            <code>{yaml}</code>
-                        </pre>
+                        <CodeEditor
+                            value={isEditing ? editedYaml : yaml}
+                            onChange={isEditing ? setEditedYaml : null}
+                            readOnly={!isEditing}
+                        />
                     </div>
                 )}
 
@@ -370,6 +453,54 @@ function DetailRow({ label, value, children }) {
                 )}
             </td>
         </tr>
+    );
+}
+
+function CodeEditor({ value, onChange, readOnly }) {
+    const lineCount = value.split('\n').length;
+    const lines = Array.from({ length: lineCount }, (_, i) => i + 1);
+    const gutterRef = React.useRef(null);
+    const textRef = React.useRef(null);
+
+    const handleScroll = () => {
+        if (gutterRef.current && textRef.current) {
+            gutterRef.current.scrollTop = textRef.current.scrollTop;
+        }
+    };
+
+    return (
+        <div className="relative flex bg-transparent overflow-hidden h-[600px]">
+            {/* Gutter */}
+            <div
+                ref={gutterRef}
+                className="w-12 flex-shrink-0 bg-[var(--bg-main)]/50 border-r border-[var(--border-color)]/20 py-6 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none overflow-hidden"
+            >
+                {lines.map(line => (
+                    <div key={line} className="h-[1.625rem] leading-[1.625rem]">{line}</div>
+                ))}
+            </div>
+
+            {/* Text Area / Code View */}
+            {readOnly ? (
+                <pre
+                    ref={textRef}
+                    onScroll={handleScroll}
+                    className="flex-1 p-6 font-mono text-xs text-[var(--text-editor-code)] leading-relaxed overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]"
+                >
+                    <code>{value}</code>
+                </pre>
+            ) : (
+                <textarea
+                    ref={textRef}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onScroll={handleScroll}
+                    className="flex-1 p-6 font-mono text-xs bg-transparent text-[var(--text-editor-code)] leading-relaxed outline-none resize-none focus:ring-0 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]"
+                    spellCheck="false"
+                    style={{ lineHeight: '1.625rem' }}
+                />
+            )}
+        </div>
     );
 }
 

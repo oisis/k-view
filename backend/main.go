@@ -85,6 +85,7 @@ func main() {
 			protected.GET("/cluster/stats", resourceHandler.GetStats)
 			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
+			protected.PUT("/resources/:kind/:namespace/:name/yaml", resourceHandler.UpdateYAML)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
 			protected.GET("/network/trace/:type/:namespace/:name", networkHandler.Trace)
 			protected.GET("/exec/:namespace/:name/:container", execHandler.HandleExec)
