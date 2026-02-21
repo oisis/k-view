@@ -46,13 +46,15 @@ export default function ResourceDetails({ user }) {
     const [logPaginationEnabled, setLogPaginationEnabled] = useState(true);
     const [logPage, setLogPage] = useState(1);
     const [logLinesPerPage] = useState(100);
+    const [logContainer, setLogContainer] = useState('');
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
 
     const fetchLogs = async () => {
         if (!kind.toLowerCase().startsWith('pod')) return;
         try {
-            const logsRes = await fetch(`/api/pods/${namespace}/${name}/logs?tail=1000`);
+            const containerQuery = logContainer ? `&container=${logContainer}` : '';
+            const logsRes = await fetch(`/api/pods/${namespace}/${name}/logs?tail=1000${containerQuery}`);
             if (logsRes.ok) {
                 const logsData = await logsRes.text();
                 setLogs(logsData);
@@ -88,6 +90,11 @@ export default function ResourceDetails({ user }) {
                 setEditedYaml(yamlData);
                 setEvents(Array.isArray(eventsData) ? eventsData : []);
                 setLogs(logsData);
+
+                // Initialize logContainer if not set
+                if (kind.toLowerCase().startsWith('pod') && detailsData.spec?.containers?.length > 0 && !logContainer) {
+                    setLogContainer(detailsData.spec.containers[0].name);
+                }
             } catch (e) {
                 setError(e.message);
             } finally {
@@ -97,6 +104,12 @@ export default function ResourceDetails({ user }) {
 
         fetchData();
     }, [kind, namespace, name, format]);
+
+    useEffect(() => {
+        if (activeTab === 'logs') {
+            fetchLogs();
+        }
+    }, [activeTab, logContainer, namespace, name]);
 
     useEffect(() => {
         if (activeTab === 'logs' && logRefreshInterval > 0) {
@@ -637,6 +650,25 @@ export default function ResourceDetails({ user }) {
                                             <option value="60">60s</option>
                                         </select>
                                     </div>
+
+                                    {spec?.containers?.length > 1 && (
+                                        <div className="flex items-center gap-2 bg-black/20 p-1 rounded-md border border-[var(--border-color)]/30 ml-2">
+                                            <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] pl-2">Container</span>
+                                            <select
+                                                value={logContainer}
+                                                onChange={(e) => {
+                                                    setLogContainer(e.target.value);
+                                                    setLogPage(1);
+                                                    setLogs('');
+                                                }}
+                                                className="bg-transparent text-[10px] font-bold text-blue-400 outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                                            >
+                                                {spec.containers.map(c => (
+                                                    <option key={c.name} value={c.name}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center gap-4">

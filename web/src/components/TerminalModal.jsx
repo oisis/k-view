@@ -176,8 +176,8 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { if (status !== "connected") onClose(); }} />
 
             <div className={`relative flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-all ${isFullscreen
-                    ? 'fixed inset-4 w-[calc(100vw-2rem)] h-[calc(100vh-2rem)] rounded-none border border-[#30363d]'
-                    : 'w-full max-w-6xl h-[85vh] rounded-xl border border-[#30363d]'
+                ? 'fixed inset-4 w-[calc(100vw-2rem)] h-[calc(100vh-2rem)] rounded-none border border-[#30363d]'
+                : 'w-full max-w-6xl h-[85vh] rounded-xl border border-[#30363d]'
                 } bg-[#0d1117]`}>
 
                 {/* Header Segment */}
@@ -202,26 +202,26 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {status === "idle" && containers.length > 1 && (
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-[#8b949e]">Container:</span>
+                        {containers.length > 1 && (
+                            <div className="flex items-center gap-2 mr-2">
+                                <span className="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest whitespace-nowrap">Container:</span>
                                 <select
-                                    className="bg-[#0d1117] border border-[#30363d] text-sm text-[#c9d1d9] rounded px-3 py-1 outline-none focus:border-[#58a6ff] min-w-[150px]"
+                                    className="bg-[#0d1117] border border-[#30363d] text-[11px] font-bold text-[#58a6ff] rounded px-3 py-1 outline-none focus:border-[#58a6ff] min-w-[150px] cursor-pointer"
                                     value={selectedContainer}
-                                    onChange={(e) => setSelectedContainer(e.target.value)}
+                                    onChange={(e) => {
+                                        const newContainer = e.target.value;
+                                        setSelectedContainer(newContainer);
+                                        if (newContainer) {
+                                            cleanupTerminal();
+                                            connectTerminal(newContainer);
+                                        }
+                                    }}
                                 >
                                     <option value="" disabled>Select Container</option>
                                     {containers.map(c => (
                                         <option key={c.name} value={c.name}>{c.name}</option>
                                     ))}
                                 </select>
-                                <button
-                                    disabled={!selectedContainer || status === "connecting"}
-                                    onClick={() => connectTerminal(selectedContainer)}
-                                    className="px-3 py-1 bg-[#238636] hover:bg-[#2ea043] text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-[rgba(240,246,252,0.1)]"
-                                >
-                                    Exec {">_"}
-                                </button>
                             </div>
                         )}
 
