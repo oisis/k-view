@@ -884,9 +884,10 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if h.devMode {
-		c.JSON(http.StatusOK, gin.H{"message": "Resource deleted (mocked)"})
-		return
+	force := c.Query("force") == "true"
+	gracePeriod := int64(30)
+	if force {
+		gracePeriod = 0
 	}
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
@@ -903,13 +904,139 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 		dc = dynClient.Resource(gvr)
 	}
 
-	err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{})
+	err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{
+		GracePeriodSeconds: &gracePeriod,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete resource: " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Resource deleted"})
+}
+
+func (h *ResourceHandler) Restart(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	// Verify Edit Permissions
+	role, _ := c.Get("role")
+	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
+		return
+	}
+
+	if h.devMode {
+		c.JSON(http.StatusOK, gin.H{"message": "Restart triggered (mocked)"})
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var dc dynamic.ResourceInterface
+	if ns != "" {
+		dc = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		dc = dynClient.Resource(gvr)
+	}
+
+	// Pods are "restarted" by being deleted
+	if kind == "pods" || kind == "pod" {
+		err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Pod deletion triggered (restart)"})
+		return
+	}
+
+	// For Deployments, StatefulSets, DaemonSets - update annotation
+	obj, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch failed: " + err.Error()})
+		return
+	}
+
+	// Patch restartedAt annotation
+	t := time.Now().Format(time.RFC3339)
+	unstructured.SetNestedField(obj.Object, t, "spec", "template", "metadata", "annotations", "kview.io/restartedAt")
+
+	_, err = dc.Update(c.Request.Context(), obj, metav1.UpdateOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Restart failed: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Rollout restart triggered"})
+}
+
+func (h *ResourceHandler) Scale(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	var input struct {
+		Replicas int64 `json:"replicas"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	// Verify Edit Permissions
+	role, _ := c.Get("role")
+	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
+		return
+	}
+
+	if h.devMode {
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Scaled to %d (mocked)", input.Replicas)})
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var dc dynamic.ResourceInterface
+	if ns != "" {
+		dc = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		dc = dynClient.Resource(gvr)
+	}
+
+	obj, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch failed"})
+		return
+	}
+
+	unstructured.SetNestedField(obj.Object, input.Replicas, "spec", "replicas")
+
+	_, err = dc.Update(c.Request.Context(), obj, metav1.UpdateOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Scale failed: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Scale updated"})
 }
 
 func (h *ResourceHandler) GetEvents(c *gin.Context) {
