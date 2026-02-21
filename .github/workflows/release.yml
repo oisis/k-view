@@ -16,8 +16,30 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+      charts: ${{ steps.filter.outputs.charts }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            charts:
+              - 'charts/**'
+            app:
+              - '**'
+              - '!charts/**'
+              - '!.github/**'
+              - '!docs/**'
+              - '!*.md'
+
   build-and-push-docker:
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -62,7 +84,8 @@ jobs:
 
   package-and-push-helm:
     runs-on: ubuntu-latest
-    needs: build-and-push-docker
+    needs: [changes, build-and-push-docker]
+    if: always() && (needs.changes.outputs.app == 'true' || needs.changes.outputs.charts == 'true') && (needs.build-and-push-docker.result == 'success' || needs.build-and-push-docker.result == 'skipped')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
