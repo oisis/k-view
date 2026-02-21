@@ -20,6 +20,9 @@ func NewPodHandler(client k8s.KubernetesProvider) *PodHandler {
 
 func (h *PodHandler) ListPods(c *gin.Context) {
 	namespace := c.Query("namespace")
+	if namespace == "-" {
+		namespace = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -71,6 +74,9 @@ func (h *PodHandler) ListNamespaces(c *gin.Context) {
 }
 func (h *PodHandler) GetLogs(c *gin.Context) {
 	namespace := c.Param("namespace")
+	if namespace == "-" {
+		namespace = ""
+	}
 	pod := c.Param("name")
 	container := c.Query("container")
 	tailStr := c.DefaultQuery("tail", "1000")

@@ -258,6 +258,9 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
+	if ns == "-" {
+		ns = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -327,6 +330,9 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -476,6 +482,9 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	name := c.Param("name")
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -592,6 +601,9 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	name := c.Param("name")
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -639,7 +651,7 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 
 	gvr := getGVR(kind)
 	var resInterface dynamic.ResourceInterface
-	if ns != "" && ns != "-" {
+	if ns != "" {
 		resInterface = dynClient.Resource(gvr).Namespace(ns)
 	} else {
 		resInterface = dynClient.Resource(gvr)
@@ -659,6 +671,9 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	name := c.Param("name")
 	_ = c.Param("kind") // kind not used since events are filtered by name
 	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
