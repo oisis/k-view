@@ -38,8 +38,6 @@ spec:
           env:
             - name: GIN_MODE
               value: {{ .Values.env.ginMode }}
-            - name: DB_PATH
-              value: "/data/kview.db"
             - name: TZ
               value: {{ .Values.env.timezone | quote }}
             - name: RBAC_CONFIG_PATH

@@ -1,13 +1,13 @@
 # K-View: Kubernetes Dashboard
 
-K-View is a self-contained, secure Kubernetes dashboard written in Go and React, featuring Google SSO (OIDC) integration and internal RBAC using SQLite.
+K-View is a self-contained, secure Kubernetes dashboard written in Go and React, featuring Google SSO (OIDC) integration and internal RBAC.
 
 ## Features
 
 - **Backend**: Go (Gin framework) communicating with Kubernetes via `client-go`.
 - **Frontend**: React + Vite, styled with Tailwind CSS for a modern dark theme.
 - **Authentication**: Full Google SSO (OIDC) integration.
-- **Internal RBAC**: SQLite-backed user-to-role mappings (Viewer / Admin).
+- **Internal RBAC**: Static/Declarative user-to-role mappings (Viewer / Admin).
 - **Deployment**: Multi-stage Dockerfile and a robust Helm Chart for seamless Kubernetes deployment.
 
 ## Architecture
@@ -20,9 +20,9 @@ graph TD;
     Pod-->|Serve React App|Frontend[Frontend App];
     Pod-->|API Calls|Backend[Go API];
     Backend-->|OIDC Auth|Google[Google SSO];
-    Backend-->|RBAC Check|SQLite[(SQLite DB)];
+    Backend-->|RBAC Check|RBACConfig[RBAC Config];
     Backend-->|Fetch Pods|K8sAPI[Kubernetes API];
-    SQLite<-->|Persistent Storage|PVC[Persistent Volume];
+    RBACConfig<-->|ConfigMap/Secret|K8sAPI;
 ```
 
 ## Quick Start Guide
@@ -61,11 +61,13 @@ helm install k-view ./charts/k-view -n k-view --create-namespace
 ### 4. Internal RBAC Management
 
 - By default, all authenticated users receive the `viewer` role.
-- To assign an `admin` role (which grants access to the Admin Panel), you can either:
-  1. Manually insert the role into the SQLite DB (e.g., by exec'ing into the pod).
-  2. Use the Admin Panel (once an initial admin is set up).
+- To assign an `admin` role (which grants access to the Admin Panel), you should update the `assignments` in `values.yaml` (when using Helm) or provide an `assignments.yaml` configuration file.
 
-**Example manual admin setup:**
-```bash
-kubectl exec -it <k-view-pod-name> -n k-view -- sqlite3 /data/kview.db "INSERT OR REPLACE INTO user_roles (email, role) VALUES ('your.email@gmail.com', 'admin');"
+**Example Helm RBAC setup:**
+```yaml
+rbac:
+  enabled: true
+  assignments:
+    - user: "your.email@gmail.com"
+      role: "admin"
 ```

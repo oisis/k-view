@@ -87,8 +87,8 @@ resources: {}
   #   cpu: 10m
   #   memory: 64Mi
 
-# -- Persistence configuration for the SQLite database
-# Ensures that user role mappings (RBAC) are not lost upon pod restarts.
+# -- Persistence configuration for the application data
+# Ensures that user data is not lost upon pod restarts.
 persistence:
   # -- Enable Persistent Volume Claim creation
   enabled: false

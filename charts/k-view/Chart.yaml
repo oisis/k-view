@@ -1,6 +1,6 @@
 apiVersion: v2
 name: k-view
-description: A Kubernetes Dashboard with OIDC and SQLite-backed RBAC
+description: A Kubernetes Dashboard with OIDC and Internal RBAC
 type: application
 version: 0.1.8
 appVersion: "main"
