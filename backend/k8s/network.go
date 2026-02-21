@@ -143,7 +143,21 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 				}
 
 				res.Nodes = append(res.Nodes, TraceNode{Type: "Service", Name: svcName, Healthy: true, Message: "Found"})
-				res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svcName, Healthy: true, Message: fmt.Sprintf("Port %d", svcPort)})
+				
+				// Calculate port message
+				targetPort := ""
+				for _, p := range svc.Spec.Ports {
+					if p.Port == svcPort {
+						targetPort = p.TargetPort.String()
+						break
+					}
+				}
+				portMsg := fmt.Sprintf("Port %d", svcPort)
+				if targetPort != "" {
+					portMsg += " -> " + targetPort
+				}
+
+				res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svcName, Healthy: true, Message: portMsg})
 
 				traceServiceToPods(ctx, client, namespace, svc, res)
 			}
@@ -184,7 +198,18 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		for _, svc := range svcs {
 			if matchesSelector(svc.Spec.Selector, pod.Labels) {
 				res.Nodes = append(res.Nodes, TraceNode{Type: "Service", Name: svc.Name, Healthy: true, Message: "Selects Pod"})
-				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: "Selector Match"})
+				
+				// Include selector info in the edge message
+				selectorParts := []string{}
+				for k, v := range svc.Spec.Selector {
+					selectorParts = append(selectorParts, fmt.Sprintf("%s=%s", k, v))
+				}
+				edgeMsg := "Selector Match"
+				if len(selectorParts) > 0 {
+					edgeMsg = "Match: " + strings.Join(selectorParts, ", ")
+				}
+
+				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: edgeMsg})
 				
 				// Optional: Trace up to Ingresses here too
 			}
@@ -200,9 +225,22 @@ func traceServiceToPods(ctx context.Context, client *Client, namespace string, s
 	for _, pod := range pods {
 		if matchesSelector(svc.Spec.Selector, pod.Labels) {
 			matched++
-			healthy := pod.Status.Phase == corev1.PodRunning
+			// Pod is healthy if it's Running or Succeeded (for Jobs)
+			healthy := pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded
 			res.Nodes = append(res.Nodes, TraceNode{Type: "Pod", Name: pod.Name, Healthy: healthy, Message: string(pod.Status.Phase)})
-			res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: healthy, Message: "Matches Selector"})
+			
+			// Include selector info in the edge message
+			selectorParts := []string{}
+			for k, v := range svc.Spec.Selector {
+				selectorParts = append(selectorParts, fmt.Sprintf("%s=%s", k, v))
+			}
+			edgeMsg := "Selector Match"
+			if len(selectorParts) > 0 {
+				edgeMsg = "Match: " + strings.Join(selectorParts, ", ")
+			}
+
+			// The EDGE (Selector Match) is healthy if it matches, regardless of pod phase
+			res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: edgeMsg})
 		}
 	}
 	if matched == 0 {

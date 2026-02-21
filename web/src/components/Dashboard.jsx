@@ -24,7 +24,7 @@ function MiniChart({ data, color, label }) {
         <div className="flex flex-col gap-1 w-full mt-2">
             <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-mono">
                 <span>{data[0].timestamp}</span>
-                <span>{label}: {data[data.length - 1].value}%</span>
+                <span>{label}: {data[data.length - 1].value.toFixed(2)}%</span>
                 <span>{data[data.length - 1].timestamp}</span>
             </div>
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-10 overflow-visible">
@@ -214,7 +214,7 @@ export default function Dashboard() {
                         <div>
                             <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Compute Load (CPU)</p>
                             <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
-                                {stats?.cpuUsage || 0}%
+                                {stats?.cpuUsage?.toFixed(2) || "0.00"}%
                                 <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.cpuTotal || '—'}</span>
                             </h3>
                         </div>
@@ -231,7 +231,7 @@ export default function Dashboard() {
                         <div>
                             <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Memory Pressure (RAM)</p>
                             <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
-                                {stats?.ramUsage || 0}%
+                                {stats?.ramUsage?.toFixed(2) || "0.00"}%
                                 <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.ramTotal || '—'}</span>
                             </h3>
                         </div>
