@@ -299,6 +299,27 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// AdminMiddleware ensures the user has the 'kview-cluster-admin' role or 'admin' fallback role.
+func (h *AuthHandler) AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+			return
+		}
+		
+		roleStr := role.(string)
+		if roleStr != "kview-cluster-admin" && roleStr != "admin" {
+			email, _ := c.Get("email")
+			fmt.Printf("UNAUTHORIZED ACCESS ATTEMPT: User %s with role %s tried to access an admin-only endpoint\n", email, roleStr)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+			return
+		}
+		
+		c.Next()
+	}
+}
+
 // GetRBACConfig returns the loaded static RBAC config.
 func (h *AuthHandler) GetRBACConfig() *rbac.RBACConfig {
 	return h.rbacConfig

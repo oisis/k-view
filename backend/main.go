@@ -82,8 +82,11 @@ func main() {
 			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
-
-			protected.GET("/rbac/status", rbacHandler.GetStatus)
+			admin := protected.Group("/rbac")
+			admin.Use(authHandler.AdminMiddleware())
+			{
+				admin.GET("/status", rbacHandler.GetStatus)
+			}
 		}
 	}
 

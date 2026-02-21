@@ -169,15 +169,17 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
 
             {/* Bottom: admin + mode label + logout */}
             <div className="px-3 py-3 border-t border-[var(--border-color)] space-y-1.5">
-                <a
-                    href="/access"
-                    className={`flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] transition-colors w-full
-            ${p === '/access'
-                            ? 'bg-blue-900/40 text-blue-300 border border-blue-800'
-                            : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] border border-transparent'}`}
-                >
-                    <ShieldAlert size={14} /> Access Overview
-                </a>
+                {(user.role === 'kview-cluster-admin' || user.role === 'admin') && (
+                    <a
+                        href="/access"
+                        className={`flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] transition-colors w-full
+                ${p === '/access'
+                                ? 'bg-blue-900/40 text-blue-300 border border-blue-800'
+                                : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] border border-transparent'}`}
+                    >
+                        <ShieldAlert size={14} /> Access Overview
+                    </a>
+                )}
 
                 {/* Env Status Label moved here */}
                 {user.devMode ? (
@@ -300,7 +302,7 @@ function App() {
                         <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
 
                         <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails />)} />
-                        <Route path="/access" element={protect(<AdminPanel />)} />
+                        <Route path="/access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? protect(<AdminPanel />) : <Navigate to="/" />} />
                     </Routes>
                 </main>
             </div>
