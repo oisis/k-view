@@ -349,7 +349,25 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 								"ports": []gin.H{{"containerPort": 80}},
 							},
 						},
+						"volumes": []gin.H{
+							{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
+							{"name": "secret-volume", "secret": gin.H{"secretName": "app-secret"}},
+							{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "pvc-data"}},
+						},
 					},
+				},
+				// For direct pods
+				"containers": []gin.H{
+					{
+						"name":  "main",
+						"image": "nginx:1.21",
+						"ports": []gin.H{{"containerPort": 80}},
+					},
+				},
+				"volumes": []gin.H{
+					{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
+					{"name": "secret-volume", "secret": gin.H{"secretName": "app-secret"}},
+					{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "pvc-data"}},
 				},
 			},
 			"status": gin.H{

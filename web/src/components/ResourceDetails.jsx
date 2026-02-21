@@ -76,6 +76,12 @@ export default function ResourceDetails({ user }) {
     const isDeployment = kind.toLowerCase().startsWith('deploy');
     const isService = kind.toLowerCase().startsWith('serv');
 
+    const podSpec = isPod ? spec : (spec.template?.spec || {});
+    const volumes = podSpec.volumes || [];
+    const mountedConfigMaps = Array.from(new Set(volumes.filter(v => v.configMap).map(v => v.configMap.name)));
+    const mountedSecrets = Array.from(new Set(volumes.filter(v => v.secret).map(v => v.secret.secretName)));
+    const mountedPvcs = Array.from(new Set(volumes.filter(v => v.persistentVolumeClaim).map(v => v.persistentVolumeClaim.claimName)));
+
     const restarts = isPod && status.containerStatuses
         ? status.containerStatuses.reduce((acc, c) => acc + (c.restartCount || 0), 0)
         : 0;
@@ -260,9 +266,44 @@ export default function ResourceDetails({ user }) {
                         <DetailSection title="Resource Info">
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-[var(--border-color)]/30">
-                                    {spec.replicas !== undefined && <DetailRow label="Desired Replicas" value={spec.replicas} />}
                                     {spec.strategy?.type && <DetailRow label="Strategy" value={spec.strategy.type} />}
                                     {spec.clusterIP && <DetailRow label="Cluster IP" value={spec.clusterIP} />}
+
+                                    {mountedConfigMaps.length > 0 && (
+                                        <DetailRow label="ConfigMaps">
+                                            <div className="flex flex-wrap gap-2">
+                                                {mountedConfigMaps.map(cm => (
+                                                    <span key={cm} className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/20 rounded text-[10px] text-yellow-500 font-mono">
+                                                        {cm}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
+                                    {mountedSecrets.length > 0 && (
+                                        <DetailRow label="Secrets">
+                                            <div className="flex flex-wrap gap-2">
+                                                {mountedSecrets.map(s => (
+                                                    <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-[10px] text-purple-400 font-mono">
+                                                        {s}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
+                                    {mountedPvcs.length > 0 && (
+                                        <DetailRow label="Volumes (PVC)">
+                                            <div className="flex flex-wrap gap-2">
+                                                {mountedPvcs.map(pvc => (
+                                                    <span key={pvc} className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-[10px] text-blue-400 font-mono">
+                                                        {pvc}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </DetailRow>
+                                    )}
 
                                     {(spec.selector?.matchLabels || spec.selector) && (
                                         <DetailRow label="Selectors">
