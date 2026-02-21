@@ -1,16 +1,20 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "k-view.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
+{{- $ns := .Release.Namespace -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
     {{- include "k-view.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
+    {{- if and .Values.traefik.websocketMiddleware.enabled (eq .Values.ingress.className "traefik") }}
+    traefik.ingress.kubernetes.io/router.middlewares: "{{ $ns }}-{{ $fullName }}-websocket@kubernetescrd"
+    {{- end }}
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}

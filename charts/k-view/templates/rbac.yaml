@@ -15,15 +15,56 @@ kind: ClusterRole
 metadata:
   name: {{ include "k-view.fullname" . }}-role
 rules:
+# Core API group resources
 - apiGroups: [""]
-  resources: ["pods", "deployments", "services", "namespaces", "nodes"]
+  resources: ["pods", "services", "namespaces", "nodes", "persistentvolumes",
+              "persistentvolumeclaims", "configmaps", "secrets", "serviceaccounts",
+              "endpoints", "events"]
   verbs: ["get", "watch", "list"]
+# Pod subresources for exec and logs
+- apiGroups: [""]
+  resources: ["pods/exec", "pods/log", "pods/attach"]
+  verbs: ["get", "create"]
+# Impersonation (required for user context propagation)
 - apiGroups: [""]
   resources: ["users", "groups", "serviceaccounts"]
   verbs: ["impersonate"]
+# Apps resources
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+  verbs: ["get", "watch", "list", "update", "patch"]
+# Batch resources
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "watch", "list"]
+# Networking resources
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "ingressclasses", "networkpolicies"]
+  verbs: ["get", "watch", "list"]
+# Storage resources
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "watch", "list"]
+# RBAC resources
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles", "clusterrolebindings", "roles", "rolebindings"]
+  verbs: ["get", "watch", "list"]
+# CRDs
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "watch", "list"]
+# Metrics
 - apiGroups: ["metrics.k8s.io"]
   resources: ["pods", "nodes"]
   verbs: ["get", "list"]
+# Policy
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["get", "watch", "list"]
+# Autoscaling
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
