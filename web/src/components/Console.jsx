@@ -35,10 +35,19 @@ export default function Console() {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [history]);
 
+    // Helper to focus and move cursor to end
+    const focusAndEnd = useCallback(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+            const len = inputRef.current.value.length;
+            inputRef.current.setSelectionRange(len, len);
+        }
+    }, []);
+
     // Initial focus
     useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
+        focusAndEnd();
+    }, [focusAndEnd]);
 
     // Robust Command fragment suggestions
     const suggestions = useMemo(() => {
@@ -148,7 +157,7 @@ export default function Console() {
             if (trimmed.endsWith(value)) return prev;
             return `${trimmed} ${value} `;
         });
-        setTimeout(() => inputRef.current?.focus(), 10);
+        setTimeout(focusAndEnd, 10);
     };
 
     const handleSuggestionClick = (val) => {
@@ -157,7 +166,7 @@ export default function Console() {
             const trimmed = prev.trim();
             return trimmed + ' ' + val + ' ';
         });
-        setTimeout(() => inputRef.current?.focus(), 10);
+        setTimeout(focusAndEnd, 10);
     };
 
     const runCommand = useCallback(async (raw) => {
@@ -190,9 +199,9 @@ export default function Console() {
             setHistory(h => [...h, { type: 'output', text: 'Connection error: unable to reach backend.', exitCode: 1 }]);
         } finally {
             setLoading(false);
-            setTimeout(() => inputRef.current?.focus(), 50);
+            setTimeout(focusAndEnd, 50);
         }
-    }, [bannerVisible]);
+    }, [bannerVisible, focusAndEnd]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -202,12 +211,14 @@ export default function Console() {
             const next = Math.min(histIdx + 1, cmdHistory.length - 1);
             setHistIdx(next);
             if (next >= 0) setInput(cmdHistory[next]);
+            setTimeout(focusAndEnd, 0);
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             const next = histIdx - 1;
             setHistIdx(next);
             if (next < 0) setInput('kubectl ');
             else setInput(cmdHistory[next]);
+            setTimeout(focusAndEnd, 0);
         } else if (e.key === 'l' && e.ctrlKey) {
             e.preventDefault();
             setBannerVisible(false);
@@ -223,9 +234,17 @@ export default function Console() {
 
     const handleInputChange = (e) => {
         const val = e.target.value;
-        if (val.startsWith('kubectl ')) setInput(val);
-        else if ('kubectl '.startsWith(val)) setInput('kubectl ');
-        else setInput('kubectl ' + val.trim());
+        // Extract the command part by removing the prefix regardless of where it appears
+        // This prevents "kubectl dkubectl get" duplication
+        const commandPart = val.replace(/^kubectl\s*/i, '').replace(/kubectl\s*/gi, '');
+        setInput('kubectl ' + commandPart);
+    };
+
+    const handleSelect = (e) => {
+        // Prevent cursor from entering the protected "kubectl " prefix area
+        if (e.target.selectionStart < 8) {
+            e.target.setSelectionRange(8, 8);
+        }
     };
 
     return (
@@ -235,7 +254,7 @@ export default function Console() {
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"
                 onClick={(e) => {
                     if (!window.getSelection()?.toString()) {
-                        inputRef.current?.focus();
+                        focusAndEnd();
                     }
                 }}
             >
@@ -301,6 +320,7 @@ export default function Console() {
                         type="text"
                         value={input}
                         onChange={handleInputChange}
+                        onSelect={handleSelect}
                         onKeyDown={handleKeyDown}
                         disabled={loading}
                         spellCheck={false}
