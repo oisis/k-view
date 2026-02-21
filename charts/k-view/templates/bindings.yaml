@@ -18,8 +18,9 @@ metadata:
     {{- include "k-view.labels" $ | nindent 4 }}
 {{- end }}
 subjects:
+{{- $sType := .subjectType }}
 {{- range .subjects }}
-- kind: {{ $.subjectType }}
+- kind: {{ $sType }}
   name: {{ . }}
   apiGroup: rbac.authorization.k8s.io
 {{- end }}

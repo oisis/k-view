@@ -36,14 +36,14 @@ serviceAccount:
 podAnnotations: {}
 
 # -- Pod-level security context
-podSecurityContext: {}
+podSecurityContext:
+  fsGroup: 1000
 
 # -- Container-level security context
 # Ensures the container runs as a non-root user (1000) for better security
 securityContext:
   runAsUser: 1000
   runAsGroup: 1000
-  fsGroup: 1000
 
 service:
   # -- Service type (ClusterIP, NodePort, LoadBalancer)
