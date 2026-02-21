@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ChevronLeft, FileText, List, Terminal, Search, RefreshCw, ChevronRight,
     Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal,
@@ -11,7 +11,19 @@ import TerminalModal from './TerminalModal';
 export default function ResourceDetails({ user }) {
     const { kind, namespace, name } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('overview');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'overview';
+
+    const setActiveTab = (tabId) => {
+        const newParams = new URLSearchParams(searchParams);
+        if (tabId === 'overview') {
+            newParams.delete('tab');
+        } else {
+            newParams.set('tab', tabId);
+        }
+        setSearchParams(newParams, { replace: true });
+    };
+
     const [data, setData] = useState(null);
     const [yaml, setYaml] = useState('');
     const [editedYaml, setEditedYaml] = useState('');
