@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // UserContext represents the impersonation context for a request.
@@ -27,6 +28,7 @@ type KubernetesProvider interface {
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
 	GetPodLogs(ctx context.Context, namespace, pod, container string) (string, error)
+	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
 }
 
@@ -127,6 +129,25 @@ func (c *Client) GetPodLogs(ctx context.Context, namespace, pod, container strin
 
 	return string(data), nil
 }
+func (c *Client) GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error) {
+	dyn, err := c.GetDynamicClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "metrics.k8s.io",
+		Version:  "v1beta1",
+		Resource: "pods",
+	}
+
+	item, err := dyn.Resource(gvr).Namespace(namespace).Get(ctx, pod, metav1.GetOptions{})
+	if err != nil {
+		return nil, nil // Return nil if metrics server is not available or pod not found there
+	}
+
+	return item.Object, nil
+}
 
 // ---- Mock Client ----
 
@@ -166,6 +187,19 @@ func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
 
 func (m *MockClient) GetPodLogs(_ context.Context, _, _, container string) (string, error) {
 	return fmt.Sprintf("2024-02-18 10:00:01 [info] Starting %s...\n2024-02-18 10:00:02 [info] Configuration loaded.\n2024-02-18 10:00:05 [info] Connected to database clusters.\n2024-02-18 10:00:06 [info] Listening on :8080\n2024-02-18 10:15:23 GET /health 200 OK\n", container), nil
+}
+func (m *MockClient) GetPodMetrics(_ context.Context, _, _ string) (map[string]interface{}, error) {
+	return map[string]interface{}{
+		"containers": []interface{}{
+			map[string]interface{}{
+				"name": "main",
+				"usage": map[string]interface{}{
+					"cpu":    "125m",
+					"memory": "256Mi",
+				},
+			},
+		},
+	}, nil
 }
 
 func (m *MockClient) GetDynamicClient(ctx context.Context) (dynamic.Interface, error) {

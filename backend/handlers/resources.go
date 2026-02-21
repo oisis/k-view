@@ -388,6 +388,17 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					},
 				},
 			},
+			"metrics": gin.H{
+				"containers": []gin.H{
+					{
+						"name": "main",
+						"usage": gin.H{
+							"cpu":    "125m",
+							"memory": "256Mi",
+						},
+					},
+				},
+			},
 		}
 
 		c.JSON(http.StatusOK, details)
@@ -425,6 +436,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"metadata": item.Object["metadata"],
 		"spec":     item.Object["spec"],
 		"status":   item.Object["status"],
+	}
+
+	if strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod" {
+		metrics, _ := h.k8sClient.GetPodMetrics(c.Request.Context(), ns, name)
+		if metrics != nil {
+			wrapped["metrics"] = metrics
+		}
 	}
 
 	c.JSON(http.StatusOK, wrapped)

@@ -93,6 +93,29 @@ export default function ResourceDetails({ user }) {
         ? status.containerStatuses.length
         : 0;
 
+    // Calculate Pod Metrics
+    let cpuUsage = '—';
+    let ramUsage = '—';
+    if (isPod && data.metrics?.containers) {
+        const cpuSum = data.metrics.containers.reduce((acc, c) => {
+            const val = c.usage?.cpu || '0m';
+            if (val.endsWith('n')) return acc + (parseInt(val) / 1000000);
+            if (val.endsWith('u')) return acc + (parseInt(val) / 1000);
+            if (val.endsWith('m')) return acc + parseInt(val);
+            return acc + (parseInt(val) * 1000);
+        }, 0);
+        cpuUsage = cpuSum >= 1000 ? `${(cpuSum / 1000).toFixed(2)}` : `${Math.round(cpuSum)}m`;
+
+        const ramSum = data.metrics.containers.reduce((acc, c) => {
+            const val = c.usage?.memory || '0Ki';
+            if (val.endsWith('Ki')) return acc + (parseInt(val) / 1024);
+            if (val.endsWith('Mi')) return acc + parseInt(val);
+            if (val.endsWith('Gi')) return acc + (parseInt(val) * 1024);
+            return acc + (parseInt(val) / (1024 * 1024));
+        }, 0);
+        ramUsage = ramSum >= 1024 ? `${(ramSum / 1024).toFixed(2)} GiB` : `${Math.round(ramSum)} MiB`;
+    }
+
     return (
         <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
@@ -203,6 +226,17 @@ export default function ResourceDetails({ user }) {
                                             {restarts}
                                         </span>
                                     </StatusItem>
+                                )}
+
+                                {isPod && (
+                                    <>
+                                        <StatusItem label="CPU">
+                                            <span className="text-blue-400 font-mono">{cpuUsage}</span>
+                                        </StatusItem>
+                                        <StatusItem label="RAM">
+                                            <span className="text-teal-400 font-mono">{ramUsage}</span>
+                                        </StatusItem>
+                                    </>
                                 )}
 
                                 <StatusItem label="Age">
