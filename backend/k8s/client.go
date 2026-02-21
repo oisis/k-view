@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -24,6 +26,7 @@ type KubernetesProvider interface {
 	ListNamespaces(ctx context.Context) ([]string, error)
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
+	GetPodLogs(ctx context.Context, namespace, pod, container string) (string, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
 }
 
@@ -41,30 +44,22 @@ func NewClient() (*Client, error) {
 	return &Client{baseConfig: config}, nil
 }
 
-func (c *Client) getClientset(ctx context.Context) (*kubernetes.Clientset, error) {
+func (c *Client) GetConfig(ctx context.Context) *rest.Config {
 	config := rest.CopyConfig(c.baseConfig)
-	
 	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
-		// Set impersonation config if user context is present
 		config.Impersonate = rest.ImpersonationConfig{
 			UserName: user.Email,
 		}
 	}
+	return config
+}
 
-	return kubernetes.NewForConfig(config)
+func (c *Client) getClientset(ctx context.Context) (*kubernetes.Clientset, error) {
+	return kubernetes.NewForConfig(c.GetConfig(ctx))
 }
 
 func (c *Client) GetDynamicClient(ctx context.Context) (dynamic.Interface, error) {
-	config := rest.CopyConfig(c.baseConfig)
-	
-	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
-		// Set impersonation config if user context is present
-		config.Impersonate = rest.ImpersonationConfig{
-			UserName: user.Email,
-		}
-	}
-
-	return dynamic.NewForConfig(config)
+	return dynamic.NewForConfig(c.GetConfig(ctx))
 }
 
 func (c *Client) ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error) {
@@ -107,6 +102,32 @@ func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
 	return nodes.Items, nil
 }
 
+func (c *Client) GetPodLogs(ctx context.Context, namespace, pod, container string) (string, error) {
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	tailLines := int64(200)
+	req := clientset.CoreV1().Pods(namespace).GetLogs(pod, &corev1.PodLogOptions{
+		Container: container,
+		TailLines: &tailLines,
+	})
+
+	readCloser, err := req.Stream(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer readCloser.Close()
+
+	data, err := io.ReadAll(readCloser)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
+}
+
 // ---- Mock Client ----
 
 type MockClient struct{}
@@ -143,10 +164,11 @@ func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
 	return mockNamespaces, nil
 }
 
+func (m *MockClient) GetPodLogs(_ context.Context, _, _, container string) (string, error) {
+	return fmt.Sprintf("2024-02-18 10:00:01 [info] Starting %s...\n2024-02-18 10:00:02 [info] Configuration loaded.\n2024-02-18 10:00:05 [info] Connected to database clusters.\n2024-02-18 10:00:06 [info] Listening on :8080\n2024-02-18 10:15:23 GET /health 200 OK\n", container), nil
+}
+
 func (m *MockClient) GetDynamicClient(ctx context.Context) (dynamic.Interface, error) {
-	// The mock currently does not have a fully rigged dynamic interface. 
-	// For devMode=true we still intercept endpoints before calling this, 
-	// so returning nil here is typically safe for now.
 	return nil, nil
 }
 

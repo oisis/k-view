@@ -44,7 +44,7 @@ func (c *Client) Exec(ctx context.Context, namespace, pod, container string, pty
 		TTY:       true,
 	}, scheme.ParameterCodec)
 
-	exec, err := remotecommand.NewSPDYExecutor(c.baseConfig, "POST", req.URL())
+	exec, err := remotecommand.NewSPDYExecutor(c.GetConfig(ctx), "POST", req.URL())
 	if err != nil {
 		return fmt.Errorf("failed to initialize spdy executor: %v", err)
 	}

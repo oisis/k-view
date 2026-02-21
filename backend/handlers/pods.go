@@ -68,3 +68,24 @@ func (h *PodHandler) ListNamespaces(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, namespaces)
 }
+func (h *PodHandler) GetLogs(c *gin.Context) {
+	namespace := c.Param("namespace")
+	pod := c.Param("name")
+	container := c.Query("container")
+
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if namespace != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + namespace})
+			return
+		}
+	}
+
+	logs, err := h.k8sClient.GetPodLogs(c.Request.Context(), namespace, pod, container)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get logs: " + err.Error()})
+		return
+	}
+
+	c.String(http.StatusOK, logs)
+}

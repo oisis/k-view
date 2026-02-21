@@ -16,6 +16,7 @@ export default function ResourceDetails({ user }) {
     const [editedYaml, setEditedYaml] = useState('');
     const [format, setFormat] = useState('yaml'); // 'yaml' or 'json'
     const [events, setEvents] = useState([]);
+    const [logs, setLogs] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [traceModalOpen, setTraceModalOpen] = useState(false);
@@ -32,22 +33,27 @@ export default function ResourceDetails({ user }) {
             setLoading(true);
             try {
                 const nsPath = namespace ? `/${namespace}` : '/-';
-                const [detailsRes, yamlRes, eventsRes] = await Promise.all([
+                const [detailsRes, yamlRes, eventsRes, logsRes] = await Promise.all([
                     fetch(`/api/resources/${kind}${nsPath}/${name}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`),
-                    fetch(`/api/resources/${kind}${nsPath}/${name}/events`)
+                    fetch(`/api/resources/${kind}${nsPath}/${name}/events`),
+                    kind === 'pods' ? fetch(`/api/resources/pods/${namespace}/${name}/logs`) : Promise.resolve(null)
                 ]);
 
                 if (!detailsRes.ok) throw new Error('Failed to fetch resource details');
 
-                const detailsData = await detailsRes.json();
-                const yamlData = await yamlRes.text();
-                const eventsData = await eventsRes.json();
+                const [detailsData, yamlData, eventsData, logsData] = await Promise.all([
+                    detailsRes.json(),
+                    yamlRes.text(),
+                    eventsRes.json(),
+                    logsRes ? logsRes.text() : Promise.resolve('')
+                ]);
 
                 setData(detailsData);
                 setYaml(yamlData);
                 setEditedYaml(yamlData);
-                setEvents(eventsData);
+                setEvents(Array.isArray(eventsData) ? eventsData : []);
+                setLogs(logsData);
             } catch (e) {
                 setError(e.message);
             } finally {
@@ -376,7 +382,7 @@ export default function ResourceDetails({ user }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-color)]/20">
-                                {events.map((e, i) => (
+                                {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
@@ -392,34 +398,32 @@ export default function ResourceDetails({ user }) {
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
+                                            No recent events found.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </DetailSection>
                 )}
 
                 {activeTab === 'logs' && (
-                    <div className="bg-black rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col h-[650px]">
-                        <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col h-[650px]">
+                        <div className="px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex items-center justify-between">
                             <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
                                 <span>Container: main</span>
                                 <span className="flex items-center gap-1.5 text-green-500/80 font-bold">
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                    Live Stream
+                                    Pod Logs
                                 </span>
                             </div>
-                            <div className="text-[var(--text-muted)] text-[10px] font-mono">152 lines</div>
+                            <div className="text-[var(--text-muted)] text-[10px] font-mono">{logs.split('\n').length} lines</div>
                         </div>
-                        <div className="flex-1 p-6 font-mono text-xs overflow-auto text-gray-400 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
-                            <div>2024-02-18 10:00:01 [info] Starting Application...</div>
-                            <div>2024-02-18 10:00:02 [info] Configuration loaded.</div>
-                            <div>2024-02-18 10:00:05 [info] Connected to database clusters.</div>
-                            <div>2024-02-18 10:00:06 [info] Listening on :8080</div>
-                            <div className="text-blue-400">2024-02-18 10:15:23 GET /health 200 OK</div>
-                            <div className="text-yellow-500/80">2024-02-18 10:20:44 WARN High latency detected on upstream-01</div>
-                            <div className="text-blue-400">2024-02-18 10:25:12 GET /metrics 200 OK</div>
-                            <div className="text-gray-500 italic mt-4 italic">// logs continue to stream...</div>
-                            <div className="animate-pulse w-2 h-4 bg-gray-500 mt-2" />
+                        <div className="flex-1 p-6 font-mono text-xs overflow-auto text-[var(--text-secondary)] whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)]">
+                            {logs || 'No logs found for this container.'}
                         </div>
                     </div>
                 )}
