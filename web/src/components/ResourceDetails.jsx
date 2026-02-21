@@ -86,6 +86,13 @@ export default function ResourceDetails({ user }) {
         ? status.containerStatuses.reduce((acc, c) => acc + (c.restartCount || 0), 0)
         : 0;
 
+    const readyCount = isPod && status.containerStatuses
+        ? status.containerStatuses.filter(c => c.ready).length
+        : 0;
+    const totalContainers = isPod && status.containerStatuses
+        ? status.containerStatuses.length
+        : 0;
+
     return (
         <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
@@ -181,6 +188,14 @@ export default function ResourceDetails({ user }) {
                                         {data.resource?.status || status.phase || 'Unknown'}
                                     </div>
                                 </StatusItem>
+
+                                {isPod && (
+                                    <StatusItem label="Ready">
+                                        <span className={readyCount === totalContainers ? 'text-green-400' : 'text-yellow-400'}>
+                                            {readyCount}/{totalContainers}
+                                        </span>
+                                    </StatusItem>
+                                )}
 
                                 {isPod && (
                                     <StatusItem label="Restarts">

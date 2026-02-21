@@ -371,11 +371,22 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				},
 			},
 			"status": gin.H{
+				"phase":               "Running",
 				"replicas":            3,
 				"readyReplicas":       3,
 				"updatedReplicas":     3,
 				"availableReplicas":   3,
 				"observedGeneration": 4,
+				"containerStatuses": []gin.H{
+					{
+						"name":         "main",
+						"ready":        true,
+						"restartCount": 0,
+						"state": gin.H{
+							"running": gin.H{"startedAt": "2024-02-18T10:00:00Z"},
+						},
+					},
+				},
 			},
 		}
 
