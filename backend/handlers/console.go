@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"k-view/k8s"
 )
 
 // ConsoleHandler handles kubectl command execution.
@@ -53,10 +55,19 @@ func (h *ConsoleHandler) Exec(c *gin.Context) {
 	var output string
 	var exitCode int
 
+	// Extract user context from Gin
+	userCtxValue, exists := c.Get("userCtx")
+	var user k8s.UserContext
+	if exists {
+		if u, ok := userCtxValue.(k8s.UserContext); ok {
+			user = u
+		}
+	}
+
 	if h.devMode {
-		output, exitCode = mockKubectl(cmd)
+		output, exitCode = mockKubectl(cmd, user)
 	} else {
-		output, exitCode = realKubectl(cmd)
+		output, exitCode = realKubectl(cmd, user)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -65,12 +76,25 @@ func (h *ConsoleHandler) Exec(c *gin.Context) {
 	})
 }
 
-// realKubectl executes kubectl against the real cluster using the in-cluster service account.
-func realKubectl(cmd string) (string, int) {
+// realKubectl executes kubectl against the real cluster using the in-cluster service account,
+// while impersonating the logged-in user if they are not an administrator.
+func realKubectl(cmd string, user k8s.UserContext) (string, int) {
 	parts := strings.Fields(cmd)
 	if len(parts) == 0 {
 		return "", 0
 	}
+
+	// Impersonate the user if they are not an admin
+	isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
+	if !isAdmin && user.Email != "" {
+		// Insert --as=<email> immediately after 'kubectl'
+		impersonateFlag := fmt.Sprintf("--as=%s", user.Email)
+		newParts := make([]string, 0, len(parts)+1)
+		newParts = append(newParts, parts[0], impersonateFlag)
+		newParts = append(newParts, parts[1:]...)
+		parts = newParts
+	}
+
 	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -81,8 +105,9 @@ func realKubectl(cmd string) (string, int) {
 	return string(out), 0
 }
 
-// mockKubectl parses kubectl commands and returns realistic fake output.
-func mockKubectl(cmd string) (string, int) {
+// mockKubectl parses kubectl commands and returns realistic fake output,
+// simulating RBAC rejections for viewer roles on mutating commands.
+func mockKubectl(cmd string, user k8s.UserContext) (string, int) {
 	parts := strings.Fields(cmd)
 	if len(parts) < 2 {
 		return kubectlHelp(), 0
@@ -90,6 +115,14 @@ func mockKubectl(cmd string) (string, int) {
 
 	sub := parts[1]
 	args := parts[2:]
+
+	// Simulate RBAC restrictions for viewers
+	if user.Role == "viewer" {
+		switch sub {
+		case "apply", "delete", "edit", "create", "scale", "auth", "replace", "patch":
+			return fmt.Sprintf("Error from server (Forbidden): %ss is forbidden: User %q cannot %s resource in API group", sub, user.Email, sub), 1
+		}
+	}
 
 	// Helper to find flag value like -n or --namespace
 	ns := extractFlag(args, "-n", "--namespace")
