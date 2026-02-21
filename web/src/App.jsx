@@ -58,7 +58,7 @@ function NavItem({ href, icon: Icon, label, active }) {
     return (
         <a
             href={href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-xl text-[13px] font-medium transition-all duration-200
         ${active
                     ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)]'}`}
@@ -192,10 +192,10 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
                     )}
                     <button
                         onClick={onLogout}
-                        className="text-[var(--text-muted)] hover:text-white transition-colors"
+                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:text-red-400 transition-all active:scale-90 flex items-center justify-center group shadow-sm"
                         title="Logout"
                     >
-                        <LogOut size={16} />
+                        <LogOut size={20} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                 </div>
             </div>

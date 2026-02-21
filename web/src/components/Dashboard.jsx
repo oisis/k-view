@@ -65,7 +65,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
     const cls = colorMap[color] || colorMap.blue;
 
     return (
-        <div className={`bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent)]/50 transition-all duration-300 group shadow-md hover:shadow-indigo-500/5`}>
+        <div className={`bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent)]/50 transition-all duration-300 group shadow-md hover:shadow-indigo-500/5`}>
             <div className="flex items-start justify-between mb-3">
                 <div>
                     <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{title}</p>
@@ -158,7 +158,7 @@ export default function Dashboard() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
                 {/* Cluster Identity */}
                 <MetricCard
@@ -209,7 +209,7 @@ export default function Dashboard() {
                 />
 
                 {/* CPU Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
                     <div className="flex items-center justify-between mb-5">
                         <div>
                             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
@@ -226,7 +226,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* RAM Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
                     <div className="flex items-center justify-between mb-5">
                         <div>
                             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>

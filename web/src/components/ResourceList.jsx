@@ -389,7 +389,7 @@ export default function ResourceList({ kind }) {
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors group select-none"
+                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors group select-none"
                                     >
                                         <div className="flex items-center gap-2">
                                             {col.label}
@@ -403,7 +403,7 @@ export default function ResourceList({ kind }) {
                                         </div>
                                     </th>
                                 ))}
-                                {supportsTrace && <th className="px-6 py-4 whitespace-nowrap w-20"></th>}
+                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-20"></th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-muted)]">
@@ -416,7 +416,7 @@ export default function ResourceList({ kind }) {
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
                                         return (
-                                            <td key={col.key} className="px-6 py-3 whitespace-nowrap">
+                                            <td key={col.key} className="px-4 py-2 whitespace-nowrap">
                                                 {col.badge
                                                     ? <StatusBadge value={val} />
                                                     : col.key === 'name'
@@ -434,7 +434,7 @@ export default function ResourceList({ kind }) {
                                         );
                                     })}
                                     {supportsTrace && (
-                                        <td className="px-6 py-3 whitespace-nowrap text-right">
+                                        <td className="px-4 py-2 whitespace-nowrap text-right">
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); setTraceTarget({ kind: kind.replace(/e?s$/, ''), namespace: item.namespace || '', name: item.name }); }}
                                                 className="text-blue-400/70 hover:text-blue-300 p-1.5 hover:bg-blue-900/30 rounded inline-flex"

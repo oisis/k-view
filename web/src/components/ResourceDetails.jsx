@@ -173,9 +173,9 @@ export default function ResourceDetails({ user }) {
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
+        <div className="p-6 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
-            <div className="flex items-center gap-6 mb-10">
+            <div className="flex items-center gap-6 mb-6">
                 <button
                     onClick={() => navigate(-1)}
                     className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
@@ -233,7 +233,7 @@ export default function ResourceDetails({ user }) {
             />
 
             {/* Tabs */}
-            <div className="flex items-center gap-2 mb-8 bg-[var(--bg-sidebar)]/30 p-1 rounded-2xl border border-[var(--border-color)] w-max">
+            <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/30 p-1 rounded-2xl border border-[var(--border-color)] w-max">
                 {[
                     { id: 'overview', label: 'Overview', icon: Info },
                     { id: 'yaml', label: 'YAML', icon: FileText },
@@ -255,12 +255,12 @@ export default function ResourceDetails({ user }) {
             </div>
 
             {/* Tab Content */}
-            <div className="space-y-6 flex-1 flex flex-col pb-8">
+            <div className="space-y-2 flex-1 flex flex-col pb-8">
                 {activeTab === 'overview' && (
                     <>
                         {/* Section: Status Bar */}
-                        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl mb-6">
-                            <div className="flex flex-wrap items-center gap-x-12 gap-y-6 px-8 py-6 bg-[var(--bg-sidebar)]/20">
+                        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
+                            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/20">
                                 <StatusItem label="Status">
                                     <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-green-400' : 'text-yellow-400'}`}>
                                         <Activity size={14} />
@@ -753,7 +753,7 @@ export default function ResourceDetails({ user }) {
 
 function StatusItem({ label, value, children }) {
     return (
-        <div className="flex flex-col gap-2 min-w-[120px]">
+        <div className="flex flex-col gap-1 min-w-[100px]">
             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
             <div className="text-base font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem] tracking-tight">
                 {children || (value ?? '—')}
@@ -765,7 +765,7 @@ function StatusItem({ label, value, children }) {
 function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-8 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
+            <div className="px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
                 <h3 className="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
@@ -778,10 +778,10 @@ function DetailSection({ title, children, className = "" }) {
 function DetailRow({ label, value, children }) {
     return (
         <tr className="group">
-            <td className="px-6 py-4 w-60 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
+            <td className="px-4 py-3 w-48 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
                 {label}
             </td>
-            <td className="px-6 py-4 text-sm text-[var(--text-primary)]">
+            <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                 {children || (
                     <span className={label === 'UID' || label === 'Name' ? 'font-mono text-blue-300' : 'text-[var(--text-white)]'}>
                         {value ?? '—'}
