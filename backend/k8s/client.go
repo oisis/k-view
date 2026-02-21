@@ -49,8 +49,13 @@ func NewClient() (*Client, error) {
 func (c *Client) GetConfig(ctx context.Context) *rest.Config {
 	config := rest.CopyConfig(c.baseConfig)
 	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
-		config.Impersonate = rest.ImpersonationConfig{
-			UserName: user.Email,
+		// Admin roles bypass impersonation — they use the ServiceAccount's own permissions.
+		// For non-admin roles, we impersonate the user so K8s RBAC applies to their identity.
+		isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
+		if !isAdmin {
+			config.Impersonate = rest.ImpersonationConfig{
+				UserName: user.Email,
+			}
 		}
 	}
 	return config

@@ -86,7 +86,10 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
 
             // Connect WebSocket
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/api/exec/${namespace}/${pod}/${containerName}`;
+            // JWT token must be sent via query param since WebSocket API doesn't support custom headers
+            const token = localStorage.getItem('token');
+            const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
+            const wsUrl = `${protocol}//${window.location.host}/api/exec/${namespace}/${pod}/${containerName}${tokenParam}`;
             const ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {

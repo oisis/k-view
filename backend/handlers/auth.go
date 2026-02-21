@@ -278,14 +278,25 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		var email string
 		var ok bool
 
-		// 1. Check for Bearer token (Local Authentication JWT)
-		authHeader := c.GetHeader("Authorization")
-		if strings.HasPrefix(authHeader, "Bearer ") && h.localAuth != nil {
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-			username, err := h.localAuth.VerifyJWT(tokenStr)
+		// 0. Check for token query param (used by WebSocket connections which can't set headers)
+		if tokenParam := c.Query("token"); tokenParam != "" && h.localAuth != nil {
+			username, err := h.localAuth.VerifyJWT(tokenParam)
 			if err == nil && username != "" {
-				email = username // For static local users, 'email' is just their username string
+				email = username
 				ok = true
+			}
+		}
+
+		// 1. Check for Bearer token (Local Authentication JWT)
+		if !ok {
+			authHeader := c.GetHeader("Authorization")
+			if strings.HasPrefix(authHeader, "Bearer ") && h.localAuth != nil {
+				tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+				username, err := h.localAuth.VerifyJWT(tokenStr)
+				if err == nil && username != "" {
+					email = username // For static local users, 'email' is just their username string
+					ok = true
+				}
 			}
 		}
 
