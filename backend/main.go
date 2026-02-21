@@ -8,9 +8,35 @@ import (
 	"k-view/k8s"
 
 	"github.com/gin-gonic/gin"
+	"bufio"
+	"strings"
 )
 
+func loadEnv(path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+			os.Setenv(key, value)
+		}
+	}
+}
+
 func main() {
+	loadEnv(".env")
+
 	devMode := os.Getenv("DEV_MODE") == "true"
 	if devMode {
 		log.Println("⚠️  DEVELOPMENT MODE ENABLED — Do not use in production!")

@@ -67,63 +67,52 @@ func NewAuthHandler() (*AuthHandler, error) {
 		fmt.Printf("Local Authentication enabled with %d static users.\n", len(la.Users))
 	}
 
-	if devMode {
-		return &AuthHandler{
-			rbacConfig:      rbacConfig,
-			localAuth:       localAuth,
-			authorizedUsers: authorizedUsers,
-			devMode:         true,
-		}, nil
-	}
+	// SSO Initialization
+	var oauth2Config oauth2.Config
+	var verifier *oidc.IDTokenVerifier
+	enableSSO := os.Getenv("KVIEW_ENABLE_SSO") == "true"
 
-	clientID := os.Getenv("KVIEW_GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("KVIEW_GOOGLE_CLIENT_SECRET")
-	redirectURL := os.Getenv("KVIEW_OAUTH_REDIRECT_URL")
+	if enableSSO {
+		clientID := os.Getenv("KVIEW_GOOGLE_CLIENT_ID")
+		clientSecret := os.Getenv("KVIEW_GOOGLE_CLIENT_SECRET")
+		redirectURL := os.Getenv("KVIEW_OAUTH_REDIRECT_URL")
 
-	if clientID == "" || clientSecret == "" {
-		fmt.Println("OIDC Authentication skipped: KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET is missing.")
-		return &AuthHandler{
-			rbacConfig:      rbacConfig,
-			localAuth:       localAuth,
-			authorizedUsers: authorizedUsers,
-			devMode:         false,
-		}, nil
-	}
+		if clientID != "" && clientSecret != "" {
+			ctx := context.Background()
+			provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
+			if err != nil {
+				fmt.Printf("❌ OIDC Provider error: %v\n", err)
+			} else {
+				if redirectURL == "" {
+					redirectURL = "http://localhost:8080/api/auth/callback"
+				}
 
-	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
-	if err != nil {
-		fmt.Printf("OIDC Provider error (disabling OIDC): %v\n", err)
-		return &AuthHandler{
-			rbacConfig:      rbacConfig,
-			localAuth:       localAuth,
-			authorizedUsers: authorizedUsers,
-			devMode:         false,
-		}, nil
-	}
+				oidcConfig := &oidc.Config{ClientID: clientID}
+				verifier = provider.Verifier(oidcConfig)
 
-	if redirectURL == "" {
-		redirectURL = "http://localhost:8080/api/auth/callback"
-	}
-
-	oidcConfig := &oidc.Config{ClientID: clientID}
-	verifier := provider.Verifier(oidcConfig)
-
-	config := oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		Endpoint:     provider.Endpoint(),
-		RedirectURL:  redirectURL,
-		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+				oauth2Config = oauth2.Config{
+					ClientID:     clientID,
+					ClientSecret: clientSecret,
+					Endpoint:     provider.Endpoint(),
+					RedirectURL:  redirectURL,
+					Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+				}
+				fmt.Printf("✅ Google SSO (OIDC) initialized successfully for ClientID: %s\n", clientID)
+			}
+		} else {
+			fmt.Println("⚠️  OIDC Authentication skipped: KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET is missing.")
+		}
+	} else {
+		fmt.Println("ℹ️  Google SSO (OIDC) disabled via KVIEW_ENABLE_SSO.")
 	}
 
 	return &AuthHandler{
-		oauth2Config:    config,
+		oauth2Config:    oauth2Config,
 		verifier:        verifier,
 		rbacConfig:      rbacConfig,
 		localAuth:       localAuth,
 		authorizedUsers: authorizedUsers,
-		devMode:         false,
+		devMode:         devMode,
 	}, nil
 }
 
@@ -145,8 +134,12 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
 // Login redirects the user to the Google OIDC login page.
 // In dev mode it redirects to the dev-login endpoint instead.
 func (h *AuthHandler) Login(c *gin.Context) {
-	if h.devMode {
-		c.Redirect(http.StatusTemporaryRedirect, "/")
+	if h.verifier == nil {
+		if h.devMode {
+			c.Redirect(http.StatusTemporaryRedirect, "/")
+			return
+		}
+		c.JSON(http.StatusNotFound, gin.H{"error": "OIDC is not configured"})
 		return
 	}
 	state := generateStateOauthCookie(c.Writer)
@@ -168,8 +161,8 @@ func (h *AuthHandler) isAuthorized(email string) bool {
 
 // Callback handles the OAuth2 callback from Google.
 func (h *AuthHandler) Callback(c *gin.Context) {
-	if h.devMode {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "OIDC callback is disabled in dev mode"})
+	if h.verifier == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "OIDC is not configured"})
 		return
 	}
 
@@ -344,9 +337,7 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			if h.devMode {
-				email, ok = verifyDevToken(tokenStr)
-			} else {
+			if h.verifier != nil {
 				idToken, err := h.verifier.Verify(c, tokenStr)
 				if err == nil {
 					var claims struct {
@@ -357,6 +348,11 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 						ok = true
 					}
 				}
+			}
+
+			// 3. Fallback to Dev Token if OIDC failed (only if in dev mode)
+			if !ok && h.devMode {
+				email, ok = verifyDevToken(tokenStr)
 			}
 		}
 
