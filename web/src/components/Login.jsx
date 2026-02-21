@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 export default function Login() {
     const [devError, setDevError] = useState(null);
     const [loginError, setLoginError] = useState(null);
-    const [providers, setProviders] = useState({ oidc: false, local: false });
+    const [providers, setProviders] = useState({ oidc: false, local: false, dev: false });
     const [loading, setLoading] = useState(true);
 
     const [username, setUsername] = useState('');
@@ -13,14 +13,14 @@ export default function Login() {
     useEffect(() => {
         // Fetch available providers
         fetch('/api/auth/providers')
-            .then(r => r.ok ? r.json() : { oidc: true, local: false }) // Fallback if endpoint fails
+            .then(r => r.ok ? r.json() : { oidc: true, local: false, dev: false }) // Fallback if endpoint fails
             .then(data => {
                 setProviders(data);
                 setLoading(false);
             })
             .catch(() => {
                 // If anything fails, assume OIDC only for safety
-                setProviders({ oidc: true, local: false });
+                setProviders({ oidc: true, local: false, dev: false });
                 setLoading(false);
             });
     }, []);
@@ -149,19 +149,20 @@ export default function Login() {
                     </div>
                 )}
 
-                {/* Dev Login button — always visible, backend returns 403 in production */}
-                <div className="border-t border-[var(--border-color)] mt-6 pt-4 relative z-10">
-                    <p className="text-[10px] text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
-                    <button
-                        onClick={handleDevLogin}
-                        className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-yellow-500 bg-yellow-900/30 hover:bg-yellow-900/50 border border-yellow-800 transition-colors"
-                    >
-                        ⚡ Dev Login (admin@kview.local)
-                    </button>
-                    {devError && (
-                        <p className="text-red-400 text-xs text-center mt-2">{devError}</p>
-                    )}
-                </div>
+                {providers.dev && (
+                    <div className="border-t border-[var(--border-color)] mt-6 pt-4 relative z-10">
+                        <p className="text-[10px] text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
+                        <button
+                            onClick={handleDevLogin}
+                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-yellow-500 bg-yellow-900/30 hover:bg-yellow-900/50 border border-yellow-800 transition-colors"
+                        >
+                            ⚡ Dev Login (admin@kview.local)
+                        </button>
+                        {devError && (
+                            <p className="text-red-400 text-xs text-center mt-2">{devError}</p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

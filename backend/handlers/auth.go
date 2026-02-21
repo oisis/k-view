@@ -356,6 +356,7 @@ func (h *AuthHandler) GetProviders(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"oidc":  h.verifier != nil, // True if OIDC was successfully initialized
 		"local": h.localAuth != nil, // True if static local users are loaded
+		"dev":   h.devMode,          // True if running in DEV_MODE
 	})
 }
 
