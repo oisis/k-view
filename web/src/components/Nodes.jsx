@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ResourceActionMenu from './ResourceActionMenu';
 
 function bytesToGiB(str) {
     if (!str) return '?';
@@ -52,13 +53,18 @@ export default function Nodes() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
+    const loadNodes = useCallback(() => {
+        setLoading(true);
         fetch('/api/nodes')
             .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch nodes')))
             .then(data => setNodes(data || []))
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
     }, []);
+
+    useEffect(() => {
+        loadNodes();
+    }, [loadNodes]);
 
     const ready = nodes.filter(n => n.status === 'Ready').length;
     const notReady = nodes.length - ready;
@@ -106,6 +112,7 @@ export default function Nodes() {
                                 <th className="px-4 py-3">Kubelet</th>
                                 <th className="px-4 py-3">Runtime</th>
                                 <th className="px-4 py-3">Age</th>
+                                <th className="px-4 py-3 w-10 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -155,6 +162,14 @@ export default function Nodes() {
                                         <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-xs">{node.kubeletVersion}</td>
                                         <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{node.containerRuntime}</td>
                                         <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(node.age).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-right">
+                                            <ResourceActionMenu
+                                                kind="nodes"
+                                                namespace="-"
+                                                name={node.name}
+                                                onRefresh={loadNodes}
+                                            />
+                                        </td>
                                     </tr>
                                 ))
                             )}

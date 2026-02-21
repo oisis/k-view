@@ -130,6 +130,17 @@ export default function ResourceDetails({ user }) {
         }
     }, [activeTab, logRefreshInterval, namespace, name]);
 
+    useEffect(() => {
+        if (!loading && data) {
+            if (searchParams.get('edit') === 'true' && canEdit) {
+                setIsEditing(true);
+            }
+            if (searchParams.get('exec') === 'true' && kind.toLowerCase().startsWith('pod')) {
+                setTerminalModalOpen(true);
+            }
+        }
+    }, [loading, data, searchParams, canEdit, kind]);
+
     if (loading) return <div className="p-8 text-[var(--text-secondary)]">Loading resource...</div>;
     if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
     if (!data) return <div className="p-8 text-[var(--text-muted)]">Resource not found</div>;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import NetworkTraceModal from './NetworkTraceModal';
 
@@ -403,7 +404,8 @@ export default function ResourceList({ kind }) {
                                         </div>
                                     </th>
                                 ))}
-                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-20"></th>}
+                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-10"></th>}
+                                <th className="px-4 py-3 whitespace-nowrap w-20 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-muted)]">
@@ -448,6 +450,14 @@ export default function ResourceList({ kind }) {
                                             </button>
                                         </td>
                                     )}
+                                    <td className="px-4 py-2 whitespace-nowrap text-right">
+                                        <ResourceActionMenu
+                                            kind={kind}
+                                            namespace={item.namespace}
+                                            name={item.name}
+                                            onRefresh={load}
+                                        />
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

@@ -854,6 +854,64 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Resource updated successfully"})
 }
 
+func (h *ResourceHandler) Delete(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
+	if !isClusterScoped(kind) {
+		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+			if ns != rbacNs.(string) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+				return
+			}
+		}
+	}
+
+	// Verify Delete Permissions
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+		return
+	}
+	roleStr := role.(string)
+	if roleStr != "kview-cluster-admin" && roleStr != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin permissions required to delete resources"})
+		return
+	}
+
+	if h.devMode {
+		c.JSON(http.StatusOK, gin.H{"message": "Resource deleted (mocked)"})
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var dc dynamic.ResourceInterface
+	if ns != "" {
+		dc = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		dc = dynClient.Resource(gvr)
+	}
+
+	err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete resource: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Resource deleted"})
+}
+
 func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	name := c.Param("name")
 	_ = c.Param("kind") // kind not used since events are filtered by name

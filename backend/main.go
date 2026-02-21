@@ -86,6 +86,7 @@ func main() {
 			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
 			protected.PUT("/resources/:kind/:namespace/:name/yaml", resourceHandler.UpdateYAML)
+			protected.DELETE("/resources/:kind/:namespace/:name", resourceHandler.Delete)
 			protected.GET("/pods/:namespace/:name/logs", podHandler.GetLogs)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
 			protected.GET("/network/trace/:type/:namespace/:name", networkHandler.Trace)
