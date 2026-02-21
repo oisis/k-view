@@ -1,0 +1,71 @@
+{{- if .Values.rbac.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-cluster-admin
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-cluster-viewer
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["", "extensions", "apps", "networking.k8s.io", "batch", "rbac.authorization.k8s.io"]
+  resources: ["pods", "pods/exec", "pods/log", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "namespaces", "nodes", "deployments", "replicasets", "daemonsets", "statefulsets", "ingresses", "jobs", "cronjobs", "clusterroles", "clusterrolebindings", "roles", "rolebindings"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-cluster-developer
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["", "extensions", "apps", "networking.k8s.io", "batch"]
+  resources: ["pods", "pods/exec", "pods/log", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "secrets", "deployments", "replicasets", "daemonsets", "statefulsets", "ingresses", "jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["namespaces", "nodes"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-namespace-admin
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-namespace-developer
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["", "extensions", "apps", "networking.k8s.io", "batch"]
+  resources: ["pods", "pods/exec", "pods/log", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "secrets", "deployments", "replicasets", "daemonsets", "statefulsets", "ingresses", "jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kview-namespace-viewer
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["", "extensions", "apps", "networking.k8s.io", "batch"]
+  resources: ["pods", "pods/exec", "pods/log", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "deployments", "replicasets", "daemonsets", "statefulsets", "ingresses", "jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+{{- end }}

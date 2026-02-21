@@ -1,0 +1,11 @@
+{{- if .Values.rbac.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "k-view.fullname" . }}-rbac-config
+  labels:
+    {{- include "k-view.labels" . | nindent 4 }}
+data:
+  assignments.yaml: |
+{{ toYaml .Values.rbac.assignments | indent 4 }}
+{{- end }}

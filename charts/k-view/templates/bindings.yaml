@@ -1,0 +1,31 @@
+{{- if .Values.rbac.enabled }}
+{{- range .Values.rbac.assignments }}
+---
+{{- if .namespace }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kview-binding-{{ .name }}
+  namespace: {{ .namespace }}
+  labels:
+    {{- include "k-view.labels" $ | nindent 4 }}
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kview-binding-{{ .name }}
+  labels:
+    {{- include "k-view.labels" $ | nindent 4 }}
+{{- end }}
+subjects:
+{{- range .subjects }}
+- kind: {{ $.subjectType }}
+  name: {{ . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .roleName }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

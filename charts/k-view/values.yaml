@@ -128,3 +128,22 @@ extraObjects: []
 #    data:
 #      key: value
 
+# -- Declarative RBAC configurations for K-View
+rbac:
+  # -- Enable or disable the declarative RBAC system
+  enabled: true
+  
+  # -- List of RBAC assignments mapping identities to Kubernetes Roles
+  assignments: []
+  # Example:
+  # - name: "admin-user"
+  #   subjectType: "User"
+  #   subjects:
+  #     - "admin@kview.local"
+  #   roleName: "kview-cluster-admin"
+  # - name: "dev-team-namespace"
+  #   subjectType: "Group"
+  #   subjects:
+  #     - "developers@example.com"
+  #   roleName: "kview-namespace-developer"
+  #   namespace: "dev-namespace"

@@ -40,6 +40,8 @@ spec:
               value: {{ .Values.env.ginMode }}
             - name: DB_PATH
               value: "/data/kview.db"
+            - name: RBAC_CONFIG_PATH
+              value: "/etc/kview/rbac/assignments.yaml"
             - name: KVIEW_OAUTH_REDIRECT_URL
               value: {{ .Values.env.oauthRedirectUrl }}
             - name: KVIEW_GOOGLE_CLIENT_ID
@@ -57,6 +59,11 @@ spec:
             - name: data
               mountPath: /data
             {{- end }}
+            {{- if .Values.rbac.enabled }}
+            - name: rbac-config
+              mountPath: /etc/kview/rbac
+              readOnly: true
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -67,4 +74,9 @@ spec:
         {{- else }}
         - name: data
           emptyDir: {}
+        {{- end }}
+        {{- if .Values.rbac.enabled }}
+        - name: rbac-config
+          configMap:
+            name: {{ include "k-view.fullname" . }}-rbac-config
         {{- end }}
