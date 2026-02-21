@@ -7,5 +7,6 @@ metadata:
     {{- include "k-view.labels" . | nindent 4 }}
 data:
   assignments.yaml: |
-{{ toYaml .Values.rbac.assignments | indent 4 }}
+    assignments:
+{{ toYaml .Values.rbac.assignments | indent 6 }}
 {{- end }}
