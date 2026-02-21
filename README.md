@@ -6,6 +6,16 @@ K-View is a self-contained, secure Kubernetes dashboard written in Go and React,
   <img src="docs/kview_demo.webp" alt="K-View Demo" width="900" style="max-width: 100%;">
 </a>
 
+## Documentation
+
+For detailed information, please refer to the following documentation:
+
+- **[Architecture](docs/architecture.md)**: System design and data flow.
+- **[Installation](docs/installation.md)**: Setup guides for Helm, Docker, and Local dev.
+- **[Configuration](docs/configuration.md)**: Environment variables and Google SSO setup.
+- **[RBAC](docs/rbac.md)**: Internal and Kubernetes role mapping.
+- **[Changelog](docs/CHANGELOG.md)**: History of changes and versions.
+
 ## Features
 
 - **Backend**: Go (Gin framework) communicating with Kubernetes via `client-go`.
