@@ -34,6 +34,8 @@ export default function ResourceDetails({ user }) {
     const [error, setError] = useState(null);
     const [traceModalOpen, setTraceModalOpen] = useState(false);
     const [terminalModalOpen, setTerminalModalOpen] = useState(false);
+    const [quotas, setQuotas] = useState([]);
+    const [limits, setLimits] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -90,6 +92,16 @@ export default function ResourceDetails({ user }) {
                 setEditedYaml(yamlData);
                 setEvents(Array.isArray(eventsData) ? eventsData : []);
                 setLogs(logsData);
+
+                // Fetch extra data for namespaces
+                if (kind === 'namespaces') {
+                    const [qRes, lRes] = await Promise.all([
+                        fetch(`/api/resources/resourcequotas?namespace=${name}`),
+                        fetch(`/api/resources/limitranges?namespace=${name}`)
+                    ]);
+                    if (qRes.ok) setQuotas(await qRes.json());
+                    if (lRes.ok) setLimits(await lRes.json());
+                }
 
                 // Initialize logContainer if not set
                 if (kind.toLowerCase().startsWith('pod') && detailsData.spec?.containers?.length > 0 && !logContainer) {
@@ -196,7 +208,7 @@ export default function ResourceDetails({ user }) {
                         <span className="text-[var(--accent)] font-bold">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
                     </p>
                 </div>
-                {(kind === 'ingress' || kind === 'services' || kind === 'pods') && (
+                {(kind === 'ingress' || kind === 'ingresses' || kind === 'services' || kind === 'pods') && (
                     <button
                         onClick={() => setTraceModalOpen(true)}
                         className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
@@ -219,7 +231,7 @@ export default function ResourceDetails({ user }) {
             <NetworkTraceModal
                 isOpen={traceModalOpen}
                 onClose={() => setTraceModalOpen(false)}
-                kind={kind.replace(/e?s$/, '')}
+                kind={kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind}
                 namespace={namespace !== '-' ? namespace : ''}
                 name={name}
             />
@@ -463,6 +475,79 @@ export default function ResourceDetails({ user }) {
                                 </tbody>
                             </table>
                         </DetailSection>
+
+                        {kind === 'namespaces' && (
+                            <>
+                                <DetailSection title="Resource Quotas" className="mt-4">
+                                    <div className="p-4 space-y-4">
+                                        {quotas && quotas.length > 0 ? quotas.map(q => (
+                                            <div key={q.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4">
+                                                <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
+                                                    <Activity size={14} /> {q.metadata.name}
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                                    {Object.entries(q.status?.hard || {}).map(([res, hard]) => {
+                                                        const used = q.status?.used?.[res] || '0';
+                                                        return (
+                                                            <div key={res} className="flex flex-col gap-1">
+                                                                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                                                                    <span>{res}</span>
+                                                                    <span>{used} / {hard}</span>
+                                                                </div>
+                                                                <div className="h-1.5 w-full bg-black/30 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className="h-full bg-indigo-500 rounded-full"
+                                                                        style={{ width: `${Math.min(100, (parseFloat(used) / parseFloat(hard)) * 100 || 0)}%` }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <p className="text-[var(--text-muted)] italic text-sm">No resource quotas defined.</p>
+                                        )}
+                                    </div>
+                                </DetailSection>
+
+                                <DetailSection title="Limit Ranges" className="mt-4">
+                                    <div className="p-4 space-y-4">
+                                        {limits && limits.length > 0 ? limits.map(l => (
+                                            <div key={l.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4 overflow-x-auto">
+                                                <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
+                                                    <Info size={14} /> {l.metadata.name}
+                                                </h4>
+                                                <table className="w-full text-xs text-left">
+                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20">
+                                                        <tr>
+                                                            <th className="px-3 py-2">Type</th>
+                                                            <th className="px-3 py-2">Resource</th>
+                                                            <th className="px-3 py-2">Min</th>
+                                                            <th className="px-3 py-2">Max</th>
+                                                            <th className="px-3 py-2">Default</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-[var(--border-color)]/20">
+                                                        {l.spec?.limits?.map((lim, idx) => (
+                                                            <tr key={idx}>
+                                                                <td className="px-3 py-2 font-bold text-[var(--text-white)]">{lim.type}</td>
+                                                                <td className="px-3 py-2 text-[var(--text-secondary)]">CPU/Memory</td>
+                                                                <td className="px-3 py-2 text-blue-400 font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
+                                                                <td className="px-3 py-2 text-rose-400 font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
+                                                                <td className="px-3 py-2 text-[var(--text-muted)] font-mono">{lim.default?.cpu || lim.default?.memory || '-'}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )) : (
+                                            <p className="text-[var(--text-muted)] italic text-sm">No limit ranges defined.</p>
+                                        )}
+                                    </div>
+                                </DetailSection>
+                            </>
+                        )}
                     </>
                 )}
 

@@ -20,7 +20,7 @@ rules:
   resources: ["pods", "services", "namespaces", "nodes", "persistentvolumes",
               "persistentvolumeclaims", "configmaps", "secrets", "serviceaccounts",
               "endpoints", "events"]
-  verbs: ["get", "watch", "list"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # Pod subresources for exec and logs
 - apiGroups: [""]
   resources: ["pods/exec", "pods/log", "pods/attach"]
@@ -32,23 +32,23 @@ rules:
 # Apps resources
 - apiGroups: ["apps"]
   resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
-  verbs: ["get", "watch", "list", "update", "patch"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # Batch resources
 - apiGroups: ["batch"]
   resources: ["jobs", "cronjobs"]
-  verbs: ["get", "watch", "list"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # Networking resources
 - apiGroups: ["networking.k8s.io"]
   resources: ["ingresses", "ingressclasses", "networkpolicies"]
-  verbs: ["get", "watch", "list"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # Storage resources
 - apiGroups: ["storage.k8s.io"]
   resources: ["storageclasses"]
-  verbs: ["get", "watch", "list"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # RBAC resources
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["clusterroles", "clusterrolebindings", "roles", "rolebindings"]
-  verbs: ["get", "watch", "list"]
+  verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # CRDs
 - apiGroups: ["apiextensions.k8s.io"]
   resources: ["customresourcedefinitions"]

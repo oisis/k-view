@@ -91,6 +91,10 @@ func getGVR(kind string) schema.GroupVersionResource {
 		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
 	case "endpoints":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
+	case "resourcequotas", "resource-quotas":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "resourcequotas"}
+	case "limitranges", "limit-ranges":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "limitranges"}
 	default:
 		// Attempt a best-effort guess for unknown kinds
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}

@@ -281,7 +281,7 @@ function App() {
                 {user && (
                     <Sidebar user={user} onLogout={handleLogout} theme={theme} setTheme={setTheme} />
                 )}
-                <main className="flex-1 overflow-auto flex flex-col relative z-10">
+                <main className="flex-1 overflow-auto flex flex-col">
                     <Routes>
                         {/* Auth */}
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

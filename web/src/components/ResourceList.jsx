@@ -436,7 +436,11 @@ export default function ResourceList({ kind }) {
                                     {supportsTrace && (
                                         <td className="px-4 py-2 whitespace-nowrap text-right">
                                             <button
-                                                onClick={(e) => { e.stopPropagation(); setTraceTarget({ kind: kind.replace(/e?s$/, ''), namespace: item.namespace || '', name: item.name }); }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const traceKind = kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind;
+                                                    setTraceTarget({ kind: traceKind, namespace: item.namespace || '', name: item.name });
+                                                }}
                                                 className="text-blue-400/70 hover:text-blue-300 p-1.5 hover:bg-blue-900/30 rounded inline-flex"
                                                 title="Visual Trace"
                                             >
