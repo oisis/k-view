@@ -91,7 +91,7 @@ resources: {}
 # Ensures that user role mappings (RBAC) are not lost upon pod restarts.
 persistence:
   # -- Enable Persistent Volume Claim creation
-  enabled: true
+  enabled: false
   # -- Volume size
   size: 1Gi
   # -- Access mode for the volume
@@ -106,6 +106,9 @@ env:
   # -- OAuth 2.0 Redirect URL configured in your Google Cloud Console.
   # This must exactly match the Authorized redirect URI, including the domain and scheme.
   oauthRedirectUrl: "http://kview.local/api/auth/callback"
+
+# -- Enable Google SSO (OIDC) authentication
+enable_sso: false
 
 # -- Sensitive credentials for Google OIDC SSO
 # In a production environment, it is highly recommended to manage these external to Helm
