@@ -18,6 +18,9 @@ rules:
 - apiGroups: [""]
   resources: ["pods", "deployments", "services", "namespaces", "nodes"]
   verbs: ["get", "watch", "list"]
+- apiGroups: [""]
+  resources: ["users", "groups", "serviceaccounts"]
+  verbs: ["impersonate"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
