@@ -6,7 +6,6 @@ import (
 
 	"k-view/handlers"
 	"k-view/k8s"
-	"k-view/rbac"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,16 +16,7 @@ func main() {
 		log.Println("⚠️  DEVELOPMENT MODE ENABLED — Do not use in production!")
 	}
 
-	// Initialize SQLite Database
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "/data/kview.db"
-	}
-	db, err := rbac.InitDB(dbPath)
-	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
-	defer db.Close()
+	// Stateless execution natively requires no DB init.
 
 	// Initialize Kubernetes Provider (real or mock based on DEV_MODE)
 	var k8sProvider k8s.KubernetesProvider
@@ -42,7 +32,7 @@ func main() {
 	}
 
 	// Initialize Auth Handler (skips OIDC setup in DEV_MODE)
-	authHandler, err := handlers.NewAuthHandler(db)
+	authHandler, err := handlers.NewAuthHandler()
 	if err != nil {
 		log.Fatalf("Failed to initialize Auth handler: %v", err)
 	}
@@ -51,7 +41,7 @@ func main() {
 	nodeHandler := handlers.NewNodeHandler(k8sProvider)
 	consoleHandler := handlers.NewConsoleHandler(devMode)
 	resourceHandler := handlers.NewResourceHandler(devMode)
-	adminHandler := handlers.NewAdminHandler(db)
+	rbacHandler := handlers.NewRBACHandler(authHandler.GetRBACConfig())
 
 	router := gin.Default()
 
@@ -93,12 +83,7 @@ func main() {
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
 
-			admin := protected.Group("/admin")
-			admin.Use(authHandler.AdminMiddleware())
-			{
-				admin.GET("/users", adminHandler.ListUsers)
-				admin.PUT("/users/:email/role", adminHandler.UpdateUserRole)
-			}
+			protected.GET("/rbac/status", rbacHandler.GetStatus)
 		}
 	}
 

@@ -11,11 +11,6 @@ services:
       DEV_MODE: "true"
       GIN_MODE: debug
       PORT: "8080"
-      DB_PATH: /data/kview.db
       # No KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET needed in dev mode
     volumes:
-      - kview-data:/data
       - ./config/rbac:/etc/kview/rbac:ro
-
-volumes:
-  kview-data:

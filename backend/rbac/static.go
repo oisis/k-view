@@ -39,8 +39,7 @@ func LoadStaticConfig(path string) (*RBACConfig, error) {
 }
 
 // GetRoleForUser returns the role and namespace for a given user email and groups.
-// It checks the static configuration first, then falls back to the dynamic DB.
-func (c *RBACConfig) GetRoleForUser(email string, groups []string, db *DB) (string, string) {
+func (c *RBACConfig) GetRoleForUser(email string, groups []string) (string, string) {
 	// Check static assignments for specific user
 	for _, a := range c.Assignments {
 		if a.User != "" && a.User == email {
@@ -55,12 +54,6 @@ func (c *RBACConfig) GetRoleForUser(email string, groups []string, db *DB) (stri
 				return a.Role, a.Namespace
 			}
 		}
-	}
-
-	// Fallback to SQLite DB
-	role, err := db.GetUserRole(email)
-	if err == nil {
-		return role, ""
 	}
 
 	return "viewer", "" // Default fallback

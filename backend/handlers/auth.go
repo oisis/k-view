@@ -29,13 +29,12 @@ var devTokenSecret = []byte("kview-dev-secret-not-for-production")
 type AuthHandler struct {
 	oauth2Config oauth2.Config
 	verifier     *oidc.IDTokenVerifier
-	db           *rbac.DB
 	rbacConfig   *rbac.RBACConfig
 	devMode      bool
 }
 
 // NewAuthHandler creates an AuthHandler. In DEV_MODE, it skips connecting to Google OIDC.
-func NewAuthHandler(db *rbac.DB) (*AuthHandler, error) {
+func NewAuthHandler() (*AuthHandler, error) {
 	devMode := os.Getenv("DEV_MODE") == "true"
 
 	rbacPath := os.Getenv("RBAC_CONFIG_PATH")
@@ -48,7 +47,7 @@ func NewAuthHandler(db *rbac.DB) (*AuthHandler, error) {
 	}
 
 	if devMode {
-		return &AuthHandler{db: db, rbacConfig: rbacConfig, devMode: true}, nil
+		return &AuthHandler{rbacConfig: rbacConfig, devMode: true}, nil
 	}
 
 	ctx := context.Background()
@@ -78,7 +77,6 @@ func NewAuthHandler(db *rbac.DB) (*AuthHandler, error) {
 	return &AuthHandler{
 		oauth2Config: config,
 		verifier:     verifier,
-		db:           db,
 		rbacConfig:   rbacConfig,
 		devMode:      false,
 	}, nil
@@ -156,7 +154,6 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 		HttpOnly: true,
 		Path:     "/",
 	})
-	_, _ = h.db.GetUserRole(claims.Email)
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
@@ -169,13 +166,7 @@ func (h *AuthHandler) DevLogin(c *gin.Context) {
 	}
 
 	const devEmail = "admin@kview.local"
-	const devRole = "admin"
-
-	// Ensure the dev user is in the database with admin role
-	if err := h.db.SetUserRole(devEmail, devRole); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to set dev user role"})
-		return
-	}
+	const devRole = "kview-cluster-admin"
 
 	// Create a simple signed token: base64(payload).HMAC
 	payload, _ := json.Marshal(map[string]string{"email": devEmail})
@@ -215,8 +206,8 @@ func (h *AuthHandler) Me(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
 		return
 	}
-	role, err := h.db.GetUserRole(email.(string))
-	if err != nil {
+	role, _ := h.rbacConfig.GetRoleForUser(email.(string), []string{})
+	if role == "" {
 		role = "viewer"
 	}
 	devMode := h.devMode
@@ -286,8 +277,8 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Determine Role based on static config and DB
-		role, namespace := h.rbacConfig.GetRoleForUser(email, []string{}, h.db)
+		// Determine Role based on static config
+		role, namespace := h.rbacConfig.GetRoleForUser(email, []string{})
 		
 		userCtx := k8s.UserContext{
 			Email: email,
@@ -308,20 +299,7 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// AdminMiddleware ensures the user has the 'admin' role.
-func (h *AuthHandler) AdminMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		email, exists := c.Get("email")
-		if !exists {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
-			return
-		}
-		role, err := h.db.GetUserRole(email.(string))
-		if err != nil || role != "admin" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
-			return
-		}
-		c.Set("role", role)
-		c.Next()
-	}
+// GetRBACConfig returns the loaded static RBAC config.
+func (h *AuthHandler) GetRBACConfig() *rbac.RBACConfig {
+	return h.rbacConfig
 }
