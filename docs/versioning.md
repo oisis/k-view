@@ -35,5 +35,15 @@ To maintain a clear roadmap and predictable versioning, this project follows the
 
 *Note: When you are ready to release, you should summarize these commits and create a new Git tag (e.g., `v1.2.3`) matching the calculated SemVer bump based on the prefixes used since the last release. Pushing this tag will automatically trigger the CI pipeline to build and publish the artifacts.*
 
+## Skipping the CI Pipeline (Saving Runner Minutes)
+
+If you have already built and tested your changes locally and do not need GitHub Actions to run, you can instruct the pipeline to completely skip the build process.
+
+Add `[skip ci]`, `[ci skip]`, or `[skip actions]` anywhere in your commit message. This is a native GitHub feature that aborts the workflow immediately without consuming any runner minutes.
+
+**Examples:**
+- `docs: update readme [skip ci]`
+- `[skip ci] chore: update local test scripts`
+
 ### Development Builds
 If you push to the `main` branch without a tag, the pipeline uses the existing, static version found in `Chart.yaml`. This enables testing and continuous deployment without prematurely cutting a formal semantic release.
