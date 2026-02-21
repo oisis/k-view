@@ -12,8 +12,9 @@ mermaid.initialize({
         primaryTextColor: '#f8fafc',
         primaryBorderColor: '#334155',
         lineColor: '#64748b',
-        secondaryColor: '#dc2626',
+        secondaryColor: '#1e293b', // Neutral dark for labels
         tertiaryColor: '#16a34a',
+        edgeLabelBackground: '#1e293b',
     },
     flowchart: {
         htmlLabels: true,
@@ -65,67 +66,66 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
     const renderDiagram = async () => {
         if (!traceData || !traceData.nodes) return;
 
-        let graphDef = "graph LR\n";
-
-        // Define classes
-        graphDef += "classDef healthy fill:#0f172a,stroke:#22c55e,stroke-width:2px,color:#f8fafc;\n";
-        graphDef += "classDef error fill:#450a0a,stroke:#ef4444,stroke-width:2px,stroke-dasharray: 4 4,color:#fca5a5;\n";
-        graphDef += "classDef external fill:#064e3b,stroke:#059669,stroke-width:2px,color:#dcfce7;\n";
-        graphDef += "classDef default fill:#1e293b,stroke:#475569,stroke-width:1px,color:#cbd5e1;\n";
-
-        // Add Nodes
-        traceData.nodes.forEach((n, i) => {
-            const nodeId = `node_${i}`;
-            let label = `<b>${n.type}</b><br/>${n.name}`;
-
-            if (n.details) {
-                const cleanDetails = n.details.replace(/\n/g, '<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
-            }
-
-            if (n.selectors && Object.keys(n.selectors).length > 0) {
-                const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
-            }
-
-            if (n.labels && Object.keys(n.labels).length > 0) {
-                // Only show a few labels to keep it clean
-                const labStr = Object.entries(n.labels).slice(0, 3).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
-            }
-
-            graphDef += `${nodeId}["${label}"]\n`;
-
-            if (n.type === 'External') {
-                graphDef += `class ${nodeId} external\n`;
-            } else if (n.healthy) {
-                graphDef += `class ${nodeId} healthy\n`;
-            } else if (n.message && n.message.includes("Not Found")) {
-                graphDef += `class ${nodeId} error\n`;
-            } else {
-                graphDef += `class ${nodeId} default\n`;
-            }
+        // Basic initialization
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark'
         });
 
-        // Add Edges
-        traceData.edges?.forEach(e => {
-            const fromIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.from);
-            const toIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.to);
+        // 1. Header
+        let graphDef = "graph LR\n";
 
-            if (fromIdx >= 0 && toIdx >= 0) {
-                const arrow = e.healthy ? "-->" : "-.->";
-                const text = e.message ? `|${e.message}|` : "";
-                graphDef += `node_${fromIdx} ${arrow} ${text} node_${toIdx}\n`;
+        // 2. Nodes (using very simple plain text labels)
+        traceData.nodes.forEach((n, i) => {
+            const nodeId = `N${i}`;
+            const cleanType = String(n.type).replace(/[^\w]/g, "");
+            const cleanName = String(n.name).replace(/[^\w-]/g, "");
+            graphDef += `  ${nodeId}["${cleanType}: ${cleanName}"]\n`;
+        });
+
+        // 3. Edges
+        let edgeCount = 0;
+        if (traceData.edges) {
+            traceData.edges.forEach((e) => {
+                const fromIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.from);
+                const toIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.to);
+
+                if (fromIdx >= 0 && toIdx >= 0) {
+                    const arrow = e.healthy ? "-->" : "---";
+                    graphDef += `  N${fromIdx} ${arrow} N${toIdx}\n`;
+
+                    // Style links with named colors ONLY
+                    const color = e.healthy ? "green" : "red";
+                    graphDef += `  linkStyle ${edgeCount} stroke:${color},stroke-width:2px\n`;
+                    edgeCount++;
+                }
+            });
+        }
+
+        // 4. Styles (Individual style instead of classDef for maximum compatibility)
+        traceData.nodes.forEach((n, i) => {
+            const nodeId = `N${i}`;
+            if (n.type === 'External') {
+                graphDef += `  style ${nodeId} fill:darkgreen,stroke:white,color:white\n`;
+            } else if (n.healthy) {
+                graphDef += `  style ${nodeId} fill:darkblue,stroke:green,color:white\n`;
+            } else {
+                graphDef += `  style ${nodeId} fill:darkred,stroke:red,color:white\n`;
             }
         });
 
         try {
             mermaidRef.current.innerHTML = '';
-            const { svg } = await mermaid.render(`mermaid-svg-${Date.now()}`, graphDef);
+            const renderId = `m${Math.random().toString(36).substring(7)}`;
+            const { svg } = await mermaid.render(renderId, graphDef);
             mermaidRef.current.innerHTML = svg;
         } catch (e) {
-            console.error("Mermaid rendering failed:", e);
-            mermaidRef.current.innerHTML = `<div class="text-red-400 p-4 border border-red-800 rounded bg-red-900/20">Diagram rendering failed</div>`;
+            console.error("Mermaid error:", e);
+            mermaidRef.current.innerHTML = `
+                <div class='p-4 text-sm border border-red-900/50 bg-red-950/20 rounded text-red-400'>
+                  <p class='font-bold mb-1'>Diagram Trace Error</p>
+                  <pre class='text-[10px] mt-2 bg-black/40 p-2 overflow-auto'>${graphDef}</pre>
+                </div>`;
         }
     };
 
