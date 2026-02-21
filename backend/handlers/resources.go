@@ -514,9 +514,10 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	}
 	uid := targetResource.GetUID()
 
+	// Try listing events for this specific object name and namespace
 	eventsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	eventList, err := dynClient.Resource(eventsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{
-		FieldSelector: "involvedObject.uid=" + string(uid),
+		FieldSelector: "involvedObject.name=" + name,
 	})
 	if err != nil {
 		// Just output empty if events can't be listed or selector not supported

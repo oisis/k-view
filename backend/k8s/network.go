@@ -11,10 +11,12 @@ import (
 )
 
 type TraceNode struct {
-	Type    string `json:"type"` // Ingress, Service, Pod
-	Name    string `json:"name"`
-	Healthy bool   `json:"healthy"`
-	Message string `json:"message"`
+	Type      string            `json:"type"` // Ingress, Service, Pod
+	Name      string            `json:"name"`
+	Healthy   bool              `json:"healthy"`
+	Message   string            `json:"message"`
+	Labels    map[string]string `json:"labels,omitempty"`
+	Selectors map[string]string `json:"selectors,omitempty"`
 }
 
 type TraceEdge struct {
@@ -142,7 +144,13 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 					continue
 				}
 
-				res.Nodes = append(res.Nodes, TraceNode{Type: "Service", Name: svcName, Healthy: true, Message: "Found"})
+				res.Nodes = append(res.Nodes, TraceNode{
+					Type: "Service", 
+					Name: svcName, 
+					Healthy: true, 
+					Message: "Found",
+					Selectors: svc.Spec.Selector,
+				})
 				
 				// Calculate port message
 				targetPort := ""
@@ -168,7 +176,13 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		if err != nil {
 			return nil, err
 		}
-		res.Nodes = append(res.Nodes, TraceNode{Type: "Service", Name: svc.Name, Healthy: true, Message: "Found"})
+		res.Nodes = append(res.Nodes, TraceNode{
+			Type: "Service", 
+			Name: svc.Name, 
+			Healthy: true, 
+			Message: "Found",
+			Selectors: svc.Spec.Selector,
+		})
 		
 		// Find Ingresses pointing here
 		ings, _ := client.ListIngresses(ctx, namespace)
@@ -177,7 +191,12 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 				if rule.HTTP == nil { continue }
 				for _, path := range rule.HTTP.Paths {
 					if path.Backend.Service.Name == svc.Name {
-						res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+						res.Nodes = append(res.Nodes, TraceNode{
+							Type: "Ingress", 
+							Name: ing.Name, 
+							Healthy: true, 
+							Message: "Found",
+						})
 						res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svc.Name, Healthy: true, Message: "Points to Service"})
 					}
 				}
@@ -191,7 +210,13 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		if err != nil {
 			return nil, err
 		}
-		res.Nodes = append(res.Nodes, TraceNode{Type: "Pod", Name: pod.Name, Healthy: true, Message: string(pod.Status.Phase)})
+		res.Nodes = append(res.Nodes, TraceNode{
+			Type: "Pod", 
+			Name: pod.Name, 
+			Healthy: true, 
+			Message: string(pod.Status.Phase),
+			Labels: pod.Labels,
+		})
 
 		// Find Services picking this pod
 		svcs, _ := client.ListServices(ctx, namespace)
@@ -227,20 +252,23 @@ func traceServiceToPods(ctx context.Context, client *Client, namespace string, s
 			matched++
 			// Pod is healthy if it's Running or Succeeded (for Jobs)
 			healthy := pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded
-			res.Nodes = append(res.Nodes, TraceNode{Type: "Pod", Name: pod.Name, Healthy: healthy, Message: string(pod.Status.Phase)})
+			res.Nodes = append(res.Nodes, TraceNode{
+				Type: "Pod", 
+				Name: pod.Name, 
+				Healthy: healthy, 
+				Message: string(pod.Status.Phase),
+				Labels: pod.Labels,
+			})
 			
-			// Include selector info in the edge message
-			selectorParts := []string{}
-			for k, v := range svc.Spec.Selector {
-				selectorParts = append(selectorParts, fmt.Sprintf("%s=%s", k, v))
-			}
-			edgeMsg := "Selector Match"
-			if len(selectorParts) > 0 {
-				edgeMsg = "Match: " + strings.Join(selectorParts, ", ")
+			// Put target port on the edge instead of selector
+			portInfo := ""
+			if len(svc.Spec.Ports) > 0 {
+				p := svc.Spec.Ports[0]
+				portInfo = fmt.Sprintf("%d -> %s", p.Port, p.TargetPort.String())
 			}
 
-			// The EDGE (Selector Match) is healthy if it matches, regardless of pod phase
-			res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: edgeMsg})
+			// The EDGE is healthy if it matches
+			res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: portInfo})
 		}
 	}
 	if matched == 0 {

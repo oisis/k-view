@@ -74,7 +74,19 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
         // Add Nodes
         traceData.nodes.forEach((n, i) => {
             const nodeId = `node_${i}`;
-            const label = `<b>${n.type}</b><br/>${n.name}`;
+            let label = `<b>${n.type}</b><br/>${n.name}`;
+
+            if (n.selectors && Object.keys(n.selectors).length > 0) {
+                const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
+            }
+
+            if (n.labels && Object.keys(n.labels).length > 0) {
+                // Only show a few labels to keep it clean
+                const labStr = Object.entries(n.labels).slice(0, 3).map(([k, v]) => `${k}=${v}`).join('<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
+            }
+
             graphDef += `${nodeId}["${label}"]\n`;
 
             if (n.healthy) {
