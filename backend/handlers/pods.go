@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"k-view/k8s"
@@ -61,6 +62,7 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 func (h *PodHandler) ListNamespaces(c *gin.Context) {
 	namespaces, err := h.k8sClient.ListNamespaces(c.Request.Context())
 	if err != nil {
+		log.Printf("ERROR: Failed to list namespaces: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list namespaces: " + err.Error()})
 		return
 	}

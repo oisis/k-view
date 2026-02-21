@@ -11,7 +11,7 @@ image:
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "main"
+  tag: "0.1.5"
 
 # -- Optionally specify an array of imagePullSecrets.
 # Secrets must be manually created in the namespace.
@@ -103,6 +103,8 @@ persistence:
 env:
   # -- Sets the Gin framework mode (use 'release' for production, 'debug' for development)
   ginMode: "release"
+  # -- Timezone for the pod logs (e.g., "Europe/Warsaw")
+  timezone: "UTC"
   # -- OAuth 2.0 Redirect URL configured in your Google Cloud Console.
   # This must exactly match the Authorized redirect URI, including the domain and scheme.
   oauthRedirectUrl: "http://kview.local/api/auth/callback"

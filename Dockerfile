@@ -21,8 +21,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -a -o k-view-server .
 FROM alpine:3.19
 WORKDIR /app
 
-# Install ca-certificates and timezone data
-RUN apk add --no-cache ca-certificates tzdata
+# Install ca-certificates, timezone data, and kubectl
+RUN apk add --no-cache ca-certificates tzdata curl && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$([ $(uname -m) = x86_64 ] && echo amd64 || echo arm64)/kubectl" && \
+    chmod +x kubectl && mv kubectl /usr/local/bin/
 
 # Copy built artifacts
 COPY --from=backend-builder /app/backend/k-view-server /app/
