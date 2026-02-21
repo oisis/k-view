@@ -55,6 +55,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "k-view.fullname" . }}-secret
                   key: googleClientSecret
+            - name: KVIEW_AUTHORIZED_USERS
+              value: {{ .Values.env.authorizedUsers | join "," | quote }}
             {{- end }}
             {{- if .Values.localUsers }}
             - name: KVIEW_STATIC_USERS

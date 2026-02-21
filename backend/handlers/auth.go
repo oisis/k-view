@@ -30,8 +30,9 @@ type AuthHandler struct {
 	oauth2Config oauth2.Config
 	verifier     *oidc.IDTokenVerifier
 	rbacConfig   *rbac.RBACConfig
-	localAuth    *auth.LocalAuthenticator
-	devMode      bool
+	localAuth       *auth.LocalAuthenticator
+	authorizedUsers []string
+	devMode         bool
 }
 
 // NewAuthHandler creates an AuthHandler. In DEV_MODE, it skips connecting to Google OIDC.
@@ -47,6 +48,17 @@ func NewAuthHandler() (*AuthHandler, error) {
 		return nil, fmt.Errorf("failed to load static rbac: %v", err)
 	}
 
+	// Load Authorized Users
+	var authorizedUsers []string
+	if usersStr := os.Getenv("KVIEW_AUTHORIZED_USERS"); usersStr != "" {
+		for _, u := range strings.Split(usersStr, ",") {
+			if trimmed := strings.TrimSpace(u); trimmed != "" {
+				authorizedUsers = append(authorizedUsers, trimmed)
+			}
+		}
+		fmt.Printf("SSO Whitelist enabled with %d authorized users.\n", len(authorizedUsers))
+	}
+
 	// Try initializing Local Authenticator
 	var localAuth *auth.LocalAuthenticator
 	la, err := auth.NewLocalAuthenticator("")
@@ -57,9 +69,10 @@ func NewAuthHandler() (*AuthHandler, error) {
 
 	if devMode {
 		return &AuthHandler{
-			rbacConfig: rbacConfig,
-			localAuth:  localAuth,
-			devMode:    true,
+			rbacConfig:      rbacConfig,
+			localAuth:       localAuth,
+			authorizedUsers: authorizedUsers,
+			devMode:         true,
 		}, nil
 	}
 
@@ -70,9 +83,10 @@ func NewAuthHandler() (*AuthHandler, error) {
 	if clientID == "" || clientSecret == "" {
 		fmt.Println("OIDC Authentication skipped: KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET is missing.")
 		return &AuthHandler{
-			rbacConfig: rbacConfig,
-			localAuth:  localAuth,
-			devMode:    false,
+			rbacConfig:      rbacConfig,
+			localAuth:       localAuth,
+			authorizedUsers: authorizedUsers,
+			devMode:         false,
 		}, nil
 	}
 
@@ -81,9 +95,10 @@ func NewAuthHandler() (*AuthHandler, error) {
 	if err != nil {
 		fmt.Printf("OIDC Provider error (disabling OIDC): %v\n", err)
 		return &AuthHandler{
-			rbacConfig: rbacConfig,
-			localAuth:  localAuth,
-			devMode:    false,
+			rbacConfig:      rbacConfig,
+			localAuth:       localAuth,
+			authorizedUsers: authorizedUsers,
+			devMode:         false,
 		}, nil
 	}
 
@@ -103,11 +118,12 @@ func NewAuthHandler() (*AuthHandler, error) {
 	}
 
 	return &AuthHandler{
-		oauth2Config: config,
-		verifier:     verifier,
-		rbacConfig:   rbacConfig,
-		localAuth:    localAuth,
-		devMode:      false,
+		oauth2Config:    config,
+		verifier:        verifier,
+		rbacConfig:      rbacConfig,
+		localAuth:       localAuth,
+		authorizedUsers: authorizedUsers,
+		devMode:         false,
 	}, nil
 }
 
@@ -135,6 +151,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 	state := generateStateOauthCookie(c.Writer)
 	c.Redirect(http.StatusTemporaryRedirect, h.oauth2Config.AuthCodeURL(state))
+}
+
+// isAuthorized checks if an email is in the authorizedUsers list.
+func (h *AuthHandler) isAuthorized(email string) bool {
+	if len(h.authorizedUsers) == 0 {
+		return true
+	}
+	for _, u := range h.authorizedUsers {
+		if strings.EqualFold(u, email) {
+			return true
+		}
+	}
+	return false
 }
 
 // Callback handles the OAuth2 callback from Google.
@@ -173,6 +202,13 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 	}
 	if err := idToken.Claims(&claims); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Whitelist Check
+	if !h.isAuthorized(claims.Email) {
+		fmt.Printf("UNAUTHORIZED LOGIN ATTEMPT: Google user %s is not in the whitelist.\n", claims.Email)
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "User not authorized. Please contact your administrator."})
 		return
 	}
 

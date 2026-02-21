@@ -117,6 +117,9 @@ env:
   # -- OAuth 2.0 Redirect URL configured in your Google Cloud Console.
   # This must exactly match the Authorized redirect URI, including the domain and scheme.
   oauthRedirectUrl: "http://kview.local/api/auth/callback"
+  # -- List of authorized Google email addresses.
+  # If empty, any user with a valid Google account can log in.
+  authorizedUsers: []
 
 # -- Enable Google SSO (OIDC) authentication
 enable_sso: false
