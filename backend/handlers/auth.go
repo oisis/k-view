@@ -60,6 +60,7 @@ func NewAuthHandler() (*AuthHandler, error) {
 	}
 
 	// Try initializing Local Authenticator
+	fmt.Printf("DEBUG: Loading KVIEW_STATIC_USERS: %s\n", os.Getenv("KVIEW_STATIC_USERS"))
 	var localAuth *auth.LocalAuthenticator
 	la, err := auth.NewLocalAuthenticator("")
 	if err == nil && len(la.Users) > 0 {
@@ -411,6 +412,7 @@ func (h *AuthHandler) GetRBACConfig() *rbac.RBACConfig {
 
 // GetProviders returns the available authentication methods to the frontend.
 func (h *AuthHandler) GetProviders(c *gin.Context) {
+	fmt.Printf("DEBUG: GetProviders called. OIDC: %v, Local: %v, Dev: %v\n", h.verifier != nil, h.localAuth != nil, h.devMode)
 	c.JSON(http.StatusOK, gin.H{
 		"oidc":  h.verifier != nil, // True if OIDC was successfully initialized
 		"local": h.localAuth != nil, // True if static local users are loaded

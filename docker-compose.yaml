@@ -8,15 +8,11 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # These take precedence over .env file
       DEV_MODE: ${DEV_MODE:-true}
       GIN_MODE: ${GIN_MODE:-debug}
       PORT: ${PORT:-8080}
       KVIEW_STATIC_USERS: ${KVIEW_STATIC_USERS:-'[{"username":"admin","password_hash":"$$2b$$12$$/rN33LSSA6EdI6RGnsfRquX.Xv.DwAXsO/4HIkxzgW9.MowFPzAQC"}]'}
-      KVIEW_ENABLE_SSO: ${KVIEW_ENABLE_SSO:-false}
-      KVIEW_GOOGLE_CLIENT_ID: ${KVIEW_GOOGLE_CLIENT_ID:-}
-      KVIEW_GOOGLE_CLIENT_SECRET: ${KVIEW_GOOGLE_CLIENT_SECRET:-}
-      KVIEW_OAUTH_REDIRECT_URL: ${KVIEW_OAUTH_REDIRECT_URL:-http://localhost:8080/api/auth/callback}
-      KVIEW_AUTHORIZED_USERS: ${KVIEW_AUTHORIZED_USERS:-}
     env_file:
       - .env
     volumes:

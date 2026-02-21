@@ -5,6 +5,7 @@ export default function Login() {
     const [loginError, setLoginError] = useState(null);
     const [providers, setProviders] = useState({ oidc: false, local: false, dev: false });
     const [loading, setLoading] = useState(true);
+    const [showLocalLogin, setShowLocalLogin] = useState(false);
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -13,13 +14,19 @@ export default function Login() {
     useEffect(() => {
         // Fetch available providers
         fetch('/api/auth/providers')
-            .then(r => r.ok ? r.json() : { oidc: false, local: false, dev: false }) // Fallback if endpoint fails
+            .then(r => r.ok ? r.json() : { oidc: false, local: false, dev: false })
             .then(data => {
+                console.log('Auth providers received:', data);
                 setProviders(data);
+                // If only local is available, show it immediately
+                if (data.local && !data.oidc) {
+                    console.log('Force showing local login because OIDC is missing');
+                    setShowLocalLogin(true);
+                }
                 setLoading(false);
             })
-            .catch(() => {
-                // If anything fails, assume no providers for safety
+            .catch((err) => {
+                console.error('Failed to fetch auth providers:', err);
                 setProviders({ oidc: false, local: false, dev: false });
                 setLoading(false);
             });
@@ -97,18 +104,30 @@ export default function Login() {
                     </button>
                 )}
 
-                {providers.oidc && providers.local && (
-                    <div className="relative my-6 opacity-60">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-[var(--border-color)]"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-[var(--bg-card)] text-[var(--text-secondary)]">or</span>
-                        </div>
+                {providers.local && (
+                    <div className="mt-4 pt-4 border-t border-[var(--border-color)] text-center">
+                        {!showLocalLogin ? (
+                            <button
+                                onClick={() => setShowLocalLogin(true)}
+                                className="text-xs text-[var(--text-secondary)] hover:text-blue-400 transition-colors flex items-center justify-center gap-1 mx-auto"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6" /></svg>
+                                Local user login
+                            </button>
+                        ) : providers.oidc && (
+                            <div className="relative my-4">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-[var(--border-color)]"></div>
+                                </div>
+                                <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+                                    <span className="px-2 bg-[var(--bg-card)] text-[var(--text-muted)]">Local Auth</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {providers.local && (
+                {providers.local && showLocalLogin && (
                     <form onSubmit={handleLocalSubmit} className="space-y-4 mb-4">
                         <div>
                             <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Username</label>
