@@ -66,37 +66,55 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
     const renderDiagram = async () => {
         if (!traceData || !traceData.nodes) return;
 
-        // Basic initialization
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: 'dark'
-        });
-
         // 1. Header
         let graphDef = "graph LR\n";
 
-        // 2. Nodes (using very simple plain text labels)
+        // 2. Nodes (using rich HTML labels)
         traceData.nodes.forEach((n, i) => {
             const nodeId = `N${i}`;
-            const cleanType = String(n.type).replace(/[^\w]/g, "");
-            const cleanName = String(n.name).replace(/[^\w-]/g, "");
-            graphDef += `  ${nodeId}["${cleanType}: ${cleanName}"]\n`;
+            let label = `<b>${n.type}</b><br/>${n.name}`;
+
+            if (n.details) {
+                const cleanDetails = n.details.replace(/\n/g, '<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
+            }
+
+            if (n.selectors && Object.keys(n.selectors).length > 0) {
+                const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
+            }
+
+            if (n.labels && Object.keys(n.labels).length > 0) {
+                // Limit to 3 labels maximum visually
+                const labStr = Object.entries(n.labels).slice(0, 3).map(([k, v]) => `${k}=${v}`).join('<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
+            }
+
+            // Mermaid requires node titles containing special chars or quotes to be encased in string literals without inner double quotes.
+            label = label.replace(/"/g, "'");
+            graphDef += `  ${nodeId}["${label}"]\n`;
         });
 
         // 3. Edges
         let edgeCount = 0;
+        let linkStyles = [];
         if (traceData.edges) {
             traceData.edges.forEach((e) => {
                 const fromIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.from);
                 const toIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.to);
 
                 if (fromIdx >= 0 && toIdx >= 0) {
-                    const arrow = e.healthy ? "-->" : "---";
-                    graphDef += `  N${fromIdx} ${arrow} N${toIdx}\n`;
+                    const arrow = e.healthy ? "-->" : "-.->";
+
+                    // Sanitize message to prevent Mermaid syntax collision (like "->") and apply thinner styling
+                    let cleanMsg = e.message ? String(e.message).replace(/->/g, '&#8594;') : "";
+                    const text = cleanMsg ? `|"<span style='font-weight:normal; font-size:11px; letter-spacing:0.5px;'>${cleanMsg}</span>"|` : "";
+
+                    graphDef += `  N${fromIdx} ${arrow} ${text} N${toIdx}\n`;
 
                     // Style links with named colors ONLY
                     const color = e.healthy ? "green" : "red";
-                    graphDef += `  linkStyle ${edgeCount} stroke:${color},stroke-width:2px\n`;
+                    linkStyles.push(`  linkStyle ${edgeCount} stroke:${color},stroke-width:2px\n`);
                     edgeCount++;
                 }
             });
@@ -112,6 +130,11 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
             } else {
                 graphDef += `  style ${nodeId} fill:darkred,stroke:red,color:white\n`;
             }
+        });
+
+        // Append link styles at the very end
+        linkStyles.forEach(styleDef => {
+            graphDef += styleDef;
         });
 
         try {
