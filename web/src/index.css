@@ -2,8 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme Variables ─────────────────────────────────────────────────────────
+   Defined OUTSIDE @layer so Tailwind does not purge these rules.
+   The theme class is applied dynamically to document.body at runtime.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root,
+.theme-default {
+  --bg-main: #111827;
+  --bg-sidebar: #1f2937;
+  --bg-card: #1f2937;
+  --bg-card-hover: #374151;
+  --bg-muted: #111827;
+  --border-color: #374151;
+  --border-muted: #1f2937;
+  --text-primary: #f3f4f6;
+  --text-white: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --sidebar-hover: #374151;
+  --accent: #3b82f6;
+  --bg-console: #030712;
+  --wallpaper-opacity: 0.05;
+  --wallpaper-brightness: 0.5;
+}
+
+.theme-light {
+  --bg-main: #e8e8ed;
+  --bg-sidebar: #f0f0f5;
+  --bg-card: #f0f0f5;
+  --bg-card-hover: #e0e0e8;
+  --bg-muted: #d8d8de;
+  --border-color: #b8b8c0;
+  --border-muted: #d0d0d8;
+  --text-primary: #1d1d1f;
+  --text-white: #000000;
+  --text-secondary: #6e6e73;
+  --text-muted: #8e8e93;
+  --sidebar-hover: #e0e0e8;
+  --accent: #0066cc;
+  --bg-console: #e0e0e8;
+  --wallpaper-opacity: 0.06;
+  --wallpaper-brightness: 0.8;
+}
+
+.theme-black {
+  --bg-main: #000000;
+  --bg-sidebar: #0a0a0a;
+  --bg-card: #0f0f0f;
+  --bg-card-hover: #171717;
+  --bg-muted: #000000;
+  --border-color: #1f1f1f;
+  --border-muted: #0f0f0f;
+  --text-primary: #ffffff;
+  --text-white: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --sidebar-hover: #171717;
+  --accent: #3b82f6;
+  --bg-console: #000000;
+  --wallpaper-opacity: 0.06;
+  --wallpaper-brightness: 0.3;
+}
+
 @layer base {
   body {
-    @apply antialiased text-gray-200 bg-gray-900;
+    @apply antialiased transition-colors duration-200;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
   }
 }

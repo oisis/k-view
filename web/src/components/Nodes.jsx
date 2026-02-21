@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers } from 'lucide-react';
 
 function bytesToGiB(str) {
-    // Parses strings like "32Gi" or "34359738368" into GiB value
     if (!str) return '?';
     if (str.endsWith('Ki')) return (parseFloat(str) / (1024 * 1024)).toFixed(1) + ' GiB';
     if (str.endsWith('Mi')) return (parseFloat(str) / 1024).toFixed(1) + ' GiB';
@@ -34,14 +33,14 @@ function StatusIcon({ status }) {
 
 function StatCard({ label, value, sub, icon: Icon, color }) {
     return (
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-5 flex items-start gap-4">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-5 flex items-start gap-4">
             <div className={`p-2 rounded-lg ${color}`}>
                 <Icon size={20} />
             </div>
             <div>
-                <p className="text-2xl font-bold text-white">{value}</p>
-                <p className="text-sm text-gray-400">{label}</p>
-                {sub && <p className="text-xs text-gray-500 mt-0.5">{sub}</p>}
+                <p className="text-2xl font-bold text-[var(--text-white)]">{value}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{label}</p>
+                {sub && <p className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</p>}
             </div>
         </div>
     );
@@ -68,8 +67,8 @@ export default function Nodes() {
     return (
         <div className="p-8">
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-1">Nodes</h2>
-                <p className="text-gray-400 text-sm">
+                <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">Nodes</h2>
+                <p className="text-[var(--text-secondary)] text-sm">
                     {loading ? 'Loading...' : `${nodes.length} node${nodes.length !== 1 ? 's' : ''} in cluster`}
                 </p>
             </div>
@@ -89,13 +88,13 @@ export default function Nodes() {
             )}
 
             {/* Nodes table */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                <div className="p-4 border-b border-gray-700">
-                    <h3 className="font-semibold text-gray-200">Node Details</h3>
+            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm">
+                <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
+                    <h3 className="font-semibold text-[var(--text-secondary)]">Node Details</h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-300">
-                        <thead className="text-xs text-gray-400 bg-gray-900/50 uppercase tracking-wider">
+                    <table className="w-full text-sm text-left text-[var(--text-primary)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-4 py-3">Node</th>
                                 <th className="px-4 py-3">Role</th>
@@ -110,18 +109,18 @@ export default function Nodes() {
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan="9" className="px-4 py-8 text-center text-gray-500">Loading nodes...</td></tr>
+                                <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)] italic">Loading nodes...</td></tr>
                             ) : nodes.length === 0 ? (
-                                <tr><td colSpan="9" className="px-4 py-8 text-center text-gray-500">No nodes found.</td></tr>
+                                <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)]">No nodes found.</td></tr>
                             ) : (
                                 nodes.map((node, i) => (
-                                    <tr key={i} className="border-b border-gray-700/50 hover:bg-gray-700/30 transition-colors">
+                                    <tr key={i} className="border-b border-[var(--border-color)]/30 hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2 font-mono font-medium text-white">
-                                                <Server size={14} className="text-gray-400 shrink-0" />
+                                            <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-white)]">
+                                                <Server size={14} className="text-[var(--text-muted)] shrink-0" />
                                                 {node.name}
                                             </div>
-                                            <div className="text-xs text-gray-500 ml-5">{node.os}</div>
+                                            <div className="text-xs text-[var(--text-muted)] ml-5">{node.os}</div>
                                         </td>
                                         <td className="px-4 py-3"><RoleBadge role={node.role} /></td>
                                         <td className="px-4 py-3">
@@ -134,22 +133,22 @@ export default function Nodes() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1">
-                                                <Cpu size={12} className="text-gray-500" />
+                                                <Cpu size={12} className="text-[var(--text-muted)]" />
                                                 <span>{node.cpuCapacity}</span>
-                                                <span className="text-gray-500 text-xs">/ {node.cpuAllocatable} alloc</span>
+                                                <span className="text-[var(--text-muted)] text-xs">/ {node.cpuAllocatable} alloc</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1">
-                                                <MemoryStick size={12} className="text-gray-500" />
+                                                <MemoryStick size={12} className="text-[var(--text-muted)]" />
                                                 <span>{bytesToGiB(node.memoryCapacity)}</span>
-                                                <span className="text-gray-500 text-xs">/ {bytesToGiB(node.memoryAllocatable)} alloc</span>
+                                                <span className="text-[var(--text-muted)] text-xs">/ {bytesToGiB(node.memoryAllocatable)} alloc</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-gray-400 font-mono text-xs">{node.architecture}</td>
-                                        <td className="px-4 py-3 text-gray-400 font-mono text-xs">{node.kubeletVersion}</td>
-                                        <td className="px-4 py-3 text-gray-400 text-xs">{node.containerRuntime}</td>
-                                        <td className="px-4 py-3 text-gray-400 text-xs">{new Date(node.age).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-xs">{node.architecture}</td>
+                                        <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-xs">{node.kubeletVersion}</td>
+                                        <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{node.containerRuntime}</td>
+                                        <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(node.age).toLocaleDateString()}</td>
                                     </tr>
                                 ))
                             )}

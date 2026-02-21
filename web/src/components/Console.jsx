@@ -96,7 +96,7 @@ export default function Console() {
 
     // Tokenize line to find pod names or namespaces
     const renderLine = (line, exitCode, onTokenClick) => {
-        let defaultColor = exitCode !== 0 ? 'text-red-400' : 'text-gray-200';
+        let defaultColor = exitCode !== 0 ? 'text-red-400' : 'text-[var(--text-primary)]';
         if (/NotReady|CrashLoop|Error|Failed|Evicted|OOMKilled/i.test(line)) defaultColor = 'text-red-400';
         else if (/Warning|warn/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-yellow-400';
         else if (/Running|Ready|Active|True/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-green-400';
@@ -229,7 +229,7 @@ export default function Console() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-gray-950">
+        <div className="flex flex-col h-full bg-[var(--bg-console)] transition-colors duration-200">
             {/* Terminal output container */}
             <div
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"
@@ -251,7 +251,7 @@ export default function Console() {
                             </div>
                         )}
                         {entry.type === 'output' && (
-                            <div className="ml-4 mb-2 whitespace-pre text-gray-200">
+                            <div className="ml-4 mb-2 whitespace-pre text-[var(--text-primary)]">
                                 {entry.text.split('\n').map((line, li) => (
                                     <div key={li} className="min-h-[1.25rem]">
                                         {renderLine(line, entry.exitCode, appendToInput)}
@@ -263,7 +263,7 @@ export default function Console() {
                 ))}
 
                 {loading && (
-                    <div className="flex items-center gap-2 ml-4 text-gray-500 mt-1">
+                    <div className="flex items-center gap-2 ml-4 text-[var(--text-muted)] mt-1">
                         <span className="animate-pulse">●</span> Running...
                     </div>
                 )}
@@ -272,24 +272,24 @@ export default function Console() {
             </div>
 
             {/* Input & Suggestions row */}
-            <div className="border-t border-gray-800 bg-gray-900/80 flex flex-col shrink-0">
+            <div className="border-t border-[var(--border-color)] bg-[var(--bg-card)]/80 flex flex-col shrink-0">
                 {/* Suggestions bar */}
-                <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-800 h-10 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border-color)] h-10 overflow-x-auto no-scrollbar">
                     {suggestions ? (
                         <>
-                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
                             {suggestions.items.map((s, i) => (
                                 <button
                                     key={i}
                                     onClick={() => handleSuggestionClick(s.val)}
-                                    className="px-2.5 py-1 bg-gray-800 hover:bg-blue-900/40 text-gray-300 hover:text-blue-300 border border-gray-700 hover:border-blue-700/50 rounded text-xs transition-all whitespace-nowrap"
+                                    className="px-2.5 py-1 bg-[var(--bg-muted)] hover:bg-blue-900/40 text-[var(--text-secondary)] hover:text-blue-300 border border-[var(--border-color)] hover:border-blue-700/50 rounded text-xs transition-all whitespace-nowrap"
                                 >
                                     {s.label}
                                 </button>
                             ))}
                         </>
                     ) : (
-                        <span className="text-[10px] text-gray-600 italic">Type space or more characters to see suggestions...</span>
+                        <span className="text-[10px] text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
                     )}
                 </div>
 
@@ -305,15 +305,15 @@ export default function Console() {
                         disabled={loading}
                         spellCheck={false}
                         autoComplete="off"
-                        className="flex-1 bg-transparent outline-none text-white font-mono caret-blue-400"
+                        className="flex-1 bg-transparent outline-none text-[var(--text-white)] font-mono caret-blue-400"
                     />
                 </div>
 
                 {/* Hint / Toolbar */}
-                <div className="px-4 py-1.5 flex gap-4 text-[10px] text-gray-500 border-t border-gray-800/50 uppercase tracking-widest">
-                    <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Enter</kbd> execute</span>
-                    <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Arrows</kbd> history</span>
-                    <span><kbd className="bg-gray-800 px-1 rounded text-gray-400">Ctrl+L</kbd> clear</span>
+                <div className="px-4 py-1.5 flex gap-4 text-[10px] text-[var(--text-muted)] border-t border-[var(--border-color)] uppercase tracking-widest">
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Enter</kbd> execute</span>
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Arrows</kbd> history</span>
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Ctrl+L</kbd> clear</span>
                     <span className="ml-auto opacity-50">Tip: Click output tokens or use suggestions above</span>
                 </div>
             </div>

@@ -22,7 +22,7 @@ function MiniChart({ data, color, label }) {
 
     return (
         <div className="flex flex-col gap-1 w-full mt-2">
-            <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+            <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-mono">
                 <span>{data[0].timestamp}</span>
                 <span>{label}: {data[data.length - 1].value}%</span>
                 <span>{data[data.length - 1].timestamp}</span>
@@ -65,12 +65,12 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
     const cls = colorMap[color] || colorMap.blue;
 
     return (
-        <div className={`bg-gray-800/40 backdrop-blur-sm p-5 rounded-xl border border-gray-700 hover:border-gray-600 transition-all group shadow-lg`}>
+        <div className={`bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] hover:border-[var(--bg-card-hover)] transition-all group shadow-lg`}>
             <div className="flex items-start justify-between mb-2">
                 <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{title}</p>
-                    <h3 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">{value}</h3>
-                    {subValue && <p className="text-xs text-gray-400 mt-1">{subValue}</p>}
+                    <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{title}</p>
+                    <h3 className="text-2xl font-bold text-[var(--text-white)] group-hover:text-blue-400 transition-colors">{value}</h3>
+                    {subValue && <p className="text-xs text-[var(--text-secondary)] mt-1">{subValue}</p>}
                 </div>
                 <div className={`p-2 rounded-lg ${cls}`}>
                     <Icon size={20} />
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
     if (loading && !stats) {
         return (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-[var(--text-secondary)]">
                 <RefreshCw size={32} className="animate-spin text-blue-500" />
                 <p className="animate-pulse">Analyzing cluster state...</p>
             </div>
@@ -114,15 +114,15 @@ export default function Dashboard() {
             {/* Header */}
             <div className="flex items-center justify-between mb-10">
                 <div>
-                    <h2 className="text-3xl font-extrabold text-white tracking-tight">System Overview</h2>
-                    <p className="text-gray-400 mt-1 flex items-center gap-2">
+                    <h2 className="text-3xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
+                    <p className="text-[var(--text-secondary)] mt-1 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        Connected to <span className="font-mono text-blue-300">{stats?.clusterName || 'Local Cluster'}</span>
+                        Connected to <span className="font-mono text-blue-400">{stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
                 <button
                     onClick={fetchStats}
-                    className="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg transition-all hover:bg-gray-700 h-10 shadow-sm"
+                    className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-4 py-2 rounded-lg transition-all hover:bg-[var(--bg-card-hover)] h-10 shadow-sm"
                 >
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     Refresh Stats
@@ -187,13 +187,13 @@ export default function Dashboard() {
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
                 >
                     <div className="mt-3 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-1.5 flex-1 bg-[var(--bg-muted)] rounded-full overflow-hidden">
                             <div
                                 className={`h-full bg-green-500 rounded-full`}
                                 style={{ width: stats?.podCount ? `${((stats.podCount - stats.podCountFailed) / stats.podCount) * 100}%` : '0%' }}
                             ></div>
                         </div>
-                        <span className="text-[10px] font-mono text-gray-500">
+                        <span className="text-[10px] font-mono text-[var(--text-muted)]">
                             {stats?.podCount ? Math.round(((stats.podCount - stats.podCountFailed) / stats.podCount) * 100) : 0}% Healthy
                         </span>
                     </div>
@@ -209,13 +209,13 @@ export default function Dashboard() {
                 />
 
                 {/* CPU Usage */}
-                <div className="md:col-span-2 bg-gray-800/40 backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg">
+                <div className="md:col-span-2 bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] shadow-lg hover:border-[var(--bg-card-hover)] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Compute Load (CPU)</p>
-                            <h3 className="text-2xl font-bold text-white flex items-baseline gap-2">
+                            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Compute Load (CPU)</p>
+                            <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
                                 {stats?.cpuUsage || 0}%
-                                <span className="text-xs text-gray-500 font-normal">of {stats?.cpuTotal || '—'}</span>
+                                <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.cpuTotal || '—'}</span>
                             </h3>
                         </div>
                         <div className="p-2 rounded-lg text-blue-400 bg-blue-500/10 border border-blue-500/20">
@@ -226,13 +226,13 @@ export default function Dashboard() {
                 </div>
 
                 {/* RAM Usage */}
-                <div className="md:col-span-2 bg-gray-800/40 backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg">
+                <div className="md:col-span-2 bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] shadow-lg hover:border-[var(--bg-card-hover)] transition-all">
                     <div className="flex items-center justify-between mb-4">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Memory Pressure (RAM)</p>
-                            <h3 className="text-2xl font-bold text-white flex items-baseline gap-2">
+                            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Memory Pressure (RAM)</p>
+                            <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
                                 {stats?.ramUsage || 0}%
-                                <span className="text-xs text-gray-500 font-normal">of {stats?.ramTotal || '—'}</span>
+                                <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.ramTotal || '—'}</span>
                             </h3>
                         </div>
                         <div className="p-2 rounded-lg text-purple-400 bg-purple-500/10 border border-purple-500/20">
@@ -245,12 +245,12 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Info Footer */}
-            <div className="mt-10 pt-6 border-t border-gray-800 flex items-center gap-6 justify-center">
-                <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
+            <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
+                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Info size={14} className="text-blue-500/60" />
                     Metrics update every 60 seconds
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
+                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Activity size={14} className="text-green-500/60" />
                     Cluster Health: Stable
                 </div>

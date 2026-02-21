@@ -49,8 +49,8 @@ export default function AdminPanel() {
     return (
         <div className="p-8">
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">Admin Panel</h2>
-                <p className="text-gray-400">Manage user roles and permissions</p>
+                <h2 className="text-2xl font-bold text-[var(--text-white)] mb-2">Admin Panel</h2>
+                <p className="text-[var(--text-secondary)]">Manage user roles and permissions</p>
             </div>
 
             {message && (
@@ -65,13 +65,13 @@ export default function AdminPanel() {
                 </div>
             )}
 
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                <div className="p-4 border-b border-gray-700 bg-gray-800/50">
-                    <h3 className="font-semibold text-gray-200">User Management</h3>
+            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden">
+                <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
+                    <h3 className="font-semibold text-[var(--text-secondary)]">User Management</h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-gray-300">
-                        <thead className="text-xs text-gray-400 bg-gray-900/50 uppercase">
+                    <table className="w-full text-left text-sm text-[var(--text-primary)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-6 py-3">User Email</th>
                                 <th className="px-6 py-3">Current Role</th>
@@ -81,12 +81,12 @@ export default function AdminPanel() {
                         <tbody>
                             {users.length === 0 ? (
                                 <tr>
-                                    <td colSpan="3" className="px-6 py-4 text-center text-gray-500">No users found in database.</td>
+                                    <td colSpan="3" className="px-6 py-4 text-center text-[var(--text-muted)]">No users found in database.</td>
                                 </tr>
                             ) : (
                                 users.map((user, i) => (
-                                    <tr key={i} className="border-b border-gray-700 hover:bg-gray-750">
-                                        <td className="px-6 py-4 font-medium text-white">
+                                    <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-[var(--text-white)]">
                                             {user.email}
                                         </td>
                                         <td className="px-6 py-4 flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function AdminPanel() {
                                             <select
                                                 value={user.role}
                                                 onChange={(e) => handleRoleChange(user.email, e.target.value)}
-                                                className="bg-gray-900 border border-gray-600 text-white text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2"
+                                                className="bg-[var(--bg-muted)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2"
                                             >
                                                 <option value="viewer">Viewer</option>
                                                 <option value="admin">Admin</option>

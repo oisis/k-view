@@ -1,13 +1,25 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>K-View</title>
-  </head>
-  <body class="bg-gray-900 text-white min-h-screen">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K-View</title>
+  <script>
+    // Apply the saved theme immediately to avoid flash of unstyled content
+    try {
+      var t = localStorage.getItem('kview-theme') || 'default';
+      document.documentElement.classList.add('theme-' + t);
+    } catch (e) {
+      document.documentElement.classList.add('theme-default');
+    }
+  </script>
+</head>
+
+<body class="min-h-screen">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

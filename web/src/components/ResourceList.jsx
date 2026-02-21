@@ -250,7 +250,7 @@ function StatusBadge({ value }) {
         Active: 'bg-green-900/40 text-green-400 border-green-800',
         Complete: 'bg-blue-900/40 text-blue-400 border-blue-800',
         Bound: 'bg-blue-900/40 text-blue-400 border-blue-800',
-        ClusterIP: 'bg-gray-700 text-gray-300 border-gray-600',
+        ClusterIP: 'bg-[var(--bg-muted)] text-[var(--text-secondary)] border-[var(--border-color)]',
         LoadBalancer: 'bg-cyan-900/40 text-cyan-400 border-cyan-800',
         CrashLoopBackOff: 'bg-red-900/40 text-red-400 border-red-800',
         Failed: 'bg-red-900/40 text-red-400 border-red-800',
@@ -261,7 +261,7 @@ function StatusBadge({ value }) {
         Released: 'bg-orange-900/40 text-orange-400 border-orange-800',
         Default: 'bg-blue-900/40 text-blue-400 border-blue-800',
     };
-    const cls = map[v] || 'bg-gray-700 text-gray-400 border-gray-600';
+    const cls = map[v] || 'bg-[var(--bg-muted)] text-[var(--text-secondary)] border-[var(--border-color)]';
     return (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${cls}`}>
             <Activity size={9} /> {v}
@@ -345,8 +345,8 @@ export default function ResourceList({ kind }) {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">{schema.title}</h2>
-                    <p className="text-gray-400 text-sm">
+                    <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">{schema.title}</h2>
+                    <p className="text-[var(--text-secondary)] text-sm">
                         {loading ? 'Loading...' : `${sortedItems.length} item${sortedItems.length !== 1 ? 's' : ''}`}
                         {namespace && ` in "${namespace}"`}
                     </p>
@@ -359,7 +359,7 @@ export default function ResourceList({ kind }) {
                             onChange={setNamespace}
                         />
                     )}
-                    <button onClick={load} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-600 px-3 py-2 rounded-lg transition-colors h-10">
+                    <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         Refresh
                     </button>
@@ -370,20 +370,20 @@ export default function ResourceList({ kind }) {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden shadow-xl">
+            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-300">
-                        <thead className="text-xs text-gray-400 bg-gray-900/60 uppercase tracking-wider">
+                    <table className="w-full text-sm text-left text-[var(--text-primary)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-gray-800/80 hover:text-white transition-colors group select-none"
+                                        className="px-6 py-4 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors group select-none"
                                     >
                                         <div className="flex items-center gap-2">
                                             {col.label}
-                                            <span className="text-gray-600 group-hover:text-gray-400 transition-colors">
+                                            <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (
                                                     sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
                                                 ) : (
@@ -395,13 +395,13 @@ export default function ResourceList({ kind }) {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-700/50">
+                        <tbody className="divide-y divide-[var(--border-muted)]">
                             {loading && sortedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500 italic">Loading...</td></tr>
+                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">Loading...</td></tr>
                             ) : sortedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-gray-500">No {kind.replace(/-/g, ' ')} found.</td></tr>
+                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">No {kind.replace(/-/g, ' ')} found.</td></tr>
                             ) : sortedItems.map((item, i) => (
-                                <tr key={i} className="hover:bg-gray-700/30 transition-colors">
+                                <tr key={i} className="hover:bg-[var(--sidebar-hover)] transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
                                         return (
@@ -409,8 +409,8 @@ export default function ResourceList({ kind }) {
                                                 {col.badge
                                                     ? <StatusBadge value={val} />
                                                     : col.key === 'name'
-                                                        ? <span className="font-mono font-medium text-white">{val}</span>
-                                                        : <span className="text-gray-400">{val}</span>
+                                                        ? <span className="font-mono font-medium text-[var(--text-white)]">{val}</span>
+                                                        : <span className="text-[var(--text-secondary)]">{val}</span>
                                                 }
                                             </td>
                                         );
