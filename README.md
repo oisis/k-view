@@ -46,9 +46,13 @@ docker build -t k-view:latest .
 
 ### 3. Helm Deployment
 
-Navigate to the `charts/k-view` directory and configure your `values.yaml` (especially the `oidc` secrets and ingress host).
+You can install K-View directly from the GitHub Container Registry (GHCR) using Helm OCI, without needing to clone the repository or build the image yourself.
 
-Install the Helm chart:
+```bash
+helm install k-view oci://ghcr.io/oisis/charts/k-view --version main -n k-view --create-namespace
+```
+
+Alternatively, if you are developing locally, navigate to the `charts/k-view` directory, configure your `values.yaml` (especially the `oidc` secrets and ingress host), and install the local chart:
 
 ```bash
 helm install k-view ./charts/k-view -n k-view --create-namespace
