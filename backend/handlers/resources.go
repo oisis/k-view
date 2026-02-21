@@ -474,7 +474,7 @@ spec:
 
 func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	name := c.Param("name")
-	kind := strings.ToLower(c.Param("kind"))
+	_ = c.Param("kind") // kind not used since events are filtered by name
 	ns := c.Param("namespace")
 
 	// Apply RBAC namespace restriction
@@ -499,20 +499,6 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 		return
 	}
 
-	gvr := getGVR(kind)
-	var resInterface dynamic.ResourceInterface
-	if ns != "" {
-		resInterface = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		resInterface = dynClient.Resource(gvr)
-	}
-
-	targetResource, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
-		return
-	}
-	uid := targetResource.GetUID()
 
 	// Try listing events for this specific object name and namespace
 	eventsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}

@@ -222,19 +222,22 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		svcs, _ := client.ListServices(ctx, namespace)
 		for _, svc := range svcs {
 			if matchesSelector(svc.Spec.Selector, pod.Labels) {
-				res.Nodes = append(res.Nodes, TraceNode{Type: "Service", Name: svc.Name, Healthy: true, Message: "Selects Pod"})
-				
-				// Include selector info in the edge message
-				selectorParts := []string{}
-				for k, v := range svc.Spec.Selector {
-					selectorParts = append(selectorParts, fmt.Sprintf("%s=%s", k, v))
-				}
-				edgeMsg := "Selector Match"
-				if len(selectorParts) > 0 {
-					edgeMsg = "Match: " + strings.Join(selectorParts, ", ")
+				res.Nodes = append(res.Nodes, TraceNode{
+					Type: "Service", 
+					Name: svc.Name, 
+					Healthy: true, 
+					Message: "Selects Pod",
+					Selectors: svc.Spec.Selector,
+				})
+
+				// Put target port on the edge instead of selector
+				portInfo := ""
+				if len(svc.Spec.Ports) > 0 {
+					p := svc.Spec.Ports[0]
+					portInfo = fmt.Sprintf("%d -> %s", p.Port, p.TargetPort.String())
 				}
 
-				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: edgeMsg})
+				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: portInfo})
 				
 				// Optional: Trace up to Ingresses here too
 			}
