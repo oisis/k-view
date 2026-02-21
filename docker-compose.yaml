@@ -11,6 +11,7 @@ services:
       DEV_MODE: "true"
       GIN_MODE: debug
       PORT: "8080"
+      KVIEW_STATIC_USERS: '[{"username":"admin","password_hash":"$$2b$$12$$/rN33LSSA6EdI6RGnsfRquX.Xv.DwAXsO/4HIkxzgW9.MowFPzAQC"}]' # "password"
       # No KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET needed in dev mode
     volumes:
       - ./config/rbac:/etc/kview/rbac:ro

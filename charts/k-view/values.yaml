@@ -117,6 +117,12 @@ secrets:
   # -- Your Google OAuth 2.0 Client Secret
   googleClientSecret: "YOUR_GOOGLE_CLIENT_SECRET"
 
+# -- Local Static Users (for environments without OIDC)
+# Example of defining built-in users with bcrypt hashed passwords
+localUsers: []
+#  - username: "admin"
+#    password_hash: "$2a$10$6D0aK9B7C7141P3cKxj2rOfzLntIfg6qYg62H9iMw1jO2XlE2C60C"
+
 # -- Array of raw Kubernetes manifests to be deployed alongside the chart.
 # These can be any valid Kubernetes object.
 # @default -- []

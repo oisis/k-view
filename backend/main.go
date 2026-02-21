@@ -60,7 +60,9 @@ func main() {
 	api := router.Group("/api")
 	{
 		// Public Auth routes
-		api.GET("/auth/login", authHandler.Login)
+		api.GET("/auth/login", authHandler.Login)           // OIDC initiation
+		api.POST("/auth/login", authHandler.LocalLogin)     // Local credential POST
+		api.GET("/auth/providers", authHandler.GetProviders) // Get available auth methods
 		api.GET("/auth/callback", authHandler.Callback)
 		api.POST("/auth/logout", authHandler.Logout)
 

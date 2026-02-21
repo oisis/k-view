@@ -205,6 +205,32 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
     );
 }
 
+// ── Global Fetch Interceptor ───────────────────────────────────────────────
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+    let [resource, config] = args;
+    const token = localStorage.getItem('token');
+
+    // Only intercept API calls
+    if (token && typeof resource === 'string' && resource.startsWith('/api/')) {
+        config = config || {};
+        config.headers = {
+            ...config.headers,
+            'Authorization': `Bearer ${token}`
+        };
+    }
+
+    const response = await originalFetch(resource, config);
+    // If we're unauthorized, force clear token and prompt login
+    if (response.status === 401 && resource !== '/api/auth/me') {
+        localStorage.removeItem('token');
+        if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+        }
+    }
+    return response;
+};
+
 // ── App ────────────────────────────────────────────────────────────────────
 function App() {
     const [user, setUser] = useState(null);
@@ -229,6 +255,7 @@ function App() {
 
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' });
+        localStorage.removeItem('token');
         setUser(null);
         window.location.href = '/login';
     };

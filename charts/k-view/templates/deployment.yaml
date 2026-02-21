@@ -54,6 +54,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "k-view.fullname" . }}-secret
                   key: googleClientSecret
+            {{- if .Values.localUsers }}
+            - name: KVIEW_STATIC_USERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "k-view.fullname" . }}-secret
+                  key: KVIEW_STATIC_USERS
+            {{- end }}
           volumeMounts:
             {{- if .Values.persistence.enabled }}
             - name: data

@@ -15,6 +15,7 @@ import (
 
 	"k-view/rbac"
 	"k-view/k8s"
+	"k-view/auth"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
@@ -25,11 +26,11 @@ import (
 // devTokenSecret is used to sign dev-mode session tokens. In production this path is never reached.
 var devTokenSecret = []byte("kview-dev-secret-not-for-production")
 
-// AuthHandler handles authentication for both OIDC and dev mode.
 type AuthHandler struct {
 	oauth2Config oauth2.Config
 	verifier     *oidc.IDTokenVerifier
 	rbacConfig   *rbac.RBACConfig
+	localAuth    *auth.LocalAuthenticator
 	devMode      bool
 }
 
@@ -46,8 +47,20 @@ func NewAuthHandler() (*AuthHandler, error) {
 		return nil, fmt.Errorf("failed to load static rbac: %v", err)
 	}
 
+	// Try initializing Local Authenticator
+	var localAuth *auth.LocalAuthenticator
+	la, err := auth.NewLocalAuthenticator("")
+	if err == nil && len(la.Users) > 0 {
+		localAuth = la
+		fmt.Printf("Local Authentication enabled with %d static users.\n", len(la.Users))
+	}
+
 	if devMode {
-		return &AuthHandler{rbacConfig: rbacConfig, devMode: true}, nil
+		return &AuthHandler{
+			rbacConfig: rbacConfig,
+			localAuth:  localAuth,
+			devMode:    true,
+		}, nil
 	}
 
 	ctx := context.Background()
@@ -78,6 +91,7 @@ func NewAuthHandler() (*AuthHandler, error) {
 		oauth2Config: config,
 		verifier:     verifier,
 		rbacConfig:   rbacConfig,
+		localAuth:    localAuth,
 		devMode:      false,
 	}, nil
 }
@@ -243,31 +257,43 @@ func verifyDevToken(token string) (string, bool) {
 	return email, ok
 }
 
-// AuthMiddleware validates the auth cookie. Supports both real OIDC tokens and dev tokens.
+// AuthMiddleware validates the auth cookie or a Bearer token.
 func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenStr, err := c.Cookie("auth_token")
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
-			return
-		}
-
 		var email string
 		var ok bool
 
-		// In dev mode, try to verify the dev token first
-		if h.devMode {
-			email, ok = verifyDevToken(tokenStr)
-		} else {
-			// In production, verify the OIDC token
-			idToken, err := h.verifier.Verify(c, tokenStr)
-			if err == nil {
-				var claims struct {
-					Email string `json:"email"`
-				}
-				if err := idToken.Claims(&claims); err == nil {
-					email = claims.Email
-					ok = true
+		// 1. Check for Bearer token (Local Authentication JWT)
+		authHeader := c.GetHeader("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") && h.localAuth != nil {
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			username, err := h.localAuth.VerifyJWT(tokenStr)
+			if err == nil && username != "" {
+				email = username // For static local users, 'email' is just their username string
+				ok = true
+			}
+		}
+
+		// 2. Fallback to Cookie (OIDC or Dev Mode)
+		if !ok {
+			tokenStr, err := c.Cookie("auth_token")
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+				return
+			}
+
+			if h.devMode {
+				email, ok = verifyDevToken(tokenStr)
+			} else {
+				idToken, err := h.verifier.Verify(c, tokenStr)
+				if err == nil {
+					var claims struct {
+						Email string `json:"email"`
+					}
+					if err := idToken.Claims(&claims); err == nil {
+						email = claims.Email
+						ok = true
+					}
 				}
 			}
 		}
@@ -323,4 +349,48 @@ func (h *AuthHandler) AdminMiddleware() gin.HandlerFunc {
 // GetRBACConfig returns the loaded static RBAC config.
 func (h *AuthHandler) GetRBACConfig() *rbac.RBACConfig {
 	return h.rbacConfig
+}
+
+// GetProviders returns the available authentication methods to the frontend.
+func (h *AuthHandler) GetProviders(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"oidc":  h.verifier != nil, // True if OIDC was successfully initialized
+		"local": h.localAuth != nil, // True if static local users are loaded
+	})
+}
+
+// LocalLogin handles traditional username/password authentication.
+func (h *AuthHandler) LocalLogin(c *gin.Context) {
+	if h.localAuth == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Local authentication is not enabled"})
+		return
+	}
+
+	var req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
+	if !h.localAuth.Authenticate(req.Username, req.Password) {
+		// Log failed attempts for security tracking
+		fmt.Printf("FAILED LOGIN ATTEMPT for user %s\n", req.Username)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	token, err := h.localAuth.GenerateJWT(req.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate session token"})
+		return
+	}
+
+	fmt.Printf("Local user %s successfully logged in.\n", req.Username)
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 }
