@@ -53,7 +53,13 @@ export default function ResourceDetails() {
     if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
     if (!data) return <div className="p-8 text-[var(--text-muted)]">Resource not found</div>;
 
-    const { metadata, spec, status } = data;
+    // Safety check: Ensure we have at least metadata
+    if (!data.metadata) return <div className="p-8 text-red-400">Error: Invalid resource data received from API</div>;
+
+    const { metadata, spec = {}, status = {} } = data;
+    const isPod = kind.toLowerCase().startsWith('pod');
+    const isDeployment = kind.toLowerCase().startsWith('deploy');
+    const isService = kind.toLowerCase().startsWith('serv');
 
     return (
         <div className="p-8 max-w-7xl mx-auto">
@@ -109,7 +115,7 @@ export default function ResourceDetails() {
                 onClose={() => setTerminalModalOpen(false)}
                 pod={name}
                 namespace={namespace !== '-' ? namespace : ''}
-                containers={spec?.template?.spec?.containers || spec?.containers || []}
+                containers={isPod ? (spec?.containers || []) : (spec?.template?.spec?.containers || [])}
             />
 
             {/* Tabs */}
@@ -176,21 +182,23 @@ export default function ResourceDetails() {
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-[var(--border-color)]/30">
                                     <DetailRow label="Phase">
-                                        <div className="flex items-center gap-2 text-green-400 font-medium">
-                                            <CheckCircle2 size={14} />
-                                            Running
+                                        <div className={`flex items-center gap-2 font-medium ${(status.phase === 'Running' || status.phase === 'Active') ? 'text-green-400' : 'text-yellow-400'
+                                            }`}>
+                                            <Activity size={14} />
+                                            {status.phase || 'Unknown'}
                                         </div>
                                     </DetailRow>
-                                    <DetailRow label="Available Replicas" value={status.availableReplicas} />
-                                    <DetailRow label="Ready Replicas" value={status.readyReplicas} />
-                                    <DetailRow label="Conditions">
-                                        <div className="flex flex-wrap gap-4">
-                                            <ConditionBadge label="PodScheduled" status="True" />
-                                            <ConditionBadge label="Initialized" status="True" />
-                                            <ConditionBadge label="Ready" status="True" />
-                                            <ConditionBadge label="ContainersReady" status="True" />
-                                        </div>
-                                    </DetailRow>
+                                    {status.availableReplicas !== undefined && <DetailRow label="Available Replicas" value={status.availableReplicas} />}
+                                    {status.readyReplicas !== undefined && <DetailRow label="Ready Replicas" value={status.readyReplicas} />}
+                                    {(status.conditions || []).length > 0 && (
+                                        <DetailRow label="Conditions">
+                                            <div className="flex flex-wrap gap-4">
+                                                {status.conditions.map(c => (
+                                                    <ConditionBadge key={c.type} label={c.type} status={c.status} />
+                                                ))}
+                                            </div>
+                                        </DetailRow>
+                                    )}
                                 </tbody>
                             </table>
                         </DetailSection>
@@ -199,20 +207,25 @@ export default function ResourceDetails() {
                         <DetailSection title="Resource Info">
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-[var(--border-color)]/30">
-                                    <DetailRow label="Desired Replicas" value={spec.replicas} />
-                                    <DetailRow label="Strategy" value="RollingUpdate" />
-                                    <DetailRow label="Selectors">
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {Object.entries(spec.selector.matchLabels || {}).map(([k, v]) => (
-                                                <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-[10px] text-[var(--text-secondary)]">
-                                                    {k}: {v}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </DetailRow>
+                                    {spec.replicas !== undefined && <DetailRow label="Desired Replicas" value={spec.replicas} />}
+                                    {spec.strategy?.type && <DetailRow label="Strategy" value={spec.strategy.type} />}
+                                    {spec.clusterIP && <DetailRow label="Cluster IP" value={spec.clusterIP} />}
+
+                                    {(spec.selector?.matchLabels || spec.selector) && (
+                                        <DetailRow label="Selectors">
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
+                                                    <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-[10px] text-[var(--text-secondary)]">
+                                                        {k}: {v}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
                                     <DetailRow label="Containers">
                                         <div className="space-y-4">
-                                            {spec.template.spec.containers.map(c => (
+                                            {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
                                                 <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className="font-bold text-[var(--text-white)] flex items-center gap-2">
@@ -227,20 +240,25 @@ export default function ResourceDetails() {
                                                         <div>
                                                             <p className="text-[var(--text-muted)] mb-1">Ports</p>
                                                             <div className="font-mono text-blue-300">
-                                                                {c.ports?.map(p => `${p.containerPort}/TCP`).join(', ') || '—'}
+                                                                {c.ports?.map(p => `${p.containerPort || p.port}/${p.protocol || 'TCP'}`).join(', ') || '—'}
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <p className="text-[var(--text-muted)] mb-1">Resources</p>
-                                                            <div className="font-mono text-[var(--text-secondary)]">
-                                                                Requests: cpu=100m, mem=128Mi
-                                                                <br />
-                                                                Limits: cpu=200m, mem=256Mi
+                                                        {(c.resources?.requests || c.resources?.limits) && (
+                                                            <div>
+                                                                <p className="text-[var(--text-muted)] mb-1">Resources</p>
+                                                                <div className="font-mono text-[var(--text-secondary)]">
+                                                                    {c.resources.requests && `Requests: cpu=${c.resources.requests.cpu}, mem=${c.resources.requests.memory}`}
+                                                                    {c.resources.requests && c.resources.limits && <br />}
+                                                                    {c.resources.limits && `Limits: cpu=${c.resources.limits.cpu}, mem=${c.resources.limits.memory}`}
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
+                                            {!(isPod ? (spec.containers) : (spec.template?.spec?.containers)) && (
+                                                <div className="text-[var(--text-muted)] italic">No container information available</div>
+                                            )}
                                         </div>
                                     </DetailRow>
                                 </tbody>
