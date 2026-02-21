@@ -22,6 +22,7 @@ type KubernetesProvider interface {
 	ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error)
 	ListNamespaces(ctx context.Context) ([]string, error)
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
+	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
 }
 
 // ---- Real Client ----

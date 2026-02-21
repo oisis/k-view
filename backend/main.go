@@ -43,6 +43,7 @@ func main() {
 	resourceHandler := handlers.NewResourceHandler(devMode)
 	rbacHandler := handlers.NewRBACHandler(authHandler.GetRBACConfig())
 	networkHandler := handlers.NewNetworkHandler(k8sProvider)
+	execHandler := handlers.NewExecHandler(k8sProvider)
 
 	router := gin.Default()
 
@@ -84,6 +85,7 @@ func main() {
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
 			protected.GET("/network/trace/:type/:namespace/:name", networkHandler.Trace)
+			protected.GET("/exec/:namespace/:name/:container", execHandler.HandleExec)
 			admin := protected.Group("/rbac")
 			admin.Use(authHandler.AdminMiddleware())
 			{

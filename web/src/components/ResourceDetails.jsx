@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, FileText, List, Terminal,
-    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity
+    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal
 } from 'lucide-react';
 import NetworkTraceModal from './NetworkTraceModal';
+import TerminalModal from './TerminalModal';
 
 export default function ResourceDetails() {
     const { kind, namespace, name } = useParams();
@@ -16,6 +17,7 @@ export default function ResourceDetails() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [traceModalOpen, setTraceModalOpen] = useState(false);
+    const [terminalModalOpen, setTerminalModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -83,6 +85,15 @@ export default function ResourceDetails() {
                         Visual Trace
                     </button>
                 )}
+                {kind === 'pods' && (
+                    <button
+                        onClick={() => setTerminalModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-900/40 text-green-300 border border-green-800 rounded-lg text-sm font-medium hover:bg-green-800/50 hover:text-white transition-colors"
+                    >
+                        <SquareTerminal size={16} />
+                        Exec Terminal
+                    </button>
+                )}
             </div>
 
             <NetworkTraceModal
@@ -92,6 +103,15 @@ export default function ResourceDetails() {
                 namespace={namespace !== '-' ? namespace : ''}
                 name={name}
             />
+
+            <TerminalModal
+                isOpen={terminalModalOpen}
+                onClose={() => setTerminalModalOpen(false)}
+                pod={name}
+                namespace={namespace !== '-' ? namespace : ''}
+                containers={spec?.template?.spec?.containers || spec?.containers || []}
+            />
+
             {/* Tabs */}
             <div className="flex items-center gap-0 border-b border-[var(--border-color)] mb-6">
                 {[
