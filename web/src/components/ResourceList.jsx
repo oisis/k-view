@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import NamespaceSelect from './NamespaceSelect';
+import NetworkTraceModal from './NetworkTraceModal';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -277,6 +278,7 @@ export default function ResourceList({ kind }) {
     const [namespace, setNamespace] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [traceTarget, setTraceTarget] = useState(null); // { kind, namespace, name }
 
     // Sorting state
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
@@ -341,6 +343,7 @@ export default function ResourceList({ kind }) {
 
     // Only show namespace selector for namespaced resources
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
+    const supportsTrace = kind === 'ingresses' || kind === 'services' || kind === 'pods';
 
     return (
         <div className="p-8">
@@ -394,6 +397,7 @@ export default function ResourceList({ kind }) {
                                         </div>
                                     </th>
                                 ))}
+                                {supportsTrace && <th className="px-6 py-4 whitespace-nowrap w-20"></th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-muted)]">
@@ -423,12 +427,31 @@ export default function ResourceList({ kind }) {
                                             </td>
                                         );
                                     })}
+                                    {supportsTrace && (
+                                        <td className="px-6 py-3 whitespace-nowrap text-right">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setTraceTarget({ kind: kind.replace(/e?s$/, ''), namespace: item.namespace || '', name: item.name }); }}
+                                                className="text-blue-400/70 hover:text-blue-300 p-1.5 hover:bg-blue-900/30 rounded inline-flex"
+                                                title="Visual Trace"
+                                            >
+                                                <Activity size={16} />
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <NetworkTraceModal
+                isOpen={!!traceTarget}
+                onClose={() => setTraceTarget(null)}
+                kind={traceTarget?.kind}
+                namespace={traceTarget?.namespace}
+                name={traceTarget?.name}
+            />
         </div>
     );
 }

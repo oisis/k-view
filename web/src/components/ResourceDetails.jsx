@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, FileText, List, Terminal,
-    Info, Clipboard, CheckCircle2, AlertCircle, Clock
+    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity
 } from 'lucide-react';
+import NetworkTraceModal from './NetworkTraceModal';
 
 export default function ResourceDetails() {
     const { kind, namespace, name } = useParams();
@@ -14,6 +15,7 @@ export default function ResourceDetails() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [traceModalOpen, setTraceModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -61,7 +63,7 @@ export default function ResourceDetails() {
                 >
                     <ChevronLeft size={20} />
                 </button>
-                <div>
+                <div className="flex-1">
                     <h2 className="text-2xl font-bold text-[var(--text-white)] flex items-center gap-3">
                         {name}
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-800/50 uppercase tracking-widest leading-none">
@@ -72,8 +74,24 @@ export default function ResourceDetails() {
                         Namespace: <span className="text-blue-400 font-medium">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
                     </p>
                 </div>
+                {(kind === 'ingress' || kind === 'services' || kind === 'pods') && (
+                    <button
+                        onClick={() => setTraceModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-900/40 text-blue-300 border border-blue-800 rounded-lg text-sm font-medium hover:bg-blue-800/50 hover:text-white transition-colors"
+                    >
+                        <Activity size={16} />
+                        Visual Trace
+                    </button>
+                )}
             </div>
 
+            <NetworkTraceModal
+                isOpen={traceModalOpen}
+                onClose={() => setTraceModalOpen(false)}
+                kind={kind.replace(/e?s$/, '')}
+                namespace={namespace !== '-' ? namespace : ''}
+                name={name}
+            />
             {/* Tabs */}
             <div className="flex items-center gap-0 border-b border-[var(--border-color)] mb-6">
                 {[
