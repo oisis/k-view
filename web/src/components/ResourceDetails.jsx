@@ -76,6 +76,10 @@ export default function ResourceDetails({ user }) {
     const isDeployment = kind.toLowerCase().startsWith('deploy');
     const isService = kind.toLowerCase().startsWith('serv');
 
+    const restarts = isPod && status.containerStatuses
+        ? status.containerStatuses.reduce((acc, c) => acc + (c.restartCount || 0), 0)
+        : 0;
+
     return (
         <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
@@ -165,11 +169,23 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Status Bar */}
                         <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm mb-6">
                             <div className="flex flex-wrap items-center gap-x-12 gap-y-6 px-8 py-6 bg-[var(--bg-sidebar)]/20">
-                                <StatusItem label="Phase">
-                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded') ? 'text-green-400' : 'text-yellow-400'}`}>
+                                <StatusItem label="Status">
+                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-green-400' : 'text-yellow-400'}`}>
                                         <Activity size={14} />
-                                        {status.phase || (isPod ? 'Unknown' : 'N/A')}
+                                        {data.resource?.status || status.phase || 'Unknown'}
                                     </div>
+                                </StatusItem>
+
+                                {isPod && (
+                                    <StatusItem label="Restarts">
+                                        <span className={restarts > 0 ? 'text-yellow-400' : 'text-[var(--text-white)]'}>
+                                            {restarts}
+                                        </span>
+                                    </StatusItem>
+                                )}
+
+                                <StatusItem label="Age">
+                                    <span className="text-[var(--text-white)]">{data.resource?.age || '—'}</span>
                                 </StatusItem>
 
                                 {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
