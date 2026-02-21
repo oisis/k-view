@@ -7,11 +7,11 @@ replicaCount: 1
 
 image:
   # -- Repository containing the K-View image
-  repository: k-view
+  repository: ghcr.io/oisis/k-view
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "latest"
+  tag: "main"
 
 # -- Optionally specify an array of imagePullSecrets.
 # Secrets must be manually created in the namespace.
