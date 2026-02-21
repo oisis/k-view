@@ -15,13 +15,13 @@ function bytesToGiB(str) {
 function RoleBadge({ role }) {
     if (role === 'control-plane') {
         return (
-            <span className="flex items-center gap-1 text-xs font-semibold text-purple-300 bg-purple-900/40 border border-purple-700 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-xs font-semibold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
                 <Shield size={10} /> control-plane
             </span>
         );
     }
     return (
-        <span className="flex items-center gap-1 text-xs text-blue-300 bg-blue-900/30 border border-blue-700 px-2 py-0.5 rounded-full">
+        <span className="flex items-center gap-1 text-xs font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
             <Layers size={10} /> worker
         </span>
     );
@@ -81,10 +81,10 @@ export default function Nodes() {
             {/* Stats cards */}
             {!loading && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard label="Total Nodes" value={nodes.length} icon={Server} color="bg-blue-900/50 text-blue-400" />
-                    <StatCard label="Ready" value={ready} sub={`${notReady} Not Ready`} icon={CheckCircle} color="bg-green-900/50 text-green-400" />
-                    <StatCard label="Control Plane" value={controlPlane} icon={Shield} color="bg-purple-900/50 text-purple-400" />
-                    <StatCard label="Workers" value={workers} icon={Layers} color="bg-cyan-900/50 text-cyan-400" />
+                    <StatCard label="Total Nodes" value={nodes.length} icon={Server} color="bg-blue-500/10 text-blue-400" />
+                    <StatCard label="Ready" value={ready} sub={`${notReady} Not Ready`} icon={CheckCircle} color="bg-green-500/10 text-green-500" />
+                    <StatCard label="Control Plane" value={controlPlane} icon={Shield} color="bg-purple-500/10 text-purple-400" />
+                    <StatCard label="Workers" value={workers} icon={Layers} color="bg-cyan-500/10 text-cyan-400" />
                 </div>
             )}
 

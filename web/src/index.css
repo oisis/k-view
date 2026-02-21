@@ -35,10 +35,10 @@
   --bg-muted: #d8d8de;
   --border-color: #b8b8c0;
   --border-muted: #d0d0d8;
-  --text-primary: #1d1d1f;
+  --text-primary: #000000;
   --text-white: #000000;
-  --text-secondary: #6e6e73;
-  --text-muted: #8e8e93;
+  --text-secondary: #3c3c43;
+  --text-muted: #57575e;
   --sidebar-hover: #e0e0e8;
   --accent: #0066cc;
   --bg-console: #e0e0e8;

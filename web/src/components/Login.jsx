@@ -13,14 +13,14 @@ export default function Login() {
     useEffect(() => {
         // Fetch available providers
         fetch('/api/auth/providers')
-            .then(r => r.ok ? r.json() : { oidc: true, local: false, dev: false }) // Fallback if endpoint fails
+            .then(r => r.ok ? r.json() : { oidc: false, local: false, dev: false }) // Fallback if endpoint fails
             .then(data => {
                 setProviders(data);
                 setLoading(false);
             })
             .catch(() => {
-                // If anything fails, assume OIDC only for safety
-                setProviders({ oidc: true, local: false, dev: false });
+                // If anything fails, assume no providers for safety
+                setProviders({ oidc: false, local: false, dev: false });
                 setLoading(false);
             });
     }, []);
@@ -77,11 +77,11 @@ export default function Login() {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center min-h-screen bg-[var(--bg-main)] text-[var(--text-secondary)]">Checking authentication settings...</div>;
+        return <div className="flex justify-center items-center min-h-screen text-[var(--text-secondary)]">Checking authentication settings...</div>;
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-[var(--bg-main)]">
+        <div className="flex items-center justify-center min-h-screen">
             <div className="bg-[var(--bg-card)] p-8 rounded-lg shadow-xl max-w-sm w-full border border-[var(--border-color)]">
                 <div className="text-center mb-8 relative z-10">
                     <h1 className="text-3xl font-bold text-blue-400 mb-2">K-View</h1>

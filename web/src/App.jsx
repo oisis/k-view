@@ -269,22 +269,19 @@ function App() {
     return (
         <Router>
             <div className={`flex h-screen bg-[var(--bg-main)] text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
+                <div
+                    className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
+                    style={{
+                        backgroundImage: `url(${background})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        opacity: 'var(--wallpaper-opacity)',
+                        filter: `grayscale(100%) brightness(var(--wallpaper-brightness))`,
+                    }}
+                />
                 {user && (
-                    <>
-                        {/* Global Background Wallpaper */}
-                        <div
-                            className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
-                            style={{
-                                backgroundImage: `url(${background})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat',
-                                opacity: 'var(--wallpaper-opacity)',
-                                filter: `grayscale(100%) brightness(var(--wallpaper-brightness))`,
-                            }}
-                        />
-                        <Sidebar user={user} onLogout={handleLogout} theme={theme} setTheme={setTheme} />
-                    </>
+                    <Sidebar user={user} onLogout={handleLogout} theme={theme} setTheme={setTheme} />
                 )}
                 <main className="flex-1 overflow-auto flex flex-col relative z-10">
                     <Routes>

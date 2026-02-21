@@ -11,7 +11,7 @@ image:
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "0.1.8"
+  tag: "0.2.0"
 
 # -- Optionally specify an array of imagePullSecrets.
 # Secrets must be manually created in the namespace.

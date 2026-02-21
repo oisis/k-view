@@ -248,24 +248,24 @@ function getVal(item, key) {
 function StatusBadge({ value }) {
     const v = String(value);
     const map = {
-        Running: 'bg-green-900/40 text-green-400 border-green-800',
-        Active: 'bg-green-900/40 text-green-400 border-green-800',
-        Complete: 'bg-blue-900/40 text-blue-400 border-blue-800',
-        Bound: 'bg-blue-900/40 text-blue-400 border-blue-800',
-        ClusterIP: 'bg-[var(--bg-muted)] text-[var(--text-secondary)] border-[var(--border-color)]',
-        LoadBalancer: 'bg-cyan-900/40 text-cyan-400 border-cyan-800',
-        CrashLoopBackOff: 'bg-red-900/40 text-red-400 border-red-800',
-        Failed: 'bg-red-900/40 text-red-400 border-red-800',
-        Degraded: 'bg-orange-900/40 text-orange-400 border-orange-800',
-        Pending: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
-        Suspended: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
-        Available: 'bg-teal-900/40 text-teal-400 border-teal-800',
-        Released: 'bg-orange-900/40 text-orange-400 border-orange-800',
-        Default: 'bg-blue-900/40 text-blue-400 border-blue-800',
+        Running: 'bg-green-500/15 text-green-400',
+        Active: 'bg-green-500/15 text-green-400',
+        Complete: 'bg-blue-500/15 text-blue-400',
+        Bound: 'bg-blue-500/15 text-blue-400',
+        ClusterIP: 'bg-[var(--bg-muted)] text-[var(--text-secondary)]',
+        LoadBalancer: 'bg-cyan-500/15 text-cyan-400',
+        CrashLoopBackOff: 'bg-red-500/15 text-red-500',
+        Failed: 'bg-red-500/15 text-red-500',
+        Degraded: 'bg-orange-500/15 text-orange-500',
+        Pending: 'bg-yellow-500/15 text-yellow-500',
+        Suspended: 'bg-yellow-500/15 text-yellow-500',
+        Available: 'bg-teal-500/15 text-teal-400',
+        Released: 'bg-orange-500/15 text-orange-500',
+        Default: 'bg-blue-500/15 text-blue-400',
     };
-    const cls = map[v] || 'bg-[var(--bg-muted)] text-[var(--text-secondary)] border-[var(--border-color)]';
+    const cls = map[v] || 'bg-[var(--bg-muted)] text-[var(--text-secondary)]';
     return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${cls}`}>
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
             <Activity size={9} /> {v}
         </span>
     );

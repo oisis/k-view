@@ -63,15 +63,30 @@ func NewAuthHandler() (*AuthHandler, error) {
 		}, nil
 	}
 
-	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
-	if err != nil {
-		return nil, err
-	}
-
 	clientID := os.Getenv("KVIEW_GOOGLE_CLIENT_ID")
 	clientSecret := os.Getenv("KVIEW_GOOGLE_CLIENT_SECRET")
 	redirectURL := os.Getenv("KVIEW_OAUTH_REDIRECT_URL")
+
+	if clientID == "" || clientSecret == "" {
+		fmt.Println("OIDC Authentication skipped: KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET is missing.")
+		return &AuthHandler{
+			rbacConfig: rbacConfig,
+			localAuth:  localAuth,
+			devMode:    false,
+		}, nil
+	}
+
+	ctx := context.Background()
+	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
+	if err != nil {
+		fmt.Printf("OIDC Provider error (disabling OIDC): %v\n", err)
+		return &AuthHandler{
+			rbacConfig: rbacConfig,
+			localAuth:  localAuth,
+			devMode:    false,
+		}, nil
+	}
+
 	if redirectURL == "" {
 		redirectURL = "http://localhost:8080/api/auth/callback"
 	}

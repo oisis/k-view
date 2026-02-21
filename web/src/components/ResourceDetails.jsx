@@ -74,7 +74,7 @@ export default function ResourceDetails() {
                 <div className="flex-1">
                     <h2 className="text-2xl font-bold text-[var(--text-white)] flex items-center gap-3">
                         {name}
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-800/50 uppercase tracking-widest leading-none">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 uppercase tracking-widest leading-none">
                             {kind.slice(0, -1)}
                         </span>
                     </h2>
@@ -296,7 +296,7 @@ export default function ResourceDetails() {
                                 {events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-red-900/30 text-red-400 border border-red-800/50' : 'bg-green-900/30 text-green-400 border border-green-800/50'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
                                                 {e.type}
                                             </span>
                                         </td>
