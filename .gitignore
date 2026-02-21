@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # MacOS
 .DS_Store
+
+# Custom files and dirs
+tmp/
