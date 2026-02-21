@@ -343,12 +343,160 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 		}
 
+		extra := map[string]string{"kind": item.GetKind()}
+		
+		switch kind {
+		case "configmaps":
+			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
+				extra["data"] = fmt.Sprintf("%d", len(data))
+			} else {
+				extra["data"] = "0"
+			}
+		case "secrets":
+			if sType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
+				extra["type"] = sType
+			}
+			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
+				extra["data"] = fmt.Sprintf("%d", len(data))
+			} else {
+				extra["data"] = "0"
+			}
+		case "ingress-classes":
+			if controller, ok, _ := unstructured.NestedString(item.Object, "spec", "controller"); ok {
+				extra["controller"] = controller
+			}
+			if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "ingressclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
+				status = "Default"
+			}
+		case "storage-classes":
+			if provisioner, ok, _ := unstructured.NestedString(item.Object, "provisioner"); ok {
+				extra["provisioner"] = provisioner
+			}
+			if reclaim, ok, _ := unstructured.NestedString(item.Object, "reclaimPolicy"); ok {
+				extra["reclaim-policy"] = reclaim
+			}
+			if bindingMode, ok, _ := unstructured.NestedString(item.Object, "volumeBindingMode"); ok {
+				extra["volume-binding-mode"] = bindingMode
+			}
+			if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "storageclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
+				status = "Default"
+			}
+		case "service-accounts", "serviceaccounts":
+			if secrets, ok, _ := unstructured.NestedSlice(item.Object, "secrets"); ok {
+				extra["secrets"] = fmt.Sprintf("%d", len(secrets))
+			} else {
+				extra["secrets"] = "0"
+			}
+		case "roles", "cluster-roles":
+			if rules, ok, _ := unstructured.NestedSlice(item.Object, "rules"); ok {
+				extra["rules"] = fmt.Sprintf("%d rules", len(rules))
+			} else {
+				extra["rules"] = "0 rules"
+			}
+		case "role-bindings", "cluster-role-bindings":
+			if roleRef, ok, _ := unstructured.NestedString(item.Object, "roleRef", "name"); ok {
+				rkind, _, _ := unstructured.NestedString(item.Object, "roleRef", "kind")
+				extra["role"] = fmt.Sprintf("%s/%s", rkind, roleRef)
+			}
+			if subjects, ok, _ := unstructured.NestedSlice(item.Object, "subjects"); ok {
+				extra["subjects"] = fmt.Sprintf("%d subjects", len(subjects))
+			} else {
+				extra["subjects"] = "0 subjects"
+			}
+		case "network-policies", "networkpolicies":
+			if podSel, ok, _ := unstructured.NestedMap(item.Object, "spec", "podSelector", "matchLabels"); ok && len(podSel) > 0 {
+				extra["pod-selector"] = fmt.Sprintf("%v", podSel)
+			} else {
+				extra["pod-selector"] = "<all>"
+			}
+			if pTypes, ok, _ := unstructured.NestedSlice(item.Object, "spec", "policyTypes"); ok {
+				var ts []string
+				for _, t := range pTypes {
+					if tsStr, ok := t.(string); ok {
+						ts = append(ts, tsStr)
+					}
+				}
+				extra["policy-types"] = strings.Join(ts, ", ")
+			}
+		case "pods":
+			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
+				status = phase
+			}
+			// Just generic values if unavailable
+			extra["ready"] = "1/1"
+			extra["restarts"] = "0"
+		case "deployments":
+			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
+			up, _, _ := unstructured.NestedInt64(item.Object, "status", "updatedReplicas")
+			extra["ready"] = fmt.Sprintf("%d/%d", ready, replicas)
+			extra["available"] = fmt.Sprintf("%d", avail)
+			extra["up-to-date"] = fmt.Sprintf("%d", up)
+		case "statefulsets":
+			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+			extra["ready"] = fmt.Sprintf("%d/%d", ready, replicas)
+			extra["replicas"] = fmt.Sprintf("%d", replicas)
+		case "daemonsets":
+			desired, _, _ := unstructured.NestedInt64(item.Object, "status", "desiredNumberScheduled")
+			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "numberReady")
+			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "numberAvailable")
+			extra["desired"] = fmt.Sprintf("%d", desired)
+			extra["ready"] = fmt.Sprintf("%d", ready)
+			extra["available"] = fmt.Sprintf("%d", avail)
+		case "services":
+			if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok {
+				status = sType
+			}
+			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok {
+				extra["cluster-ip"] = cip
+			}
+		case "ingresses":
+			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok {
+				extra["class"] = class
+			} else if class, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "kubernetes.io/ingress.class"); ok {
+				extra["class"] = class
+			}
+		case "namespaces":
+			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
+				status = phase
+			}
+		case "persistentvolumeclaims", "pvcs":
+			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
+				status = phase
+			}
+			if cap, ok, _ := unstructured.NestedString(item.Object, "status", "capacity", "storage"); ok {
+				extra["capacity"] = cap
+			}
+			if sc, ok, _ := unstructured.NestedString(item.Object, "spec", "storageClassName"); ok {
+				extra["storage-class"] = sc
+			}
+		case "persistentvolumes", "pvs":
+			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
+				status = phase
+			}
+			if cap, ok, _ := unstructured.NestedString(item.Object, "spec", "capacity", "storage"); ok {
+				extra["capacity"] = cap
+			}
+			if reclaim, ok, _ := unstructured.NestedString(item.Object, "spec", "persistentVolumeReclaimPolicy"); ok {
+				extra["reclaim-policy"] = reclaim
+			}
+			if sc, ok, _ := unstructured.NestedString(item.Object, "spec", "storageClassName"); ok {
+				extra["storage-class"] = sc
+			}
+			if claimRef, ok, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "name"); ok {
+				claimNs, _, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "namespace")
+				extra["claim"] = fmt.Sprintf("%s/%s", claimNs, claimRef)
+			}
+		}
+
 		items = append(items, ResourceItem{
 			Name:      name,
 			Namespace: namespace,
 			Age:       age,
 			Status:    status,
-			Extra:     map[string]string{"kind": item.GetKind()},
+			Extra:     extra,
 		})
 	}
 
