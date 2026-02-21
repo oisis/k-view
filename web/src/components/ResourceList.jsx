@@ -275,10 +275,15 @@ export default function ResourceList({ kind }) {
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
-    const [namespace, setNamespace] = useState('');
+    const [namespace, setNamespace] = useState(localStorage.getItem('kview-selected-namespace') || '');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [traceTarget, setTraceTarget] = useState(null); // { kind, namespace, name }
+
+    // Persist namespace
+    useEffect(() => {
+        localStorage.setItem('kview-selected-namespace', namespace);
+    }, [namespace]);
 
     // Sorting state
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
