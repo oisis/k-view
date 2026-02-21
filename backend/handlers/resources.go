@@ -151,13 +151,14 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 	}
 
 	// Real dynamic cluster stats
-	nodes, err := h.k8sClient.ListNodes(c.Request.Context())
+	ctx := c.Request.Context()
+	nodes, err := h.k8sClient.ListNodes(ctx)
 	if err != nil {
 		c.JSON(http.StatusOK, ClusterStats{ClusterName: "k-cluster (limited access)"}) // fail gracefully for viewers
 		return
 	}
 
-	pods, _ := h.k8sClient.ListPods(c.Request.Context(), "")
+	pods, _ := h.k8sClient.ListPods(ctx, "")
 
 	var cpuTotalInt, ramTotalInt int64
 	for _, n := range nodes {
@@ -167,8 +168,40 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 
 	failedPods := 0
 	for _, p := range pods {
-		if p.Status.Phase == "Failed" {
+		if p.Status.Phase == corev1.PodFailed || p.Status.Phase == corev1.PodPending {
 			failedPods++
+		}
+	}
+
+	// Detect Metrics Server
+	hasMetrics := false
+	var cpuUsage, ramUsage float64
+	dynClient, dErr := h.k8sClient.GetDynamicClient(ctx)
+	if dErr == nil {
+		// Check if metrics.k8s.io exists
+		metricsGVR := schema.GroupVersionResource{Group: "metrics.k8s.io", Version: "v1beta1", Resource: "nodes"}
+		metricsList, mErr := dynClient.Resource(metricsGVR).List(ctx, metav1.ListOptions{})
+		if mErr == nil && len(metricsList.Items) > 0 {
+			hasMetrics = true
+			var usedCPU, usedRAM float64
+			for _, m := range metricsList.Items {
+				if usage, ok := m.Object["usage"].(map[string]interface{}); ok {
+					if cpuStr, ok := usage["cpu"].(string); ok {
+						q, _ := resource.ParseQuantity(cpuStr)
+						usedCPU += float64(q.MilliValue()) / 1000.0
+					}
+					if memStr, ok := usage["memory"].(string); ok {
+						q, _ := resource.ParseQuantity(memStr)
+						usedRAM += float64(q.Value()) / (1024 * 1024 * 1024)
+					}
+				}
+			}
+			if cpuTotalInt > 0 {
+				cpuUsage = (usedCPU / float64(cpuTotalInt)) * 100.0
+			}
+			if ramTotalInt > 0 {
+				ramUsage = (usedRAM / float64(ramTotalInt)) * 100.0
+			}
 		}
 	}
 
@@ -177,13 +210,13 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		NodeCount:      len(nodes),
 		PodCount:       len(pods),
 		PodCountFailed: failedPods,
-		CPUUsage:       0.0, // Metrics API needed for real live usage
+		CPUUsage:       cpuUsage,
 		CPUTotal:       fmt.Sprintf("%d Cores", cpuTotalInt),
-		RAMUsage:       0.0,
+		RAMUsage:       ramUsage,
 		RAMTotal:       fmt.Sprintf("%d GiB", ramTotalInt),
 		ClusterName:    "Kubernetes",
 		ETCDHealth:     "Unknown",
-		MetricsServer:  false,
+		MetricsServer:  hasMetrics,
 		CPUHistory:     []MetricHistory{},
 		RAMHistory:     []MetricHistory{},
 	}
