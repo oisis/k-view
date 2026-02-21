@@ -24,7 +24,8 @@ mermaid.initialize({
 const kindIconMap = {
     'ingress': <Globe size={14} className="text-purple-400" />,
     'service': <Network size={14} className="text-orange-400" />,
-    'pod': <Box size={14} className="text-blue-400" />
+    'pod': <Box size={14} className="text-blue-400" />,
+    'external': <Activity size={14} className="text-green-400" />
 };
 
 export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, name }) {
@@ -69,12 +70,18 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
         // Define classes
         graphDef += "classDef healthy fill:#0f172a,stroke:#22c55e,stroke-width:2px,color:#f8fafc;\n";
         graphDef += "classDef error fill:#450a0a,stroke:#ef4444,stroke-width:2px,stroke-dasharray: 4 4,color:#fca5a5;\n";
+        graphDef += "classDef external fill:#064e3b,stroke:#059669,stroke-width:2px,color:#dcfce7;\n";
         graphDef += "classDef default fill:#1e293b,stroke:#475569,stroke-width:1px,color:#cbd5e1;\n";
 
         // Add Nodes
         traceData.nodes.forEach((n, i) => {
             const nodeId = `node_${i}`;
             let label = `<b>${n.type}</b><br/>${n.name}`;
+
+            if (n.details) {
+                const cleanDetails = n.details.replace(/\n/g, '<br/>');
+                label += `<br/><i style="font-size:10px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
+            }
 
             if (n.selectors && Object.keys(n.selectors).length > 0) {
                 const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
@@ -89,7 +96,9 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
 
             graphDef += `${nodeId}["${label}"]\n`;
 
-            if (n.healthy) {
+            if (n.type === 'External') {
+                graphDef += `class ${nodeId} external\n`;
+            } else if (n.healthy) {
                 graphDef += `class ${nodeId} healthy\n`;
             } else if (n.message && n.message.includes("Not Found")) {
                 graphDef += `class ${nodeId} error\n`;

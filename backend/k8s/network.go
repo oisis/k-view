@@ -11,10 +11,11 @@ import (
 )
 
 type TraceNode struct {
-	Type      string            `json:"type"` // Ingress, Service, Pod
+	Type      string            `json:"type"` // Ingress, Service, Pod, External
 	Name      string            `json:"name"`
 	Healthy   bool              `json:"healthy"`
 	Message   string            `json:"message"`
+	Details   string            `json:"details,omitempty"` // For extra info like hosts/ports
 	Labels    map[string]string `json:"labels,omitempty"`
 	Selectors map[string]string `json:"selectors,omitempty"`
 }
@@ -129,7 +130,34 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		if err != nil {
 			return nil, err
 		}
+		
+		hosts := []string{}
+		protocol := "HTTP"
+		if len(ing.Spec.TLS) > 0 {
+			protocol = "HTTPS"
+		}
+		for _, rule := range ing.Spec.Rules {
+			if rule.Host != "" {
+				hosts = append(hosts, rule.Host)
+			}
+		}
+		
+		entryName := "Internet / External User"
+		entryDetails := fmt.Sprintf("Protocol: %s\nHosts: %s", protocol, strings.Join(hosts, ", "))
+		if len(hosts) == 0 {
+			entryDetails = fmt.Sprintf("Protocol: %s\nHosts: <any>", protocol)
+		}
+
+		res.Nodes = append(res.Nodes, TraceNode{
+			Type:    "External", 
+			Name:    entryName, 
+			Healthy: true, 
+			Message: "Traffic Injection",
+			Details: entryDetails,
+		})
+
 		res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+		res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
 
 		for _, rule := range ing.Spec.Rules {
 			if rule.HTTP == nil { continue }
@@ -191,12 +219,25 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 				if rule.HTTP == nil { continue }
 				for _, path := range rule.HTTP.Paths {
 					if path.Backend.Service.Name == svc.Name {
+						protocol := "HTTP"
+						if len(ing.Spec.TLS) > 0 { protocol = "HTTPS" }
+						
+						entryName := "External User"
+						res.Nodes = append(res.Nodes, TraceNode{
+							Type: "External",
+							Name: entryName,
+							Healthy: true,
+							Message: "Traffic Source",
+							Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
+						})
+						
 						res.Nodes = append(res.Nodes, TraceNode{
 							Type: "Ingress", 
 							Name: ing.Name, 
 							Healthy: true, 
 							Message: "Found",
 						})
+						res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
 						res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svc.Name, Healthy: true, Message: "Points to Service"})
 					}
 				}
@@ -239,7 +280,30 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 
 				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: portInfo})
 				
-				// Optional: Trace up to Ingresses here too
+				// Trace up to Ingresses
+				ings, _ := client.ListIngresses(ctx, namespace)
+				for _, ing := range ings {
+					for _, rule := range ing.Spec.Rules {
+						if rule.HTTP == nil { continue }
+						for _, path := range rule.HTTP.Paths {
+							if path.Backend.Service.Name == svc.Name {
+								protocol := "HTTP"
+								if len(ing.Spec.TLS) > 0 { protocol = "HTTPS" }
+								entryName := "External User"
+								res.Nodes = append(res.Nodes, TraceNode{
+									Type: "External",
+									Name: entryName,
+									Healthy: true,
+									Message: "Traffic Source",
+									Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
+								})
+								res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+								res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
+								res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svc.Name, Healthy: true, Message: "Points to Service"})
+							}
+						}
+					}
+				}
 			}
 		}
 	}
