@@ -40,7 +40,7 @@ func main() {
 	podHandler := handlers.NewPodHandler(k8sProvider)
 	nodeHandler := handlers.NewNodeHandler(k8sProvider)
 	consoleHandler := handlers.NewConsoleHandler(devMode)
-	resourceHandler := handlers.NewResourceHandler(devMode)
+	resourceHandler := handlers.NewResourceHandler(devMode, k8sProvider)
 	rbacHandler := handlers.NewRBACHandler(authHandler.GetRBACConfig())
 	networkHandler := handlers.NewNetworkHandler(k8sProvider)
 	execHandler := handlers.NewExecHandler(k8sProvider)

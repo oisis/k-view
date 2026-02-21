@@ -1,19 +1,96 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"sigs.k8s.io/yaml"
+
+	"k-view/k8s"
 )
 
-// ResourceHandler serves generic Kubernetes resource lists for all resource types.
 type ResourceHandler struct {
-	devMode bool
+	devMode   bool
+	k8sClient k8s.KubernetesProvider
 }
 
-func NewResourceHandler(devMode bool) *ResourceHandler {
-	return &ResourceHandler{devMode: devMode}
+func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *ResourceHandler {
+	return &ResourceHandler{devMode: devMode, k8sClient: k8sClient}
+}
+
+// getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
+func getGVR(kind string) schema.GroupVersionResource {
+	switch kind {
+	case "pods":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
+	case "deployments":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+	case "statefulsets":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+	case "daemonsets":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
+	case "jobs":
+		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
+	case "cronjobs":
+		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
+	case "services":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
+	case "ingresses":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
+	case "ingress-classes":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
+	case "storage-classes":
+		return schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
+	case "configmaps":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "configmaps"}
+	case "secrets":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
+	case "pvcs":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
+	case "crds":
+		return schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
+	case "pvs":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
+	case "cluster-role-bindings":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
+	case "cluster-roles":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+	case "namespaces":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
+	case "network-policies":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
+	case "role-bindings":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+	case "roles":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
+	case "service-accounts":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "serviceaccounts"}
+	default:
+		// Attempt to query core v1 if unknown
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
+	}
+}
+
+func getAge(t time.Time) string {
+	if t.IsZero() {
+		return "Unknown"
+	}
+	d := time.Since(t)
+	if d.Hours() > 24 {
+		return fmt.Sprintf("%dd", int(d.Hours()/24))
+	} else if d.Hours() > 1 {
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	} else if d.Minutes() > 1 {
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	}
+	return fmt.Sprintf("%ds", int(d.Seconds()))
 }
 
 type ResourceItem struct {
@@ -46,40 +123,73 @@ type ClusterStats struct {
 }
 
 func (h *ResourceHandler) GetStats(c *gin.Context) {
-	if !h.devMode {
-		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster stats not implemented"})
+	if h.devMode {
+		// Mock data for development
+		stats := ClusterStats{
+			K8sVersion:     "v1.28.2",
+			NodeCount:      7,
+			PodCount:       156,
+			PodCountFailed: 4,
+			CPUUsage:       42.5,
+			CPUTotal:       "32 Cores",
+			RAMUsage:       65.2,
+			RAMTotal:       "128 GiB",
+			ClusterName:    "development-mock",
+			ETCDHealth:     "Healthy",
+			MetricsServer:  true,
+			CPUHistory: []MetricHistory{
+				{Timestamp: "08:00", Value: 35.0},
+				{Timestamp: "09:00", Value: 42.0},
+			},
+			RAMHistory: []MetricHistory{
+				{Timestamp: "08:00", Value: 60.0},
+				{Timestamp: "09:00", Value: 62.0},
+			},
+		}
+		c.JSON(http.StatusOK, stats)
 		return
 	}
 
-	// Mock data for development
+	// Real dynamic cluster stats
+	nodes, err := h.k8sClient.ListNodes(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusOK, ClusterStats{ClusterName: "k-cluster (limited access)"}) // fail gracefully for viewers
+		return
+	}
+
+	pods, _ := h.k8sClient.ListPods(c.Request.Context(), "")
+
+	var cpuTotalInt, ramTotalInt int64
+	for _, n := range nodes {
+		cpuTotalInt += n.Status.Capacity.Cpu().Value()
+		ramTotalInt += n.Status.Capacity.Memory().Value() / (1024 * 1024 * 1024)
+	}
+
+	failedPods := 0
+	for _, p := range pods {
+		if p.Status.Phase == "Failed" {
+			failedPods++
+		}
+	}
+
 	stats := ClusterStats{
-		K8sVersion:     "v1.28.2",
-		NodeCount:      7,
-		PodCount:       156,
-		PodCountFailed: 4,
-		CPUUsage:       42.5,
-		CPUTotal:       "32 Cores",
-		RAMUsage:       65.2,
-		RAMTotal:       "128 GiB",
-		ClusterName:    "production-cluster-01",
-		ETCDHealth:     "Healthy",
-		MetricsServer:  true,
-		CPUHistory: []MetricHistory{
-			{Timestamp: "08:00", Value: 35.0},
-			{Timestamp: "09:00", Value: 42.0},
-			{Timestamp: "10:00", Value: 65.0},
-			{Timestamp: "11:00", Value: 45.0},
-			{Timestamp: "12:00", Value: 38.0},
-			{Timestamp: "13:00", Value: 42.5},
-		},
-		RAMHistory: []MetricHistory{
-			{Timestamp: "08:00", Value: 60.0},
-			{Timestamp: "09:00", Value: 62.0},
-			{Timestamp: "10:00", Value: 64.0},
-			{Timestamp: "11:00", Value: 65.0},
-			{Timestamp: "12:00", Value: 65.5},
-			{Timestamp: "13:00", Value: 65.2},
-		},
+		K8sVersion:     "Unknown",
+		NodeCount:      len(nodes),
+		PodCount:       len(pods),
+		PodCountFailed: failedPods,
+		CPUUsage:       0.0, // Metrics API needed for real live usage
+		CPUTotal:       fmt.Sprintf("%d Cores", cpuTotalInt),
+		RAMUsage:       0.0,
+		RAMTotal:       fmt.Sprintf("%d GiB", ramTotalInt),
+		ClusterName:    "Kubernetes",
+		ETCDHealth:     "Unknown",
+		MetricsServer:  false,
+		CPUHistory:     []MetricHistory{},
+		RAMHistory:     []MetricHistory{},
+	}
+
+	if len(nodes) > 0 {
+		stats.K8sVersion = nodes[0].Status.NodeInfo.KubeletVersion
 	}
 
 	c.JSON(http.StatusOK, stats)
@@ -94,12 +204,62 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		ns = rbacNs.(string)
 	}
 
-	if !h.devMode {
-		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented for kind " + kind})
+	// Serve mock data if running in developer mode
+	if h.devMode {
+		items := mockResourceList(kind, ns)
+		c.JSON(http.StatusOK, items)
 		return
 	}
 
-	items := mockResourceList(kind, ns)
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	
+	var listInterface dynamic.ResourceInterface
+	if ns != "" {
+		listInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		listInterface = dynClient.Resource(gvr)
+	}
+
+	unstructuredList, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list resources: " + err.Error()})
+		return
+	}
+
+	var items []ResourceItem
+	for _, item := range unstructuredList.Items {
+		name := item.GetName()
+		namespace := item.GetNamespace()
+		age := getAge(item.GetCreationTimestamp().Time)
+		
+		status := "Active"
+		if statusMap, ok := item.Object["status"].(map[string]interface{}); ok {
+			if phase, ok := statusMap["phase"].(string); ok {
+				status = phase
+			} else if conditions, ok := statusMap["conditions"].([]interface{}); ok && len(conditions) > 0 {
+				if condMap, ok := conditions[len(conditions)-1].(map[string]interface{}); ok {
+					if condType, ok := condMap["type"].(string); ok {
+						status = condType
+					}
+				}
+			}
+		}
+
+		items = append(items, ResourceItem{
+			Name:      name,
+			Namespace: namespace,
+			Age:       age,
+			Status:    status,
+			Extra:     map[string]string{"kind": item.GetKind()},
+		})
+	}
+
 	c.JSON(http.StatusOK, items)
 }
 
@@ -116,74 +276,110 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 	}
 
-	if !h.devMode {
-		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
-		return
-	}
-
-	// Find the resource in mock data
-	items := mockResourceList(kind, ns)
-	var found *ResourceItem
-	for _, it := range items {
-		if it.Name == name {
-			found = &it
-			break
+	if h.devMode {
+		items := mockResourceList(kind, ns)
+		var found *ResourceItem
+		for _, it := range items {
+			if it.Name == name {
+				found = &it
+				break
+			}
 		}
-	}
 
-	if found == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
-		return
-	}
+		if found == nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
+			return
+		}
 
-	// For mock details, we'll return more info
-	details := gin.H{
-		"resource": found,
-		"metadata": gin.H{
-			"name":              found.Name,
-			"namespace":         found.Namespace,
-			"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-			"creationTimestamp": "2024-02-18T10:00:00Z",
-			"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
-			"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": "4"},
-		},
-		"spec": gin.H{
-			"replicas": 3,
-			"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
-			"template": gin.H{
-				"spec": gin.H{
-					"containers": []gin.H{
-						{
-							"name":  "main",
-							"image": "nginx:1.21",
-							"ports": []gin.H{{"containerPort": 80}},
+		details := gin.H{
+			"resource": found,
+			"metadata": gin.H{
+				"name":              found.Name,
+				"namespace":         found.Namespace,
+				"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+				"creationTimestamp": "2024-02-18T10:00:00Z",
+				"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
+				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": "4"},
+			},
+			"spec": gin.H{
+				"replicas": 3,
+				"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
+				"template": gin.H{
+					"spec": gin.H{
+						"containers": []gin.H{
+							{
+								"name":  "main",
+								"image": "nginx:1.21",
+								"ports": []gin.H{{"containerPort": 80}},
+							},
 						},
 					},
 				},
 			},
-		},
-		"status": gin.H{
-			"replicas":            3,
-			"readyReplicas":       3,
-			"updatedReplicas":     3,
-			"availableReplicas":   3,
-			"observedGeneration": 4,
-		},
+			"status": gin.H{
+				"replicas":            3,
+				"readyReplicas":       3,
+				"updatedReplicas":     3,
+				"availableReplicas":   3,
+				"observedGeneration": 4,
+			},
+		}
+
+		c.JSON(http.StatusOK, details)
+		return
 	}
 
-	c.JSON(http.StatusOK, details)
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	item, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
+		return
+	}
+
+	// We wrap it in the expected frontend payload if necessary,
+	// but sending the raw object provides identical .metadata, .spec, and .status fields!
+	wrapped := gin.H{
+		"resource": gin.H{
+			"name":      item.GetName(),
+			"namespace": item.GetNamespace(),
+			"age":       getAge(item.GetCreationTimestamp().Time),
+		},
+		"metadata": item.Object["metadata"],
+		"spec":     item.Object["spec"],
+		"status":   item.Object["status"],
+	}
+
+	c.JSON(http.StatusOK, wrapped)
 }
 
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	name := c.Param("name")
-	kind := c.Param("kind")
+	kind := strings.ToLower(c.Param("kind"))
+	ns := c.Param("namespace")
 
-	if !h.devMode {
-		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
-		return
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if ns != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+			return
+		}
 	}
 
-	yaml := `apiVersion: apps/v1
+	if h.devMode {
+		yamlMock := `apiVersion: apps/v1
 kind: ` + strings.Title(kind) + `
 metadata:
   name: ` + name + `
@@ -205,21 +401,113 @@ spec:
         image: nginx:1.21
         ports:
         - containerPort: 80`
-
-	c.String(http.StatusOK, yaml)
-}
-
-func (h *ResourceHandler) GetEvents(c *gin.Context) {
-	if !h.devMode {
-		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
+		c.String(http.StatusOK, yamlMock)
 		return
 	}
 
-	events := []gin.H{
-		{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled up replica set to 3", "age": "10h"},
-		{"type": "Normal", "reason": "SuccessfulCreate", "message": "Created pod: pod-abc-123", "age": "10h"},
-		{"type": "Warning", "reason": "FailedScheduling", "message": "0/3 nodes are available: 3 insufficient cpu", "age": "1h"},
-		{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled down replica set to 2", "age": "5m"},
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	item, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
+		return
+	}
+
+	// Remove noisy managed fields for cleaner YAML formatting
+	unstructured.RemoveNestedField(item.Object, "metadata", "managedFields")
+
+	yamlData, err := yaml.Marshal(item.Object)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal to YAML"})
+		return
+	}
+
+	c.String(http.StatusOK, string(yamlData))
+}
+
+func (h *ResourceHandler) GetEvents(c *gin.Context) {
+	name := c.Param("name")
+	kind := strings.ToLower(c.Param("kind"))
+	ns := c.Param("namespace")
+
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if ns != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+			return
+		}
+	}
+
+	if h.devMode {
+		events := []gin.H{
+			{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled up replica set to 3", "age": "10h"},
+		}
+		c.JSON(http.StatusOK, events)
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	targetResource, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
+		return
+	}
+	uid := targetResource.GetUID()
+
+	eventsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	eventList, err := dynClient.Resource(eventsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{
+		FieldSelector: "involvedObject.uid=" + string(uid),
+	})
+	if err != nil {
+		// Just output empty if events can't be listed or selector not supported
+		c.JSON(http.StatusOK, []gin.H{})
+		return
+	}
+
+	var events []gin.H
+	for _, e := range eventList.Items {
+		eType, _, _ := unstructured.NestedString(e.Object, "type")
+		reason, _, _ := unstructured.NestedString(e.Object, "reason")
+		message, _, _ := unstructured.NestedString(e.Object, "message")
+		
+		var t time.Time
+		if lastTimestamp, ok, _ := unstructured.NestedString(e.Object, "lastTimestamp"); ok && lastTimestamp != "" {
+			t, _ = time.Parse(time.RFC3339, lastTimestamp)
+		} else if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
+			t, _ = time.Parse(time.RFC3339Nano, eventTime)
+		}
+
+		events = append(events, gin.H{
+			"type":    eType,
+			"reason":  reason,
+			"message": message,
+			"age":     getAge(t),
+		})
 	}
 
 	c.JSON(http.StatusOK, events)

@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/dynamic"
 )
 
 // UserContext represents the impersonation context for a request.
@@ -23,6 +24,7 @@ type KubernetesProvider interface {
 	ListNamespaces(ctx context.Context) ([]string, error)
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
+	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
 }
 
 // ---- Real Client ----
@@ -50,6 +52,19 @@ func (c *Client) getClientset(ctx context.Context) (*kubernetes.Clientset, error
 	}
 
 	return kubernetes.NewForConfig(config)
+}
+
+func (c *Client) GetDynamicClient(ctx context.Context) (dynamic.Interface, error) {
+	config := rest.CopyConfig(c.baseConfig)
+	
+	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
+		// Set impersonation config if user context is present
+		config.Impersonate = rest.ImpersonationConfig{
+			UserName: user.Email,
+		}
+	}
+
+	return dynamic.NewForConfig(config)
 }
 
 func (c *Client) ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error) {
@@ -126,6 +141,13 @@ func (m *MockClient) ListPods(ctx context.Context, namespace string) ([]corev1.P
 
 func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
 	return mockNamespaces, nil
+}
+
+func (m *MockClient) GetDynamicClient(ctx context.Context) (dynamic.Interface, error) {
+	// The mock currently does not have a fully rigged dynamic interface. 
+	// For devMode=true we still intercept endpoints before calling this, 
+	// so returning nil here is typically safe for now.
+	return nil, nil
 }
 
 func (m *MockClient) ListNodes(ctx context.Context) ([]corev1.Node, error) {
