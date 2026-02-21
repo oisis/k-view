@@ -248,25 +248,26 @@ function getVal(item, key) {
 function StatusBadge({ value }) {
     const v = String(value);
     const map = {
-        Running: 'bg-green-500/15 text-green-400',
-        Active: 'bg-green-500/15 text-green-400',
-        Complete: 'bg-blue-500/15 text-blue-400',
-        Bound: 'bg-blue-500/15 text-blue-400',
-        ClusterIP: 'bg-[var(--bg-muted)] text-[var(--text-secondary)]',
-        LoadBalancer: 'bg-cyan-500/15 text-cyan-400',
-        CrashLoopBackOff: 'bg-red-500/15 text-red-500',
-        Failed: 'bg-red-500/15 text-red-500',
-        Degraded: 'bg-orange-500/15 text-orange-500',
-        Pending: 'bg-yellow-500/15 text-yellow-500',
-        Suspended: 'bg-yellow-500/15 text-yellow-500',
-        Available: 'bg-teal-500/15 text-teal-400',
-        Released: 'bg-orange-500/15 text-orange-500',
-        Default: 'bg-blue-500/15 text-blue-400',
+        Running: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        Active: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        Complete: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        Bound: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        ClusterIP: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+        LoadBalancer: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+        CrashLoopBackOff: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        Failed: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+        Degraded: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        Pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        Suspended: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        Available: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+        Released: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        Default: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
     };
-    const cls = map[v] || 'bg-[var(--bg-muted)] text-[var(--text-secondary)]';
+    const cls = map[v] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     return (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
-            <Activity size={9} /> {v}
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${cls}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
+            {v}
         </span>
     );
 }
@@ -379,10 +380,10 @@ export default function ResourceList({ kind }) {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-xl">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <thead className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-[0.15em] border-b border-[var(--border-color)]">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
@@ -422,12 +423,12 @@ export default function ResourceList({ kind }) {
                                                         ? (
                                                             <Link
                                                                 to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                                className="font-mono font-medium text-blue-400 hover:text-blue-300 transition-colors underline decoration-blue-800/30 underline-offset-4"
+                                                                className="font-bold text-[var(--accent)] hover:text-[var(--text-white)] transition-colors"
                                                             >
                                                                 {val}
                                                             </Link>
                                                         )
-                                                        : <span className="text-[var(--text-secondary)]">{val}</span>
+                                                        : <span className="text-[var(--text-secondary)] font-medium">{val}</span>
                                                 }
                                             </td>
                                         );

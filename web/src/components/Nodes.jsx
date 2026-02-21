@@ -34,7 +34,7 @@ function StatusIcon({ status }) {
 
 function StatCard({ label, value, sub, icon: Icon, color }) {
     return (
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-5 flex items-start gap-4">
+        <div className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-2xl p-5 flex items-start gap-4 shadow-lg">
             <div className={`p-2 rounded-lg ${color}`}>
                 <Icon size={20} />
             </div>
@@ -89,7 +89,7 @@ export default function Nodes() {
             )}
 
             {/* Nodes table */}
-            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                 <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
                     <h3 className="font-semibold text-[var(--text-secondary)]">Node Details</h3>
                 </div>

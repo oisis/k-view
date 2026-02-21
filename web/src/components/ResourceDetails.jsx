@@ -175,28 +175,31 @@ export default function ResourceDetails({ user }) {
     return (
         <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-6 mb-10">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors"
+                    className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
                 >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={22} />
                 </button>
                 <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-[var(--text-white)] flex items-center gap-3">
-                        {name}
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 uppercase tracking-widest leading-none">
-                            {kind.slice(0, -1)}
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
+                            {kind.replace(/s$/, '')}
                         </span>
-                    </h2>
-                    <p className="text-[var(--text-secondary)] text-sm mt-0.5">
-                        Namespace: <span className="text-blue-400 font-medium">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
+                        <h2 className="text-3xl font-black text-[var(--text-white)] tracking-tight">
+                            {name}
+                        </h2>
+                    </div>
+                    <p className="text-[var(--text-secondary)] text-xs mt-2 font-medium flex items-center gap-2">
+                        Namespace <ChevronRight size={12} className="text-[var(--text-muted)]" />
+                        <span className="text-[var(--accent)] font-bold">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
                     </p>
                 </div>
                 {(kind === 'ingress' || kind === 'services' || kind === 'pods') && (
                     <button
                         onClick={() => setTraceModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-900/40 text-blue-300 border border-blue-800 rounded-lg text-sm font-medium hover:bg-blue-800/50 hover:text-white transition-colors"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
                     >
                         <Activity size={16} />
                         Visual Trace
@@ -205,7 +208,7 @@ export default function ResourceDetails({ user }) {
                 {kind === 'pods' && (
                     <button
                         onClick={() => setTerminalModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-900/40 text-green-300 border border-green-800 rounded-lg text-sm font-medium hover:bg-green-800/50 hover:text-white transition-colors"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all active:scale-95 ml-2"
                     >
                         <SquareTerminal size={16} />
                         Exec Terminal
@@ -230,7 +233,7 @@ export default function ResourceDetails({ user }) {
             />
 
             {/* Tabs */}
-            <div className="flex items-center gap-0 border-b border-[var(--border-color)] mb-6">
+            <div className="flex items-center gap-2 mb-8 bg-[var(--bg-sidebar)]/30 p-1 rounded-2xl border border-[var(--border-color)] w-max">
                 {[
                     { id: 'overview', label: 'Overview', icon: Info },
                     { id: 'yaml', label: 'YAML', icon: FileText },
@@ -240,16 +243,13 @@ export default function ResourceDetails({ user }) {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all relative
+                        className={`flex items-center gap-2.5 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
-                                ? 'text-blue-400 bg-blue-400/5'
+                                ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
                                 : 'text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-white/5'}`}
                     >
                         <tab.icon size={14} />
                         {tab.label}
-                        {activeTab === tab.id && (
-                            <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-blue-500" />
-                        )}
                     </button>
                 ))}
             </div>
@@ -259,7 +259,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'overview' && (
                     <>
                         {/* Section: Status Bar */}
-                        <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm mb-6">
+                        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl mb-6">
                             <div className="flex flex-wrap items-center gap-x-12 gap-y-6 px-8 py-6 bg-[var(--bg-sidebar)]/20">
                                 <StatusItem label="Status">
                                     <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-green-400' : 'text-yellow-400'}`}>
@@ -467,7 +467,7 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'yaml' && (
-                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
+                    <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
                         <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
                                 <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
@@ -615,7 +615,7 @@ export default function ResourceDetails({ user }) {
                         : filteredLines;
 
                     return (
-                        <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
+                        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
                             {/* Log Toolbar */}
                             <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
@@ -753,9 +753,9 @@ export default function ResourceDetails({ user }) {
 
 function StatusItem({ label, value, children }) {
     return (
-        <div className="flex flex-col gap-2 min-w-[100px]">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{label}</span>
-            <div className="text-sm font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem]">
+        <div className="flex flex-col gap-2 min-w-[120px]">
+            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
+            <div className="text-base font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem] tracking-tight">
                 {children || (value ?? '—')}
             </div>
         </div>
@@ -764,9 +764,9 @@ function StatusItem({ label, value, children }) {
 
 function DetailSection({ title, children, className = "" }) {
     return (
-        <div className={`bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm flex flex-col ${className}`}>
-            <div className="px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
-                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest">{title}</h3>
+        <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
+            <div className="px-8 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
+                <h3 className="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
                 {children}

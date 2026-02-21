@@ -180,11 +180,11 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
 
             <div className={`relative flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-all ${isFullscreen
                 ? 'fixed inset-4 w-[calc(100vw-2rem)] h-[calc(100vh-2rem)] rounded-none border border-[#30363d]'
-                : 'w-full max-w-6xl h-[85vh] rounded-xl border border-[#30363d]'
-                } bg-[#0d1117]`}>
+                : 'w-full max-w-6xl h-[85vh] rounded-2xl border border-[var(--border-color)]'
+                } bg-[var(--bg-glass-deep)] glass`}>
 
                 {/* Header Segment */}
-                <div className="flex items-center justify-between px-4 py-3 bg-[#161b22] border-b border-[#30363d] shrink-0">
+                <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/30 border-b border-[var(--border-color)] shrink-0">
                     <div className="flex items-center gap-3">
                         <TerminalIcon size={18} className="text-[#58a6ff]" />
                         <h2 className="text-sm font-semibold text-[#c9d1d9] font-mono">
@@ -248,7 +248,7 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                 </div>
 
                 {/* Body Segment */}
-                <div className="flex-1 relative w-full overflow-hidden bg-[#0d1117]">
+                <div className="flex-1 relative w-full overflow-hidden bg-transparent">
                     {(status === "idle" && containers.length > 1) ? (
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="text-center p-8 border border-[#30363d] rounded-xl bg-[#161b22] max-w-sm w-full">

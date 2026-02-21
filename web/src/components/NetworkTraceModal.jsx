@@ -156,8 +156,8 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 drop-shadow-2xl">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+            <div className="relative bg-[var(--bg-glass-deep)] glass border border-[var(--border-color)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50">
                     <div className="flex items-center gap-3">
@@ -220,7 +220,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                             </div>
 
                             {/* Diagram Container */}
-                            <div className="mt-8 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-4 overflow-x-auto relative min-h-[300px] flex items-center justify-center">
+                            <div className="mt-8 bg-[var(--bg-sidebar)]/20 border border-[var(--border-color)] rounded-2xl p-6 overflow-x-auto relative min-h-[400px] flex items-center justify-center glass shadow-inner">
                                 <div className="absolute top-3 left-3 flex gap-2 text-[10px] font-mono text-[var(--text-muted)]">
                                     <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div> Healthy</span>
                                     <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Error</span>

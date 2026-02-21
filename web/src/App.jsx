@@ -58,14 +58,14 @@ function NavItem({ href, icon: Icon, label, active }) {
     return (
         <a
             href={href}
-            className={`flex items-center gap-2.5 px-2 py-1.5 rounded text-sm transition-colors
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200
         ${active
-                    ? 'bg-blue-900/40 text-blue-300 border border-blue-800/40'
+                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)]'}`}
         >
-            <Icon size={14} className="shrink-0" />
-            <span className="flex-1 truncate text-[14px]">{label}</span>
-            {active && <ChevronRight size={10} className="text-blue-400" />}
+            <Icon size={16} className={`${active ? 'text-white' : 'text-[var(--text-muted)] group-hover:text-[var(--text-white)]'} transition-colors shrink-0`} />
+            <span className="flex-1 truncate tracking-tight">{label}</span>
+            {active && <ChevronRight size={12} className="text-white/70" />}
         </a>
     );
 }
@@ -75,7 +75,7 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
     const { pathname: p } = useLocation();
 
     return (
-        <aside className="w-56 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex-col hidden md:flex h-full shrink-0 transition-colors duration-200">
+        <aside className="w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex-col hidden md:flex h-full shrink-0 transition-colors duration-200 shadow-2xl z-20">
             {/* Logo */}
             <div className="border-b border-[var(--border-color)] flex flex-col items-center">
                 <img src={logo} alt="K-View Logo" className="w-44 h-auto opacity-95" />
@@ -129,37 +129,34 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
                 </Section>
 
                 {/* Settings Section at the bottom of the nav list */}
-                <div className="mt-auto">
-                    <Section label="Settings" defaultOpen={false}>
-                        <div className="px-2 py-2 space-y-3">
-                            <div>
-                                <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider mb-2">Interface Theme</p>
-                                <div className="grid grid-cols-3 gap-1">
-                                    <button
-                                        onClick={() => setTheme('default')}
-                                        className={`flex flex-col items-center justify-center p-2 rounded border transition-all ${theme === 'default' ? 'border-blue-500 bg-blue-900/20 text-blue-400' : 'border-[var(--border-color)] hover:border-[var(--text-muted)] text-[var(--text-secondary)]'}`}
-                                        title="Default Dark"
-                                    >
-                                        <Moon size={14} />
-                                        <span className="text-[9px] mt-1">Default</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setTheme('light')}
-                                        className={`flex flex-col items-center justify-center p-2 rounded border transition-all ${theme === 'light' ? 'border-blue-500 bg-blue-900/20 text-blue-400' : 'border-[var(--border-color)] hover:border-[var(--text-muted)] text-[var(--text-secondary)]'}`}
-                                        title="Light (macOS)"
-                                    >
-                                        <Sun size={14} />
-                                        <span className="text-[9px] mt-1">Light</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setTheme('black')}
-                                        className={`flex flex-col items-center justify-center p-2 rounded border transition-all ${theme === 'black' ? 'border-blue-500 bg-blue-900/20 text-blue-400' : 'border-[var(--border-color)] hover:border-[var(--text-muted)] text-[var(--text-secondary)]'}`}
-                                        title="Pure Black"
-                                    >
-                                        <Palette size={14} />
-                                        <span className="text-[9px] mt-1">Black</span>
-                                    </button>
-                                </div>
+                <div className="mt-auto pt-4">
+                    <Section label="Appearance" defaultOpen={true}>
+                        <div className="px-1 py-2">
+                            <div className="grid grid-cols-3 gap-1.5 bg-black/20 p-1.5 rounded-xl border border-[var(--border-color)]">
+                                <button
+                                    onClick={() => setTheme('default')}
+                                    className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'default' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                    title="Midnight Navy"
+                                >
+                                    <Moon size={14} />
+                                    <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Dark</span>
+                                </button>
+                                <button
+                                    onClick={() => setTheme('light')}
+                                    className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'light' ? 'bg-white text-blue-600 shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                    title="Crisp Light"
+                                >
+                                    <Sun size={14} />
+                                    <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Light</span>
+                                </button>
+                                <button
+                                    onClick={() => setTheme('black')}
+                                    className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'black' ? 'bg-zinc-800 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                    title="Pure Black"
+                                >
+                                    <Palette size={14} />
+                                    <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">OLED</span>
+                                </button>
                             </div>
                         </div>
                     </Section>
@@ -168,38 +165,39 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
             </nav>
 
             {/* Bottom: admin + mode label + logout */}
-            <div className="px-3 py-3 border-t border-[var(--border-color)] space-y-1.5">
+            <div className="px-4 py-6 border-t border-[var(--border-color)] space-y-4">
                 {(user.role === 'kview-cluster-admin' || user.role === 'admin') && (
                     <a
                         href="/access"
-                        className={`flex items-center gap-2.5 px-2 py-1.5 rounded text-[13px] transition-colors w-full
+                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-full
                 ${p === '/access'
-                                ? 'bg-blue-900/40 text-blue-300 border border-blue-800'
-                                : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] border border-transparent'}`}
+                                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                : 'text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/5 transition-colors'}`}
                     >
-                        <ShieldAlert size={14} /> Access Overview
+                        <ShieldAlert size={16} /> Admin Panel
                     </a>
                 )}
 
-                {/* Env Status Label moved here */}
-                {user.devMode ? (
-                    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-green-400 py-1 tracking-[0.2em] uppercase">
-                        <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                        DEV MODE
-                    </div>
-                ) : (
-                    <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-red-500 py-1 tracking-[0.2em] uppercase">
-                        <div className="w-1 h-1 rounded-full bg-red-600" />
-                        PROD MODE
-                    </div>
-                )}
-
-                <button
-                    onClick={onLogout}
-                    className="w-full flex items-center gap-2 justify-center py-1.5 rounded text-[13px] bg-[var(--bg-muted)] text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors border border-[var(--border-color)]"
-                >
-                    <LogOut size={14} /> Logout
-                </button>
+                <div className="flex items-center justify-between px-1">
+                    {user.devMode ? (
+                        <div className="flex items-center gap-2 text-[9px] font-black text-emerald-500 tracking-[0.2em] uppercase">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                            DEVELOPMENT
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 tracking-[0.2em] uppercase">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-600" />
+                            PRODUCTION
+                        </div>
+                    )}
+                    <button
+                        onClick={onLogout}
+                        className="text-[var(--text-muted)] hover:text-white transition-colors"
+                        title="Logout"
+                    >
+                        <LogOut size={16} />
+                    </button>
+                </div>
             </div>
         </aside>
     );

@@ -229,7 +229,7 @@ export default function Console() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[var(--bg-console)] transition-colors duration-200">
+        <div className="flex flex-col h-full bg-[var(--bg-glass)]/40 glass transition-colors duration-200">
             {/* Terminal output container */}
             <div
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"

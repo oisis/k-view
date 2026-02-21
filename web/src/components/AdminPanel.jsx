@@ -45,7 +45,7 @@ export default function AdminPanel() {
             </div>
 
             {/* My Permissions Section */}
-            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-lg">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50 flex justify-between items-center">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                         <ShieldAlert className="text-blue-400" size={18} /> My Permissions
@@ -78,7 +78,7 @@ export default function AdminPanel() {
             </div>
 
             {/* Global Assignments Table */}
-            <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-lg">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                         <Shield className="text-purple-400" size={18} /> Global Assignments

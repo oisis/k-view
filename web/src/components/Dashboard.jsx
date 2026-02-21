@@ -54,26 +54,26 @@ function MiniChart({ data, color, label }) {
 // --- Metric Card Component ---
 function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
     const colorMap = {
-        blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-        green: 'text-green-400 bg-green-500/10 border-green-500/20',
-        purple: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-        orange: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
-        cyan: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
-        red: 'text-red-400 bg-red-500/10 border-red-500/20',
+        blue: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+        green: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+        purple: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
+        orange: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+        cyan: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+        red: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
     };
 
     const cls = colorMap[color] || colorMap.blue;
 
     return (
-        <div className={`bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] hover:border-[var(--bg-card-hover)] transition-all group shadow-lg`}>
-            <div className="flex items-start justify-between mb-2">
+        <div className={`bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent)]/50 transition-all duration-300 group shadow-md hover:shadow-indigo-500/5`}>
+            <div className="flex items-start justify-between mb-3">
                 <div>
-                    <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">{title}</p>
-                    <h3 className="text-2xl font-bold text-[var(--text-white)] group-hover:text-blue-400 transition-colors">{value}</h3>
-                    {subValue && <p className="text-xs text-[var(--text-secondary)] mt-1">{subValue}</p>}
+                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{title}</p>
+                    <h3 className="text-3xl font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors">{value}</h3>
+                    {subValue && <p className="text-[11px] text-[var(--text-secondary)] mt-1.5 font-medium opacity-80">{subValue}</p>}
                 </div>
-                <div className={`p-2 rounded-lg ${cls}`}>
-                    <Icon size={20} />
+                <div className={`p-2.5 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
+                    <Icon size={22} />
                 </div>
             </div>
             {children}
@@ -110,19 +110,19 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-10 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-end justify-between mb-12">
                 <div>
-                    <h2 className="text-3xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
-                    <p className="text-[var(--text-secondary)] mt-1 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        Connected to <span className="font-mono text-blue-400">{stats?.clusterName || 'Local Cluster'}</span>
+                    <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
+                    <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                        Connected as <span className="font-mono text-[var(--accent)] font-bold">{stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
                 <button
                     onClick={fetchStats}
-                    className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-4 py-2 rounded-lg transition-all hover:bg-[var(--bg-card-hover)] h-10 shadow-sm"
+                    className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
                 >
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     Refresh Stats
@@ -209,34 +209,34 @@ export default function Dashboard() {
                 />
 
                 {/* CPU Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] shadow-lg hover:border-[var(--bg-card-hover)] transition-all">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
+                    <div className="flex items-center justify-between mb-5">
                         <div>
-                            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Compute Load (CPU)</p>
-                            <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
+                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
+                            <h3 className="text-3xl font-bold text-[var(--text-white)] flex items-baseline gap-2.5">
                                 {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.cpuTotal || '—'}</span>
+                                <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.cpuTotal || '—'} cores</span>
                             </h3>
                         </div>
-                        <div className="p-2 rounded-lg text-blue-400 bg-blue-500/10 border border-blue-500/20">
-                            <Cpu size={20} />
+                        <div className="p-2.5 rounded-xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <Cpu size={22} />
                         </div>
                     </div>
-                    <MiniChart data={stats?.cpuHistory} color="#60a5fa" label="Load" />
+                    <MiniChart data={stats?.cpuHistory} color="var(--accent)" label="Load" />
                 </div>
 
                 {/* RAM Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-card)] backdrop-blur-sm p-5 rounded-xl border border-[var(--border-color)] shadow-lg hover:border-[var(--bg-card-hover)] transition-all">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-6 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
+                    <div className="flex items-center justify-between mb-5">
                         <div>
-                            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Memory Pressure (RAM)</p>
-                            <h3 className="text-2xl font-bold text-[var(--text-white)] flex items-baseline gap-2">
+                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
+                            <h3 className="text-3xl font-bold text-[var(--text-white)] flex items-baseline gap-2.5">
                                 {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-[var(--text-secondary)] font-normal">of {stats?.ramTotal || '—'}</span>
+                                <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.ramTotal || '—'}</span>
                             </h3>
                         </div>
-                        <div className="p-2 rounded-lg text-purple-400 bg-purple-500/10 border border-purple-500/20">
-                            <Database size={20} />
+                        <div className="p-2.5 rounded-xl text-violet-400 bg-violet-500/10 border border-violet-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <Database size={22} />
                         </div>
                     </div>
                     <MiniChart data={stats?.ramHistory} color="#a855f7" label="Used" />
