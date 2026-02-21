@@ -12,6 +12,14 @@ export default function Login() {
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
+        // Check for URL errors (e.g. from SSO Callback)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'unauthorized') {
+            setLoginError('Your Google account is not authorized to access this dashboard. Please contact your administrator.');
+            // Clean up the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         // Fetch available providers
         fetch('/api/auth/providers')
             .then(r => r.ok ? r.json() : { oidc: false, local: false, dev: false })
@@ -95,6 +103,13 @@ export default function Login() {
                     <p className="text-[var(--text-secondary)]">Kubernetes Dashboard</p>
                 </div>
 
+                {loginError && (
+                    <div className="mb-6 p-4 bg-red-900/40 border border-red-500/50 rounded-lg flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-alert text-red-400 mt-0.5 shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+                        <p className="text-red-200 text-sm leading-relaxed">{loginError}</p>
+                    </div>
+                )}
+
                 {providers.oidc && (
                     <button
                         onClick={handleGoogleLogin}
@@ -149,9 +164,6 @@ export default function Login() {
                                 className="w-full px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-md text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
                             />
                         </div>
-                        {loginError && (
-                            <p className="text-red-400 text-xs text-center">{loginError}</p>
-                        )}
                         <button
                             type="submit"
                             disabled={submitting}

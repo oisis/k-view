@@ -148,9 +148,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // isAuthorized checks if an email is in the authorizedUsers list.
+// If the list is empty, NO ONE is authorized (secure by default).
 func (h *AuthHandler) isAuthorized(email string) bool {
 	if len(h.authorizedUsers) == 0 {
-		return true
+		return false
 	}
 	for _, u := range h.authorizedUsers {
 		if strings.EqualFold(u, email) {
@@ -202,7 +203,7 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 	// Whitelist Check
 	if !h.isAuthorized(claims.Email) {
 		fmt.Printf("UNAUTHORIZED LOGIN ATTEMPT: Google user %s is not in the whitelist.\n", claims.Email)
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "User not authorized. Please contact your administrator."})
+		c.Redirect(http.StatusTemporaryRedirect, "/?error=unauthorized")
 		return
 	}
 

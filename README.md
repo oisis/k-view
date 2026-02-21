@@ -58,7 +58,17 @@ docker build -t k-view:latest .
 5. Add Authorized redirect URIs: `https://<YOUR_DOMAIN>/api/auth/callback` (or `http://localhost:8080/api/auth/callback` for local testing).
 6. Note down the Client ID and Client Secret.
 
-### 3. Helm Deployment
+### 3. SSO Whitelisting (Optional but Recommended)
+
+To restrict login access to specific users across your organization, set the `KVIEW_AUTHORIZED_USERS` environment variable. This should be a comma-separated list of Google email addresses:
+
+```bash
+KVIEW_AUTHORIZED_USERS=admin@example.com,dev@example.com
+```
+
+> **Security Note:** If `KVIEW_AUTHORIZED_USERS` is left empty or undefined, **no users will be able to log in via Google SSO**. You must explicitly whitelist users to grant them access.
+
+### 4. Helm Deployment
 
 You can install K-View directly from the GitHub Container Registry (GHCR) using Helm OCI, without needing to clone the repository or build the image yourself.
 
