@@ -408,13 +408,13 @@ export default function ResourceList({ kind }) {
                                 <th className="px-4 py-3 whitespace-nowrap w-20 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[var(--border-muted)]">
+                        <tbody className="divide-y divide-[var(--border-color)]">
                             {loading && sortedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">Loading...</td></tr>
                             ) : sortedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">No {kind.replace(/-/g, ' ')} found.</td></tr>
                             ) : sortedItems.map((item, i) => (
-                                <tr key={i} className="hover:bg-[var(--sidebar-hover)] transition-colors">
+                                <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
                                         return (

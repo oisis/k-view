@@ -122,7 +122,7 @@ export default function Nodes() {
                                 <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)]">No nodes found.</td></tr>
                             ) : (
                                 nodes.map((node, i) => (
-                                    <tr key={i} className="border-b border-[var(--border-color)]/30 hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
+                                    <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-white)]">
                                                 <Server size={14} className="text-[var(--text-muted)] shrink-0" />

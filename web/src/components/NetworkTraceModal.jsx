@@ -157,9 +157,9 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 drop-shadow-2xl">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-            <div className="relative bg-[var(--bg-glass-deep)] glass border border-[var(--border-color)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50">
+                <div className="flex items-center justify-between px-6 py-2.5 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-900/30 text-blue-400 rounded-lg">
                             <Activity size={20} />
@@ -182,7 +182,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-auto bg-[var(--bg-main)]">
+                <div className="flex-1 overflow-auto bg-black/20 backdrop-blur-sm">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-20 text-[var(--text-muted)] h-full min-h-[400px]">
                             <Activity size={32} className="animate-pulse mb-4 text-blue-500/50" />
@@ -201,19 +201,19 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                     ) : traceData ? (
                         <div className="p-6 space-y-6">
                             {/* Validation Badges */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {traceData.nodes.map((n, i) => (
-                                    <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border ${n.healthy ? 'bg-green-900/10 border-green-800/50' : 'bg-red-900/10 border-red-800/50'}`}>
+                                    <div key={i} className={`flex items-start gap-2.5 p-2 rounded-lg border ${n.healthy ? 'bg-green-900/10 border-green-800/40' : 'bg-red-900/10 border-red-800/40'}`}>
                                         <div className="mt-0.5">
                                             {kindIconMap[n.type.toLowerCase()] || <Box size={14} />}
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-sm font-bold ${n.healthy ? 'text-green-400' : 'text-red-400'}`}>
+                                                <span className={`text-xs font-bold leading-tight ${n.healthy ? 'text-green-400' : 'text-red-400'}`}>
                                                     {n.type}: {n.name}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-[var(--text-secondary)] mt-1">{n.message}</p>
+                                            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>
                                         </div>
                                     </div>
                                 ))}

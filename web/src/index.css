@@ -17,7 +17,8 @@
   /* Card Navy */
   --bg-card-hover: #1E293B;
   --bg-muted: #111827;
-  --border-color: #1F2937;
+  --border-color: #1E293B;
+  /* Solid Slate 800 - Dark Medium Gray */
   --border-muted: #111827;
   --text-primary: #F9FAFB;
   /* Bright Off-White */
@@ -47,8 +48,9 @@
   --bg-card: #FFFFFF;
   --bg-card-hover: #F1F5F9;
   --bg-muted: #F1F5F9;
-  --border-color: #E2E8F0;
-  --border-muted: #F1F5F9;
+  --border-color: #475569;
+  /* Solid Slate 600 - Clearly visible Dark Gray for Light Mode */
+  --border-muted: #CBD5E1;
   --text-primary: #0F172A;
   /* Deep Slate Text */
   --text-white: #000000;
@@ -73,8 +75,9 @@
   --bg-card: #0A0A0A;
   --bg-card-hover: #111111;
   --bg-muted: #000000;
-  --border-color: #1A1A1A;
-  --border-muted: #0A0A0A;
+  --border-color: #18181B;
+  /* Zinc 900 - Very subtle Dark Gray for Black Mode */
+  --border-muted: #09090B;
   --text-primary: #FAFAFA;
   --text-white: #FFFFFF;
   --text-secondary: #A1A1AA;

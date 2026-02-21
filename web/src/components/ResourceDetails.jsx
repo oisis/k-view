@@ -661,7 +661,7 @@ export default function ResourceDetails({ user }) {
                                     <th className="px-6 py-3">Age</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-color)]/20">
+                            <tbody className="divide-y divide-[var(--border-color)]">
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
@@ -873,7 +873,7 @@ function DetailSection({ title, children, className = "" }) {
 
 function DetailRow({ label, value, children }) {
     return (
-        <tr className="group">
+        <tr className="group border-b border-[var(--border-color)]">
             <td className="px-4 py-3 w-48 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
                 {label}
             </td>
