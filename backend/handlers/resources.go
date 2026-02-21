@@ -34,55 +34,84 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 
 // getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
 func getGVR(kind string) schema.GroupVersionResource {
-	switch kind {
+	switch strings.ToLower(kind) {
 	case "pods":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	case "deployments":
 		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
-	case "statefulsets":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
-	case "daemonsets":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
-	case "jobs":
-		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
-	case "cronjobs":
-		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
 	case "services":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
-	case "ingresses":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
-	case "ingress-classes":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
-	case "storage-classes":
-		return schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
 	case "configmaps":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "configmaps"}
 	case "secrets":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
-	case "pvcs":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
-	case "crds":
-		return schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
-	case "pvs":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
-	case "cluster-role-bindings":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
-	case "cluster-roles":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+	case "ingresses":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
+	case "ingress-classes":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
+	case "statefulsets":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+	case "daemonsets":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
+	case "replicasets":
+		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "replicasets"}
+	case "jobs":
+		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
+	case "cronjobs":
+		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
 	case "namespaces":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
-	case "network-policies":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
-	case "role-bindings":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+	case "nodes":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
+	case "pvs":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
+	case "pvcs":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
+	case "storage-classes":
+		return schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
+	case "crds":
+		return schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
+	case "cluster-roles":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+	case "cluster-role-bindings":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
 	case "roles":
 		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
-	case "service-accounts":
+	case "role-bindings":
+		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+	case "serviceaccounts":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "serviceaccounts"}
+	case "hpas":
+		return schema.GroupVersionResource{Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers"}
+	case "vpas":
+		return schema.GroupVersionResource{Group: "autoscaling.k8s.io", Version: "v1", Resource: "verticalpodautoscalers"}
+	case "pdbs":
+		return schema.GroupVersionResource{Group: "policy", Version: "v1", Resource: "poddisruptionbudgets"}
+	case "networkpolicies":
+		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
+	case "endpoints":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
 	default:
-		// Attempt to query core v1 if unknown
+		// Attempt a best-effort guess for unknown kinds
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
 	}
+}
+
+// clusterScopedKinds is the set of resource kinds that are NOT namespaced.
+var clusterScopedKinds = map[string]bool{
+	"namespaces":            true,
+	"nodes":                 true,
+	"pvs":                   true,
+	"storage-classes":       true,
+	"crds":                  true,
+	"cluster-roles":         true,
+	"cluster-role-bindings": true,
+	"ingress-classes":       true,
+}
+
+// isClusterScoped returns true if the given kind is not namespace-scoped.
+func isClusterScoped(kind string) bool {
+	return clusterScopedKinds[strings.ToLower(kind)]
 }
 
 func getAge(t time.Time) string {
@@ -283,7 +312,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	gvr := getGVR(kind)
 	
 	var listInterface dynamic.ResourceInterface
-	if ns != "" {
+	if ns != "" && !isClusterScoped(kind) {
 		listInterface = dynClient.Resource(gvr).Namespace(ns)
 	} else {
 		listInterface = dynClient.Resource(gvr)
@@ -334,11 +363,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		ns = ""
 	}
 
-	// Apply RBAC namespace restriction
-	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-		if ns != rbacNs.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-			return
+	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
+	if !isClusterScoped(kind) {
+		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+			if ns != rbacNs.(string) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+				return
+			}
 		}
 	}
 
@@ -486,11 +517,13 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 		ns = ""
 	}
 
-	// Apply RBAC namespace restriction
-	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-		if ns != rbacNs.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-			return
+	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
+	if !isClusterScoped(kind) {
+		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+			if ns != rbacNs.(string) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+				return
+			}
 		}
 	}
 
@@ -605,11 +638,13 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 		ns = ""
 	}
 
-	// Apply RBAC namespace restriction
-	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-		if ns != rbacNs.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-			return
+	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
+	if !isClusterScoped(kind) {
+		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+			if ns != rbacNs.(string) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+				return
+			}
 		}
 	}
 
