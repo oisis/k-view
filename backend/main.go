@@ -89,6 +89,9 @@ func main() {
 			protected.POST("/console/exec", consoleHandler.Exec)
 			protected.GET("/resources/:kind", resourceHandler.List)
 			protected.GET("/cluster/stats", resourceHandler.GetStats)
+			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
+			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
+			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)
 
 			admin := protected.Group("/admin")
 			admin.Use(authHandler.AdminMiddleware())

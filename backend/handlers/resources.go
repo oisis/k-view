@@ -98,6 +98,120 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
+func (h *ResourceHandler) GetDetails(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+
+	if !h.devMode {
+		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
+		return
+	}
+
+	// Find the resource in mock data
+	items := mockResourceList(kind, ns)
+	var found *ResourceItem
+	for _, it := range items {
+		if it.Name == name {
+			found = &it
+			break
+		}
+	}
+
+	if found == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
+		return
+	}
+
+	// For mock details, we'll return more info
+	details := gin.H{
+		"resource": found,
+		"metadata": gin.H{
+			"name":              found.Name,
+			"namespace":         found.Namespace,
+			"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+			"creationTimestamp": "2024-02-18T10:00:00Z",
+			"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
+			"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": "4"},
+		},
+		"spec": gin.H{
+			"replicas": 3,
+			"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
+			"template": gin.H{
+				"spec": gin.H{
+					"containers": []gin.H{
+						{
+							"name":  "main",
+							"image": "nginx:1.21",
+							"ports": []gin.H{{"containerPort": 80}},
+						},
+					},
+				},
+			},
+		},
+		"status": gin.H{
+			"replicas":            3,
+			"readyReplicas":       3,
+			"updatedReplicas":     3,
+			"availableReplicas":   3,
+			"observedGeneration": 4,
+		},
+	}
+
+	c.JSON(http.StatusOK, details)
+}
+
+func (h *ResourceHandler) GetYAML(c *gin.Context) {
+	name := c.Param("name")
+	kind := c.Param("kind")
+
+	if !h.devMode {
+		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
+		return
+	}
+
+	yaml := `apiVersion: apps/v1
+kind: ` + strings.Title(kind) + `
+metadata:
+  name: ` + name + `
+  namespace: default
+  labels:
+    app: ` + name + `
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ` + name + `
+  template:
+    metadata:
+      labels:
+        app: ` + name + `
+    spec:
+      containers:
+      - name: main
+        image: nginx:1.21
+        ports:
+        - containerPort: 80`
+
+	c.String(http.StatusOK, yaml)
+}
+
+func (h *ResourceHandler) GetEvents(c *gin.Context) {
+	if !h.devMode {
+		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})
+		return
+	}
+
+	events := []gin.H{
+		{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled up replica set to 3", "age": "10h"},
+		{"type": "Normal", "reason": "SuccessfulCreate", "message": "Created pod: pod-abc-123", "age": "10h"},
+		{"type": "Warning", "reason": "FailedScheduling", "message": "0/3 nodes are available: 3 insufficient cpu", "age": "1h"},
+		{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled down replica set to 2", "age": "5m"},
+	}
+
+	c.JSON(http.StatusOK, events)
+}
+
 func ex(kv ...string) map[string]string {
 	m := make(map[string]string, len(kv)/2)
 	for i := 0; i+1 < len(kv); i += 2 {

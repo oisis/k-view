@@ -6,6 +6,7 @@ import Nodes from './components/Nodes';
 import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
+import ResourceDetails from './components/ResourceDetails';
 
 import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
@@ -300,11 +301,8 @@ function App() {
                         <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />
                         <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
 
-                        {/* Admin */}
-                        <Route
-                            path="/admin"
-                            element={user && user.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />}
-                        />
+                        <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails />)} />
+                        <Route path="/admin" element={user && user.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />} />
                     </Routes>
                 </main>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import NamespaceSelect from './NamespaceSelect';
 
 // Column schema per resource kind
@@ -409,7 +410,14 @@ export default function ResourceList({ kind }) {
                                                 {col.badge
                                                     ? <StatusBadge value={val} />
                                                     : col.key === 'name'
-                                                        ? <span className="font-mono font-medium text-[var(--text-white)]">{val}</span>
+                                                        ? (
+                                                            <Link
+                                                                to={`/${kind}/${item.namespace || '-'}/${val}`}
+                                                                className="font-mono font-medium text-blue-400 hover:text-blue-300 transition-colors underline decoration-blue-800/30 underline-offset-4"
+                                                            >
+                                                                {val}
+                                                            </Link>
+                                                        )
                                                         : <span className="text-[var(--text-secondary)]">{val}</span>
                                                 }
                                             </td>

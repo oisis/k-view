@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function bytesToGiB(str) {
     if (!str) return '?';
@@ -118,7 +119,12 @@ export default function Nodes() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-white)]">
                                                 <Server size={14} className="text-[var(--text-muted)] shrink-0" />
-                                                {node.name}
+                                                <Link
+                                                    to={`/nodes/-/${node.name}`}
+                                                    className="text-blue-400 hover:text-blue-300 transition-colors underline decoration-blue-800/30 underline-offset-4"
+                                                >
+                                                    {node.name}
+                                                </Link>
                                             </div>
                                             <div className="text-xs text-[var(--text-muted)] ml-5">{node.os}</div>
                                         </td>
