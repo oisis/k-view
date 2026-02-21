@@ -9,8 +9,8 @@ function MiniChart({ data, color, label }) {
     if (!data || data.length === 0) return null;
 
     const max = Math.max(...data.map(d => d.value), 1);
-    const width = 200;
-    const height = 40;
+    const width = 400;
+    const height = 60;
     const padding = 2;
 
     // Calculate points
@@ -27,7 +27,7 @@ function MiniChart({ data, color, label }) {
                 <span>{label}: {data[data.length - 1].value.toFixed(2)}%</span>
                 <span>{data[data.length - 1].timestamp}</span>
             </div>
-            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-10 overflow-visible">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[60px] overflow-visible">
                 <defs>
                     <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={color} stopOpacity="0.4" />

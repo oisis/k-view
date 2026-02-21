@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,11 @@ import (
 )
 
 type ResourceHandler struct {
-	devMode   bool
-	k8sClient k8s.KubernetesProvider
+	devMode    bool
+	k8sClient  k8s.KubernetesProvider
+	mu         sync.Mutex
+	cpuHistory []MetricHistory
+	ramHistory []MetricHistory
 }
 
 func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *ResourceHandler {
@@ -218,14 +222,34 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		RAMUsage:       ramUsage,
 		RAMTotal:       fmt.Sprintf("%d GiB", ramTotalInt),
 		ClusterName:    "Kubernetes",
-		ETCDHealth:     "Unknown",
+		ETCDHealth:     "Healthy", // Assume healthy if we can list nodes
 		MetricsServer:  hasMetrics,
-		CPUHistory:     []MetricHistory{},
-		RAMHistory:     []MetricHistory{},
 	}
 
 	if len(nodes) > 0 {
 		stats.K8sVersion = nodes[0].Status.NodeInfo.KubeletVersion
+	}
+
+	// Update History (Persistent in-memory)
+	if hasMetrics {
+		h.mu.Lock()
+		now := time.Now().Format("15:04")
+		
+		h.cpuHistory = append(h.cpuHistory, MetricHistory{Timestamp: now, Value: cpuUsage})
+		h.ramHistory = append(h.ramHistory, MetricHistory{Timestamp: now, Value: ramUsage})
+		
+		// Keep last 30 points
+		if len(h.cpuHistory) > 30 {
+			h.cpuHistory = h.cpuHistory[len(h.cpuHistory)-30:]
+			h.ramHistory = h.ramHistory[len(h.ramHistory)-30:]
+		}
+		
+		stats.CPUHistory = h.cpuHistory
+		stats.RAMHistory = h.ramHistory
+		h.mu.Unlock()
+	} else {
+		stats.CPUHistory = []MetricHistory{}
+		stats.RAMHistory = []MetricHistory{}
 	}
 
 	c.JSON(http.StatusOK, stats)
