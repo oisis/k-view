@@ -37,7 +37,7 @@ export default function ResourceDetails({ user }) {
                     fetch(`/api/resources/${kind}${nsPath}/${name}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/events`),
-                    kind === 'pods' ? fetch(`/api/resources/pods/${namespace}/${name}/logs`) : Promise.resolve(null)
+                    kind === 'pods' ? fetch(`/api/pods/${namespace}/${name}/logs`) : Promise.resolve(null)
                 ]);
 
                 if (!detailsRes.ok) throw new Error('Failed to fetch resource details');
@@ -77,7 +77,7 @@ export default function ResourceDetails({ user }) {
     const isService = kind.toLowerCase().startsWith('serv');
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 max-w-7xl mx-auto w-full flex flex-col min-h-full">
             {/* Header */}
             <div className="flex items-center gap-4 mb-6">
                 <button
@@ -159,7 +159,7 @@ export default function ResourceDetails({ user }) {
             </div>
 
             {/* Tab Content */}
-            <div className="space-y-6">
+            <div className="space-y-6 flex-1 flex flex-col pb-8">
                 {activeTab === 'overview' && (
                     <>
                         {/* Section: Metadata */}
@@ -283,7 +283,7 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'yaml' && (
-                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col">
+                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
                         <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
                                 <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
@@ -371,7 +371,7 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'events' && (
-                    <DetailSection title="Recent Events">
+                    <DetailSection title="Recent Events" className="flex-1 min-h-[400px]">
                         <table className="w-full text-sm text-left border-collapse">
                             <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b border-[var(--border-color)]">
                                 <tr>
@@ -411,7 +411,7 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'logs' && (
-                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col h-[650px]">
+                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
                         <div className="px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex items-center justify-between">
                             <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
                                 <span>Container: main</span>
@@ -432,13 +432,15 @@ export default function ResourceDetails({ user }) {
     );
 }
 
-function DetailSection({ title, children }) {
+function DetailSection({ title, children, className = "" }) {
     return (
-        <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm">
-            <div className="px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
+        <div className={`bg-[var(--bg-card)] rounded-lg border border-[var(--border-color)] overflow-hidden shadow-sm flex flex-col ${className}`}>
+            <div className="px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
                 <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest">{title}</h3>
             </div>
-            {children}
+            <div className="overflow-auto flex-1">
+                {children}
+            </div>
         </div>
     );
 }
@@ -473,7 +475,7 @@ function CodeEditor({ value, onChange, readOnly }) {
     };
 
     return (
-        <div className="relative flex bg-transparent overflow-hidden h-[600px]">
+        <div className="relative flex flex-1 bg-transparent overflow-hidden">
             {/* Gutter */}
             <div
                 ref={gutterRef}
