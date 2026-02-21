@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -84,10 +85,32 @@ func realKubectl(cmd string, user k8s.UserContext) (string, int) {
 		return "", 0
 	}
 
+	// Force in-cluster config if running inside Kubernetes to prevent localhost fallbacks
+	host := os.Getenv("KUBERNETES_SERVICE_HOST")
+	port := os.Getenv("KUBERNETES_SERVICE_PORT")
+	if host != "" && port != "" {
+		tokenPath := "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		caPath := "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+		if _, err := os.Stat(tokenPath); err == nil {
+			tokenBytes, _ := os.ReadFile(tokenPath)
+			token := strings.TrimSpace(string(tokenBytes))
+
+			connFlags := []string{
+				fmt.Sprintf("--server=https://%s:%s", host, port),
+				fmt.Sprintf("--certificate-authority=%s", caPath),
+				fmt.Sprintf("--token=%s", token),
+			}
+
+			newParts := append([]string{parts[0]}, connFlags...)
+			parts = append(newParts, parts[1:]...)
+		}
+	}
+
 	// Impersonate the user if they are not an admin
 	isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
 	if !isAdmin && user.Email != "" {
-		// Insert --as=<email> immediately after 'kubectl'
+		// Insert --as=<email> immediately after the injected flags / 'kubectl'
 		impersonateFlag := fmt.Sprintf("--as=%s", user.Email)
 		newParts := make([]string, 0, len(parts)+1)
 		newParts = append(newParts, parts[0], impersonateFlag)
