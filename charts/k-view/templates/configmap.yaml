@@ -9,4 +9,13 @@ data:
   assignments.yaml: |
     assignments:
 {{ toYaml .Values.rbac.assignments | indent 6 }}
+{{- range .Values.localUsers }}
+{{- if .role }}
+      - user: {{ .username | quote }}
+        role: {{ .role | quote }}
+{{- if .namespace }}
+        namespace: {{ .namespace | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
