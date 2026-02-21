@@ -1160,6 +1160,19 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "cert-manager", Namespace: "cert-manager", Age: "30d", Extra: ex("secrets", "1")},
 			{Name: "ingress-nginx", Namespace: "ingress-nginx", Age: "30d", Extra: ex("secrets", "1")},
 		}
+
+	case "resourcequotas", "resource-quotas":
+		items = []ResourceItem{
+			{Name: "default-quota", Namespace: "default", Age: "30d", Extra: ex("hard", "cpu: 4, memory: 8Gi, pods: 20", "used", "cpu: 1.2, memory: 2Gi, pods: 12")},
+			{Name: "db-quota", Namespace: "database", Age: "25d", Extra: ex("hard", "cpu: 8, memory: 16Gi, pods: 10", "used", "cpu: 4, memory: 6Gi, pods: 4")},
+			{Name: "compute-quota", Namespace: "messaging", Age: "20d", Extra: ex("hard", "cpu: 16, memory: 32Gi, pods: 50", "used", "cpu: 2, memory: 4Gi, pods: 10")},
+		}
+
+	case "limitranges", "limit-ranges":
+		items = []ResourceItem{
+			{Name: "default-limits", Namespace: "default", Age: "30d", Extra: ex("limits", "Container: cpu 100m-1, mem 128Mi-1Gi")},
+			{Name: "db-limits", Namespace: "database", Age: "25d", Extra: ex("limits", "Container: cpu 500m-2, mem 512Mi-4Gi")},
+		}
 	}
 
 	return filter(items, ns)
