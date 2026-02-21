@@ -44,6 +44,8 @@ spec:
               value: "/etc/kview/rbac/assignments.yaml"
             - name: KVIEW_AUTHORIZED_USERS
               value: {{ .Values.env.authorizedUsers | join "," | quote }}
+            - name: KVIEW_ENABLE_SSO
+              value: {{ .Values.enable_sso | quote }}
             {{- if .Values.enable_sso }}
             - name: KVIEW_OAUTH_REDIRECT_URL
               value: {{ .Values.env.oauthRedirectUrl }}
