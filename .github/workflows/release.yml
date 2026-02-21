@@ -51,10 +51,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Helm Chart Version
+      - name: Extract Release Version
         id: chart_version
         run: |
-          VERSION=$(yq '.version' charts/k-view/Chart.yaml)
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF_NAME#v}
+          else
+            VERSION=$(yq '.version' charts/k-view/Chart.yaml)
+          fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Extract metadata (tags, labels) for Docker
@@ -98,6 +102,18 @@ jobs:
       - name: Log in to the Container registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+
+      - name: Update Chart Versions
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF_NAME#v}
+          else
+            VERSION=$(yq '.version' charts/k-view/Chart.yaml)
+          fi
+          echo "Setting Helm chart version and appVersion to $VERSION"
+          yq e ".version = \"$VERSION\"" -i charts/k-view/Chart.yaml
+          yq e ".appVersion = \"$VERSION\"" -i charts/k-view/Chart.yaml
+          yq e ".image.tag = \"$VERSION\"" -i charts/k-view/values.yaml
 
       - name: Package and push Helm chart
         run: |
