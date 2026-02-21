@@ -2,6 +2,10 @@
 
 K-View is a self-contained, secure Kubernetes dashboard written in Go and React, featuring Google SSO (OIDC) integration and internal RBAC.
 
+<a href="docs/kview_demo.webp" target="_blank">
+  <img src="docs/kview_demo.webp" alt="K-View Demo" width="900" style="max-width: 100%;">
+</a>
+
 ## Features
 
 - **Backend**: Go (Gin framework) communicating with Kubernetes via `client-go`.
