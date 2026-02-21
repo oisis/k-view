@@ -27,7 +27,7 @@ type KubernetesProvider interface {
 	ListNamespaces(ctx context.Context) ([]string, error)
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
-	GetPodLogs(ctx context.Context, namespace, pod, container string) (string, error)
+	GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error)
 	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
 }
@@ -104,13 +104,15 @@ func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
 	return nodes.Items, nil
 }
 
-func (c *Client) GetPodLogs(ctx context.Context, namespace, pod, container string) (string, error) {
+func (c *Client) GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error) {
 	clientset, err := c.getClientset(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	tailLines := int64(200)
+	if tailLines == 0 {
+		tailLines = 1000
+	}
 	req := clientset.CoreV1().Pods(namespace).GetLogs(pod, &corev1.PodLogOptions{
 		Container: container,
 		TailLines: &tailLines,
@@ -185,7 +187,7 @@ func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
 	return mockNamespaces, nil
 }
 
-func (m *MockClient) GetPodLogs(_ context.Context, _, _, container string) (string, error) {
+func (m *MockClient) GetPodLogs(_ context.Context, _, _, container string, _ int64) (string, error) {
 	return fmt.Sprintf("2024-02-18 10:00:01 [info] Starting %s...\n2024-02-18 10:00:02 [info] Configuration loaded.\n2024-02-18 10:00:05 [info] Connected to database clusters.\n2024-02-18 10:00:06 [info] Listening on :8080\n2024-02-18 10:15:23 GET /health 200 OK\n", container), nil
 }
 func (m *MockClient) GetPodMetrics(_ context.Context, _, _ string) (map[string]interface{}, error) {

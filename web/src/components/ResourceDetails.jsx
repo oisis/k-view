@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ChevronLeft, FileText, List, Terminal,
-    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal
+    ChevronLeft, FileText, List, Terminal, Search, RefreshCw, ChevronRight,
+    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal,
+    ChevronRight as ChevronRightIcon
 } from 'lucide-react';
 import NetworkTraceModal from './NetworkTraceModal';
 import TerminalModal from './TerminalModal';
@@ -26,7 +27,28 @@ export default function ResourceDetails({ user }) {
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
 
+    // Logs enhancements state
+    const [logRefreshInterval, setLogRefreshInterval] = useState(0); // in seconds
+    const [logSearchTerm, setLogSearchTerm] = useState('');
+    const [logSearchRegex, setLogSearchRegex] = useState(false);
+    const [logPaginationEnabled, setLogPaginationEnabled] = useState(true);
+    const [logPage, setLogPage] = useState(1);
+    const [logLinesPerPage] = useState(100);
+
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
+
+    const fetchLogs = async () => {
+        if (!kind.toLowerCase().startsWith('pod')) return;
+        try {
+            const logsRes = await fetch(`/api/pods/${namespace}/${name}/logs?tail=1000`);
+            if (logsRes.ok) {
+                const logsData = await logsRes.text();
+                setLogs(logsData);
+            }
+        } catch (e) {
+            console.error('Failed to fetch logs:', e);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +59,7 @@ export default function ResourceDetails({ user }) {
                     fetch(`/api/resources/${kind}${nsPath}/${name}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`),
                     fetch(`/api/resources/${kind}${nsPath}/${name}/events`),
-                    kind === 'pods' ? fetch(`/api/pods/${namespace}/${name}/logs`) : Promise.resolve(null)
+                    kind === 'pods' ? fetch(`/api/pods/${namespace}/${name}/logs?tail=1000`) : Promise.resolve(null)
                 ]);
 
                 if (!detailsRes.ok) throw new Error('Failed to fetch resource details');
@@ -63,6 +85,13 @@ export default function ResourceDetails({ user }) {
 
         fetchData();
     }, [kind, namespace, name, format]);
+
+    useEffect(() => {
+        if (activeTab === 'logs' && logRefreshInterval > 0) {
+            const interval = setInterval(fetchLogs, logRefreshInterval * 1000);
+            return () => clearInterval(interval);
+        }
+    }, [activeTab, logRefreshInterval, namespace, name]);
 
     if (loading) return <div className="p-8 text-[var(--text-secondary)]">Loading resource...</div>;
     if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
@@ -538,23 +567,139 @@ export default function ResourceDetails({ user }) {
                     </DetailSection>
                 )}
 
-                {activeTab === 'logs' && (
-                    <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
-                        <div className="px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex items-center justify-between">
-                            <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
-                                <span>Container: main</span>
-                                <span className="flex items-center gap-1.5 text-green-500/80 font-bold">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                    Pod Logs
-                                </span>
+                {activeTab === 'logs' && (() => {
+                    const allLines = logs.split('\n');
+                    const filteredLines = allLines.filter(line => {
+                        if (!logSearchTerm) return true;
+                        if (logSearchRegex) {
+                            try {
+                                const re = new RegExp(logSearchTerm, 'i');
+                                return re.test(line);
+                            } catch (e) {
+                                return line.toLowerCase().includes(logSearchTerm.toLowerCase());
+                            }
+                        }
+                        return line.toLowerCase().includes(logSearchTerm.toLowerCase());
+                    });
+
+                    const totalPages = Math.ceil(filteredLines.length / logLinesPerPage);
+                    const displayedLines = logPaginationEnabled
+                        ? filteredLines.slice((logPage - 1) * logLinesPerPage, logPage * logLinesPerPage)
+                        : filteredLines;
+
+                    return (
+                        <div className="bg-[var(--bg-editor)] rounded-lg border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
+                            {/* Log Toolbar */}
+                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="relative group">
+                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-blue-400 transition-colors" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search logs..."
+                                            value={logSearchTerm}
+                                            onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
+                                            className="pl-9 pr-4 py-1.5 bg-black/40 border border-[var(--border-color)]/50 rounded-md text-xs text-[var(--text-white)] focus:outline-none focus:border-blue-500/50 w-64 transition-all"
+                                        />
+                                        <button
+                                            onClick={() => setLogSearchRegex(!logSearchRegex)}
+                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[8px] font-bold border transition-colors ${logSearchRegex ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-transparent text-[var(--text-muted)] border-transparent hover:text-[var(--text-white)]'}`}
+                                            title="Use Regular Expression"
+                                        >
+                                            .*
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 bg-black/20 p-1 rounded-md border border-[var(--border-color)]/30">
+                                        <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] pl-2">Refresh</span>
+                                        <select
+                                            value={logRefreshInterval}
+                                            onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
+                                            className="bg-transparent text-[10px] font-bold text-blue-400 outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                                        >
+                                            <option value="0">OFF</option>
+                                            <option value="5">5s</option>
+                                            <option value="10">10s</option>
+                                            <option value="15">15s</option>
+                                            <option value="30">30s</option>
+                                            <option value="60">60s</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <div
+                                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-blue-600' : 'bg-[var(--border-color)]'}`}
+                                            onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
+                                        >
+                                            <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
+                                        </div>
+                                        <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Pagination</span>
+                                    </label>
+
+                                    {logPaginationEnabled && totalPages > 1 && (
+                                        <div className="flex items-center gap-2 bg-black/30 rounded px-2 py-1 border border-[var(--border-color)]/30">
+                                            <button
+                                                disabled={logPage === 1}
+                                                onClick={() => setLogPage(p => Math.max(1, p - 1))}
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-blue-400 disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                            >
+                                                <ChevronLeft size={14} />
+                                            </button>
+                                            <span className="text-[10px] font-mono text-blue-400 font-bold px-1 min-w-[3rem] text-center">
+                                                PAGE {logPage} / {totalPages}
+                                            </span>
+                                            <button
+                                                disabled={logPage === totalPages}
+                                                onClick={() => setLogPage(p => Math.min(totalPages, p + 1))}
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-blue-400 disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                            >
+                                                <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="text-[var(--text-muted)] text-[10px] font-mono flex items-center gap-3">
+                                        <span className="flex items-center gap-1.5 text-blue-400/80">
+                                            <List size={10} />
+                                            {filteredLines.length} MATCHES
+                                        </span>
+                                        {logRefreshInterval > 0 && (
+                                            <span className="flex items-center gap-1.5 text-green-500/80 animate-pulse">
+                                                <RefreshCw size={10} className="animate-spin-slow" />
+                                                LIVE
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="text-[var(--text-muted)] text-[10px] font-mono">{logs.split('\n').length} lines</div>
+
+                            {/* Log Display */}
+                            <div className="flex-1 p-6 font-mono text-xs overflow-auto text-[var(--text-secondary)] whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-black/20">
+                                {displayedLines.length > 0 ? (
+                                    displayedLines.map((line, i) => {
+                                        // Simple syntax highlighting hint (can be expanded)
+                                        const isError = /error|fail|severe/i.test(line);
+                                        const isWarn = /warn|attention/i.test(line);
+                                        const isInfo = /info|success/i.test(line);
+
+                                        return (
+                                            <div key={i} className={`hover:bg-white/[0.03] px-2 -mx-2 transition-colors ${isError ? 'text-red-400/90' : isWarn ? 'text-yellow-400/90' : isInfo ? 'text-blue-300/80' : ''}`}>
+                                                {line}
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)] gap-3 italic">
+                                        <Search size={32} className="opacity-20" />
+                                        {logSearchTerm ? 'No logs matching your search criteria.' : 'No logs found for this container.'}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="flex-1 p-6 font-mono text-xs overflow-auto text-[var(--text-secondary)] whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)]">
-                            {logs || 'No logs found for this container.'}
-                        </div>
-                    </div>
-                )}
+                    );
+                })()}
             </div>
         </div>
     );

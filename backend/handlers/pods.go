@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"k-view/k8s"
 
@@ -72,6 +73,7 @@ func (h *PodHandler) GetLogs(c *gin.Context) {
 	namespace := c.Param("namespace")
 	pod := c.Param("name")
 	container := c.Query("container")
+	tailStr := c.DefaultQuery("tail", "1000")
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -80,8 +82,9 @@ func (h *PodHandler) GetLogs(c *gin.Context) {
 			return
 		}
 	}
+	tail, _ := strconv.ParseInt(tailStr, 10, 64)
 
-	logs, err := h.k8sClient.GetPodLogs(c.Request.Context(), namespace, pod, container)
+	logs, err := h.k8sClient.GetPodLogs(c.Request.Context(), namespace, pod, container, tail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get logs: " + err.Error()})
 		return
