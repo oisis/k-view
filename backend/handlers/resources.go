@@ -89,6 +89,11 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
 
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		ns = rbacNs.(string)
+	}
+
 	if !h.devMode {
 		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented for kind " + kind})
 		return
@@ -102,6 +107,14 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
+
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if ns != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+			return
+		}
+	}
 
 	if !h.devMode {
 		c.JSON(http.StatusNotImplemented, gin.H{"error": "real cluster not implemented"})

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
 	"k-view/k8s"
@@ -20,7 +19,12 @@ func NewPodHandler(client k8s.KubernetesProvider) *PodHandler {
 func (h *PodHandler) ListPods(c *gin.Context) {
 	namespace := c.Query("namespace")
 
-	pods, err := h.k8sClient.ListPods(context.Background(), namespace)
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		namespace = rbacNs.(string)
+	}
+
+	pods, err := h.k8sClient.ListPods(c.Request.Context(), namespace)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list pods: " + err.Error()})
 		return
@@ -55,7 +59,7 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 }
 
 func (h *PodHandler) ListNamespaces(c *gin.Context) {
-	namespaces, err := h.k8sClient.ListNamespaces(context.Background())
+	namespaces, err := h.k8sClient.ListNamespaces(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list namespaces: " + err.Error()})
 		return

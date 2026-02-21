@@ -1,0 +1,8 @@
+assignments:
+  - user: "admin@kview.local"
+    role: "kview-cluster-admin"
+  - user: "manager@kview.local"
+    role: "kview-cluster-viewer"
+  - group: "developers@example.com"
+    role: "kview-namespace-developer"
+    namespace: "dev-namespace"

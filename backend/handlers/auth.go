@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"k-view/rbac"
+	"k-view/k8s"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ type AuthHandler struct {
 	oauth2Config oauth2.Config
 	verifier     *oidc.IDTokenVerifier
 	db           *rbac.DB
+	rbacConfig   *rbac.RBACConfig
 	devMode      bool
 }
 
@@ -36,8 +38,17 @@ type AuthHandler struct {
 func NewAuthHandler(db *rbac.DB) (*AuthHandler, error) {
 	devMode := os.Getenv("DEV_MODE") == "true"
 
+	rbacPath := os.Getenv("RBAC_CONFIG_PATH")
+	if rbacPath == "" {
+		rbacPath = "/etc/kview/rbac/assignments.yaml"
+	}
+	rbacConfig, err := rbac.LoadStaticConfig(rbacPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load static rbac: %v", err)
+	}
+
 	if devMode {
-		return &AuthHandler{db: db, devMode: true}, nil
+		return &AuthHandler{db: db, rbacConfig: rbacConfig, devMode: true}, nil
 	}
 
 	ctx := context.Background()
@@ -68,6 +79,7 @@ func NewAuthHandler(db *rbac.DB) (*AuthHandler, error) {
 		oauth2Config: config,
 		verifier:     verifier,
 		db:           db,
+		rbacConfig:   rbacConfig,
 		devMode:      false,
 	}, nil
 }
@@ -249,32 +261,49 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		var email string
+		var ok bool
+
 		// In dev mode, try to verify the dev token first
 		if h.devMode {
-			email, ok := verifyDevToken(tokenStr)
-			if ok {
-				c.Set("email", email)
-				c.Next()
-				return
+			email, ok = verifyDevToken(tokenStr)
+		} else {
+			// In production, verify the OIDC token
+			idToken, err := h.verifier.Verify(c, tokenStr)
+			if err == nil {
+				var claims struct {
+					Email string `json:"email"`
+				}
+				if err := idToken.Claims(&claims); err == nil {
+					email = claims.Email
+					ok = true
+				}
 			}
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid dev token"})
-			return
 		}
 
-		// In production, verify the OIDC token
-		idToken, err := h.verifier.Verify(c, tokenStr)
-		if err != nil {
+		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
-		var claims struct {
-			Email string `json:"email"`
+
+		// Determine Role based on static config and DB
+		role, namespace := h.rbacConfig.GetRoleForUser(email, []string{}, h.db)
+		
+		userCtx := k8s.UserContext{
+			Email: email,
+			Role:  role,
 		}
-		if err := idToken.Claims(&claims); err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
-			return
-		}
-		c.Set("email", claims.Email)
+
+		// Store in Gin context for handlers
+		c.Set("email", email)
+		c.Set("role", role)
+		c.Set("namespace", namespace)
+		c.Set("userCtx", userCtx)
+
+		// Also wrap the Go context for downstream K8s calls
+		ctx := context.WithValue(c.Request.Context(), "user", userCtx)
+		c.Request = c.Request.WithContext(ctx)
+
 		c.Next()
 	}
 }

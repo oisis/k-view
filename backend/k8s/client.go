@@ -5,12 +5,17 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
+
+// UserContext represents the impersonation context for a request.
+type UserContext struct {
+	Email string
+	Role  string
+}
 
 // KubernetesProvider is the interface that wraps all Kubernetes operations.
 type KubernetesProvider interface {
@@ -22,7 +27,7 @@ type KubernetesProvider interface {
 // ---- Real Client ----
 
 type Client struct {
-	clientset *kubernetes.Clientset
+	baseConfig *rest.Config
 }
 
 func NewClient() (*Client, error) {
@@ -30,15 +35,28 @@ func NewClient() (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, err
+	return &Client{baseConfig: config}, nil
+}
+
+func (c *Client) getClientset(ctx context.Context) (*kubernetes.Clientset, error) {
+	config := rest.CopyConfig(c.baseConfig)
+	
+	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
+		// Set impersonation config if user context is present
+		config.Impersonate = rest.ImpersonationConfig{
+			UserName: user.Email,
+		}
 	}
-	return &Client{clientset: clientset}, nil
+
+	return kubernetes.NewForConfig(config)
 }
 
 func (c *Client) ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error) {
-	pods, err := c.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	pods, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +64,11 @@ func (c *Client) ListPods(ctx context.Context, namespace string) ([]corev1.Pod, 
 }
 
 func (c *Client) ListNamespaces(ctx context.Context) ([]string, error) {
-	nsList, err := c.clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	nsList, err := clientset.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +80,11 @@ func (c *Client) ListNamespaces(ctx context.Context) ([]string, error) {
 }
 
 func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
-	nodes, err := c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +93,56 @@ func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
 
 // ---- Mock Client ----
 
+type MockClient struct{}
+
+func NewMockClient() *MockClient { return &MockClient{} }
+
+func (m *MockClient) ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error) {
+	user, _ := ctx.Value("user").(UserContext)
+	
+	// Impersonation logic for Mock: viewers only see non-system pods
+	if user.Role == "viewer" {
+		var filtered []corev1.Pod
+		for _, p := range allMockPods {
+			if p.Namespace != "kube-system" && (namespace == "" || p.Namespace == namespace) {
+				filtered = append(filtered, p)
+			}
+		}
+		return filtered, nil
+	}
+
+	if namespace == "" {
+		return allMockPods, nil
+	}
+	var filtered []corev1.Pod
+	for _, p := range allMockPods {
+		if p.Namespace == namespace {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered, nil
+}
+
+func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
+	return mockNamespaces, nil
+}
+
+func (m *MockClient) ListNodes(ctx context.Context) ([]corev1.Node, error) {
+	user, _ := ctx.Value("user").(UserContext)
+	
+	// Viewers don't see nodes in mock mode (simulating RBAC restriction)
+	if user.Role == "viewer" {
+		return []corev1.Node{}, nil
+	}
+	
+	return allMockNodes, nil
+}
+
+// ---- Mock Data Helpers ----
+// (allMockPods, mockNamespaces, allMockNodes, mockPod, mockNode definitions)
+
 var allMockPods = []corev1.Pod{
+// ... (rest of the file remains as it was with mock data)
 	mockPod("frontend-web-5d8f7b", "default", corev1.PodRunning, -10*time.Minute),
 	mockPod("backend-api-6c9f8c", "default", corev1.PodRunning, -25*time.Minute),
 	mockPod("worker-job-abc12", "default", corev1.PodFailed, -2*time.Hour),
@@ -178,34 +253,9 @@ func mockPod(name, namespace string, phase corev1.PodPhase, age time.Duration) c
 	return pod
 }
 
-type MockClient struct{}
-
-func NewMockClient() *MockClient { return &MockClient{} }
-
-func (m *MockClient) ListPods(_ context.Context, namespace string) ([]corev1.Pod, error) {
-	if namespace == "" {
-		return allMockPods, nil
-	}
-	var filtered []corev1.Pod
-	for _, p := range allMockPods {
-		if p.Namespace == namespace {
-			filtered = append(filtered, p)
-		}
-	}
-	return filtered, nil
-}
-
-func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
-	return mockNamespaces, nil
-}
-
-func (m *MockClient) ListNodes(_ context.Context) ([]corev1.Node, error) {
-	return allMockNodes, nil
-}
-
 // Ensure MockClient satisfies KubernetesProvider at compile time
 var _ KubernetesProvider = (*MockClient)(nil)
 var _ KubernetesProvider = (*Client)(nil)
 
 // Suppress unused import lint warning
-var _ = v1.PodRunning
+var _ = corev1.PodRunning

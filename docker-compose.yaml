@@ -15,6 +15,7 @@ services:
       # No KVIEW_GOOGLE_CLIENT_ID or KVIEW_GOOGLE_CLIENT_SECRET needed in dev mode
     volumes:
       - kview-data:/data
+      - ./config/rbac:/etc/kview/rbac:ro
 
 volumes:
   kview-data:
