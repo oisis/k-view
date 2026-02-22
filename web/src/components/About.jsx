@@ -1,0 +1,47 @@
+import React, { useState, useEffect } from 'react';
+import { Info } from 'lucide-react';
+
+export default function About() {
+    const [version, setVersion] = useState("Loading...");
+
+    useEffect(() => {
+        fetch('/api/version')
+            .then(res => res.json())
+            .then(data => setVersion(data.version || "unknown"))
+            .catch(() => setVersion("unknown"));
+    }, []);
+
+    return (
+        <div className="flex-1 overflow-auto bg-[var(--bg-main)]">
+            <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-6">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">About K-View</h1>
+                    <p className="text-[13px] text-[var(--text-muted)] mt-1">Information about the application.</p>
+                </div>
+
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
+                    <div className="p-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                <Info size={32} />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Version Information</h2>
+                                <p className="text-[13px] text-[var(--text-muted)] mt-1">Current build version of the application image.</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 border-t border-[var(--border-color)] pt-6">
+                            <dl className="space-y-4">
+                                <div>
+                                    <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Image Version</dt>
+                                    <dd className="mt-1 text-2xl font-mono text-[var(--text-white)]">{version}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

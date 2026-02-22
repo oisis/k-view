@@ -97,6 +97,14 @@ func main() {
 			api.POST("/auth/dev-login", authHandler.DevLogin)
 		}
 
+		api.GET("/version", func(c *gin.Context) {
+			version := os.Getenv("APP_VERSION")
+			if version == "" {
+				version = "unknown"
+			}
+			c.JSON(200, gin.H{"version": version})
+		})
+
 		// Protected routes — require a valid auth token
 		protected := api.Group("/")
 		protected.Use(authHandler.AuthMiddleware())

@@ -7,6 +7,7 @@ import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
 import ResourceDetails from './components/ResourceDetails';
+import About from './components/About';
 
 import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
@@ -16,7 +17,7 @@ import {
     Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, Users, Link, AlertTriangle, Globe2, Activity,
-    Settings, Moon, Sun, Palette
+    Settings, Moon, Sun, Palette, Info
 } from 'lucide-react';
 
 // ── Collapsible section ────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
 
                 <Section label="Tools" defaultOpen={false}>
                     <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} />
+                    <NavItem href="/about" icon={Info} label="About" active={p === '/about'} />
                 </Section>
 
                 {/* Settings Section at the bottom of the nav list */}
@@ -290,6 +292,7 @@ function App() {
                         <Route path="/" element={protect(<Dashboard />)} />
                         <Route path="/nodes" element={protect(<Nodes />)} />
                         <Route path="/console" element={protect(<Console />)} />
+                        <Route path="/about" element={protect(<About />)} />
 
                         {/* Workloads */}
                         <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />
