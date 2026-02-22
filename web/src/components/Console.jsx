@@ -7,9 +7,7 @@ Connected to: k-view-dev-cluster
   Type 'kubectl help' for available commands
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
-// Known mock namespaces and pod patterns for detection
-const NAMESPACES = ['default', 'auth', 'database', 'messaging', 'monitoring', 'logging', 'ingress-nginx', 'cert-manager', 'kube-system', 'kube-public', 'kube-node-lease', 'database'];
-
+// Dynamic namespaces will be fetched
 const PROMPT = '❯';
 
 const VERBS = ['get', 'describe', 'logs', 'top', 'delete', 'apply', 'edit', 'version', 'cluster-info'];
@@ -26,6 +24,19 @@ export default function Console() {
     const [cmdHistory, setCmdHistory] = useState([]);
     const [histIdx, setHistIdx] = useState(-1);
     const [loading, setLoading] = useState(false);
+    const [namespaces, setNamespaces] = useState([]);
+
+    useEffect(() => {
+        // Fetch all namespaces to make them clickable in console output
+        fetch('/api/namespaces')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data && data.items) {
+                    setNamespaces(data.items.map(ns => ns.metadata.name));
+                }
+            })
+            .catch(() => { });
+    }, []);
 
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
@@ -115,7 +126,7 @@ export default function Console() {
         return words.map((word, idx) => {
             if (/^\s+$/.test(word)) return <span key={idx}>{word}</span>;
 
-            if (NAMESPACES.includes(word)) {
+            if (namespaces.includes(word)) {
                 return (
                     <span
                         key={idx}
