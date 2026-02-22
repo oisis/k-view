@@ -36,6 +36,8 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            - name: APP_VERSION
+              value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
             - name: GIN_MODE
               value: {{ .Values.env.ginMode }}
             - name: TZ

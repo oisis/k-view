@@ -9,6 +9,7 @@ services:
       - "8080:8080"
     environment:
       # These take precedence over .env file
+      APP_VERSION: ${APP_VERSION:-dev}
       DEV_MODE: ${DEV_MODE:-true}
       GIN_MODE: ${GIN_MODE:-debug}
       PORT: ${PORT:-8080}
