@@ -67,7 +67,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
         if (!traceData || !traceData.nodes) return;
 
         // 1. Header
-        let graphDef = "graph LR\n";
+        let graphDef = "flowchart LR\n";
 
         // 2. Nodes (using rich HTML labels)
         traceData.nodes.forEach((n, i) => {
@@ -106,9 +106,9 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                 if (fromIdx >= 0 && toIdx >= 0) {
                     const arrow = e.healthy ? "-->" : "-.->";
 
-                    // Sanitize message to prevent Mermaid syntax collision (like "->") and apply thinner styling
-                    let cleanMsg = e.message ? String(e.message).replace(/->/g, '&#8594;') : "";
-                    const text = cleanMsg ? `|"<span style='font-weight:normal; font-size:11px; letter-spacing:0.5px;'>${cleanMsg}</span>"|` : "";
+                    // Sanitize message to prevent Mermaid syntax collision
+                    let cleanMsg = e.message ? String(e.message).replace(/->/g, '&#8594;').replace(/"/g, "'") : "";
+                    const text = cleanMsg ? `|"${cleanMsg}"|` : "";
 
                     graphDef += `  N${fromIdx} ${arrow} ${text} N${toIdx}\n`;
 
@@ -144,10 +144,11 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
             mermaidRef.current.innerHTML = svg;
         } catch (e) {
             console.error("Mermaid error:", e);
+            const escapeHtml = (unsafe) => unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
             mermaidRef.current.innerHTML = `
                 <div class='p-4 text-sm border border-red-900/50 bg-red-950/20 rounded text-red-400'>
                   <p class='font-bold mb-1'>Diagram Trace Error</p>
-                  <pre class='text-[10px] mt-2 bg-black/40 p-2 overflow-auto'>${graphDef}</pre>
+                  <pre class='text-[10px] mt-2 bg-black/40 p-2 overflow-auto whitespace-pre-wrap'>${escapeHtml(graphDef)}</pre>
                 </div>`;
         }
     };
