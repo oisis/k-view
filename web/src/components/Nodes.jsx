@@ -28,9 +28,9 @@ function RoleBadge({ role }) {
     );
 }
 
-function StatusIcon({ status }) {
-    if (status === 'Ready') return <CheckCircle size={16} className="text-green-400" />;
-    return <XCircle size={16} className="text-red-400" />;
+const StatusIcon = ({ status }) => {
+    if (status === 'Ready') return <CheckCircle size={16} className="text-success" />;
+    return <AlertCircle size={16} className="text-error" />;
 }
 
 function StatCard({ label, value, sub, icon: Icon, color }) {
@@ -139,7 +139,7 @@ export default function Nodes() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1.5">
                                                 <StatusIcon status={node.status} />
-                                                <span className={node.status === 'Ready' ? 'text-green-400' : 'text-red-400'}>
+                                                <span className={node.status === 'Ready' ? 'text-success' : 'text-error'}>
                                                     {node.status}
                                                 </span>
                                             </div>

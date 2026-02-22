@@ -249,20 +249,20 @@ function getVal(item, key) {
 function StatusBadge({ value }) {
     const v = String(value);
     const map = {
-        Running: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        Active: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        Complete: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-        Bound: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        Running: 'bg-success/10 text-success border-success/20',
+        Active: 'bg-success/10 text-success border-success/20',
+        Complete: 'bg-purple/10 text-purple border-purple/20',
+        Bound: 'bg-purple/10 text-purple border-purple/20',
         ClusterIP: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-        LoadBalancer: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-        CrashLoopBackOff: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-        Failed: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-        Degraded: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-        Pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-        Suspended: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-        Available: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-        Released: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-        Default: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        LoadBalancer: 'bg-cyan/10 text-cyan border-cyan/20',
+        CrashLoopBackOff: 'bg-error/10 text-error border-error/20',
+        Failed: 'bg-error/10 text-error border-error/20',
+        Degraded: 'bg-warning/10 text-warning border-warning/20',
+        Pending: 'bg-warning/10 text-warning border-warning/20',
+        Suspended: 'bg-warning/10 text-warning border-warning/20',
+        Available: 'bg-cyan/10 text-cyan border-cyan/20',
+        Released: 'bg-warning/10 text-warning border-warning/20',
+        Default: 'bg-purple/10 text-purple border-purple/20',
     };
     const cls = map[v] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     return (
@@ -443,7 +443,7 @@ export default function ResourceList({ kind }) {
                                                     const traceKind = kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind;
                                                     setTraceTarget({ kind: traceKind, namespace: item.namespace || '', name: item.name });
                                                 }}
-                                                className="text-blue-400/70 hover:text-blue-300 p-1.5 hover:bg-blue-900/30 rounded inline-flex"
+                                                className="text-info/70 hover:text-info p-1.5 hover:bg-info/10 rounded inline-flex transition-colors"
                                                 title="Visual Trace"
                                             >
                                                 <Activity size={16} />

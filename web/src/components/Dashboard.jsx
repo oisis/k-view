@@ -54,12 +54,12 @@ function MiniChart({ data, color, label }) {
 // --- Metric Card Component ---
 function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
     const colorMap = {
-        blue: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
-        green: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-        purple: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-        orange: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-        cyan: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
-        red: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+        blue: 'text-info bg-info/10 border-info/20',
+        green: 'text-success bg-success/10 border-success/20',
+        purple: 'text-purple bg-purple/10 border-purple/20',
+        orange: 'text-warning bg-warning/10 border-warning/20',
+        cyan: 'text-cyan bg-cyan/10 border-cyan/20',
+        red: 'text-error bg-error/10 border-error/20',
     };
 
     const cls = colorMap[color] || colorMap.blue;
@@ -116,7 +116,7 @@ export default function Dashboard() {
                 <div>
                     <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
                     <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                        <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
                         Connected as <span className="font-mono text-[var(--accent)] font-bold">{stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
@@ -131,7 +131,7 @@ export default function Dashboard() {
 
             {/* Metrics Server Warning */}
             {stats && !stats.metricsServer && (
-                <div className="mb-8 p-4 bg-orange-900/20 border border-orange-800/50 text-orange-400 rounded-xl flex items-start gap-3 shadow-lg">
+                <div className="mb-8 p-4 bg-warning/10 border border-warning/30 text-warning rounded-xl flex items-start gap-3 shadow-lg">
                     <AlertCircle size={20} className="shrink-0 mt-0.5" />
                     <div>
                         <p className="font-bold text-sm">Metrics Server Missing</p>
@@ -142,7 +142,7 @@ export default function Dashboard() {
                             href="https://github.com/kubernetes-sigs/metrics-server"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-block mt-2 text-[10px] font-bold underline hover:text-orange-300"
+                            className="inline-block mt-2 text-[10px] font-bold underline hover:opacity-80"
                         >
                             View Installation Guide
                         </a>
@@ -151,7 +151,7 @@ export default function Dashboard() {
             )}
 
             {error && (
-                <div className="mb-8 p-4 bg-red-900/20 border border-red-800/50 text-red-400 rounded-xl flex items-center gap-2 shadow-lg">
+                <div className="mb-8 p-4 bg-error/10 border border-error/30 text-error rounded-xl flex items-center gap-2 shadow-lg">
                     <AlertCircle size={18} />
                     <span className="text-sm font-medium">{error}</span>
                 </div>
@@ -189,7 +189,7 @@ export default function Dashboard() {
                     <div className="mt-3 flex items-center gap-2">
                         <div className="h-1.5 flex-1 bg-[var(--bg-muted)] rounded-full overflow-hidden">
                             <div
-                                className={`h-full bg-green-500 rounded-full`}
+                                className={`h-full bg-success rounded-full`}
                                 style={{ width: stats?.podCount ? `${((stats.podCount - stats.podCountFailed) / stats.podCount) * 100}%` : '0%' }}
                             ></div>
                         </div>
@@ -218,7 +218,7 @@ export default function Dashboard() {
                                 <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.cpuTotal || '—'} cores</span>
                             </h3>
                         </div>
-                        <div className="p-2.5 rounded-xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+                        <div className="p-2.5 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300">
                             <Cpu size={22} />
                         </div>
                     </div>
@@ -235,7 +235,7 @@ export default function Dashboard() {
                                 <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.ramTotal || '—'}</span>
                             </h3>
                         </div>
-                        <div className="p-2.5 rounded-xl text-violet-400 bg-violet-500/10 border border-violet-500/20 group-hover:scale-110 transition-transform duration-300">
+                        <div className="p-2.5 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300">
                             <Database size={22} />
                         </div>
                     </div>
@@ -247,11 +247,11 @@ export default function Dashboard() {
             {/* Quick Info Footer */}
             <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
-                    <Info size={14} className="text-blue-500/60" />
+                    <Info size={14} className="text-info/60" />
                     Metrics update every 60 seconds
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
-                    <Activity size={14} className="text-green-500/60" />
+                    <Activity size={14} className="text-success/60" />
                     Cluster Health: Stable
                 </div>
             </div>

@@ -119,10 +119,10 @@ export default function Console() {
 
     // Tokenize line to find pod names or namespaces
     const renderLine = (line, exitCode, onTokenClick) => {
-        let defaultColor = exitCode !== 0 ? 'text-red-400' : 'text-[var(--text-primary)]';
-        if (/NotReady|CrashLoop|Error|Failed|Evicted|OOMKilled/i.test(line)) defaultColor = 'text-red-400';
-        else if (/Warning|warn/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-yellow-400';
-        else if (/Running|Ready|Active|True/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-green-400';
+        let defaultColor = exitCode !== 0 ? 'text-error' : 'text-[var(--text-primary)]';
+        if (/NotReady|CrashLoop|Error|Failed|Evicted|OOMKilled/i.test(line)) defaultColor = 'text-error';
+        else if (/Warning|warn/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-warning';
+        else if (/Running|Ready|Active|True/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-success';
 
         const words = line.split(/(\s+)/);
 
@@ -275,10 +275,10 @@ export default function Console() {
                 {history.map((entry, i) => (
                     <div key={i} className="mb-1">
                         {entry.type === 'banner' && (
-                            <div className="text-green-400 mb-3 whitespace-pre">{entry.text}</div>
+                            <div className="text-success mb-3 whitespace-pre">{entry.text}</div>
                         )}
                         {entry.type === 'cmd' && (
-                            <div className="flex items-start gap-2 text-blue-400">
+                            <div className="flex items-start gap-2 text-info">
                                 <span className="shrink-0">{PROMPT}</span>
                                 <span className="text-white font-bold">{entry.text}</span>
                             </div>
@@ -315,7 +315,7 @@ export default function Console() {
                                 <button
                                     key={i}
                                     onClick={() => handleSuggestionClick(s.val)}
-                                    className="px-2.5 py-1 bg-[var(--bg-muted)] hover:bg-blue-900/40 text-[var(--text-secondary)] hover:text-blue-300 border border-[var(--border-color)] hover:border-blue-700/50 rounded text-xs transition-all whitespace-nowrap"
+                                    className="px-2.5 py-1 bg-info/10 hover:bg-info/20 text-info hover:text-blue-600 border border-info/30 hover:border-info/50 rounded text-xs transition-all whitespace-nowrap font-bold"
                                 >
                                     {s.label}
                                 </button>
@@ -328,7 +328,7 @@ export default function Console() {
 
                 {/* Input row */}
                 <div className="flex items-center gap-2 px-4 py-3">
-                    <span className="text-blue-400 font-mono font-bold select-none">{PROMPT}</span>
+                    <span className="text-info font-mono font-bold select-none">{PROMPT}</span>
                     <input
                         ref={inputRef}
                         type="text"
@@ -339,7 +339,7 @@ export default function Console() {
                         disabled={loading}
                         spellCheck={false}
                         autoComplete="off"
-                        className="flex-1 bg-transparent outline-none text-[var(--text-white)] font-mono caret-blue-400"
+                        className="flex-1 bg-transparent outline-none text-[var(--text-white)] font-mono caret-[var(--text-info)]"
                     />
                 </div>
 

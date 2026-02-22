@@ -26,7 +26,7 @@ const kindIconMap = {
     'ingress': <Globe size={14} className="text-purple-400" />,
     'service': <Network size={14} className="text-orange-400" />,
     'pod': <Box size={14} className="text-blue-400" />,
-    'external': <Activity size={14} className="text-green-400" />
+    'external': <Activity size={14} className="text-success" />
 };
 
 export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, name }) {
@@ -210,7 +210,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-xs font-bold leading-tight ${n.healthy ? 'text-green-400' : 'text-red-400'}`}>
+                                                <span className={`text-xs font-bold leading-tight ${n.healthy ? 'text-success' : 'text-error'}`}>
                                                     {n.type}: {n.name}
                                                 </span>
                                             </div>

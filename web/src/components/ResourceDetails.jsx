@@ -272,23 +272,26 @@ export default function ResourceDetails({ user }) {
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/20">
                                 <StatusItem label="Status">
-                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-green-400' : 'text-yellow-400'}`}>
-                                        <Activity size={14} />
-                                        {data.resource?.status || status.phase || 'Unknown'}
+                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
+                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
+                                        <span>{status.phase || data.resource?.status || 'Unknown'}</span>
                                     </div>
                                 </StatusItem>
 
                                 {isPod && (
                                     <StatusItem label="Ready">
-                                        <span className={readyCount === totalContainers ? 'text-green-400' : 'text-yellow-400'}>
-                                            {readyCount}/{totalContainers}
-                                        </span>
+                                        <div className="flex flex-col ml-1">
+                                            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-0.5">Ready</span>
+                                            <span className={readyCount === totalContainers ? 'text-success' : 'text-warning'}>
+                                                {readyCount}/{totalContainers}
+                                            </span>
+                                        </div>
                                     </StatusItem>
                                 )}
 
                                 {isPod && (
                                     <StatusItem label="Restarts">
-                                        <span className={restarts > 0 ? 'text-yellow-400' : 'text-[var(--text-white)]'}>
+                                        <span className={restarts > 0 ? 'text-warning' : 'text-[var(--text-white)]'}>
                                             {restarts}
                                         </span>
                                     </StatusItem>
@@ -312,7 +315,7 @@ export default function ResourceDetails({ user }) {
                                 {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
                                     <StatusItem label="Replicas">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-green-400" title="Ready">{status.readyReplicas || status.availableReplicas || 0}</span>
+                                            <span className="text-success" title="Ready">{status.readyReplicas || status.availableReplicas || 0}</span>
                                             <span className="text-[var(--text-muted)]">/</span>
                                             <span className="text-[var(--text-white)]" title="Desired">{spec.replicas || 0}</span>
                                         </div>
@@ -388,7 +391,7 @@ export default function ResourceDetails({ user }) {
                                         <DetailRow label="ConfigMaps">
                                             <div className="flex flex-wrap gap-2">
                                                 {mountedConfigMaps.map(cm => (
-                                                    <span key={cm} className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/20 rounded text-[10px] text-yellow-500 font-mono">
+                                                    <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-[10px] text-warning font-mono">
                                                         {cm}
                                                     </span>
                                                 ))}
@@ -532,7 +535,7 @@ export default function ResourceDetails({ user }) {
                                                                 <td className="px-3 py-2 font-bold text-[var(--text-white)]">{lim.type}</td>
                                                                 <td className="px-3 py-2 text-[var(--text-secondary)]">CPU/Memory</td>
                                                                 <td className="px-3 py-2 text-info font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
-                                                                <td className="px-3 py-2 text-rose-400 font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
+                                                                <td className="px-3 py-2 text-error font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
                                                                 <td className="px-3 py-2 text-[var(--text-muted)] font-mono">{lim.default?.cpu || lim.default?.memory || '-'}</td>
                                                             </tr>
                                                         ))}
@@ -574,7 +577,7 @@ export default function ResourceDetails({ user }) {
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
-                                {saveError && <span className="text-xs text-red-400 mr-2">{saveError}</span>}
+                                {saveError && <span className="text-xs text-error mr-2">{saveError}</span>}
                                 {canEdit && !isEditing && (
                                     <button
                                         onClick={() => setIsEditing(true)}
@@ -614,7 +617,7 @@ export default function ResourceDetails({ user }) {
                                                     setIsSaving(false);
                                                 }
                                             }}
-                                            className="text-[10px] font-bold px-3 py-1 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
+                                            className="text-[10px] font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
                                             disabled={isSaving}
                                         >
                                             {isSaving ? <Activity size={10} className="animate-pulse" /> : <CheckCircle2 size={10} />}
@@ -652,7 +655,7 @@ export default function ResourceDetails({ user }) {
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                                                 {e.type}
                                             </span>
                                         </td>
@@ -795,7 +798,7 @@ export default function ResourceDetails({ user }) {
                                             {filteredLines.length} MATCHES
                                         </span>
                                         {logRefreshInterval > 0 && (
-                                            <span className="flex items-center gap-1.5 text-green-700 font-bold animate-pulse">
+                                            <span className="flex items-center gap-1.5 text-success font-bold animate-pulse">
                                                 <RefreshCw size={10} className="animate-spin-slow" />
                                                 LIVE
                                             </span>
@@ -814,7 +817,7 @@ export default function ResourceDetails({ user }) {
                                         const isInfo = /info|success/i.test(line);
 
                                         return (
-                                            <div key={i} className={`hover:bg-[var(--bg-muted)] px-2 -mx-2 transition-colors ${isError ? 'text-red-500' : isWarn ? 'text-yellow-500' : isInfo ? 'text-info' : 'text-[var(--text-secondary)]'}`}>
+                                            <div key={i} className={`hover:bg-[var(--bg-muted)] px-2 -mx-2 transition-colors ${isError ? 'text-error' : isWarn ? 'text-warning' : isInfo ? 'text-info' : 'text-[var(--text-secondary)]'}`}>
                                                 {line}
                                             </div>
                                         );
@@ -928,9 +931,9 @@ function ConditionBadge({ label, status }) {
     return (
         <div className="flex items-center gap-1.5 py-1">
             {isTrue ? (
-                <CheckCircle2 size={12} className="text-green-400" />
+                <CheckCircle2 size={12} className="text-success" />
             ) : (
-                <AlertCircle size={12} className="text-red-400" />
+                <AlertCircle size={12} className="text-warning" />
             )}
             <span className="text-xs text-[var(--text-secondary)]">{label}</span>
         </div>
