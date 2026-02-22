@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Server, Activity, Cpu, Database, Hash,
     ShieldCheck, AlertCircle, Info, RefreshCw, Box
@@ -20,6 +21,8 @@ function MiniChart({ data, color, label }) {
         return `${x},${y}`;
     }).join(' ');
 
+    const gradId = `grad-${label.replace(/\s+/g, '-').toLowerCase()}`;
+
     return (
         <div className="flex flex-col gap-1 w-full mt-2">
             <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-mono">
@@ -29,14 +32,14 @@ function MiniChart({ data, color, label }) {
             </div>
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[60px] overflow-visible">
                 <defs>
-                    <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={color} stopOpacity="0.4" />
                         <stop offset="100%" stopColor={color} stopOpacity="0" />
                     </linearGradient>
                 </defs>
                 <path
                     d={`M 0,${height} L ${points} L ${width},${height} Z`}
-                    fill={`url(#grad-${color})`}
+                    fill={`url(#${gradId})`}
                 />
                 <polyline
                     fill="none"
@@ -52,7 +55,7 @@ function MiniChart({ data, color, label }) {
 }
 
 // --- Metric Card Component ---
-function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
+function MetricCard({ title, value, subValue, icon: Icon, color, children, onClick, valueClassName = "" }) {
     const colorMap = {
         blue: 'text-info bg-info/10 border-info/20',
         green: 'text-success bg-success/10 border-success/20',
@@ -65,16 +68,17 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
     const cls = colorMap[color] || colorMap.blue;
 
     return (
-        <div className={`bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent)]/50 transition-all duration-300 group shadow-md hover:shadow-indigo-500/5`}>
-            <div className="flex items-start justify-between mb-3">
-                <div>
-                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{title}</p>
-                    <h3 className="text-3xl font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors">{value}</h3>
-                    {subValue && <p className="text-[11px] text-[var(--text-secondary)] mt-1.5 font-medium opacity-80">{subValue}</p>}
-                </div>
-                <div className={`p-2.5 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
-                    <Icon size={22} />
-                </div>
+        <div
+            onClick={onClick}
+            className={`bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
+        >
+            <div className="mb-3">
+                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{title}</p>
+                <h3 className={`text-3xl font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
+                {subValue && <p className="text-[11px] text-[var(--text-secondary)] mt-1.5 font-medium opacity-80">{subValue}</p>}
+            </div>
+            <div className={`absolute top-2 right-2 p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
+                <Icon size={18} />
             </div>
             {children}
         </div>
@@ -82,6 +86,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children }) {
 }
 
 export default function Dashboard() {
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -98,6 +103,8 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchStats();
+        const interval = setInterval(fetchStats, 5000);
+        return () => clearInterval(interval);
     }, [fetchStats]);
 
     if (loading && !stats) {
@@ -110,7 +117,7 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="p-10 max-w-7xl mx-auto">
+        <div className="p-10 max-w-[1600px] mx-auto">
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
@@ -167,15 +174,18 @@ export default function Dashboard() {
                     subValue={`Version: ${stats?.k8sVersion || '—'}`}
                     icon={ShieldCheck}
                     color="cyan"
+                    valueClassName="text-xl"
+                    onClick={() => navigate('/nodes')}
                 />
 
                 {/* Nodes */}
                 <MetricCard
                     title="Total Nodes"
                     value={stats?.nodeCount || 0}
-                    subValue="Available Infrastracture"
+                    subValue={`${stats?.nodeCountReady || 0} READY NODES`}
                     icon={Server}
                     color="purple"
+                    onClick={() => navigate('/nodes')}
                 />
 
                 {/* Pods Status */}
@@ -185,11 +195,12 @@ export default function Dashboard() {
                     subValue={`${stats?.podCountFailed || 0} FAILED / EVICKTED`}
                     icon={Box}
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
+                    onClick={() => navigate('/workloads/pods')}
                 >
                     <div className="mt-3 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 bg-[var(--bg-muted)] rounded-full overflow-hidden">
+                        <div className="h-3 flex-1 bg-error/30 rounded-full overflow-hidden relative">
                             <div
-                                className={`h-full bg-success rounded-full`}
+                                className={`h-full bg-success rounded-full transition-all duration-500`}
                                 style={{ width: stats?.podCount ? `${((stats.podCount - stats.podCountFailed) / stats.podCount) * 100}%` : '0%' }}
                             ></div>
                         </div>
@@ -199,47 +210,52 @@ export default function Dashboard() {
                     </div>
                 </MetricCard>
 
-                {/* ETCD Health */}
+                {/* Control Plane Health (linked to Nodes status) */}
                 <MetricCard
                     title="Control Plane"
-                    value={stats?.etcdHealth || 'Healthy'}
+                    value={(!stats || stats.nodeCountReady === stats.nodeCount) ? 'Healthy' : 'Not healthy'}
                     subValue="etcd & apiserver status"
                     icon={Activity}
-                    color="green"
+                    color={(!stats || stats.nodeCountReady === stats.nodeCount) ? "green" : "red"}
+                    valueClassName={(!stats || stats.nodeCountReady === stats.nodeCount) ? "text-success" : "text-error"}
                 />
 
                 {/* CPU Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
-                    <div className="flex items-center justify-between mb-5">
-                        <div>
-                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
-                            <h3 className="text-3xl font-bold text-[var(--text-white)] flex items-baseline gap-2.5">
-                                {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.cpuTotal || '—'} cores</span>
-                            </h3>
-                        </div>
-                        <div className="p-2.5 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300">
-                            <Cpu size={22} />
-                        </div>
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden">
+                    <div className="mb-5">
+                        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
+                        <h3 className={`text-3xl font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                            {stats?.cpuUsage?.toFixed(2) || "0.00"}%
+                            <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.cpuTotal || '—'} cores</span>
+                        </h3>
                     </div>
-                    <MiniChart data={stats?.cpuHistory} color="var(--accent)" label="Load" />
+                    <div className="absolute top-2 right-2 p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300">
+                        <Cpu size={18} />
+                    </div>
+                    <MiniChart
+                        data={stats?.cpuHistory}
+                        color={stats?.cpuUsage >= 80 ? "#ef4444" : "#10b981"}
+                        label="Load"
+                    />
                 </div>
 
                 {/* RAM Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group">
-                    <div className="flex items-center justify-between mb-5">
-                        <div>
-                            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
-                            <h3 className="text-3xl font-bold text-[var(--text-white)] flex items-baseline gap-2.5">
-                                {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.ramTotal || '—'}</span>
-                            </h3>
-                        </div>
-                        <div className="p-2.5 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300">
-                            <Database size={22} />
-                        </div>
+                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden">
+                    <div className="mb-5">
+                        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
+                        <h3 className={`text-3xl font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                            {stats?.ramUsage?.toFixed(2) || "0.00"}%
+                            <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.ramTotal || '—'}</span>
+                        </h3>
                     </div>
-                    <MiniChart data={stats?.ramHistory} color="#a855f7" label="Used" />
+                    <div className="absolute top-2 right-2 p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300">
+                        <Database size={18} />
+                    </div>
+                    <MiniChart
+                        data={stats?.ramHistory}
+                        color={stats?.ramUsage >= 80 ? "#ef4444" : "#10b981"}
+                        label="Used"
+                    />
                 </div>
 
             </div>
@@ -248,7 +264,7 @@ export default function Dashboard() {
             <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Info size={14} className="text-info/60" />
-                    Metrics update every 60 seconds
+                    Metrics update every 5 seconds
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Activity size={14} className="text-success/60" />

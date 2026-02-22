@@ -45,7 +45,7 @@ export default function ResourceDetails({ user }) {
     const [logSearchRegex, setLogSearchRegex] = useState(false);
     const [logPaginationEnabled, setLogPaginationEnabled] = useState(true);
     const [logPage, setLogPage] = useState(1);
-    const [logLinesPerPage] = useState(100);
+    const [logLinesPerPage] = useState(36);
     const [logContainer, setLogContainer] = useState('');
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
@@ -764,7 +764,7 @@ export default function ResourceDetails({ user }) {
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
-                                            <span className="text-[10px] font-mono text-blue-400 font-bold px-1 min-w-[3rem] text-center">
+                                            <span className="text-[10px] font-mono text-white font-bold px-1 min-w-[3rem] text-center">
                                                 PAGE {logPage} / {totalPages}
                                             </span>
                                             <button
@@ -793,7 +793,7 @@ export default function ResourceDetails({ user }) {
                             </div>
 
                             {/* Log Display */}
-                            <div className="flex-1 p-6 font-mono text-xs overflow-auto whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)]">
+                            <div className="flex-1 pt-2 px-6 pb-6 font-mono text-xs overflow-auto whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)]">
                                 {displayedLines.length > 0 ? (
                                     displayedLines.map((line, i) => {
                                         // Simple syntax highlighting hint (can be expanded)
@@ -879,52 +879,41 @@ function DetailRow({ label, value, children }) {
 }
 
 function CodeEditor({ value, onChange, readOnly }) {
-    const lineCount = value.split('\n').length;
-    const lines = Array.from({ length: lineCount }, (_, i) => i + 1);
-    const gutterRef = React.useRef(null);
-    const textRef = React.useRef(null);
+    const lines = value.split('\n');
+    const lineCount = lines.length;
     const LINE_HEIGHT = '1.4rem';
 
-    const handleScroll = () => {
-        if (gutterRef.current && textRef.current) {
-            gutterRef.current.scrollTop = textRef.current.scrollTop;
-        }
-    };
-
     return (
-        <div className="relative flex bg-transparent overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]" style={{ maxHeight: '70vh' }}>
-            {/* Gutter */}
-            <div
-                ref={gutterRef}
-                className="w-12 flex-shrink-0 bg-[var(--bg-main)]/50 border-r border-[var(--border-color)]/20 py-4 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none overflow-hidden"
-            >
-                {lines.map(line => (
-                    <div key={line} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{line}</div>
-                ))}
-            </div>
-
-            {/* Text Area / Code View */}
-            {readOnly ? (
-                <pre
-                    ref={textRef}
-                    onScroll={handleScroll}
-                    className="flex-1 p-4 font-mono text-xs text-[var(--text-editor-code)] whitespace-pre"
-                    style={{ lineHeight: LINE_HEIGHT }}
+        <div className="bg-[var(--bg-main)]/20 border-t border-[var(--border-color)]/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
+            <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
+                {/* Gutter */}
+                <div
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none"
                 >
-                    <code>{value}</code>
-                </pre>
-            ) : (
-                <textarea
-                    ref={textRef}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onScroll={handleScroll}
-                    className="flex-1 p-4 font-mono text-xs bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0"
-                    spellCheck="false"
-                    rows={lineCount}
-                    style={{ lineHeight: LINE_HEIGHT }}
-                />
-            )}
+                    {lines.map((_, i) => (
+                        <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
+                    ))}
+                </div>
+
+                {/* Text Area / Code View */}
+                {readOnly ? (
+                    <pre
+                        className="flex-1 p-4 font-mono text-xs text-[var(--text-editor-code)] whitespace-pre"
+                        style={{ lineHeight: LINE_HEIGHT }}
+                    >
+                        {value}
+                    </pre>
+                ) : (
+                    <textarea
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        className="flex-1 p-4 font-mono text-xs bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0 overflow-hidden"
+                        spellCheck="false"
+                        rows={lineCount}
+                        style={{ lineHeight: LINE_HEIGHT, display: 'block' }}
+                    />
+                )}
+            </div>
         </div>
     );
 }

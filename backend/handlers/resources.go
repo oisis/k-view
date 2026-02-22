@@ -149,6 +149,7 @@ type MetricHistory struct {
 type ClusterStats struct {
 	K8sVersion     string          `json:"k8sVersion"`
 	NodeCount      int             `json:"nodeCount"`
+	NodeCountReady int             `json:"nodeCountReady"`
 	PodCount       int             `json:"podCount"`
 	PodCountFailed int             `json:"podCountFailed"`
 	CPUUsage       float64         `json:"cpuUsage"` // Percentage
@@ -168,6 +169,7 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		stats := ClusterStats{
 			K8sVersion:     "v1.28.2",
 			NodeCount:      7,
+			NodeCountReady: 7,
 			PodCount:       156,
 			PodCountFailed: 4,
 			CPUUsage:       42.5,
@@ -201,9 +203,18 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 	pods, _ := h.k8sClient.ListPods(ctx, "")
 
 	var cpuTotalInt, ramTotalInt int64
+	readyNodes := 0
 	for _, n := range nodes {
 		cpuTotalInt += n.Status.Capacity.Cpu().Value()
 		ramTotalInt += n.Status.Capacity.Memory().Value() / (1024 * 1024 * 1024)
+
+		// Check if node is ready
+		for _, cond := range n.Status.Conditions {
+			if cond.Type == corev1.NodeReady && cond.Status == corev1.ConditionTrue {
+				readyNodes++
+				break
+			}
+		}
 	}
 
 	failedPods := 0
@@ -248,6 +259,7 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 	stats := ClusterStats{
 		K8sVersion:     "Unknown",
 		NodeCount:      len(nodes),
+		NodeCountReady: readyNodes,
 		PodCount:       len(pods),
 		PodCountFailed: failedPods,
 		CPUUsage:       cpuUsage,
