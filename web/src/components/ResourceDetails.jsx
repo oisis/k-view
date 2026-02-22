@@ -238,7 +238,7 @@ export default function ResourceDetails({ user }) {
             />
 
             {/* Tabs */}
-            <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/30 p-1 rounded-2xl border border-[var(--border-color)] w-max">
+            <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
                 {[
                     { id: 'overview', label: 'Overview', icon: Info },
                     { id: 'yaml', label: 'YAML', icon: FileText },
@@ -270,7 +270,7 @@ export default function ResourceDetails({ user }) {
                     <>
                         {/* Section: Status Bar */}
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/20">
+                            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/60">
                                 <StatusItem label="Status">
                                     <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
                                         <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />

@@ -45,26 +45,26 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
             const term = new Terminal({
                 cursorBlink: true,
                 theme: {
-                    background: '#0d1117',
-                    foreground: '#c9d1d9',
-                    cursor: '#58a6ff',
-                    selectionBackground: 'rgba(88, 166, 255, 0.3)',
-                    black: '#484f58',
-                    red: '#ff7b72',
-                    green: '#3fb950',
-                    yellow: '#d29922',
-                    blue: '#58a6ff',
-                    magenta: '#bc8cff',
-                    cyan: '#39c5cf',
-                    white: '#b1bac4',
-                    brightBlack: '#6e7681',
-                    brightRed: '#ffa198',
-                    brightGreen: '#56d364',
-                    brightYellow: '#e3b341',
-                    brightBlue: '#79c0ff',
-                    brightMagenta: '#d2a8ff',
-                    brightCyan: '#56d4dd',
-                    brightWhite: '#ffffff',
+                    background: '#CBD5E1', // Gray background
+                    foreground: '#000000', // Black font
+                    cursor: '#2563EB',
+                    selectionBackground: 'rgba(37, 99, 235, 0.3)',
+                    black: '#000000',
+                    red: '#B91C1C',
+                    green: '#15803D',
+                    yellow: '#B45309',
+                    blue: '#1D4ED8',
+                    magenta: '#7E22CE',
+                    cyan: '#0369A1',
+                    white: '#475569',
+                    brightBlack: '#64748B',
+                    brightRed: '#DC2626',
+                    brightGreen: '#16A34A',
+                    brightYellow: '#D97706',
+                    brightBlue: '#2563EB',
+                    brightMagenta: '#9333EA',
+                    brightCyan: '#0891B2',
+                    brightWhite: '#F8FAFC',
                 },
                 fontFamily: 'Menlo, Monaco, "Courier New", monospace',
                 fontSize: 13,
@@ -186,8 +186,8 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                 {/* Header Segment */}
                 <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/30 border-b border-[var(--border-color)] shrink-0">
                     <div className="flex items-center gap-3">
-                        <TerminalIcon size={18} className="text-[#58a6ff]" />
-                        <h2 className="text-sm font-semibold text-[#c9d1d9] font-mono">
+                        <TerminalIcon size={18} className="text-info" />
+                        <h2 className="text-sm font-semibold text-[var(--text-white)] font-mono">
                             {pod}
                         </h2>
                         {status === "connected" && (
@@ -207,9 +207,9 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                     <div className="flex items-center gap-3">
                         {containers.length > 1 && (
                             <div className="flex items-center gap-2 mr-2">
-                                <span className="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest whitespace-nowrap">Container:</span>
+                                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Container:</span>
                                 <select
-                                    className="bg-[#0d1117] border border-[#30363d] text-[11px] font-bold text-[#58a6ff] rounded px-3 py-1 outline-none focus:border-[#58a6ff] min-w-[150px] cursor-pointer"
+                                    className="bg-[var(--bg-card)] border border-[var(--border-color)] text-[11px] font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
                                     value={selectedContainer}
                                     onChange={(e) => {
                                         const newContainer = e.target.value;
@@ -228,18 +228,18 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                             </div>
                         )}
 
-                        <div className="w-px h-5 bg-[#30363d] mx-1"></div>
+                        <div className="w-px h-5 bg-[var(--border-color)] mx-1"></div>
 
                         <button
                             onClick={() => setIsFullscreen(!isFullscreen)}
-                            className="p-1.5 text-[#8b949e] hover:text-[#c9d1d9] hover:bg-[#30363d] rounded transition-colors"
+                            className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-[var(--bg-muted)] rounded transition-colors"
                             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                         >
                             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-1.5 text-[#8b949e] hover:text-[#f85149] hover:bg-[#f85149]/10 rounded transition-colors"
+                            className="p-1.5 text-[var(--text-muted)] hover:text-error hover:bg-error/10 rounded transition-colors"
                             title="Close Terminal"
                         >
                             <X size={16} />
@@ -251,26 +251,26 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
                 <div className="flex-1 relative w-full overflow-hidden bg-transparent">
                     {(status === "idle" && containers.length > 1) ? (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center p-8 border border-[#30363d] rounded-xl bg-[#161b22] max-w-sm w-full">
-                                <TerminalIcon size={48} className="mx-auto text-[#8b949e] mb-4 opacity-50" />
-                                <h3 className="text-[#c9d1d9] font-medium mb-2">Multiple Containers Detected</h3>
-                                <p className="text-sm text-[#8b949e] mb-6">This pod has {containers.length} containers. Please select one from the top right to open an interactive remote shell.</p>
+                            <div className="text-center p-8 border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]/50 max-w-sm w-full">
+                                <TerminalIcon size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />
+                                <h3 className="text-[var(--text-white)] font-medium mb-2">Multiple Containers Detected</h3>
+                                <p className="text-sm text-[var(--text-secondary)] mb-6">This pod has {containers.length} containers. Please select one from the top right to open an interactive remote shell.</p>
                             </div>
                         </div>
                     ) : status === "connecting" ? (
-                        <div className="absolute inset-0 flex items-center justify-center font-mono text-sm text-[#8b949e]">
+                        <div className="absolute inset-0 flex items-center justify-center font-mono text-sm text-[var(--text-muted)]">
                             <span className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-t-[#58a6ff] border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+                                <div className="w-4 h-4 border-2 border-t-info border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
                                 Establishing secure SPDY connection...
                             </span>
                         </div>
                     ) : status === "error" && !terminalInstance.current ? (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center p-8 border border-[#f85149]/30 rounded-xl bg-[#f85149]/10 max-w-sm w-full">
-                                <CircleAlert size={32} className="mx-auto text-[#f85149] mb-4" />
-                                <h3 className="text-[#f85149] font-medium mb-2">Connection Failed</h3>
-                                <p className="text-sm text-[#ff7b72] mb-6">{errorMsg || "Failed to establish terminal session."}</p>
-                                <button onClick={onClose} className="px-4 py-2 border border-[#f85149]/50 text-[#f85149] hover:bg-[#f85149]/20 rounded text-sm transition-colors">
+                            <div className="text-center p-8 border border-error/30 rounded-xl bg-error/10 max-w-sm w-full">
+                                <CircleAlert size={32} className="mx-auto text-error mb-4" />
+                                <h3 className="text-error font-medium mb-2">Connection Failed</h3>
+                                <p className="text-sm text-error/80 mb-6">{errorMsg || "Failed to establish terminal session."}</p>
+                                <button onClick={onClose} className="px-4 py-2 border border-error/50 text-error hover:bg-error/20 rounded text-sm transition-colors">
                                     Close Terminal
                                 </button>
                             </div>

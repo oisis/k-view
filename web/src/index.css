@@ -68,8 +68,8 @@
   /* Strong Blue */
   --bg-console: rgba(226, 232, 240, 0.5);
   --bg-editor: rgba(241, 245, 249, 0.6);
-  --bg-glass: rgba(248, 250, 252, 0.3);
-  --bg-glass-deep: rgba(255, 255, 255, 0.5);
+  --bg-glass: rgba(248, 250, 252, 0.7);
+  --bg-glass-deep: rgba(255, 255, 255, 0.85);
   --text-editor-code: #1E40AF;
   --wallpaper-opacity: 0.3;
   --wallpaper-brightness: 0.95;

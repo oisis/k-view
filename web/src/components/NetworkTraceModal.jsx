@@ -191,7 +191,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                         </div>
                     ) : error ? (
                         <div className="p-6">
-                            <div className="flex items-start gap-3 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-400">
+                            <div className="flex items-start gap-3 p-4 bg-error/10 border border-error/30 rounded-lg text-error">
                                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                                 <div>
                                     <h3 className="font-bold mb-1">Trace Failed</h3>
@@ -204,8 +204,8 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                             {/* Validation Badges */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {traceData.nodes.map((n, i) => (
-                                    <div key={i} className={`flex items-start gap-2.5 p-2 rounded-lg border ${n.healthy ? 'bg-green-900/10 border-green-800/40' : 'bg-red-900/10 border-red-800/40'}`}>
-                                        <div className="mt-0.5">
+                                    <div key={i} className={`flex items-start gap-2.5 p-2 rounded-lg border ${n.healthy ? 'bg-success/5 border-success/20' : 'bg-error/5 border-error/20'}`}>
+                                        <div className="mt-0.5 text-[var(--text-muted)]">
                                             {kindIconMap[n.type.toLowerCase()] || <Box size={14} />}
                                         </div>
                                         <div>
@@ -214,7 +214,7 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
                                                     {n.type}: {n.name}
                                                 </span>
                                             </div>
-                                            <p className="text-[10px] text-[var(--text-secondary)] mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>
+                                            <p className="text-[10px] text-[var(--text-primary)] mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -222,9 +222,9 @@ export default function NetworkTraceModal({ isOpen, onClose, kind, namespace, na
 
                             {/* Diagram Container */}
                             <div className="mt-8 bg-[var(--bg-sidebar)]/20 border border-[var(--border-color)] rounded-2xl p-6 overflow-x-auto relative min-h-[400px] flex items-center justify-center glass shadow-inner">
-                                <div className="absolute top-3 left-3 flex gap-2 text-[10px] font-mono text-[var(--text-muted)]">
-                                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div> Healthy</span>
-                                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Error</span>
+                                <div className="absolute top-3 left-3 flex gap-2 text-[10px] font-bold font-mono text-[var(--text-primary)]">
+                                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Healthy</span>
+                                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-error"></div> Error</span>
                                 </div>
                                 <div ref={mermaidRef} className="w-full h-full flex justify-center mermaid-container" />
                             </div>
