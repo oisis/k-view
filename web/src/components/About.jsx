@@ -37,6 +37,14 @@ export default function About() {
                                     <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Image Version</dt>
                                     <dd className="mt-1 text-2xl font-mono text-[var(--text-white)]">{version}</dd>
                                 </div>
+                                <div className="pt-2">
+                                    <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Homepage</dt>
+                                    <dd className="mt-1">
+                                        <a href="https://github.com/oisis/k-view" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors underline decoration-dotted underline-offset-4 font-mono text-sm">
+                                            https://github.com/oisis/k-view
+                                        </a>
+                                    </dd>
+                                </div>
                             </dl>
                         </div>
                     </div>
