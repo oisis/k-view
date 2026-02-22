@@ -110,12 +110,9 @@ func realKubectl(cmd string, user k8s.UserContext) (string, int) {
 	// Impersonate the user if they are not an admin
 	isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
 	if !isAdmin && user.Email != "" {
-		// Insert --as=<email> immediately after the injected flags / 'kubectl'
+		// Append --as=<email> to the end of the command arguments to avoid plugin parser errors
 		impersonateFlag := fmt.Sprintf("--as=%s", user.Email)
-		newParts := make([]string, 0, len(parts)+1)
-		newParts = append(newParts, parts[0], impersonateFlag)
-		newParts = append(newParts, parts[1:]...)
-		parts = newParts
+		parts = append(parts, impersonateFlag)
 	}
 
 	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
