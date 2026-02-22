@@ -219,24 +219,6 @@ export default function ResourceDetails({ user }) {
                         <span className="text-[var(--accent)] font-bold">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
                     </p>
                 </div>
-                {(kind === 'ingress' || kind === 'ingresses' || kind === 'services' || kind === 'pods') && (
-                    <button
-                        onClick={() => setTraceModalOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
-                    >
-                        <Activity size={16} />
-                        Visual Trace
-                    </button>
-                )}
-                {kind === 'pods' && (
-                    <button
-                        onClick={() => setTerminalModalOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all active:scale-95 ml-2"
-                    >
-                        <SquareTerminal size={16} />
-                        Exec Terminal
-                    </button>
-                )}
             </div>
 
             <NetworkTraceModal
@@ -261,11 +243,16 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: 'Overview', icon: Info },
                     { id: 'yaml', label: 'YAML', icon: FileText },
                     { id: 'events', label: 'Events', icon: List },
-                    { id: 'logs', label: 'Logs', icon: Terminal, hidden: kind !== 'pods' }
+                    { id: 'logs', label: 'Logs', icon: Terminal, hidden: kind !== 'pods' },
+                    { id: 'exec', label: 'Exec', icon: SquareTerminal, hidden: kind !== 'pods', action: () => setTerminalModalOpen(true) },
+                    { id: 'trace', label: 'Visual Trace', icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()), action: () => setTraceModalOpen(true) }
                 ].filter(t => !t.hidden).map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => {
+                            if (tab.action) tab.action();
+                            else setActiveTab(tab.id);
+                        }}
                         className={`flex items-center gap-2.5 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
                                 ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
@@ -363,7 +350,7 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Metadata */}
                         <DetailSection title="Metadata">
                             <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-[var(--border-color)]/30">
+                                <tbody className="divide-y divide-slate-600">
                                     <DetailRow label="Name" value={name} />
                                     <DetailRow label="Namespace" value={namespace === '-' ? '—' : namespace} />
                                     <DetailRow label="UID" value={metadata.uid} />
@@ -393,7 +380,7 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Resource Info (Spec) */}
                         <DetailSection title="Resource Info">
                             <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-[var(--border-color)]/30">
+                                <tbody className="divide-y divide-slate-600">
                                     {spec.strategy?.type && <DetailRow label="Strategy" value={spec.strategy.type} />}
                                     {spec.clusterIP && <DetailRow label="Cluster IP" value={spec.clusterIP} />}
 
@@ -530,7 +517,7 @@ export default function ResourceDetails({ user }) {
                                                     <Info size={14} /> {l.metadata.name}
                                                 </h4>
                                                 <table className="w-full text-xs text-left">
-                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-400/40">
+                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
                                                         <tr>
                                                             <th className="px-3 py-2">Type</th>
                                                             <th className="px-3 py-2">Resource</th>
@@ -653,7 +640,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'events' && (
                     <DetailSection title="Recent Events" className="flex-1 min-h-[400px]">
                         <table className="w-full text-sm text-left border-collapse">
-                            <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-400/50">
+                            <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                 <tr>
                                     <th className="px-6 py-3">Type</th>
                                     <th className="px-6 py-3">Reason</th>
@@ -713,7 +700,7 @@ export default function ResourceDetails({ user }) {
                     return (
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
                             {/* Log Toolbar */}
-                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b-2 border-slate-400/50 flex flex-wrap items-center justify-between gap-4">
+                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b-2 border-slate-600 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative group">
                                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-blue-400 transition-colors" />
@@ -843,7 +830,7 @@ export default function ResourceDetails({ user }) {
                     );
                 })()}
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -861,7 +848,7 @@ function StatusItem({ label, value, children }) {
 function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-6 py-3 border-b-2 border-slate-400/30 bg-[var(--bg-sidebar)]/30 flex-shrink-0">
+            <div className="px-6 py-3 border-b-2 border-slate-600 bg-[var(--bg-sidebar)]/30 flex-shrink-0">
                 <h3 className="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
@@ -873,13 +860,13 @@ function DetailSection({ title, children, className = "" }) {
 
 function DetailRow({ label, value, children }) {
     return (
-        <tr className="group border-b border-[var(--border-color)]">
+        <tr className="group border-b border-slate-600">
             <td className="px-4 py-3 w-48 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
                 {label}
             </td>
             <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                 {children || (
-                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-blue-300' : 'text-[var(--text-white)]'}>
+                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-white)]'}>
                         {value ?? '—'}
                     </span>
                 )}
