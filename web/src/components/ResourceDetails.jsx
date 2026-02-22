@@ -6,7 +6,7 @@ import {
     ChevronRight as ChevronRightIcon
 } from 'lucide-react';
 import NetworkTraceModal from './NetworkTraceModal';
-import TerminalModal from './TerminalModal';
+import PodTerminal from './PodTerminal';
 
 export default function ResourceDetails({ user }) {
     const { kind, namespace, name } = useParams();
@@ -33,7 +33,6 @@ export default function ResourceDetails({ user }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [traceModalOpen, setTraceModalOpen] = useState(false);
-    const [terminalModalOpen, setTerminalModalOpen] = useState(false);
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
 
@@ -136,7 +135,7 @@ export default function ResourceDetails({ user }) {
                 setIsEditing(true);
             }
             if (searchParams.get('exec') === 'true' && kind.toLowerCase().startsWith('pod')) {
-                setTerminalModalOpen(true);
+                setActiveTab('exec');
             }
         }
     }, [loading, data, searchParams, canEdit, kind]);
@@ -229,14 +228,6 @@ export default function ResourceDetails({ user }) {
                 name={name}
             />
 
-            <TerminalModal
-                isOpen={terminalModalOpen}
-                onClose={() => setTerminalModalOpen(false)}
-                pod={name}
-                namespace={namespace !== '-' ? namespace : ''}
-                containers={isPod ? (spec?.containers || []) : (spec?.template?.spec?.containers || [])}
-            />
-
             {/* Tabs */}
             <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
                 {[
@@ -244,7 +235,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'yaml', label: 'YAML', icon: FileText },
                     { id: 'events', label: 'Events', icon: List },
                     { id: 'logs', label: 'Logs', icon: Terminal, hidden: kind !== 'pods' },
-                    { id: 'exec', label: 'Exec', icon: SquareTerminal, hidden: kind !== 'pods', action: () => setTerminalModalOpen(true) },
+                    { id: 'exec', label: 'Exec', icon: SquareTerminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: 'Visual Trace', icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()), action: () => setTraceModalOpen(true) }
                 ].filter(t => !t.hidden).map(tab => (
                     <button
@@ -832,8 +823,16 @@ export default function ResourceDetails({ user }) {
                         </div>
                     );
                 })()}
+
+                {activeTab === 'exec' && (
+                    <PodTerminal
+                        pod={name}
+                        namespace={namespace !== '-' ? namespace : ''}
+                        containers={isPod ? (spec?.containers || []) : (spec?.template?.spec?.containers || [])}
+                    />
+                )}
             </div>
-        </div >
+        </div>
     );
 }
 
