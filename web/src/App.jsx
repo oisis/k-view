@@ -167,37 +167,37 @@ function Sidebar({ user, onLogout, theme, setTheme }) {
             </nav>
 
             {/* Bottom: admin + mode label + logout */}
-            <div className="px-4 py-6 border-t border-[var(--border-color)] space-y-4">
+            <div className="px-3 py-3 border-t border-[var(--border-color)] space-y-2">
                 {(user.role === 'kview-cluster-admin' || user.role === 'admin') && (
                     <a
                         href="/access"
                         className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-full
                 ${p === '/access'
-                                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                : 'text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/5 transition-colors'}`}
+                                ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-sm'
+                                : 'text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
                     >
                         <ShieldAlert size={16} /> Admin Panel
                     </a>
                 )}
 
-                <div className="flex items-center justify-between px-1">
+                <div className="flex items-center justify-between gap-2 px-1">
                     {user.devMode ? (
-                        <div className="flex items-center gap-2 text-[9px] font-black text-emerald-500 tracking-[0.2em] uppercase">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <div className="flex items-center gap-1.5 text-[11px] font-black text-green-500 tracking-tight uppercase">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                             DEVELOPMENT
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 text-[9px] font-black text-rose-500 tracking-[0.2em] uppercase">
-                            <div className="w-1.5 h-1.5 rounded-full bg-rose-600" />
+                        <div className="flex items-center gap-1.5 text-[11px] font-black text-red-600 tracking-tight uppercase">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_6px_rgba(220,38,38,0.4)]" />
                             PRODUCTION
                         </div>
                     )}
                     <button
                         onClick={onLogout}
-                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:text-red-400 transition-all active:scale-90 flex items-center justify-center group shadow-sm"
+                        className="p-1.5 rounded-xl bg-red-600/20 text-red-500 border border-red-600/40 hover:bg-red-600/30 hover:text-red-400 hover:border-red-600/60 transition-all active:scale-90 flex items-center justify-center group shadow-sm"
                         title="Logout"
                     >
-                        <LogOut size={20} className="group-hover:translate-x-0.5 transition-transform" />
+                        <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                 </div>
             </div>

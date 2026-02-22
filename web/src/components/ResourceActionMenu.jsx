@@ -170,7 +170,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[var(--bg-glass-deep)] glass border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                <div className="absolute right-0 mt-2 w-56 bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                     {!confirmAction ? (
                         <>
                             {(isPod || isWorkload) && (

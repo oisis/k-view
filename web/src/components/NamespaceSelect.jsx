@@ -47,7 +47,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
             </button>
 
             {open && (
-                <div className="absolute z-50 mt-1 right-0 w-full min-w-[220px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden">
+                <div className="absolute z-50 mt-1 right-0 w-full min-w-[220px] bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden">
                     {/* Search input */}
                     <div className="p-2 border-b border-[var(--border-color)]">
                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 rounded px-2 py-1.5">
