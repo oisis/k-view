@@ -8,7 +8,18 @@ metadata:
 data:
   assignments.yaml: |
     assignments:
-{{ toYaml .Values.rbac.assignments | indent 6 }}
+{{- range .Values.rbac.assignments }}
+{{- $role := .roleName }}
+{{- $ns := .namespace }}
+{{- $sType := .subjectType }}
+{{- range .subjects }}
+      - {{ if eq $sType "User" }}user{{ else }}group{{ end }}: {{ . | quote }}
+        role: {{ $role | quote }}
+{{- if $ns }}
+        namespace: {{ $ns | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- range .Values.localUsers }}
 {{- if .role }}
       - user: {{ .username | quote }}
