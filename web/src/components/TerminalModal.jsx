@@ -41,30 +41,32 @@ export default function TerminalModal({ isOpen, onClose, pod, namespace, contain
             const { FitAddon } = await import('xterm-addon-fit');
             import('xterm/css/xterm.css'); // Import styles dynamically
 
+            const isLight = document.body.classList.contains('theme-light');
+
             // Initialize Terminal
             const term = new Terminal({
                 cursorBlink: true,
                 theme: {
-                    background: '#CBD5E1', // Gray background
-                    foreground: '#000000', // Black font
-                    cursor: '#2563EB',
-                    selectionBackground: 'rgba(37, 99, 235, 0.3)',
-                    black: '#000000',
-                    red: '#B91C1C',
-                    green: '#15803D',
-                    yellow: '#B45309',
-                    blue: '#1D4ED8',
-                    magenta: '#7E22CE',
-                    cyan: '#0369A1',
-                    white: '#475569',
-                    brightBlack: '#64748B',
-                    brightRed: '#DC2626',
-                    brightGreen: '#16A34A',
-                    brightYellow: '#D97706',
-                    brightBlue: '#2563EB',
-                    brightMagenta: '#9333EA',
-                    brightCyan: '#0891B2',
-                    brightWhite: '#F8FAFC',
+                    background: isLight ? '#CBD5E1' : '#0d1117',
+                    foreground: isLight ? '#000000' : '#c9d1d9',
+                    cursor: isLight ? '#2563EB' : '#58a6ff',
+                    selectionBackground: isLight ? 'rgba(37, 99, 235, 0.3)' : 'rgba(88, 166, 255, 0.3)',
+                    black: isLight ? '#000000' : '#484f58',
+                    red: isLight ? '#B91C1C' : '#ff7b72',
+                    green: isLight ? '#15803D' : '#3fb950',
+                    yellow: isLight ? '#B45309' : '#d29922',
+                    blue: isLight ? '#1D4ED8' : '#58a6ff',
+                    magenta: isLight ? '#7E22CE' : '#bc8cff',
+                    cyan: isLight ? '#0369A1' : '#39c5cf',
+                    white: isLight ? '#475569' : '#b1bac4',
+                    brightBlack: isLight ? '#64748B' : '#6e7681',
+                    brightRed: isLight ? '#DC2626' : '#ffa198',
+                    brightGreen: isLight ? '#16A34A' : '#56d364',
+                    brightYellow: isLight ? '#D97706' : '#e3b341',
+                    brightBlue: isLight ? '#2563EB' : '#79c0ff',
+                    brightMagenta: isLight ? '#9333EA' : '#d2a8ff',
+                    brightCyan: isLight ? '#0891B2' : '#56d4dd',
+                    brightWhite: isLight ? '#F8FAFC' : '#ffffff',
                 },
                 fontFamily: 'Menlo, Monaco, "Courier New", monospace',
                 fontSize: 13,
