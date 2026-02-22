@@ -310,7 +310,7 @@ export default function ResourceDetails({ user }) {
                                 {isPod && (
                                     <>
                                         <StatusItem label="CPU">
-                                            <span className="text-blue-400 font-mono">{cpuUsage}</span>
+                                            <span className="text-info font-mono">{cpuUsage}</span>
                                         </StatusItem>
                                         <StatusItem label="RAM">
                                             <span className="text-teal-400 font-mono">{ramUsage}</span>
@@ -334,7 +334,7 @@ export default function ResourceDetails({ user }) {
 
                                 {status.loadBalancer?.ingress?.length > 0 && (
                                     <StatusItem label="External IP">
-                                        <span className="text-blue-300 font-mono text-xs">
+                                        <span className="text-info font-mono text-xs">
                                             {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
                                         </span>
                                     </StatusItem>
@@ -371,7 +371,7 @@ export default function ResourceDetails({ user }) {
                                     <DetailRow label="Labels">
                                         <div className="flex flex-wrap gap-1.5">
                                             {Object.entries(metadata.labels || {}).map(([k, v]) => (
-                                                <span key={k} className="px-2 py-0.5 bg-blue-900/10 border border-blue-800/30 rounded text-[10px] text-blue-300 font-mono">
+                                                <span key={k} className="px-2 py-0.5 bg-blue-900/10 border border-blue-800/30 rounded text-[10px] text-info font-mono">
                                                     {k}: {v}
                                                 </span>
                                             ))}
@@ -381,7 +381,7 @@ export default function ResourceDetails({ user }) {
                                         <div className="space-y-1">
                                             {Object.entries(metadata.annotations || {}).map(([k, v]) => (
                                                 <div key={k} className="text-[10px] font-mono text-[var(--text-secondary)]">
-                                                    <span className="text-blue-400/70">{k}</span>: {v}
+                                                    <span className="text-info">{k}</span>: {v}
                                                 </div>
                                             ))}
                                         </div>
@@ -425,7 +425,7 @@ export default function ResourceDetails({ user }) {
                                         <DetailRow label="Volumes (PVC)">
                                             <div className="flex flex-wrap gap-2">
                                                 {mountedPvcs.map(pvc => (
-                                                    <span key={pvc} className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-[10px] text-blue-400 font-mono">
+                                                    <span key={pvc} className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-[10px] text-info font-mono">
                                                         {pvc}
                                                     </span>
                                                 ))}
@@ -451,7 +451,7 @@ export default function ResourceDetails({ user }) {
                                                 <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className="font-bold text-[var(--text-white)] flex items-center gap-2">
-                                                            <Terminal size={12} className="text-blue-400" />
+                                                            <Terminal size={12} className="text-info" />
                                                             {c.name}
                                                         </span>
                                                         <span className="text-[10px] font-mono text-[var(--text-muted)] bg-black/30 px-2 py-0.5 rounded">
@@ -461,7 +461,7 @@ export default function ResourceDetails({ user }) {
                                                     <div className="grid grid-cols-2 gap-4 text-xs">
                                                         <div>
                                                             <p className="text-[var(--text-muted)] mb-1">Ports</p>
-                                                            <div className="font-mono text-blue-300">
+                                                            <div className="font-mono text-info">
                                                                 {c.ports?.map(p => `${p.containerPort || p.port}/${p.protocol || 'TCP'}`).join(', ') || '—'}
                                                             </div>
                                                         </div>
@@ -530,7 +530,7 @@ export default function ResourceDetails({ user }) {
                                                     <Info size={14} /> {l.metadata.name}
                                                 </h4>
                                                 <table className="w-full text-xs text-left">
-                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20">
+                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-400/40">
                                                         <tr>
                                                             <th className="px-3 py-2">Type</th>
                                                             <th className="px-3 py-2">Resource</th>
@@ -544,7 +544,7 @@ export default function ResourceDetails({ user }) {
                                                             <tr key={idx}>
                                                                 <td className="px-3 py-2 font-bold text-[var(--text-white)]">{lim.type}</td>
                                                                 <td className="px-3 py-2 text-[var(--text-secondary)]">CPU/Memory</td>
-                                                                <td className="px-3 py-2 text-blue-400 font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
+                                                                <td className="px-3 py-2 text-info font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
                                                                 <td className="px-3 py-2 text-rose-400 font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
                                                                 <td className="px-3 py-2 text-[var(--text-muted)] font-mono">{lim.default?.cpu || lim.default?.memory || '-'}</td>
                                                             </tr>
@@ -653,7 +653,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'events' && (
                     <DetailSection title="Recent Events" className="flex-1 min-h-[400px]">
                         <table className="w-full text-sm text-left border-collapse">
-                            <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b border-[var(--border-color)]">
+                            <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-400/50">
                                 <tr>
                                     <th className="px-6 py-3">Type</th>
                                     <th className="px-6 py-3">Reason</th>
@@ -713,7 +713,7 @@ export default function ResourceDetails({ user }) {
                     return (
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
                             {/* Log Toolbar */}
-                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20 flex flex-wrap items-center justify-between gap-4">
+                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b-2 border-slate-400/50 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative group">
                                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-blue-400 transition-colors" />
@@ -722,23 +722,23 @@ export default function ResourceDetails({ user }) {
                                             placeholder="Search logs..."
                                             value={logSearchTerm}
                                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
-                                            className="pl-9 pr-4 py-1.5 bg-black/40 border border-[var(--border-color)]/50 rounded-md text-xs text-[var(--text-white)] focus:outline-none focus:border-blue-500/50 w-64 transition-all"
+                                            className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 w-64 transition-all"
                                         />
                                         <button
                                             onClick={() => setLogSearchRegex(!logSearchRegex)}
-                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[8px] font-bold border transition-colors ${logSearchRegex ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-transparent text-[var(--text-muted)] border-transparent hover:text-[var(--text-white)]'}`}
-                                            title="Use Regular Expression"
+                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-transparent text-white/50 border-transparent hover:text-white'}`}
+                                            title="Włącz/Wyłącz obsługę wyrażeń regularnych (Regex) w wyszukiwaniu"
                                         >
                                             .*
                                         </button>
                                     </div>
 
-                                    <div className="flex items-center gap-2 bg-black/20 p-1 rounded-md border border-[var(--border-color)]/30">
-                                        <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] pl-2">Refresh</span>
+                                    <div className="flex items-center gap-2 bg-slate-200/50 p-1 rounded-md border border-slate-300">
+                                        <span className="text-[10px] uppercase font-black text-black pl-2">Refresh</span>
                                         <select
                                             value={logRefreshInterval}
                                             onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
-                                            className="bg-transparent text-[10px] font-bold text-blue-400 outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                                            className="bg-slate-800 text-[10px] font-bold text-white outline-none rounded px-2 py-0.5 cursor-pointer border border-slate-600"
                                         >
                                             <option value="0">OFF</option>
                                             <option value="5">5s</option>
@@ -803,12 +803,12 @@ export default function ResourceDetails({ user }) {
                                     )}
 
                                     <div className="text-[var(--text-muted)] text-[10px] font-mono flex items-center gap-3">
-                                        <span className="flex items-center gap-1.5 text-blue-400/80">
+                                        <span className="flex items-center gap-1.5 text-info font-bold">
                                             <List size={10} />
                                             {filteredLines.length} MATCHES
                                         </span>
                                         {logRefreshInterval > 0 && (
-                                            <span className="flex items-center gap-1.5 text-green-500/80 animate-pulse">
+                                            <span className="flex items-center gap-1.5 text-green-700 font-bold animate-pulse">
                                                 <RefreshCw size={10} className="animate-spin-slow" />
                                                 LIVE
                                             </span>
@@ -818,7 +818,7 @@ export default function ResourceDetails({ user }) {
                             </div>
 
                             {/* Log Display */}
-                            <div className="flex-1 p-6 font-mono text-xs overflow-auto text-[var(--text-secondary)] whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-black/20">
+                            <div className="flex-1 p-6 font-mono text-xs overflow-auto whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)]">
                                 {displayedLines.length > 0 ? (
                                     displayedLines.map((line, i) => {
                                         // Simple syntax highlighting hint (can be expanded)
@@ -827,7 +827,7 @@ export default function ResourceDetails({ user }) {
                                         const isInfo = /info|success/i.test(line);
 
                                         return (
-                                            <div key={i} className={`hover:bg-white/[0.03] px-2 -mx-2 transition-colors ${isError ? 'text-red-400/90' : isWarn ? 'text-yellow-400/90' : isInfo ? 'text-blue-300/80' : ''}`}>
+                                            <div key={i} className={`hover:bg-[var(--bg-muted)] px-2 -mx-2 transition-colors ${isError ? 'text-red-500' : isWarn ? 'text-yellow-500' : isInfo ? 'text-info' : 'text-[var(--text-secondary)]'}`}>
                                                 {line}
                                             </div>
                                         );
@@ -861,7 +861,7 @@ function StatusItem({ label, value, children }) {
 function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30 flex-shrink-0">
+            <div className="px-6 py-3 border-b-2 border-slate-400/30 bg-[var(--bg-sidebar)]/30 flex-shrink-0">
                 <h3 className="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">

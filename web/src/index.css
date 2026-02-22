@@ -27,6 +27,7 @@
   /* Slate Gray */
   --text-muted: #64748B;
   /* Muted Blue Gray */
+  --text-info: #60A5FA;
   --sidebar-hover: #1E293B;
   --accent: #6366F1;
   /* Vibrant Indigo */
@@ -42,26 +43,27 @@
 }
 
 .theme-light {
-  --bg-main: #F8FAFC;
+  --bg-main: #F1F5F9;
   /* Crisp Slate */
-  --bg-sidebar: #FFFFFF;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --bg-muted: #F1F5F9;
+  --bg-sidebar: #F8FAFC;
+  --bg-card: #F8FAFC;
+  --bg-card-hover: #E2E8F0;
+  --bg-muted: #E2E8F0;
   --border-color: #475569;
   /* Solid Slate 600 - Clearly visible Dark Gray for Light Mode */
   --border-muted: #CBD5E1;
   --text-primary: #0F172A;
   /* Deep Slate Text */
   --text-white: #000000;
-  --text-secondary: #475569;
-  --text-muted: #94A3B8;
-  --sidebar-hover: #F1F5F9;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-info: #1D4ED8;
+  --sidebar-hover: #E2E8F0;
   --accent: #2563EB;
   /* Strong Blue */
-  --bg-console: #F1F5F9;
-  --bg-editor: #F8FAFC;
-  --bg-glass: rgba(255, 255, 255, 0.65);
+  --bg-console: #E2E8F0;
+  --bg-editor: #F1F5F9;
+  --bg-glass: rgba(248, 250, 252, 0.65);
   --bg-glass-deep: rgba(255, 255, 255, 0.85);
   --text-editor-code: #1E40AF;
   --wallpaper-opacity: 0.1;
@@ -82,6 +84,7 @@
   --text-white: #FFFFFF;
   --text-secondary: #A1A1AA;
   --text-muted: #52525B;
+  --text-info: #60A5FA;
   --sidebar-hover: #111111;
   --accent: #4F46E5;
   --bg-console: #000000;
@@ -121,5 +124,9 @@
   .glass {
     backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  .text-info {
+    color: var(--text-info);
   }
 }
