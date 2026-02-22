@@ -31,7 +31,10 @@ export default function Console() {
         fetch('/api/namespaces')
             .then(r => r.ok ? r.json() : null)
             .then(data => {
-                if (data && data.items) {
+                if (Array.isArray(data)) {
+                    // Backend returns []string directly
+                    setNamespaces(data);
+                } else if (data && data.items) {
                     setNamespaces(data.items.map(ns => ns.metadata.name));
                 }
             })
