@@ -10,6 +10,46 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
     const terminalInstance = useRef(null);
     const wsRef = useRef(null);
     const fitAddonRef = useRef(null);
+    const [isDarkMode, setIsDarkMode] = useState(!document.documentElement.classList.contains('theme-light'));
+
+    // Theme detection logic
+    useEffect(() => {
+        const observer = new MutationObserver(() => {
+            const isLight = document.documentElement.classList.contains('theme-light');
+            setIsDarkMode(!isLight);
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
+
+    // Reactive terminal theme update
+    useEffect(() => {
+        if (terminalInstance.current) {
+            const isLight = !isDarkMode;
+            terminalInstance.current.options.theme = {
+                background: isLight ? '#FFFFFF' : '#0d1117',
+                foreground: isLight ? '#0F172A' : '#c9d1d9',
+                cursor: isLight ? '#2563EB' : '#58a6ff',
+                selectionBackground: isLight ? 'rgba(37, 99, 235, 0.3)' : 'rgba(88, 166, 255, 0.3)',
+                black: isLight ? '#000000' : '#484f58',
+                red: isLight ? '#B91C1C' : '#ff7b72',
+                green: isLight ? '#15803D' : '#3fb950',
+                yellow: isLight ? '#B45309' : '#d29922',
+                blue: isLight ? '#1D4ED8' : '#58a6ff',
+                magenta: isLight ? '#7E22CE' : '#bc8cff',
+                cyan: isLight ? '#0369A1' : '#39c5cf',
+                white: isLight ? '#475569' : '#b1bac4',
+                brightBlack: isLight ? '#64748B' : '#6e7681',
+                brightRed: isLight ? '#DC2626' : '#ffa198',
+                brightGreen: isLight ? '#16A34A' : '#56d364',
+                brightYellow: isLight ? '#D97706' : '#e3b341',
+                brightBlue: isLight ? '#2563EB' : '#79c0ff',
+                brightMagenta: isLight ? '#9333EA' : '#d2a8ff',
+                brightCyan: isLight ? '#0891B2' : '#56d4dd',
+                brightWhite: isLight ? '#F8FAFC' : '#ffffff',
+            };
+        }
+    }, [isDarkMode]);
 
     const cleanupTerminal = useCallback(() => {
         if (wsRef.current) {
@@ -33,13 +73,13 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             const { FitAddon } = await import('xterm-addon-fit');
             import('xterm/css/xterm.css');
 
-            const isLight = document.body.classList.contains('theme-light');
+            const isLight = !isDarkMode;
 
             const term = new Terminal({
                 cursorBlink: true,
                 theme: {
-                    background: isLight ? '#CBD5E1' : '#0d1117',
-                    foreground: isLight ? '#000000' : '#c9d1d9',
+                    background: isLight ? '#FFFFFF' : '#0d1117',
+                    foreground: isLight ? '#0F172A' : '#c9d1d9',
                     cursor: isLight ? '#2563EB' : '#58a6ff',
                     selectionBackground: isLight ? 'rgba(37, 99, 235, 0.3)' : 'rgba(88, 166, 255, 0.3)',
                     black: isLight ? '#000000' : '#484f58',

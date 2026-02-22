@@ -5,7 +5,7 @@ import {
     Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal,
     ChevronRight as ChevronRightIcon
 } from 'lucide-react';
-import NetworkTraceModal from './NetworkTraceModal';
+import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
 
 export default function ResourceDetails({ user }) {
@@ -32,7 +32,6 @@ export default function ResourceDetails({ user }) {
     const [logs, setLogs] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [traceModalOpen, setTraceModalOpen] = useState(false);
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
 
@@ -137,6 +136,9 @@ export default function ResourceDetails({ user }) {
             if (searchParams.get('exec') === 'true' && kind.toLowerCase().startsWith('pod')) {
                 setActiveTab('exec');
             }
+            if (searchParams.get('trace') === 'true') {
+                setActiveTab('trace');
+            }
         }
     }, [loading, data, searchParams, canEdit, kind]);
 
@@ -220,14 +222,6 @@ export default function ResourceDetails({ user }) {
                 </div>
             </div>
 
-            <NetworkTraceModal
-                isOpen={traceModalOpen}
-                onClose={() => setTraceModalOpen(false)}
-                kind={kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind}
-                namespace={namespace !== '-' ? namespace : ''}
-                name={name}
-            />
-
             {/* Tabs */}
             <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
                 {[
@@ -236,7 +230,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'events', label: 'Events', icon: List },
                     { id: 'logs', label: 'Logs', icon: Terminal, hidden: kind !== 'pods' },
                     { id: 'exec', label: 'Exec', icon: SquareTerminal, hidden: kind !== 'pods' },
-                    { id: 'trace', label: 'Visual Trace', icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()), action: () => setTraceModalOpen(true) }
+                    { id: 'trace', label: 'Visual Trace', icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
                     <button
                         key={tab.id}
@@ -544,7 +538,7 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'yaml' && (
-                    <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[400px]">
+                    <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-none">
                         <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
                                 <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
@@ -831,6 +825,13 @@ export default function ResourceDetails({ user }) {
                         containers={isPod ? (spec?.containers || []) : (spec?.template?.spec?.containers || [])}
                     />
                 )}
+                {activeTab === 'trace' && (
+                    <NetworkTrace
+                        kind={kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind}
+                        namespace={namespace !== '-' ? namespace : ''}
+                        name={name}
+                    />
+                )}
             </div>
         </div>
     );
@@ -882,6 +883,7 @@ function CodeEditor({ value, onChange, readOnly }) {
     const lines = Array.from({ length: lineCount }, (_, i) => i + 1);
     const gutterRef = React.useRef(null);
     const textRef = React.useRef(null);
+    const LINE_HEIGHT = '1.4rem';
 
     const handleScroll = () => {
         if (gutterRef.current && textRef.current) {
@@ -890,14 +892,14 @@ function CodeEditor({ value, onChange, readOnly }) {
     };
 
     return (
-        <div className="relative flex flex-1 bg-transparent overflow-hidden">
+        <div className="relative flex bg-transparent overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]" style={{ maxHeight: '70vh' }}>
             {/* Gutter */}
             <div
                 ref={gutterRef}
-                className="w-12 flex-shrink-0 bg-[var(--bg-main)]/50 border-r border-[var(--border-color)]/20 py-6 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none overflow-hidden"
+                className="w-12 flex-shrink-0 bg-[var(--bg-main)]/50 border-r border-[var(--border-color)]/20 py-4 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none overflow-hidden"
             >
                 {lines.map(line => (
-                    <div key={line} className="h-[1.625rem] leading-[1.625rem]">{line}</div>
+                    <div key={line} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{line}</div>
                 ))}
             </div>
 
@@ -906,7 +908,8 @@ function CodeEditor({ value, onChange, readOnly }) {
                 <pre
                     ref={textRef}
                     onScroll={handleScroll}
-                    className="flex-1 p-6 font-mono text-xs text-[var(--text-editor-code)] leading-relaxed overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]"
+                    className="flex-1 p-4 font-mono text-xs text-[var(--text-editor-code)] whitespace-pre"
+                    style={{ lineHeight: LINE_HEIGHT }}
                 >
                     <code>{value}</code>
                 </pre>
@@ -916,9 +919,10 @@ function CodeEditor({ value, onChange, readOnly }) {
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     onScroll={handleScroll}
-                    className="flex-1 p-6 font-mono text-xs bg-transparent text-[var(--text-editor-code)] leading-relaxed outline-none resize-none focus:ring-0 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)]"
+                    className="flex-1 p-4 font-mono text-xs bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0"
                     spellCheck="false"
-                    style={{ lineHeight: '1.625rem' }}
+                    rows={lineCount}
+                    style={{ lineHeight: LINE_HEIGHT }}
                 />
             )}
         </div>

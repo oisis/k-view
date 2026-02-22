@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
-import NetworkTraceModal from './NetworkTraceModal';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -280,7 +279,7 @@ export default function ResourceList({ kind }) {
     const [namespace, setNamespace] = useState(localStorage.getItem('kview-selected-namespace') || '');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [traceTarget, setTraceTarget] = useState(null); // { kind, namespace, name }
+    const navigate = useNavigate();
 
     // Persist namespace
     useEffect(() => {
@@ -440,8 +439,7 @@ export default function ResourceList({ kind }) {
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    const traceKind = kind === 'ingresses' ? 'ingress' : kind === 'services' ? 'service' : kind === 'pods' ? 'pod' : kind;
-                                                    setTraceTarget({ kind: traceKind, namespace: item.namespace || '', name: item.name });
+                                                    navigate(`/${kind}/${item.namespace || '-'}/${item.name}?tab=trace`);
                                                 }}
                                                 className="text-info/70 hover:text-info p-1.5 hover:bg-info/10 rounded inline-flex transition-colors"
                                                 title="Visual Trace"
@@ -465,13 +463,6 @@ export default function ResourceList({ kind }) {
                 </div>
             </div>
 
-            <NetworkTraceModal
-                isOpen={!!traceTarget}
-                onClose={() => setTraceTarget(null)}
-                kind={traceTarget?.kind}
-                namespace={traceTarget?.namespace}
-                name={traceTarget?.name}
-            />
         </div>
     );
 }
