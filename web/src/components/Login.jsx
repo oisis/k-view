@@ -134,7 +134,7 @@ export default function Login() {
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-[var(--border-color)]"></div>
                                 </div>
-                                <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+                                <div className="relative flex justify-center text-xs uppercase tracking-wider">
                                     <span className="px-2 bg-[var(--bg-card)] text-[var(--text-muted)]">Local Auth</span>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@ export default function Login() {
 
                 {providers.dev && (
                     <div className="border-t border-[var(--border-color)] mt-6 pt-4 relative z-10">
-                        <p className="text-[10px] text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
+                        <p className="text-xs text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
                         <button
                             onClick={handleDevLogin}
                             className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-yellow-500 bg-yellow-900/30 hover:bg-yellow-900/50 border border-yellow-800 transition-colors"

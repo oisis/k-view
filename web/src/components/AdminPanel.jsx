@@ -106,7 +106,7 @@ export default function AdminPanel() {
                                             {assignment.user || assignment.group || 'Unknown'}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 rounded text-[10px] uppercase font-bold bg-[var(--bg-muted)] border border-[var(--border-color)] text-[var(--text-muted)]">
+                                            <span className="px-2 py-1 rounded text-xs uppercase font-bold bg-[var(--bg-muted)] border border-[var(--border-color)] text-[var(--text-muted)]">
                                                 {assignment.user ? 'User' : 'Group'}
                                             </span>
                                         </td>
@@ -114,7 +114,7 @@ export default function AdminPanel() {
                                             {assignment.role}
                                         </td>
                                         <td className="px-6 py-4 text-[var(--text-muted)]">
-                                            {assignment.namespace || <span className="text-[10px] bg-purple-900/30 text-purple-400 px-1.5 py-0.5 rounded border border-purple-800/50">Cluster-Wide</span>}
+                                            {assignment.namespace || <span className="text-xs bg-purple-900/30 text-purple-400 px-1.5 py-0.5 rounded border border-purple-800/50">Cluster-Wide</span>}
                                         </td>
                                     </tr>
                                 ))

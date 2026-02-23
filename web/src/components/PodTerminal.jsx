@@ -202,11 +202,11 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-[var(--border-color)] shrink-0 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <TerminalIcon size={18} className="text-info" />
-                    <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
+                    <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
                         Interactive Shell
                     </span>
                     {status === "connected" && (
-                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-success/10 text-success border border-success/20 uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-success/10 text-success border border-success/20 uppercase tracking-widest">
                             <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
                             Live
                         </span>
@@ -216,9 +216,9 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 <div className="flex items-center gap-4">
                     {containers.length > 1 && (
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Container:</span>
+                            <span className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Container:</span>
                             <select
-                                className="bg-[var(--bg-card)] border border-[var(--border-color)] text-[11px] font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
+                                className="bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
                                 value={selectedContainer}
                                 onChange={(e) => {
                                     const newContainer = e.target.value;

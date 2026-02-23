@@ -17,13 +17,13 @@ function RoleBadge({ role }) {
     if (role === 'control-plane') {
         return (
             <span className="flex items-center gap-1 text-xs font-semibold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
-                <Shield size={10} /> control-plane
+                <Shield size={12} /> control-plane
             </span>
         );
     }
     return (
         <span className="flex items-center gap-1 text-xs font-semibold text-info bg-info/10 px-2 py-0.5 rounded-full">
-            <Layers size={10} /> worker
+            <Layers size={12} /> worker
         </span>
     );
 }

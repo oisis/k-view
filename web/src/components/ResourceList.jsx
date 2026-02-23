@@ -299,7 +299,7 @@ function StatusBadge({ value }) {
     };
     const cls = map[v] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${cls}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${cls}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {v}
         </span>
@@ -417,7 +417,7 @@ export default function ResourceList({ kind }) {
             <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-[0.15em] border-b border-[var(--border-color)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-[0.15em] border-b border-[var(--border-color)]">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th

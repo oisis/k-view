@@ -213,7 +213,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 <>
                                     <div className="flex items-center gap-2 text-rose-400 mb-2 px-1">
                                         <AlertTriangle size={16} />
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Confirm Delete?</span>
+                                        <span className="text-xs font-black uppercase tracking-wider">Confirm Delete?</span>
                                     </div>
                                     <label className="flex items-center gap-2 mb-4 px-1 cursor-pointer group">
                                         <input
@@ -222,13 +222,13 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             onChange={(e) => setForceDelete(e.target.checked)}
                                             className="w-3 h-3 rounded border-[var(--border-color)] bg-transparent text-rose-500 focus:ring-0"
                                         />
-                                        <span className="text-[9px] font-bold text-[var(--text-muted)] group-hover:text-rose-300 transition-colors">Force (Grace Period 0)</span>
+                                        <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-rose-300 transition-colors">Force (Grace Period 0)</span>
                                     </label>
                                     <div className="flex gap-2">
-                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                            {isProcessing ? '...' : 'Delete'}
+                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
+                                            {isProcessing ? 'Deleting...' : 'Delete Now'}
                                         </button>
-                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-[10px] font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
+                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
                                     </div>
                                 </>
                             )}
@@ -237,13 +237,13 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 <>
                                     <div className="flex items-center gap-2 text-[var(--accent)] mb-4 px-1">
                                         <Zap size={16} />
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Confirm Restart?</span>
+                                        <span className="text-xs font-black uppercase tracking-wider">Confirm Restart?</span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2 bg-[var(--accent)] hover:bg-[#7d86f5] text-white text-[10px] font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                            {isProcessing ? '...' : 'Restart'}
+                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2 bg-[var(--accent)] hover:bg-[#7d86f5] text-white text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
+                                            {isProcessing ? 'Restarting...' : 'Restart'}
                                         </button>
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-[10px] font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
                                     </div>
                                 </>
                             )}
@@ -252,7 +252,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 <>
                                     <div className="flex items-center gap-2 text-cyan-400 mb-4 px-1">
                                         <Activity size={16} />
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Set Replicas</span>
+                                        <span className="text-xs font-black uppercase tracking-wider">Set Replicas</span>
                                     </div>
                                     <div className="flex items-center gap-3 mb-4 bg-[var(--bg-muted)]/50 p-2 rounded-lg border border-[var(--border-color)]">
                                         <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-1 hover:text-[var(--accent)] transition-colors"><ChevronDown size={14} /></button>
@@ -265,10 +265,10 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                         <button onClick={() => setScaleValue(scaleValue + 1)} className="p-1 hover:text-[var(--accent)] transition-colors"><ChevronUp size={14} /></button>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2 bg-[#4ed8ff] hover:bg-[#72e1ff] text-black text-[10px] font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                            {isProcessing ? '...' : 'Scale'}
+                                        <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2 bg-[#4ed8ff] hover:bg-[#72e1ff] text-black text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
+                                            {isProcessing ? 'Scaling...' : 'Scale Now'}
                                         </button>
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-[10px] font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
                                     </div>
                                 </>
                             )}

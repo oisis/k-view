@@ -25,7 +25,7 @@ function MiniChart({ data, color, label }) {
 
     return (
         <div className="flex flex-col gap-1 w-full mt-2">
-            <div className="flex justify-between text-[10px] text-[var(--text-muted)] font-mono">
+            <div className="flex justify-between text-xs text-[var(--text-muted)] font-mono">
                 <span>{data[0].timestamp}</span>
                 <span>{label}: {data[data.length - 1].value.toFixed(2)}%</span>
                 <span>{data[data.length - 1].timestamp}</span>
@@ -73,9 +73,9 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
             className={`bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
         >
             <div className={isCollapsed ? 'mb-5' : 'mb-3'}>
-                <p className={`${isCollapsed ? 'text-[11px]' : 'text-[10px]'} font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
+                <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
                 <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
-                {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-[11px]'} text-[var(--text-secondary)] mt-1.5 font-medium opacity-80`}>{subValue}</p>}
+                {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-[var(--text-secondary)] mt-1.5 font-medium opacity-80`}>{subValue}</p>}
             </div>
             <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
                 <Icon size={isCollapsed ? 22 : 18} />
@@ -149,7 +149,7 @@ export default function Dashboard({ isCollapsed }) {
                             href="https://github.com/kubernetes-sigs/metrics-server"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-block mt-2 text-[10px] font-bold underline hover:opacity-80"
+                            className="inline-block mt-2 text-xs font-bold underline hover:opacity-80"
                         >
                             View Installation Guide
                         </a>
@@ -207,7 +207,7 @@ export default function Dashboard({ isCollapsed }) {
                                 style={{ width: stats?.podCount ? `${((stats.podCount - stats.podCountFailed) / stats.podCount) * 100}%` : '0%' }}
                             ></div>
                         </div>
-                        <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                        <span className="text-xs font-mono text-[var(--text-muted)]">
                             {stats?.podCount ? Math.round(((stats.podCount - stats.podCountFailed) / stats.podCount) * 100) : 0}% Healthy
                         </span>
                     </div>
@@ -227,7 +227,7 @@ export default function Dashboard({ isCollapsed }) {
                 {/* CPU Usage */}
                 <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
                             <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.cpuTotal || '—'} cores</span>
@@ -246,7 +246,7 @@ export default function Dashboard({ isCollapsed }) {
                 {/* RAM Usage */}
                 <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
                             <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.ramTotal || '—'}</span>
@@ -266,7 +266,7 @@ export default function Dashboard({ isCollapsed }) {
 
             {/* Quick Info Footer */}
             <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
-                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
+                <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
                     <Info size={14} className="text-info/60" />
                     Metrics update every 5 seconds
                 </div>

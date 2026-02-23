@@ -208,7 +208,7 @@ export default function ResourceDetails({ user }) {
                 </button>
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
+                        <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
                             {kind.replace(/s$/, '')}
                         </span>
                         <h2 className="text-3xl font-black text-[var(--text-white)] tracking-tight">
@@ -238,7 +238,7 @@ export default function ResourceDetails({ user }) {
                             if (tab.action) tab.action();
                             else setActiveTab(tab.id);
                         }}
-                        className={`flex items-center gap-2.5 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all rounded-xl
+                        className={`flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
                                 ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
                                 : 'text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-white/5'}`}
@@ -266,7 +266,7 @@ export default function ResourceDetails({ user }) {
                                 {isPod && (
                                     <StatusItem label="Ready">
                                         <div className="flex flex-col ml-1">
-                                            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-0.5">Ready</span>
+                                            <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mb-0.5">Ready</span>
                                             <span className={readyCount === totalContainers ? 'text-success' : 'text-warning'}>
                                                 {readyCount}/{totalContainers}
                                             </span>
@@ -309,7 +309,7 @@ export default function ResourceDetails({ user }) {
 
                                 {status.loadBalancer?.ingress?.length > 0 && (
                                     <StatusItem label="External IP">
-                                        <span className="text-info font-mono text-xs">
+                                        <span className="text-info font-mono text-sm">
                                             {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
                                         </span>
                                     </StatusItem>
@@ -317,7 +317,7 @@ export default function ResourceDetails({ user }) {
 
                                 {spec.clusterIP && (
                                     <StatusItem label="Cluster IP">
-                                        <span className="text-[var(--text-secondary)] font-mono text-xs">{spec.clusterIP}</span>
+                                        <span className="text-[var(--text-secondary)] font-mono text-sm">{spec.clusterIP}</span>
                                     </StatusItem>
                                 )}
 
@@ -346,7 +346,7 @@ export default function ResourceDetails({ user }) {
                                             <DetailRow label="Labels">
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {Object.entries(metadata.labels || {}).map(([k, v]) => (
-                                                        <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-[10px] text-info font-mono">
+                                                        <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-sm text-info font-mono">
                                                             {k}: {v}
                                                         </span>
                                                     ))}
@@ -363,7 +363,7 @@ export default function ResourceDetails({ user }) {
                                             <DetailRow label="Annotations">
                                                 <div className="space-y-1">
                                                     {Object.entries(metadata.annotations || {}).map(([k, v]) => (
-                                                        <div key={k} className="text-xs font-mono text-[var(--text-secondary)]">
+                                                        <div key={k} className="text-sm font-mono text-[var(--text-secondary)]">
                                                             <span className="text-info">{k}</span>: {v}
                                                         </div>
                                                     ))}
@@ -386,7 +386,7 @@ export default function ResourceDetails({ user }) {
                                         <DetailRow label="ConfigMaps">
                                             <div className="flex flex-wrap gap-2">
                                                 {mountedConfigMaps.map(cm => (
-                                                    <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-[10px] text-warning font-mono">
+                                                    <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono">
                                                         {cm}
                                                     </span>
                                                 ))}
@@ -398,7 +398,7 @@ export default function ResourceDetails({ user }) {
                                         <DetailRow label="Secrets">
                                             <div className="flex flex-wrap gap-2">
                                                 {mountedSecrets.map(s => (
-                                                    <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-[10px] text-purple-400 font-mono">
+                                                    <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono">
                                                         {s}
                                                     </span>
                                                 ))}
@@ -411,7 +411,7 @@ export default function ResourceDetails({ user }) {
                                         <DetailRow label="Selectors">
                                             <div className="flex flex-wrap gap-1.5">
                                                 {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
-                                                    <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-[10px] text-[var(--text-secondary)]">
+                                                    <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)]">
                                                         {k}: {v}
                                                     </span>
                                                 ))}
@@ -428,7 +428,7 @@ export default function ResourceDetails({ user }) {
                                                             <Terminal size={12} className="text-info" />
                                                             {c.name}
                                                         </span>
-                                                        <span className="text-[10px] font-mono text-[var(--text-muted)] bg-black/30 px-2 py-0.5 rounded">
+                                                        <span className="text-sm font-mono text-[var(--text-muted)] bg-black/30 px-2 py-0.5 rounded">
                                                             {c.image}
                                                         </span>
                                                     </div>
@@ -451,7 +451,7 @@ export default function ResourceDetails({ user }) {
                                                         )}
                                                     </div>
                                                     <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
-                                                        <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">Health Probes</p>
+                                                        <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">Health Probes</p>
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                             <ProbeDetail label="Liveness" probe={c.livenessProbe} />
                                                             <ProbeDetail label="Readiness" probe={c.readinessProbe} />
@@ -478,7 +478,7 @@ export default function ResourceDetails({ user }) {
                                                 <Clipboard size={16} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
+                                                <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
                                                 <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
                                             </div>
                                         </div>
@@ -501,7 +501,7 @@ export default function ResourceDetails({ user }) {
                                                         const used = q.status?.used?.[res] || '0';
                                                         return (
                                                             <div key={res} className="flex flex-col gap-1">
-                                                                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                                                                <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
                                                                     <span>{res}</span>
                                                                     <span>{used} / {hard}</span>
                                                                 </div>
@@ -530,7 +530,7 @@ export default function ResourceDetails({ user }) {
                                                     <Info size={14} /> {l.metadata.name}
                                                 </h4>
                                                 <table className="w-full text-xs text-left">
-                                                    <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
+                                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
                                                         <tr>
                                                             <th className="px-3 py-2">Type</th>
                                                             <th className="px-3 py-2">Resource</th>
@@ -568,7 +568,7 @@ export default function ResourceDetails({ user }) {
                                                 <Clipboard size={16} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
+                                                <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
                                                 <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
                                             </div>
                                         </div>
@@ -580,7 +580,7 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Recent Events */}
                         <DetailSection title="Recent Events" className="mt-4">
                             <table className="w-full text-sm text-left border-collapse">
-                                <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                     <tr>
                                         <th className="px-6 py-3">Type</th>
                                         <th className="px-6 py-3">Reason</th>
@@ -592,7 +592,7 @@ export default function ResourceDetails({ user }) {
                                     {events && events.length > 0 ? events.slice(0, 10).map((e, i) => (
                                         <tr key={i} className="hover:bg-white/5 transition-colors">
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                                                     {e.type}
                                                 </span>
                                             </td>
@@ -622,20 +622,20 @@ export default function ResourceDetails({ user }) {
                     <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-none">
                         <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
-                                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
+                                <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
                                     {isEditing ? `Editing ${format.toUpperCase()}` : `${format.toUpperCase()} Manifest`}
                                 </span>
                                 {!isEditing && (
                                     <div className="flex bg-black/30 rounded p-0.5">
                                         <button
                                             onClick={() => setFormat('yaml')}
-                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
                                         >
                                             YAML
                                         </button>
                                         <button
                                             onClick={() => setFormat('json')}
-                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
                                         >
                                             JSON
                                         </button>
@@ -647,7 +647,7 @@ export default function ResourceDetails({ user }) {
                                 {canEdit && !isEditing && (
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="text-[10px] font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-widest"
+                                        className="text-xs font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-widest"
                                     >
                                         Edit {format.toUpperCase()}
                                     </button>
@@ -656,7 +656,7 @@ export default function ResourceDetails({ user }) {
                                     <>
                                         <button
                                             onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                            className="text-[10px] font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
+                                            className="text-xs font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
                                             disabled={isSaving}
                                         >
                                             Cancel
@@ -683,7 +683,7 @@ export default function ResourceDetails({ user }) {
                                                     setIsSaving(false);
                                                 }
                                             }}
-                                            className="text-[10px] font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
+                                            className="text-xs font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
                                             disabled={isSaving}
                                         >
                                             {isSaving ? <Activity size={10} className="animate-pulse" /> : <CheckCircle2 size={10} />}
@@ -709,7 +709,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'events' && (
                     <DetailSection title="Recent Events" className="flex-1 min-h-[400px]">
                         <table className="w-full text-sm text-left border-collapse">
-                            <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                            <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                 <tr>
                                     <th className="px-6 py-3">Type</th>
                                     <th className="px-6 py-3">Reason</th>
@@ -721,7 +721,7 @@ export default function ResourceDetails({ user }) {
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                                                 {e.type}
                                             </span>
                                         </td>
@@ -782,7 +782,7 @@ export default function ResourceDetails({ user }) {
                                         />
                                         <button
                                             onClick={() => setLogSearchRegex(!logSearchRegex)}
-                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-[10px] font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-transparent text-white/50 border-transparent hover:text-white'}`}
+                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-transparent text-white/50 border-transparent hover:text-white'}`}
                                             title="Włącz/Wyłącz obsługę wyrażeń regularnych (Regex) w wyszukiwaniu"
                                         >
                                             .*
@@ -790,11 +790,11 @@ export default function ResourceDetails({ user }) {
                                     </div>
 
                                     <div className="flex items-center gap-2 bg-slate-200/50 p-1 rounded-md border border-slate-300">
-                                        <span className="text-[10px] uppercase font-black text-black pl-2">Refresh</span>
+                                        <span className="text-xs uppercase font-black text-black pl-2">Refresh</span>
                                         <select
                                             value={logRefreshInterval}
                                             onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
-                                            className="bg-slate-800 text-[10px] font-bold text-white outline-none rounded px-2 py-0.5 cursor-pointer border border-slate-600"
+                                            className="bg-slate-800 text-xs font-bold text-white outline-none rounded px-2 py-0.5 cursor-pointer border border-slate-600"
                                         >
                                             <option value="0">OFF</option>
                                             <option value="5">5s</option>
@@ -807,7 +807,7 @@ export default function ResourceDetails({ user }) {
 
                                     {spec?.containers?.length > 1 && (
                                         <div className="flex items-center gap-2 bg-black/20 p-1 rounded-md border border-[var(--border-color)]/30 ml-2">
-                                            <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] pl-2">Container</span>
+                                            <span className="text-xs uppercase font-bold text-[var(--text-muted)] pl-2">Container</span>
                                             <select
                                                 value={logContainer}
                                                 onChange={(e) => {
@@ -815,7 +815,7 @@ export default function ResourceDetails({ user }) {
                                                     setLogPage(1);
                                                     setLogs('');
                                                 }}
-                                                className="bg-transparent text-[10px] font-bold text-blue-400 outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                                                className="bg-transparent text-xs font-bold text-info outline-none pr-1 px-2 py-0.5 cursor-pointer"
                                             >
                                                 {spec.containers.map(c => (
                                                     <option key={c.name} value={c.name}>{c.name}</option>
@@ -833,7 +833,7 @@ export default function ResourceDetails({ user }) {
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
                                         </div>
-                                        <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Pagination</span>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Pagination</span>
                                     </label>
 
                                     {logPaginationEnabled && totalPages > 1 && (
@@ -845,7 +845,7 @@ export default function ResourceDetails({ user }) {
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
-                                            <span className="text-[10px] font-mono text-white font-bold px-1 min-w-[3rem] text-center">
+                                            <span className="text-xs font-mono text-white font-bold px-1 min-w-[3rem] text-center">
                                                 PAGE {logPage} / {totalPages}
                                             </span>
                                             <button
@@ -858,7 +858,7 @@ export default function ResourceDetails({ user }) {
                                         </div>
                                     )}
 
-                                    <div className="text-[var(--text-muted)] text-[10px] font-mono flex items-center gap-3">
+                                    <div className="text-[var(--text-muted)] text-xs font-mono flex items-center gap-3">
                                         <span className="flex items-center gap-1.5 text-info font-bold">
                                             <List size={10} />
                                             {filteredLines.length} MATCHES
@@ -921,7 +921,7 @@ export default function ResourceDetails({ user }) {
 function StatusItem({ label, value, children }) {
     return (
         <div className="flex flex-col gap-1 min-w-[100px]">
-            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
+            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
             <div className="text-base font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem] tracking-tight">
                 {children || (value ?? '—')}
             </div>
@@ -933,7 +933,7 @@ function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
             <div className="px-6 py-3 border-b-2 border-slate-600 bg-[var(--bg-sidebar)]/30 flex-shrink-0">
-                <h3 className="text-[10px] font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
+                <h3 className="text-xs font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
                 {children}
@@ -969,7 +969,7 @@ function CodeEditor({ value, onChange, readOnly }) {
             <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
                 {/* Gutter */}
                 <div
-                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-[10px] text-[var(--text-muted)] text-right pr-3 select-none"
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-xs text-[var(--text-muted)] text-right pr-3 select-none"
                 >
                     {lines.map((_, i) => (
                         <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
@@ -995,7 +995,7 @@ function CodeEditor({ value, onChange, readOnly }) {
                     />
                 )}
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -1016,7 +1016,7 @@ function ConditionBadge({ label, status }) {
 function ProbeDetail({ label, probe }) {
     if (!probe) return (
         <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
+            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
             <span className="text-[var(--text-muted)] italic">Not defined</span>
         </div>
     );
@@ -1029,11 +1029,11 @@ function ProbeDetail({ label, probe }) {
 
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
-            <div className="text-[10px] font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
+            <span className="text-xs font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
+            <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
                 {details || 'Unknown'}
             </div>
-            <div className="text-[9px] text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
+            <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
                 <span>Delay: {probe.initialDelaySeconds || 0}s</span>
                 <span>Timeout: {probe.timeoutSeconds || 1}s</span>
                 <span>Period: {probe.periodSeconds || 10}s</span>

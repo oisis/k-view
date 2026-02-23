@@ -81,7 +81,7 @@ export default function Settings({ theme, setTheme }) {
                                     <t.icon size={18} />
                                 </div>
                                 <h3 className="font-bold text-[var(--text-white)]">{t.name}</h3>
-                                <p className="text-[11px] text-[var(--text-muted)] mt-1">{t.desc}</p>
+                                <p className="text-xs text-[var(--text-muted)] mt-1">{t.desc}</p>
 
                                 {theme === t.id && (
                                     <div className="absolute top-4 right-4 text-[var(--accent)]">
@@ -108,14 +108,14 @@ export default function Settings({ theme, setTheme }) {
                             </div>
                             <div className="mt-6 space-y-4">
                                 <div>
-                                    <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Email / Username</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Email / Username</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <Fingerprint size={14} className="text-info" />
                                         {details.email}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Namespace Scope</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Namespace Scope</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <Globe size={14} className="text-info" />
                                         {details.namespace || '<all namespaces>'}
@@ -138,7 +138,7 @@ export default function Settings({ theme, setTheme }) {
                                 </div>
                             </div>
                             <div className="mt-6">
-                                <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Assigned Role</dt>
+                                <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Assigned Role</dt>
                                 <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
                                     {details.role}
                                 </dd>
@@ -157,8 +157,8 @@ export default function Settings({ theme, setTheme }) {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-[var(--bg-muted)]/30">
-                                    <th className="px-6 py-3 text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Resources</th>
-                                    <th className="px-6 py-3 text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Allowed Verbs</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Resources</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Allowed Verbs</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-color)]">

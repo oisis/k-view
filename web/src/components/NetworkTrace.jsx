@@ -75,18 +75,18 @@ export default function NetworkTrace({ kind, namespace, name }) {
 
             if (n.details) {
                 const cleanDetails = n.details.replace(/\n/g, '<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
+                label += `<br/><i style="font-size:12px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
             }
 
             if (n.selectors && Object.keys(n.selectors).length > 0) {
                 const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
+                label += `<br/><i style="font-size:12px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
             }
 
             if (n.labels && Object.keys(n.labels).length > 0) {
                 // Limit to 3 labels maximum visually
                 const labStr = Object.entries(n.labels).slice(0, 3).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:10px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
+                label += `<br/><i style="font-size:12px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
             }
 
             // Mermaid requires node titles containing special chars or quotes to be encased in string literals without inner double quotes.
@@ -110,7 +110,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                     let text = "";
                     if (msg) {
                         const bgClass = e.healthy ? "rgba(21, 128, 61, 0.9)" : "rgba(185, 28, 28, 0.9)";
-                        text = `|"<span style='background:${bgClass}; color:white; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 11px; white-space: nowrap;'>${msg}</span>"|`;
+                        text = `|"<span style='background:${bgClass}; color:white; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 13px; white-space: nowrap;'>${msg}</span>"|`;
                     }
 
                     graphDef += `  N${fromIdx} ${arrow} ${text} N${toIdx}\n`;
@@ -151,7 +151,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
             mermaidRef.current.innerHTML = `
                 <div class='p-4 text-sm border border-red-900/50 bg-red-950/20 rounded text-red-400'>
                   <p class='font-bold mb-1'>Diagram Trace Error</p>
-                  <pre class='text-[10px] mt-2 bg-black/40 p-2 overflow-auto whitespace-pre-wrap'>${escapeHtml(graphDef)}</pre>
+                  <pre class='text-xs mt-2 bg-black/40 p-2 overflow-auto whitespace-pre-wrap'>${escapeHtml(graphDef)}</pre>
                 </div>`;
         }
     };
@@ -166,7 +166,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-[var(--text-white)] uppercase tracking-wider">Network Flow Trace</h2>
-                        <p className="text-[10px] text-[var(--text-muted)] font-mono">
+                        <p className="text-xs text-[var(--text-muted)] font-mono">
                             {kind.toUpperCase()} • {namespace ? `${namespace}/` : ''}{name}
                         </p>
                     </div>
@@ -206,7 +206,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                                                 {n.type}: {n.name}
                                             </span>
                                         </div>
-                                        <p className="text-[10px] text-[var(--text-primary)] mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
+                                        <p className="text-xs text-[var(--text-primary)] mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
                                     </div>
                                 </div>
                             ))}
@@ -214,7 +214,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
 
                         {/* Diagram Container */}
                         <div className="mt-8 bg-[var(--bg-sidebar)]/40 border border-[var(--border-color)] rounded-2xl p-6 overflow-x-auto relative flex items-center justify-center glass shadow-inner">
-                            <div className="absolute top-3 left-3 flex gap-2 text-[10px] font-bold font-mono text-[var(--text-primary)]">
+                            <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold font-mono text-[var(--text-primary)]">
                                 <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Healthy</span>
                                 <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-error"></div> Error</span>
                             </div>

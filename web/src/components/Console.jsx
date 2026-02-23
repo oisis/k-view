@@ -310,7 +310,7 @@ export default function Console() {
                 <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border-color)] h-10 overflow-x-auto no-scrollbar">
                     {suggestions ? (
                         <>
-                            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                            <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
                             {suggestions.items.map((s, i) => (
                                 <button
                                     key={i}
@@ -322,7 +322,7 @@ export default function Console() {
                             ))}
                         </>
                     ) : (
-                        <span className="text-[10px] text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
+                        <span className="text-xs text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
                     )}
                 </div>
 
@@ -344,7 +344,7 @@ export default function Console() {
                 </div>
 
                 {/* Hint / Toolbar */}
-                <div className="px-4 py-1.5 flex gap-4 text-[10px] text-[var(--text-muted)] border-t border-[var(--border-color)] uppercase tracking-widest">
+                <div className="px-4 py-1.5 flex gap-4 text-xs text-[var(--text-muted)] border-t border-[var(--border-color)] uppercase tracking-widest">
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Enter</kbd> execute</span>
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Arrows</kbd> history</span>
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Ctrl+L</kbd> clear</span>

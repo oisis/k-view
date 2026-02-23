@@ -87,7 +87,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         <Server size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />
                                         <span className="flex-1 text-left">{ns}</span>
                                         {isSystem && (
-                                            <span className="text-[10px] text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
+                                            <span className="text-xs text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
                                         )}
                                         {isSelected && <span className="text-info text-xs text-right">✓</span>}
                                     </li>
