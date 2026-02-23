@@ -124,25 +124,25 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                 </Section>
 
                 <Section label="Services" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/network/services" icon={Network} label="Services" active={p === '/network/services'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ingress-classes" icon={Globe} label="Ingress Classes" active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
                     <NavItem href="/network/ingresses" icon={Globe} label="Ingresses" active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/services" icon={Network} label="Services" active={p === '/network/services'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label="Config &amp; Storage" defaultOpen={false} isCollapsed={isCollapsed}>
                     <NavItem href="/config/configmaps" icon={FileText} label="ConfigMaps" active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/secrets" icon={Lock} label="Secrets" active={p === '/config/secrets'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/pvcs" icon={Database} label="PVCs" active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/secrets" icon={Lock} label="Secrets" active={p === '/config/secrets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/storage-classes" icon={Database} label="Storage Classes" active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label="Cluster" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/ingress-classes" icon={Globe} label="Ingress Classes" active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/storage-classes" icon={Database} label="Storage Classes" active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/crd" icon={Puzzle} label="Custom Resources" active={p === '/crd'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
+                    <NavItem href="/crd" icon={Puzzle} label="Custom Resource Definitions" active={p === '/crd'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/network-policies" icon={AlertTriangle} label="Network Policies" active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
+                    <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/pvs" icon={Database} label="Persistent Volumes" active={p === '/config/pvs'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/role-bindings" icon={Key} label="Role Bindings" active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/roles" icon={Key} label="Roles" active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
@@ -150,8 +150,8 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                 </Section>
 
                 <Section label="Tools" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} isCollapsed={isCollapsed} />
                     <NavItem href="/about" icon={Info} label="About" active={p === '/about'} isCollapsed={isCollapsed} />
+                    <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} isCollapsed={isCollapsed} />
                 </Section>
 
                 {/* Settings Section */}
