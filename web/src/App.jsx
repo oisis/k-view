@@ -110,7 +110,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
             <nav className={`flex-1 overflow-y-auto mt-2 transition-all duration-300 ${isCollapsed ? 'px-2' : 'px-2 pb-2'}`}>
 
                 {/* Dashboard — standalone, no section */}
-                <div className="pb-1 space-y-0.5">
+                <div className={`pb-1 ${isCollapsed ? 'flex flex-col items-center gap-0.5 mb-1' : 'space-y-0.5'}`}>
                     <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={p === '/'} isCollapsed={isCollapsed} />
                 </div>
 
