@@ -616,6 +616,18 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 								"name":  "main",
 								"image": "nginx:1.21",
 								"ports": []gin.H{{"containerPort": 80}},
+								"livenessProbe": gin.H{
+									"httpGet": gin.H{"path": "/healthz", "port": 80},
+									"initialDelaySeconds": 15,
+									"timeoutSeconds": 1,
+									"periodSeconds": 10,
+								},
+								"readinessProbe": gin.H{
+									"httpGet": gin.H{"path": "/ready", "port": 80},
+									"initialDelaySeconds": 5,
+									"timeoutSeconds": 1,
+									"periodSeconds": 10,
+								},
 							},
 						},
 						"volumes": []gin.H{
@@ -631,6 +643,16 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 						"name":  "main",
 						"image": "nginx:1.21",
 						"ports": []gin.H{{"containerPort": 80}},
+						"livenessProbe": gin.H{
+							"httpGet": gin.H{"path": "/healthz", "port": 80},
+							"initialDelaySeconds": 15,
+							"periodSeconds": 10,
+						},
+						"readinessProbe": gin.H{
+							"httpGet": gin.H{"path": "/ready", "port": 80},
+							"initialDelaySeconds": 5,
+							"periodSeconds": 10,
+						},
 					},
 				},
 				"volumes": []gin.H{

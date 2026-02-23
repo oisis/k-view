@@ -461,6 +461,14 @@ export default function ResourceDetails({ user }) {
                                                             </div>
                                                         )}
                                                     </div>
+                                                    <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
+                                                        <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">Health Probes</p>
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <ProbeDetail label="Liveness" probe={c.livenessProbe} />
+                                                            <ProbeDetail label="Readiness" probe={c.readinessProbe} />
+                                                            <ProbeDetail label="Startup" probe={c.startupProbe} />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             ))}
                                             {!(isPod ? (spec.containers) : (spec.template?.spec?.containers)) && (
@@ -471,6 +479,24 @@ export default function ResourceDetails({ user }) {
                                 </tbody>
                             </table>
                         </DetailSection>
+
+                        {mountedPvcs.length > 0 && (
+                            <DetailSection title="Persistent Volume Claims" className="mt-4">
+                                <div className="p-4 flex flex-wrap gap-3">
+                                    {mountedPvcs.map(pvc => (
+                                        <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
+                                            <div className="p-2 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
+                                                <Clipboard size={16} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
+                                                <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </DetailSection>
+                        )}
 
                         {kind === 'namespaces' && (
                             <>
@@ -977,6 +1003,35 @@ function ConditionBadge({ label, status }) {
                 <AlertCircle size={12} className="text-warning" />
             )}
             <span className="text-xs text-[var(--text-secondary)]">{label}</span>
+        </div>
+    );
+}
+
+function ProbeDetail({ label, probe }) {
+    if (!probe) return (
+        <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
+            <span className="text-[var(--text-muted)] italic">Not defined</span>
+        </div>
+    );
+
+    let details = '';
+    if (probe.httpGet) details = `HTTP ${probe.httpGet.port} ${probe.httpGet.path}`;
+    else if (probe.tcpSocket) details = `TCP ${probe.tcpSocket.port}`;
+    else if (probe.exec) details = `Exec ${probe.exec.command?.join(' ')}`;
+    else if (probe.grpc) details = `GRPC ${probe.grpc.port || ''} ${probe.grpc.service || ''}`;
+
+    return (
+        <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
+            <div className="text-[10px] font-mono text-info bg-black/20 p-1.5 rounded border border-[var(--border-color)]/30">
+                {details || 'Unknown'}
+            </div>
+            <div className="text-[9px] text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
+                <span>Delay: {probe.initialDelaySeconds || 0}s</span>
+                <span>Timeout: {probe.timeoutSeconds || 1}s</span>
+                <span>Period: {probe.periodSeconds || 10}s</span>
+            </div>
         </div>
     );
 }
