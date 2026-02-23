@@ -282,6 +282,8 @@ function getVal(item, key) {
 function StatusBadge({ value }) {
     const v = String(value);
     const map = {
+        Normal: 'bg-info/10 text-black border-info',
+        Warning: 'bg-warning/10 text-warning border-warning/20',
         Running: 'bg-success/10 text-success border-success/20',
         Active: 'bg-success/10 text-success border-success/20',
         Complete: 'bg-purple/10 text-purple border-purple/20',
@@ -322,6 +324,7 @@ export default function ResourceList({ kind }) {
 
     // Sorting state
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Fetch namespaces on mount
     useEffect(() => {
@@ -373,6 +376,17 @@ export default function ResourceList({ kind }) {
         return result;
     }, [items, sortConfig]);
 
+    const filteredItems = useMemo(() => {
+        if (!searchTerm) return sortedItems;
+        const lowercasedTerm = searchTerm.toLowerCase();
+        return sortedItems.filter(item => {
+            return schema.cols.some(col => {
+                const val = getVal(item, col.key);
+                return String(val).toLowerCase().includes(lowercasedTerm);
+            });
+        });
+    }, [sortedItems, searchTerm, schema.cols]);
+
     const requestSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -391,11 +405,18 @@ export default function ResourceList({ kind }) {
                 <div>
                     <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">{schema.title}</h2>
                     <p className="text-[var(--text-secondary)] text-sm">
-                        {loading ? 'Loading...' : `${sortedItems.length} item${sortedItems.length !== 1 ? 's' : ''}`}
+                        {loading ? 'Loading...' : `${filteredItems.length} item${filteredItems.length !== 1 ? 's' : ''}`}
                         {namespace && ` in "${namespace}"`}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10"
+                    />
                     {isNamespaced && (
                         <NamespaceSelect
                             namespaces={namespaces}
@@ -442,11 +463,11 @@ export default function ResourceList({ kind }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
-                            {loading && sortedItems.length === 0 ? (
+                            {loading && filteredItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">Loading...</td></tr>
-                            ) : sortedItems.length === 0 ? (
+                            ) : filteredItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">No {kind.replace(/-/g, ' ')} found.</td></tr>
-                            ) : sortedItems.map((item, i) => (
+                            ) : filteredItems.map((item, i) => (
                                 <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
