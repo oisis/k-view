@@ -4,6 +4,7 @@ import {
     Server, Activity, Cpu, Database, Hash,
     ShieldCheck, AlertCircle, Info, RefreshCw, Box
 } from 'lucide-react';
+import { useSettings } from '../SettingsContext';
 
 // --- Mini Chart Component (SVG) ---
 function MiniChart({ data, color, label }) {
@@ -86,6 +87,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
 }
 
 export default function Dashboard({ isCollapsed }) {
+    const { settings } = useSettings();
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -103,9 +105,9 @@ export default function Dashboard({ isCollapsed }) {
 
     useEffect(() => {
         fetchStats();
-        const interval = setInterval(fetchStats, 5000);
+        const interval = setInterval(fetchStats, settings.resourceRefreshInterval * 1000);
         return () => clearInterval(interval);
-    }, [fetchStats]);
+    }, [fetchStats, settings.resourceRefreshInterval]);
 
     if (loading && !stats) {
         return (
@@ -124,7 +126,7 @@ export default function Dashboard({ isCollapsed }) {
                     <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
                     <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
                         <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
-                        Connected as <span className="font-mono text-[var(--accent)] font-bold">{stats?.clusterName || 'Local Cluster'}</span>
+                        Connected as <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
                 <button
@@ -170,7 +172,7 @@ export default function Dashboard({ isCollapsed }) {
                 {/* Cluster Identity */}
                 <MetricCard
                     title="Cluster Platform"
-                    value={stats?.clusterName || "K8s Cluster"}
+                    value={settings.clusterName || stats?.clusterName || "K8s Cluster"}
                     subValue={`Version: ${stats?.k8sVersion || '—'}`}
                     icon={ShieldCheck}
                     color="cyan"

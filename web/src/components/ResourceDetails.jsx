@@ -7,8 +7,10 @@ import {
 } from 'lucide-react';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
+import { useSettings } from '../SettingsContext';
 
 export default function ResourceDetails({ user }) {
+    const { settings } = useSettings();
     const { kind, namespace, name } = useParams();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -40,7 +42,7 @@ export default function ResourceDetails({ user }) {
     const [saveError, setSaveError] = useState(null);
 
     // Logs enhancements state
-    const [logRefreshInterval, setLogRefreshInterval] = useState(0); // in seconds
+    const [logRefreshInterval, setLogRefreshInterval] = useState(settings.logsRefreshInterval); // in seconds
     const [logSearchTerm, setLogSearchTerm] = useState('');
     const [logSearchRegex, setLogSearchRegex] = useState(false);
     const [logPaginationEnabled, setLogPaginationEnabled] = useState(true);
@@ -339,11 +341,16 @@ export default function ResourceDetails({ user }) {
                                             <DetailRow label="Created" value={new Date(metadata.creationTimestamp).toLocaleString()} />
                                             <DetailRow label="Labels">
                                                 <div className="flex flex-wrap gap-1.5">
-                                                    {Object.entries(metadata.labels || {}).map(([k, v]) => (
+                                                    {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
                                                         <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-sm text-info font-mono">
                                                             {k}: {v}
                                                         </span>
                                                     ))}
+                                                    {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
+                                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded border border-[var(--border-color)] self-center">
+                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} more
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </DetailRow>
                                         </tbody>
@@ -361,6 +368,11 @@ export default function ResourceDetails({ user }) {
                                                             <span className="text-info">{k}</span>: {v}
                                                         </div>
                                                     ))}
+                                                    {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
+                                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded-md border border-[var(--border-color)] self-center">
+                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} more
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </DetailRow>
                                         </tbody>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical } from 'lucide-react';
+import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
+import { useSettings } from '../SettingsContext';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -309,12 +310,18 @@ function StatusBadge({ value }) {
 }
 
 export default function ResourceList({ kind }) {
+    const { settings } = useSettings();
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
-    const [namespace, setNamespace] = useState(localStorage.getItem('kview-selected-namespace') || '');
+    const [namespace, setNamespace] = useState(() => {
+        const saved = localStorage.getItem('kview-selected-namespace');
+        if (saved !== null) return saved;
+        return settings.defaultNamespace;
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
 
     // Persist namespace
@@ -346,6 +353,15 @@ export default function ResourceList({ kind }) {
     }, [kind, namespace]);
 
     useEffect(() => { load(); }, [load]);
+
+    useEffect(() => {
+        const interval = setInterval(load, settings.resourceRefreshInterval * 1000);
+        return () => clearInterval(interval);
+    }, [load, settings.resourceRefreshInterval]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, namespace, kind]);
 
     // Sorting logic
     const sortedItems = useMemo(() => {
@@ -387,6 +403,12 @@ export default function ResourceList({ kind }) {
         });
     }, [sortedItems, searchTerm, schema.cols]);
 
+    const totalPages = Math.ceil(filteredItems.length / settings.itemsPerPage);
+    const paginatedItems = useMemo(() => {
+        const start = (currentPage - 1) * settings.itemsPerPage;
+        return filteredItems.slice(start, start + settings.itemsPerPage);
+    }, [filteredItems, currentPage, settings.itemsPerPage]);
+
     const requestSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -407,6 +429,7 @@ export default function ResourceList({ kind }) {
                     <p className="text-[var(--text-secondary)] text-sm">
                         {loading ? 'Loading...' : `${filteredItems.length} item${filteredItems.length !== 1 ? 's' : ''}`}
                         {namespace && ` in "${namespace}"`}
+                        {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -463,11 +486,11 @@ export default function ResourceList({ kind }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
-                            {loading && filteredItems.length === 0 ? (
+                            {loading && paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">Loading...</td></tr>
-                            ) : filteredItems.length === 0 ? (
+                            ) : paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">No {kind.replace(/-/g, ' ')} found.</td></tr>
-                            ) : filteredItems.map((item, i) => (
+                            ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
@@ -518,6 +541,51 @@ export default function ResourceList({ kind }) {
                 </div>
             </div>
 
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-between bg-[var(--bg-glass)] glass rounded-xl border border-[var(--border-color)] px-6 py-4">
+                    <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                        Showing {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} of {filteredItems.length}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                                .map((p, i, arr) => (
+                                    <React.Fragment key={p}>
+                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-[var(--text-muted)] px-1">...</span>}
+                                        <button
+                                            onClick={() => setCurrentPage(p)}
+                                            className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
+                                                ${currentPage === p
+                                                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                                                    : 'text-[var(--text-muted)] hover:text-[var(--text-white)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    </React.Fragment>
+                                ))
+                            }
+                        </div>
+
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
