@@ -462,6 +462,38 @@ export default function ResourceDetails({ user }) {
                             </table>
                         </DetailSection>
 
+                        {/* Section: Conditions */}
+                        {(status.conditions || []).length > 0 && (
+                            <DetailSection title="Conditions">
+                                <table className="w-full text-sm text-left border-collapse">
+                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                        <tr>
+                                            <th className="px-6 py-3">Type</th>
+                                            <th className="px-6 py-3">Status</th>
+                                            <th className="px-6 py-3">Last Transition</th>
+                                            <th className="px-6 py-3">Reason</th>
+                                            <th className="px-6 py-3">Message</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[var(--border-color)]">
+                                        {status.conditions.map(c => (
+                                            <tr key={c.type} className="hover:bg-white/5 transition-colors">
+                                                <td className="px-6 py-4 font-medium text-[var(--text-white)]">{c.type}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                                        {c.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-[var(--text-secondary)]">{new Date(c.lastTransitionTime).toLocaleString()}</td>
+                                                <td className="px-6 py-4 text-[var(--text-secondary)]">{c.reason}</td>
+                                                <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{c.message}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </DetailSection>
+                        )}
+
                         {mountedPvcs.length > 0 && (
                             <DetailSection title="Persistent Volume Claims" className="mt-4">
                                 <div className="p-4 flex flex-wrap gap-3">

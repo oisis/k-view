@@ -690,6 +690,22 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 						},
 					},
 				},
+				"conditions": []gin.H{
+					{
+						"type":               "Ready",
+						"status":             "True",
+						"lastTransitionTime": "2024-02-18T10:00:00Z",
+						"reason":             "PodReady",
+						"message":            "Pod is ready",
+					},
+					{
+						"type":               "Initialized",
+						"status":             "True",
+						"lastTransitionTime": "2024-02-18T09:59:50Z",
+						"reason":             "PodInitialized",
+						"message":            "Pod has been initialized",
+					},
+				},
 			},
 			"metrics": gin.H{
 				"containers": []gin.H{
