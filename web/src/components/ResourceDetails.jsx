@@ -266,7 +266,6 @@ export default function ResourceDetails({ user }) {
                                 {isPod && (
                                     <StatusItem label="Ready">
                                         <div className="flex flex-col ml-1">
-                                            <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-bold mb-0.5">Ready</span>
                                             <span className={readyCount === totalContainers ? 'text-success' : 'text-warning'}>
                                                 {readyCount}/{totalContainers}
                                             </span>
