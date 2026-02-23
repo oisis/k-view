@@ -12,7 +12,10 @@ K-View is configured primarily via environment variables (for the backend) and `
 | `OIDC_CLIENT_SECRET` | OAuth2 Client Secret for Google SSO. | (Required) |
 | `OIDC_ISSUER` | OIDC Issuer URL. | `https://accounts.google.com` |
 | `KVIEW_REDIRECT_URI` | Authorized redirect URI for OAuth2. | (Computed) |
+| `KVIEW_ENABLE_SSO` | Globally enable or disable Google SSO login. | `true` |
+| `KVIEW_AUTHORIZED_USERS` | Comma-separated list of emails allowed to log in via SSO. | (Empty = None) |
 | `RBAC_CONFIG_FILE` | Path to the YAML file defining role assignments. | `/etc/k-view/rbac.yaml` |
+| `KVIEW_DEBUG` | Enables additional debug logging in the backend. | `false` |
 
 ## Helm Configuration (`values.yaml`)
 
@@ -23,6 +26,8 @@ oidc:
   issuer: "https://accounts.google.com"
   clientId: "xxx-google-client-id-xxx"
   clientSecret: "xxx-google-client-secret-xxx"
+  # List of emails allowed to log in via Google SSO
+  authorizedUsers: "user@example.com, admin@domain.com"
 ```
 
 ### Ingress

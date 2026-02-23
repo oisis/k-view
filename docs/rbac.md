@@ -41,6 +41,12 @@ When enabled, K-View leverages the `Impersonate-User` header. This means that:
 
 This ensures that a user cannot bypass cluster-level security settings via the dashboard.
 
+## 3. Admin Panel (Access Control)
+Administrators can verify current permissions and assignments via the **Admin Panel** (`/access`):
+- **User Groups**: Displays the current user's email, assigned role, and effective resource permissions.
+- **Role Definitions**: Shows the exact Kubernetes `ClusterRole` definitions for all K-View internal roles, including their API Groups, Resources, and Verbs.
+- **Global Assignments**: A live list of all `ClusterRoleBinding` and `RoleBinding` objects in the cluster that assign K-View roles to users or groups (identified by the `kview-` prefix).
+
 ## Security Best Practices
 - **Least Privilege**: Only assign `kview-cluster-admin` to trusted administrators.
 - **Enable TLS**: Always run K-View behind a TLS-enabled Ingress to protect OIDC tokens.
