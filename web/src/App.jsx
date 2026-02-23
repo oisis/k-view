@@ -37,24 +37,25 @@ function Section({ label, children, defaultOpen = true, isCollapsed }) {
         });
     };
 
+    if (isCollapsed) {
+        return <div className="flex flex-col items-center gap-0.5 mb-1">{children}</div>;
+    }
+
     return (
-        <div className={`transition-all duration-300 ${isCollapsed ? 'mb-2' : ''}`}>
+        <div className="transition-all duration-300">
             <button
                 onClick={toggle}
-                className={`w-full flex items-center justify-between px-2 pt-3 pb-1 group ${isCollapsed ? 'justify-center' : ''}`}
+                className="w-full flex items-center justify-between px-2 pt-3 pb-1 group"
             >
-                <span className={`text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors ${isCollapsed ? 'hidden' : 'block'}`}>
+                <span className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors block">
                     {label}
                 </span>
-                {isCollapsed ? (
-                    <div className="w-full h-px bg-[var(--border-color)]/50 mt-2" title={label} />
-                ) : (
-                    open
-                        ? <ChevronDown size={10} className="text-[var(--text-muted)]" />
-                        : <ChevronRight size={10} className="text-[var(--text-muted)]" />
-                )}
+                {open
+                    ? <ChevronDown size={10} className="text-[var(--text-muted)]" />
+                    : <ChevronRight size={10} className="text-[var(--text-muted)]" />
+                }
             </button>
-            {open && <div className={`space-y-0.5 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>{children}</div>}
+            {open && <div className="space-y-0.5">{children}</div>}
         </div>
     );
 }
