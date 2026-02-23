@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -74,13 +75,80 @@ func (h *RBACHandler) GetStatus(c *gin.Context) {
 		rules = []Rule{{Resource: "Unknown", Verbs: "No Access"}}
 	}
 
+	allAssignments := h.config.Assignments
+	if !h.devMode {
+		live := h.fetchLiveAssignments(c.Request.Context())
+		allAssignments = append(allAssignments, live...)
+	}
+
 	c.JSON(http.StatusOK, StatusResponse{
 		Email:       email.(string),
 		Role:        role.(string),
 		Namespace:   namespace,
 		Rules:       rules,
-		Assignments: h.config.Assignments,
+		Assignments: allAssignments,
 	})
+}
+
+func (h *RBACHandler) fetchLiveAssignments(ctx context.Context) []rbac.Assignment {
+	dyn, err := h.k8sProvider.GetDynamicClient(ctx)
+	if err != nil {
+		return nil
+	}
+
+	var results []rbac.Assignment
+
+	// Fetch ClusterRoleBindings
+	crbGVR := schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
+	crbList, err := dyn.Resource(crbGVR).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		for _, item := range crbList.Items {
+			if strings.HasPrefix(item.GetName(), "kview-") {
+				results = append(results, extractAssignments(item.Object, "")...)
+			}
+		}
+	}
+
+	// Fetch RoleBindings (All namespaces)
+	rbGVR := schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+	rbList, err := dyn.Resource(rbGVR).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		for _, item := range rbList.Items {
+			if strings.HasPrefix(item.GetName(), "kview-") {
+				results = append(results, extractAssignments(item.Object, item.GetNamespace())...)
+			}
+		}
+	}
+
+	return results
+}
+
+func extractAssignments(obj map[string]interface{}, ns string) []rbac.Assignment {
+	var list []rbac.Assignment
+	roleRef, _, _ := unstructured.NestedMap(obj, "roleRef")
+	roleName := ""
+	if roleRef != nil {
+		roleName, _ = roleRef["name"].(string)
+	}
+
+	subjects, _, _ := unstructured.NestedSlice(obj, "subjects")
+	for _, s := range subjects {
+		subjectMap, ok := s.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		kind, _ := subjectMap["kind"].(string)
+		name, _ := subjectMap["name"].(string)
+
+		a := rbac.Assignment{Role: roleName, Namespace: ns}
+		if kind == "User" || kind == "ServiceAccount" {
+			a.User = name
+		} else if kind == "Group" {
+			a.Group = name
+		}
+		list = append(list, a)
+	}
+	return list
 }
 
 // ListRoles returns all ClusterRoles labeled as part of k-view.

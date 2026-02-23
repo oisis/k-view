@@ -9,10 +9,10 @@ import (
 )
 
 type Assignment struct {
-	User      string `yaml:"user,omitempty"`
-	Group     string `yaml:"group,omitempty"`
-	Role      string `yaml:"role"`
-	Namespace string `yaml:"namespace,omitempty"`
+	User      string `yaml:"user,omitempty" json:"user,omitempty"`
+	Group     string `yaml:"group,omitempty" json:"group,omitempty"`
+	Role      string `yaml:"role" json:"role"`
+	Namespace string `yaml:"namespace,omitempty" json:"namespace,omitempty"`
 }
 
 type RBACConfig struct {

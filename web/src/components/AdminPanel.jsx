@@ -174,7 +174,7 @@ export default function AdminPanel() {
                     <table className="w-full text-left text-sm text-[var(--text-primary)]">
                         <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
-                                <th className="px-6 py-3">Subject</th>
+                                <th className="px-6 py-3">{t('user')}</th>
                                 <th className="px-6 py-3">Type</th>
                                 <th className="px-6 py-3">Role</th>
                                 <th className="px-6 py-3">Namespace</th>
@@ -183,7 +183,7 @@ export default function AdminPanel() {
                         <tbody>
                             {!status?.assignments || status.assignments.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">No static assignments loaded.</td>
+                                    <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">No k-view role bindings detected in the cluster.</td>
                                 </tr>
                             ) : (
                                 status.assignments.map((assignment, i) => (
@@ -200,7 +200,7 @@ export default function AdminPanel() {
                                             {assignment.role}
                                         </td>
                                         <td className="px-6 py-4 text-[var(--text-muted)]">
-                                            {assignment.namespace || <span className="text-xs bg-purple-900/30 text-purple-400 px-1.5 py-0.5 rounded border border-purple-800/50">Cluster-Wide</span>}
+                                            {assignment.namespace || <span className="text-xs bg-[var(--text-purple)]/10 text-purple px-1.5 py-0.5 rounded border border-[var(--text-purple)]/20">Cluster-Wide</span>}
                                         </td>
                                     </tr>
                                 ))

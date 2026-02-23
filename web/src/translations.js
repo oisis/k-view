@@ -229,6 +229,7 @@ export const translations = {
         role_definitions: 'Role Definitions',
         api_groups: 'API Groups',
         verbs: 'Verbs',
+        user: 'User',
 
         // Statuses
         running: 'Running',
@@ -1615,6 +1616,7 @@ export const translations = {
         role_definitions: 'Definicje Ról',
         api_groups: 'Grupy API',
         verbs: 'Czasowniki (Akcje)',
+        user: 'Użytkownik',
 
         // Statuses
         running: 'Uruchomione',
