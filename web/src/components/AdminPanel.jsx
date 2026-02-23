@@ -22,7 +22,7 @@ export default function AdminPanel() {
     if (error) {
         return (
             <div className="p-8">
-                <div className="p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg">
+                <div className="p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">
                     {error}
                 </div>
             </div>
@@ -34,7 +34,7 @@ export default function AdminPanel() {
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="text-2xl font-bold text-[var(--text-white)] mb-2 flex items-center gap-2">
-                        <Key className="text-blue-400" /> Access Overview
+                        <Key className="text-info" /> Access Overview
                     </h2>
                     <p className="text-[var(--text-secondary)]">View cluster access assignments and your permissions</p>
                 </div>
@@ -48,11 +48,11 @@ export default function AdminPanel() {
             <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50 flex justify-between items-center">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
-                        <ShieldAlert className="text-blue-400" size={18} /> My Permissions
+                        <ShieldAlert className="text-info" size={18} /> My Permissions
                     </h3>
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-[var(--text-muted)]">Effective Role:</span>
-                        <span className="px-2.5 py-1 rounded text-xs font-semibold bg-blue-900/40 text-blue-300 border border-blue-800">
+                        <span className="px-2.5 py-1 rounded text-xs font-semibold bg-info/10 text-info border border-info/20">
                             {status?.role} {status?.namespace ? `(${status.namespace})` : ''}
                         </span>
                     </div>
@@ -110,7 +110,7 @@ export default function AdminPanel() {
                                                 {assignment.user ? 'User' : 'Group'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-blue-400 font-mono text-xs">
+                                        <td className="px-6 py-4 text-info font-mono text-xs">
                                             {assignment.role}
                                         </td>
                                         <td className="px-6 py-4 text-[var(--text-muted)]">

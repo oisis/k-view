@@ -37,7 +37,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
         <div className="relative" ref={containerRef}>
             <button
                 onClick={() => setOpen(o => !o)}
-                className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors min-w-[200px] justify-between"
+                className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
             >
                 <span className="flex items-center gap-2">
                     <Server size={14} className="text-[var(--text-muted)]" />
@@ -82,14 +82,14 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         key={ns}
                                         onClick={() => selectNs(ns)}
                                         className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors
-                      ${isSelected ? 'bg-blue-900/50 text-blue-300' : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)]'}`}
+                      ${isSelected ? 'bg-info/10 text-info' : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)]'}`}
                                     >
                                         <Server size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />
                                         <span className="flex-1 text-left">{ns}</span>
                                         {isSystem && (
                                             <span className="text-[10px] text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
                                         )}
-                                        {isSelected && <span className="text-blue-400 text-xs text-right">✓</span>}
+                                        {isSelected && <span className="text-info text-xs text-right">✓</span>}
                                     </li>
                                 );
                             })

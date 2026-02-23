@@ -22,7 +22,7 @@ function RoleBadge({ role }) {
         );
     }
     return (
-        <span className="flex items-center gap-1 text-xs font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+        <span className="flex items-center gap-1 text-xs font-semibold text-info bg-info/10 px-2 py-0.5 rounded-full">
             <Layers size={10} /> worker
         </span>
     );
@@ -87,7 +87,7 @@ export default function Nodes() {
             {/* Stats cards */}
             {!loading && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard label="Total Nodes" value={nodes.length} icon={Server} color="bg-blue-500/10 text-blue-400" />
+                    <StatCard label="Total Nodes" value={nodes.length} icon={Server} color="bg-info/10 text-info" />
                     <StatCard label="Ready" value={ready} sub={`${notReady} Not Ready`} icon={CheckCircle} color="bg-green-500/10 text-green-500" />
                     <StatCard label="Control Plane" value={controlPlane} icon={Shield} color="bg-purple-500/10 text-purple-400" />
                     <StatCard label="Workers" value={workers} icon={Layers} color="bg-cyan-500/10 text-cyan-400" />
@@ -128,7 +128,7 @@ export default function Nodes() {
                                                 <Server size={14} className="text-[var(--text-muted)] shrink-0" />
                                                 <Link
                                                     to={`/nodes/-/${node.name}`}
-                                                    className="text-blue-400 hover:text-blue-300 transition-colors underline decoration-blue-800/30 underline-offset-4"
+                                                    className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
                                                 >
                                                     {node.name}
                                                 </Link>

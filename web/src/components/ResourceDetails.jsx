@@ -346,7 +346,7 @@ export default function ResourceDetails({ user }) {
                                             <DetailRow label="Labels">
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {Object.entries(metadata.labels || {}).map(([k, v]) => (
-                                                        <span key={k} className="px-2 py-0.5 bg-blue-900/10 border border-blue-800/30 rounded text-[10px] text-info font-mono">
+                                                        <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-[10px] text-info font-mono">
                                                             {k}: {v}
                                                         </span>
                                                     ))}
@@ -629,13 +629,13 @@ export default function ResourceDetails({ user }) {
                                     <div className="flex bg-black/30 rounded p-0.5">
                                         <button
                                             onClick={() => setFormat('yaml')}
-                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'yaml' ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
                                         >
                                             YAML
                                         </button>
                                         <button
                                             onClick={() => setFormat('json')}
-                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'json' ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-[9px] font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
                                         >
                                             JSON
                                         </button>
@@ -647,7 +647,7 @@ export default function ResourceDetails({ user }) {
                                 {canEdit && !isEditing && (
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="text-[10px] font-bold px-3 py-1 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 transition-colors uppercase tracking-widest"
+                                        className="text-[10px] font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-widest"
                                     >
                                         Edit {format.toUpperCase()}
                                     </button>
@@ -772,13 +772,13 @@ export default function ResourceDetails({ user }) {
                             <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b-2 border-slate-600 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative group">
-                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-blue-400 transition-colors" />
+                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-info transition-colors" />
                                         <input
                                             type="text"
                                             placeholder="Search logs..."
                                             value={logSearchTerm}
                                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
-                                            className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 w-64 transition-all"
+                                            className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-info/50 w-64 transition-all"
                                         />
                                         <button
                                             onClick={() => setLogSearchRegex(!logSearchRegex)}
@@ -828,7 +828,7 @@ export default function ResourceDetails({ user }) {
                                 <div className="flex items-center gap-4">
                                     <label className="flex items-center gap-2 cursor-pointer group">
                                         <div
-                                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-blue-600' : 'bg-[var(--border-color)]'}`}
+                                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-info' : 'bg-[var(--border-color)]'}`}
                                             onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
@@ -841,7 +841,7 @@ export default function ResourceDetails({ user }) {
                                             <button
                                                 disabled={logPage === 1}
                                                 onClick={() => setLogPage(p => Math.max(1, p - 1))}
-                                                className="p-0.5 text-[var(--text-muted)] hover:text-blue-400 disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
@@ -851,7 +851,7 @@ export default function ResourceDetails({ user }) {
                                             <button
                                                 disabled={logPage === totalPages}
                                                 onClick={() => setLogPage(p => Math.min(totalPages, p + 1))}
-                                                className="p-0.5 text-[var(--text-muted)] hover:text-blue-400 disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                             >
                                                 <ChevronRight size={14} />
                                             </button>
@@ -1030,7 +1030,7 @@ function ProbeDetail({ label, probe }) {
     return (
         <div className="flex flex-col gap-1">
             <span className="text-[10px] font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
-            <div className="text-[10px] font-mono text-info bg-black/20 p-1.5 rounded border border-[var(--border-color)]/30">
+            <div className="text-[10px] font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
                 {details || 'Unknown'}
             </div>
             <div className="text-[9px] text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">

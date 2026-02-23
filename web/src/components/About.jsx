@@ -22,7 +22,7 @@ export default function About() {
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
                     <div className="p-6">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                            <div className="p-3 bg-info/10 text-info rounded-xl border border-info/20">
                                 <Info size={32} />
                             </div>
                             <div>
@@ -40,7 +40,7 @@ export default function About() {
                                 <div className="pt-2">
                                     <dt className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]">Homepage</dt>
                                     <dd className="mt-1">
-                                        <a href="https://github.com/oisis/k-view" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors underline decoration-dotted underline-offset-4 font-mono text-sm">
+                                        <a href="https://github.com/oisis/k-view" target="_blank" rel="noopener noreferrer" className="text-info hover:text-info/80 transition-colors underline decoration-dotted underline-offset-4 font-mono text-sm">
                                             https://github.com/oisis/k-view
                                         </a>
                                     </dd>

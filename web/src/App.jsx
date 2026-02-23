@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Nodes from './components/Nodes';
-import UserInfo from './components/UserInfo';
+import Settings from './components/Settings';
 import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
@@ -18,7 +18,7 @@ import {
     Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
-    Settings, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
+    Settings as SettingsIcon, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
     Layers, Repeat, ShieldCheck
 } from 'lucide-react';
 
@@ -155,44 +155,9 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                 <Section label="Tools" defaultOpen={false} isCollapsed={isCollapsed}>
                     <NavItem href="/about" icon={Info} label="About" active={p === '/about'} isCollapsed={isCollapsed} />
                     <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} isCollapsed={isCollapsed} />
-                    <NavItem href="/tools/user-info" icon={User} label="User Info" active={p === '/tools/user-info'} isCollapsed={isCollapsed} />
+                    <NavItem href="/settings" icon={SettingsIcon} label="Settings" active={p === '/settings'} isCollapsed={isCollapsed} />
                 </Section>
 
-                {/* Settings Section */}
-                <div className={`mt-auto pt-4 transition-all duration-300 ${isCollapsed ? 'opacity-0 scale-95 pointer-events-none h-0 p-0 overflow-hidden' : 'opacity-100 scale-100'}`}>
-                    {!isCollapsed && (
-                        <Section label="Appearance" defaultOpen={true} isCollapsed={isCollapsed}>
-                            <div className="px-1 py-2">
-                                <div className="grid grid-cols-3 gap-1.5 bg-black/20 p-1.5 rounded-xl border border-[var(--border-color)]">
-                                    <button
-                                        onClick={() => setTheme('default')}
-                                        className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'default' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
-                                        title="K-view Theme"
-                                    >
-                                        <ShieldCheck size={14} />
-                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">K-view</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setTheme('light')}
-                                        className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'light' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
-                                        title="Crisp Light"
-                                    >
-                                        <Sun size={14} />
-                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Light</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setTheme('black')}
-                                        className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'black' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
-                                        title="Dark Theme"
-                                    >
-                                        <Palette size={14} />
-                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Dark</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </Section>
-                    )}
-                </div>
             </nav>
 
             {/* Bottom: admin + mode label + logout */}
@@ -337,7 +302,7 @@ function App() {
                         <Route path="/nodes" element={protect(<Nodes />)} />
                         <Route path="/console" element={protect(<Console />)} />
                         <Route path="/about" element={protect(<About />)} />
-                        <Route path="/tools/user-info" element={protect(<UserInfo />)} />
+                        <Route path="/settings" element={protect(<Settings theme={theme} setTheme={setTheme} />)} />
 
                         {/* Workloads */}
                         <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />

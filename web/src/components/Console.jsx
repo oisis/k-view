@@ -134,7 +134,7 @@ export default function Console() {
                     <span
                         key={idx}
                         onClick={() => onTokenClick('ns', word)}
-                        className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-blue-400 hover:bg-blue-900/30 px-0.5 -mx-0.5 rounded transition-all"
+                        className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-info hover:bg-info/10 px-0.5 -mx-0.5 rounded transition-all"
                         title="Click to add namespace to command"
                     >
                         {word}
@@ -148,7 +148,7 @@ export default function Console() {
                         <span
                             key={idx}
                             onClick={() => onTokenClick('pod', word)}
-                            className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-blue-400 hover:bg-blue-900/30 px-0.5 -mx-0.5 rounded transition-all"
+                            className="cursor-pointer underline decoration-dotted underline-offset-2 hover:text-info hover:bg-info/10 px-0.5 -mx-0.5 rounded transition-all"
                             title="Click to add pod name to command"
                         >
                             {word}
@@ -315,7 +315,7 @@ export default function Console() {
                                 <button
                                     key={i}
                                     onClick={() => handleSuggestionClick(s.val)}
-                                    className="px-2.5 py-1 bg-info/10 hover:bg-info/20 text-info hover:text-blue-600 border border-info/30 hover:border-info/50 rounded text-xs transition-all whitespace-nowrap font-bold"
+                                    className="px-2.5 py-1 bg-info/10 hover:bg-info/20 text-info border border-info/30 hover:border-info/50 rounded text-xs transition-all whitespace-nowrap font-bold"
                                 >
                                     {s.label}
                                 </button>
