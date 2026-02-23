@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Nodes from './components/Nodes';
+import UserInfo from './components/UserInfo';
 import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
@@ -16,7 +17,7 @@ import {
     LayoutDashboard, Server, Terminal, LogOut, FlaskConical, ShieldAlert,
     Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
-    Shield, Key, Users, Link, AlertTriangle, Globe2, Activity,
+    Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
     Settings, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
     Layers, Repeat
 } from 'lucide-react';
@@ -153,6 +154,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                 <Section label="Tools" defaultOpen={false} isCollapsed={isCollapsed}>
                     <NavItem href="/about" icon={Info} label="About" active={p === '/about'} isCollapsed={isCollapsed} />
                     <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} isCollapsed={isCollapsed} />
+                    <NavItem href="/tools/user-info" icon={User} label="User Info" active={p === '/tools/user-info'} isCollapsed={isCollapsed} />
                 </Section>
 
                 {/* Settings Section */}
@@ -334,6 +336,7 @@ function App() {
                         <Route path="/nodes" element={protect(<Nodes />)} />
                         <Route path="/console" element={protect(<Console />)} />
                         <Route path="/about" element={protect(<About />)} />
+                        <Route path="/tools/user-info" element={protect(<UserInfo />)} />
 
                         {/* Workloads */}
                         <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />

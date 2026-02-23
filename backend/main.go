@@ -111,6 +111,7 @@ func main() {
 		{
 			// /auth/me needs to be here so AuthMiddleware populates the email context
 			protected.GET("/auth/me", authHandler.Me)
+			protected.GET("/auth/details", rbacHandler.GetMyDetails)
 			protected.GET("/pods", podHandler.ListPods)
 			protected.GET("/namespaces", podHandler.ListNamespaces)
 			protected.GET("/nodes", nodeHandler.ListNodes)

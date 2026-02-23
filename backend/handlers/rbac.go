@@ -71,3 +71,50 @@ func (h *RBACHandler) GetStatus(c *gin.Context) {
 		Assignments: h.config.Assignments,
 	})
 }
+
+// GetMyDetails returns the current user's computed permissions.
+func (h *RBACHandler) GetMyDetails(c *gin.Context) {
+	email, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+		return
+	}
+	role, exists := c.Get("role")
+	if !exists {
+		role = "viewer"
+	}
+	ns, _ := c.Get("namespace")
+	
+	namespace := ""
+	if ns != nil {
+		namespace = ns.(string)
+	}
+
+	var rules []Rule
+	switch strings.ToLower(role.(string)) {
+	case "kview-cluster-admin", "admin":
+		rules = []Rule{{Resource: "All Resources", Verbs: "All Access (*)"}}
+	case "kview-cluster-developer":
+		rules = []Rule{
+			{Resource: "Pods, Deployments, Services", Verbs: "Get, List, Create, Update, Delete"},
+			{Resource: "Namespaces, Nodes", Verbs: "Get, List (Read-Only)"},
+		}
+	case "kview-cluster-viewer", "viewer":
+		rules = []Rule{{Resource: "Most Resources (excluding Secrets)", Verbs: "Get, List (Read-Only)"}}
+	case "kview-namespace-admin":
+		rules = []Rule{{Resource: "All Resources in " + namespace, Verbs: "All Access (*)"}}
+	case "kview-namespace-developer":
+		rules = []Rule{{Resource: "Pods, Deployments, Services in " + namespace, Verbs: "Get, List, Create, Update, Delete"}}
+	case "kview-namespace-viewer":
+		rules = []Rule{{Resource: "Most Resources in " + namespace, Verbs: "Get, List (Read-Only)"}}
+	default:
+		rules = []Rule{{Resource: "Unknown", Verbs: "No Access"}}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"email":     email.(string),
+		"role":      role.(string),
+		"namespace": namespace,
+		"rules":     rules,
+	})
+}
