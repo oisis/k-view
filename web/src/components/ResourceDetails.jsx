@@ -213,7 +213,7 @@ export default function ResourceDetails({ user }) {
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
-                            {kind.replace(/s$/, '')}
+                            {t(kind.toLowerCase().replace(/s$/, '')) || (kind.replace(/s$/, ''))}
                         </span>
                         <h2 className="text-3xl font-black text-[var(--text-white)] tracking-tight">
                             {name}

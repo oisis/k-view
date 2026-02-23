@@ -17,8 +17,8 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
-    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'deployment', 'statefulset', 'daemonset'].includes(kind.toLowerCase());
-    const isScalable = ['deployments', 'statefulsets', 'deployment', 'statefulset'].includes(kind.toLowerCase());
+    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller'].includes(kind.toLowerCase());
+    const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
 
     useEffect(() => {
         function handleClickOutside(event) {
