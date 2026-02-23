@@ -337,32 +337,42 @@ export default function ResourceDetails({ user }) {
 
                         {/* Section: Metadata */}
                         <DetailSection title="Metadata">
-                            <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-slate-600">
-                                    <DetailRow label="Name" value={name} />
-                                    <DetailRow label="Namespace" value={namespace === '-' ? '—' : namespace} />
-                                    <DetailRow label="UID" value={metadata.uid} />
-                                    <DetailRow label="Created" value={new Date(metadata.creationTimestamp).toLocaleString()} />
-                                    <DetailRow label="Labels">
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {Object.entries(metadata.labels || {}).map(([k, v]) => (
-                                                <span key={k} className="px-2 py-0.5 bg-blue-900/10 border border-blue-800/30 rounded text-[10px] text-info font-mono">
-                                                    {k}: {v}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </DetailRow>
-                                    <DetailRow label="Annotations">
-                                        <div className="space-y-1">
-                                            {Object.entries(metadata.annotations || {}).map(([k, v]) => (
-                                                <div key={k} className="text-[10px] font-mono text-[var(--text-secondary)]">
-                                                    <span className="text-info">{k}</span>: {v}
+                            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600">
+                                <div>
+                                    <table className="w-full text-sm text-left border-collapse">
+                                        <tbody className="divide-y divide-slate-600">
+                                            <DetailRow label="Name" value={name} />
+                                            <DetailRow label="Created" value={new Date(metadata.creationTimestamp).toLocaleString()} />
+                                            <DetailRow label="Labels">
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {Object.entries(metadata.labels || {}).map(([k, v]) => (
+                                                        <span key={k} className="px-2 py-0.5 bg-blue-900/10 border border-blue-800/30 rounded text-[10px] text-info font-mono">
+                                                            {k}: {v}
+                                                        </span>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </DetailRow>
-                                </tbody>
-                            </table>
+                                            </DetailRow>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div>
+                                    <table className="w-full text-sm text-left border-collapse">
+                                        <tbody className="divide-y divide-slate-600">
+                                            <DetailRow label="Namespace" value={namespace === '-' ? '—' : namespace} />
+                                            <DetailRow label="UID" value={metadata.uid} />
+                                            <DetailRow label="Annotations">
+                                                <div className="space-y-1">
+                                                    {Object.entries(metadata.annotations || {}).map(([k, v]) => (
+                                                        <div key={k} className="text-xs font-mono text-[var(--text-secondary)]">
+                                                            <span className="text-info">{k}</span>: {v}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </DetailRow>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </DetailSection>
 
                         {/* Section: Resource Info (Spec) */}
