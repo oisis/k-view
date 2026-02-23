@@ -19,7 +19,7 @@ import {
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
     Settings, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
-    Layers, Repeat
+    Layers, Repeat, ShieldCheck
 } from 'lucide-react';
 
 // ── Collapsible section ────────────────────────────────────────────────────
@@ -166,10 +166,10 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                                     <button
                                         onClick={() => setTheme('default')}
                                         className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'default' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
-                                        title="Midnight Navy"
+                                        title="K-view Theme"
                                     >
-                                        <Moon size={14} />
-                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Dark</span>
+                                        <ShieldCheck size={14} />
+                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">K-view</span>
                                     </button>
                                     <button
                                         onClick={() => setTheme('light')}
@@ -182,10 +182,10 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                                     <button
                                         onClick={() => setTheme('black')}
                                         className={`flex flex-col items-center justify-center py-2.5 rounded-lg transition-all ${theme === 'black' ? 'bg-[var(--bg-card)] text-[var(--accent)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
-                                        title="OLED Black"
+                                        title="Dark Theme"
                                     >
                                         <Palette size={14} />
-                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">OLED</span>
+                                        <span className="text-[9px] mt-1.5 font-bold uppercase tracking-tighter">Dark</span>
                                     </button>
                                 </div>
                             </div>
