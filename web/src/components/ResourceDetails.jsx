@@ -320,16 +320,10 @@ export default function ResourceDetails({ user }) {
                                     </StatusItem>
                                 )}
 
-                                {(status.conditions || []).length > 0 && (
-                                    <div className="flex-1 border-l border-[var(--border-color)]/50 pl-12">
-                                        <StatusItem label="Conditions">
-                                            <div className="flex flex-wrap gap-3">
-                                                {status.conditions.slice(0, 4).map(c => (
-                                                    <ConditionBadge key={c.type} label={c.type} status={c.status} />
-                                                ))}
-                                            </div>
-                                        </StatusItem>
-                                    </div>
+                                {isPod && spec.nodeName && (
+                                    <StatusItem label="Host">
+                                        <span className="text-[var(--text-white)] font-mono text-sm">{spec.nodeName}</span>
+                                    </StatusItem>
                                 )}
                             </div>
                         </div>

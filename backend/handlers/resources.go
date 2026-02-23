@@ -607,6 +607,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": "4"},
 			},
 			"spec": gin.H{
+				"nodeName": "mock-node-1",
 				"replicas": 3,
 				"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
 				"template": gin.H{
