@@ -39,7 +39,7 @@ jobs:
   build-and-push-docker:
     runs-on: ubuntu-latest
     needs: changes
-    if: needs.changes.outputs.app == 'true'
+    if: needs.changes.outputs.app == 'true' && contains(github.event.head_commit.message, '[build]')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -89,7 +89,7 @@ jobs:
   package-and-push-helm:
     runs-on: ubuntu-latest
     needs: [changes, build-and-push-docker]
-    if: always() && (needs.changes.outputs.app == 'true' || needs.changes.outputs.charts == 'true') && (needs.build-and-push-docker.result == 'success' || needs.build-and-push-docker.result == 'skipped')
+    if: always() && contains(github.event.head_commit.message, '[build]') && (needs.changes.outputs.app == 'true' || needs.changes.outputs.charts == 'true') && (needs.build-and-push-docker.result == 'success' || needs.build-and-push-docker.result == 'skipped')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
