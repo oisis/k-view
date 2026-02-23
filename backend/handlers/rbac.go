@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -78,7 +79,7 @@ func (h *RBACHandler) GetStatus(c *gin.Context) {
 	allAssignments := h.config.Assignments
 	if !h.devMode {
 		live := h.fetchLiveAssignments(c.Request.Context())
-		allAssignments = append(allAssignments, live...)
+		allAssignments = deduplicateAssignments(append(allAssignments, live...))
 	}
 
 	c.JSON(http.StatusOK, StatusResponse{
@@ -149,6 +150,22 @@ func extractAssignments(obj map[string]interface{}, ns string) []rbac.Assignment
 		list = append(list, a)
 	}
 	return list
+}
+
+func deduplicateAssignments(assignments []rbac.Assignment) []rbac.Assignment {
+	seen := make(map[string]bool)
+	var result []rbac.Assignment
+
+	for _, a := range assignments {
+		// Create a unique key for the assignment
+		key := fmt.Sprintf("%s|%s|%s|%s", a.User, a.Group, a.Role, a.Namespace)
+		if !seen[key] {
+			seen[key] = true
+			result = append(result, a)
+		}
+	}
+
+	return result
 }
 
 // ListRoles returns all ClusterRoles labeled as part of k-view.

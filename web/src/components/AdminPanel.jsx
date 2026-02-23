@@ -137,7 +137,7 @@ export default function AdminPanel() {
                                                 {role.rules?.map((rule, idx) => (
                                                     <tr key={idx} className="hover:bg-[var(--bg-muted)]/30">
                                                         <td className="px-4 py-2 border-r border-[var(--border-color)] font-mono text-[var(--text-secondary)]">
-                                                            {rule.apiGroups?.length > 0 ? rule.apiGroups.join(', ') : '"" (core)'}
+                                                            {rule.apiGroups?.map(g => g === "" ? "(core)" : g).join(', ')}
                                                         </td>
                                                         <td className="px-4 py-2 border-r border-[var(--border-color)] text-[var(--text-primary)]">
                                                             <div className="flex flex-wrap gap-1">
