@@ -229,6 +229,7 @@ window.fetch = async (...args) => {
 
 // ── App ────────────────────────────────────────────────────────────────────
 function App() {
+    const { t } = useTranslation();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [theme, setTheme] = useState(() => localStorage.getItem('kview-theme') || 'default');
