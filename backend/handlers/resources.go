@@ -628,6 +628,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 									"timeoutSeconds": 1,
 									"periodSeconds": 10,
 								},
+								"startupProbe": gin.H{
+									"httpGet": gin.H{"path": "/healthz", "port": 80},
+									"initialDelaySeconds": 30,
+									"timeoutSeconds": 1,
+									"periodSeconds": 5,
+								},
 							},
 						},
 						"volumes": []gin.H{
@@ -652,6 +658,11 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 							"httpGet": gin.H{"path": "/ready", "port": 80},
 							"initialDelaySeconds": 5,
 							"periodSeconds": 10,
+						},
+						"startupProbe": gin.H{
+							"httpGet": gin.H{"path": "/healthz", "port": 80},
+							"initialDelaySeconds": 30,
+							"periodSeconds": 5,
 						},
 					},
 				},

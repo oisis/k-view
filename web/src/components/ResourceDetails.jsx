@@ -406,17 +406,6 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
-                                    {mountedPvcs.length > 0 && (
-                                        <DetailRow label="Volumes (PVC)">
-                                            <div className="flex flex-wrap gap-2">
-                                                {mountedPvcs.map(pvc => (
-                                                    <span key={pvc} className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-[10px] text-info font-mono">
-                                                        {pvc}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </DetailRow>
-                                    )}
 
                                     {(spec.selector?.matchLabels || spec.selector) && (
                                         <DetailRow label="Selectors">
@@ -569,6 +558,23 @@ export default function ResourceDetails({ user }) {
                                     </div>
                                 </DetailSection>
                             </>
+                        )}
+                        {mountedPvcs.length > 0 && (
+                            <DetailSection title="Persistent Volume Claims" className="mt-4">
+                                <div className="p-4 flex flex-wrap gap-3">
+                                    {mountedPvcs.map(pvc => (
+                                        <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
+                                            <div className="p-2 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
+                                                <Clipboard size={16} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
+                                                <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </DetailSection>
                         )}
 
                         {/* Section: Recent Events */}
