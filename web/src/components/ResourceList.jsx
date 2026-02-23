@@ -202,6 +202,16 @@ const SCHEMAS = {
             { key: 'age', label: 'Age' },
         ],
     },
+    events: {
+        title: 'Events',
+        cols: [
+            { key: 'extra.last-seen', label: 'Last Seen' },
+            { key: 'extra.type', label: 'Type', badge: true },
+            { key: 'extra.reason', label: 'Reason' },
+            { key: 'extra.object', label: 'Object' },
+            { key: 'extra.message', label: 'Message' },
+        ],
+    },
     namespaces: {
         title: 'Namespaces',
         cols: [

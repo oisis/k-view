@@ -63,6 +63,8 @@ func getGVR(kind string) schema.GroupVersionResource {
 		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
 	case "namespaces":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
+	case "events":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	case "nodes":
 		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
 	case "pvs":
@@ -479,6 +481,36 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok {
 				extra["cluster-ip"] = cip
+			}
+		case "events":
+			if eType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
+				extra["type"] = eType
+				if eType == "Warning" {
+					status = "Warning"
+				}
+			}
+			if reason, ok, _ := unstructured.NestedString(item.Object, "reason"); ok {
+				extra["reason"] = reason
+			}
+			if message, ok, _ := unstructured.NestedString(item.Object, "message"); ok {
+				extra["message"] = message
+			}
+			kind, _, _ := unstructured.NestedString(item.Object, "involvedObject", "kind")
+			name, _, _ := unstructured.NestedString(item.Object, "involvedObject", "name")
+			extra["object"] = fmt.Sprintf("%s/%s", kind, name)
+			
+			lastSeen := ""
+			if ls, ok, _ := unstructured.NestedString(item.Object, "lastTimestamp"); ok && ls != "" {
+				if t, err := time.Parse(time.RFC3339, ls); err == nil {
+					lastSeen = getAge(t)
+				}
+			} else if es, ok, _ := unstructured.NestedString(item.Object, "eventTime"); ok && es != "" {
+				if t, err := time.Parse(time.RFC3339, es); err == nil {
+					lastSeen = getAge(t)
+				}
+			}
+			if lastSeen != "" {
+				extra["last-seen"] = lastSeen
 			}
 		case "ingresses":
 			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok {
@@ -1342,6 +1374,13 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "kube-system", Age: "30d", Status: "Active"},
 			{Name: "kube-public", Age: "30d", Status: "Active"},
 			{Name: "kube-node-lease", Age: "30d", Status: "Active"},
+		}
+
+	case "events":
+		items = []ResourceItem{
+			{Name: "default-token.181a0e", Namespace: "default", Age: "10m", Status: "Normal", Extra: ex("type", "Normal", "reason", "Created", "object", "ServiceAccount/default", "message", "Created service account token", "last-seen", "10m")},
+			{Name: "frontend-web.181a1f", Namespace: "default", Age: "5m", Status: "Warning", Extra: ex("type", "Warning", "reason", "BackOff", "object", "Pod/frontend-web-5d8f7b", "message", "Back-off restarting failed container", "last-seen", "1m")},
+			{Name: "backend-api.181a2b", Namespace: "default", Age: "15m", Status: "Normal", Extra: ex("type", "Normal", "reason", "Scheduled", "object", "Pod/backend-api-6c9f8c", "message", "Successfully assigned default/backend-api-6c9f8c to node-1", "last-seen", "15m")},
 		}
 
 	case "network-policies":

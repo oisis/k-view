@@ -140,6 +140,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                     <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
                     <NavItem href="/crd" icon={Puzzle} label="Custom Resource Definitions" active={p === '/crd'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/events" icon={Activity} label="Events" active={p === '/cluster/events'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/network-policies" icon={AlertTriangle} label="Network Policies" active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
                     <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} isCollapsed={isCollapsed} />
@@ -362,6 +363,7 @@ function App() {
                         <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
                         <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
                         <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
+                        <Route path="/cluster/events" element={protect(<ResourceList kind="events" />)} />
                         <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
                         <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
                         <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />
