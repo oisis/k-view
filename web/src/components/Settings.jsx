@@ -2,6 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { User, Shield, Activity, Fingerprint, Globe, Sun, Moon, Palette, ShieldCheck, Check, LayoutGrid, Clock, List, Languages, Server, RefreshCw } from 'lucide-react';
 import { useSettings, useTranslation } from '../SettingsContext';
 
+const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, max, placeholder, description }) => (
+    <div className="space-y-2">
+        <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+            <Icon size={14} /> {label}
+        </label>
+        <div className="relative">
+            <input
+                type={type}
+                value={value}
+                onChange={(e) => onChange(type === 'number' ? parseInt(e.target.value) || 0 : e.target.value)}
+                min={min}
+                max={max}
+                placeholder={placeholder}
+                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all"
+            />
+        </div>
+        {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
+    </div>
+);
+
+const SelectField = ({ label, icon: Icon, value, onChange, options, description }) => (
+    <div className="space-y-2">
+        <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+            <Icon size={14} /> {label}
+        </label>
+        <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
+        >
+            {options.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+        </select>
+        {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
+    </div>
+);
+
 export default function Settings({ theme, setTheme }) {
     const { settings, updateSettings } = useSettings();
     const { t } = useTranslation();
@@ -83,43 +121,6 @@ export default function Settings({ theme, setTheme }) {
         );
     }
 
-    const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, max, placeholder, description }) => (
-        <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                <Icon size={14} /> {label}
-            </label>
-            <div className="relative">
-                <input
-                    type={type}
-                    value={value}
-                    onChange={(e) => onChange(type === 'number' ? parseInt(e.target.value) || 0 : e.target.value)}
-                    min={min}
-                    max={max}
-                    placeholder={placeholder}
-                    className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all"
-                />
-            </div>
-            {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
-        </div>
-    );
-
-    const SelectField = ({ label, icon: Icon, value, onChange, options, description }) => (
-        <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                <Icon size={14} /> {label}
-            </label>
-            <select
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
-            >
-                {options.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-            </select>
-            {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
-        </div>
-    );
 
     return (
         <div className="flex-1 overflow-auto bg-[var(--bg-main)] text-[var(--text-primary)]">
