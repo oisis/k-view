@@ -322,6 +322,7 @@ export default function ResourceList({ kind }) {
         if (saved !== null) return saved;
         return settings.defaultNamespace;
     });
+    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();

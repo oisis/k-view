@@ -9,16 +9,16 @@
 
 :root,
 .theme-default {
-  --bg-main: #0B0F19;
-  /* Midnight Navy */
+  --bg-main: rgba(11, 15, 25, 0.8);
+  /* Midnight Navy with transparency for wallpaper */
   --bg-sidebar: #0F172A;
   /* Deep Navy */
-  --bg-card: #111827;
-  /* Card Navy */
+  --bg-card: rgba(17, 24, 39, 0.7);
+  /* Unified transparency for glass effect */
   --bg-card-hover: #1E293B;
   --bg-muted: #111827;
-  --border-color: #1E293B;
-  /* Solid Slate 800 - Dark Medium Gray */
+  --border-color: #334155;
+  /* Slate 700 - Slightly more prominent */
   --border-muted: #111827;
   --text-primary: #F9FAFB;
   /* Bright Off-White */
@@ -45,9 +45,9 @@
 
 .theme-light {
   --bg-main: rgba(203, 213, 225, 0.6);
-  --bg-sidebar: rgba(226, 232, 240, 0.5);
-  --bg-card: rgba(241, 245, 249, 0.5);
-  --bg-card-hover: rgba(226, 232, 240, 0.7);
+  --bg-sidebar: rgba(226, 232, 240, 0.6);
+  --bg-card: rgba(241, 245, 249, 0.7);
+  --bg-card-hover: rgba(226, 232, 240, 0.6);
   --bg-muted: rgba(203, 213, 225, 0.6);
   --border-color: #475569;
   /* Solid Slate 600 - Clearly visible Dark Gray for Light Mode */
@@ -78,14 +78,14 @@
 }
 
 .theme-black {
-  --bg-main: #000000;
-  /* OLED Black */
-  --bg-sidebar: #000000;
-  --bg-card: #0A0A0A;
+  --bg-main: rgba(0, 0, 0, 0.8);
+  /* OLED Black with transparency for wallpaper */
+  --bg-sidebar: rgba(0, 0, 0, 0.8);
+  --bg-card: rgba(10, 10, 10, 0.7);
   --bg-card-hover: #111111;
   --bg-muted: #000000;
-  --border-color: #18181B;
-  /* Zinc 900 - Very subtle Dark Gray for Black Mode */
+  --border-color: #27272A;
+  /* Zinc 800 - Slightly more prominent */
   --border-muted: #09090B;
   --text-primary: #FAFAFA;
   --text-white: #FFFFFF;

@@ -97,7 +97,8 @@ export default function Login() {
 
     return (
         <div className="flex items-center justify-center min-h-screen">
-            <div className="bg-[var(--bg-card)] p-8 rounded-lg shadow-xl max-w-sm w-full border border-[var(--border-color)]">
+            <div className="bg-[var(--bg-card)] p-8 rounded-2xl shadow-2xl max-w-sm w-full border border-[var(--border-color)] glass relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
                 <div className="text-center mb-8 relative z-10">
                     <h1 className="text-3xl font-bold text-blue-400 mb-2">K-View</h1>
                     <p className="text-[var(--text-secondary)]">Kubernetes Dashboard</p>
@@ -185,7 +186,7 @@ export default function Login() {
                         <p className="text-xs text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
                         <button
                             onClick={handleDevLogin}
-                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-yellow-500 bg-yellow-900/30 hover:bg-yellow-900/50 border border-yellow-800 transition-colors"
+                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-bold text-black bg-yellow-400 hover:bg-yellow-500 transition-colors shadow-lg"
                         >
                             ⚡ Dev Login (admin@kview.local)
                         </button>

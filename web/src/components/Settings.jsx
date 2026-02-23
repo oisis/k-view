@@ -173,8 +173,8 @@ export default function Settings({ theme, setTheme }) {
                                 onClick={() => setTheme(t.id)}
                                 className={`flex flex-col text-left p-4 rounded-xl border transition-all duration-200 group relative
                                     ${theme === t.id
-                                        ? 'bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
-                                        : 'bg-[var(--bg-sidebar)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
+                                        ? 'bg-info/10 bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
+                                        : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
                             >
                                 <div className={`p-2 w-fit rounded-lg mb-3 ${theme === t.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-white)]'}`}>
                                     <t.icon size={18} />

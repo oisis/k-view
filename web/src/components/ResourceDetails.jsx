@@ -460,9 +460,9 @@ export default function ResourceDetails({ user }) {
                                                     <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
                                                         <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            <ProbeDetail label={t('liveness')} probe={c.livenessProbe} />
-                                                            <ProbeDetail label={t('readiness')} probe={c.readinessProbe} />
-                                                            <ProbeDetail label={t('startup')} probe={c.startupProbe} />
+                                                            <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
+                                                            <ProbeDetail label={t('readiness')} probe={c.readinessProbe} t={t} />
+                                                            <ProbeDetail label={t('startup')} probe={c.startupProbe} t={t} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1062,7 +1062,7 @@ function ConditionBadge({ label, status }) {
     );
 }
 
-function ProbeDetail({ label, probe }) {
+function ProbeDetail({ label, probe, t }) {
     if (!probe) return (
         <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
