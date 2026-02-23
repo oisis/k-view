@@ -951,8 +951,10 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	}
 
 	// Use Update instead of Apply for simplicity and broad compatibility with unstructured objects
+	fmt.Printf("[UpdateYAML] Attempting to update %s %s in namespace %s\n", kind, name, ns)
 	_, err = resInterface.Update(c.Request.Context(), &obj, metav1.UpdateOptions{})
 	if err != nil {
+		fmt.Printf("[UpdateYAML] Error updating %s %s: %v\n", kind, name, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update resource: " + err.Error()})
 		return
 	}

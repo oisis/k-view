@@ -41,6 +41,7 @@ export default function ResourceDetails({ user }) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     // Logs enhancements state
     const [logRefreshInterval, setLogRefreshInterval] = useState(settings.logsRefreshInterval); // in seconds
@@ -665,7 +666,8 @@ export default function ResourceDetails({ user }) {
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
-                                {saveError && <span className="text-xs text-error mr-2">{saveError}</span>}
+                                {saveError && <span className="text-xs text-error mr-2 animate-pulse">{saveError}</span>}
+                                {showSuccess && <span className="text-xs text-success mr-2 flex items-center gap-1"><CheckCircle2 size={12} /> {t('resource_updated_successfully') || 'Resource updated successfully'}</span>}
                                 {canEdit && !isEditing && (
                                     <button
                                         onClick={() => setIsEditing(true)}
@@ -688,17 +690,28 @@ export default function ResourceDetails({ user }) {
                                                 setIsSaving(true);
                                                 setSaveError(null);
                                                 try {
-                                                    const nsPath = namespace ? `/${namespace}` : '/-';
+                                                    const nsPath = namespace && namespace !== '-' ? `/${namespace}` : '/-';
                                                     const res = await fetch(`/api/resources/${kind}${nsPath}/${name}/yaml`, {
                                                         method: 'PUT',
                                                         body: editedYaml
                                                     });
                                                     if (!res.ok) {
-                                                        const errData = await res.json();
-                                                        throw new Error(errData.error || 'Failed to save');
+                                                        let errorMessage = 'Failed to save';
+                                                        try {
+                                                            const errData = await res.json();
+                                                            errorMessage = errData.error || errorMessage;
+                                                        } catch (jsonErr) {
+                                                            // If not JSON, try to get text
+                                                            const textErr = await res.text();
+                                                            if (textErr) errorMessage = textErr;
+                                                        }
+                                                        throw new Error(errorMessage);
                                                     }
                                                     setYaml(editedYaml);
                                                     setIsEditing(false);
+                                                    setShowSuccess(true);
+                                                    setTimeout(() => setShowSuccess(false), 5000);
+                                                    fetchData(); // Refresh all tabs data
                                                 } catch (e) {
                                                     setSaveError(e.message);
                                                 } finally {
@@ -963,7 +976,7 @@ export default function ResourceDetails({ user }) {
                     />
                 )}
             </div>
-        </div>
+        </div >
     );
 }
 

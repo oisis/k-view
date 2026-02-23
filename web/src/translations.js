@@ -225,6 +225,7 @@ export const translations = {
         mounted_pvcs: 'Persistent Volume Claims',
         no_resource_quotas_found: 'No resource quotas defined.',
         no_limit_ranges_found: 'No limit ranges defined.',
+        resource_updated_successfully: 'Resource updated successfully',
 
         // Statuses
         running: 'Running',
@@ -1607,6 +1608,7 @@ export const translations = {
         mounted_pvcs: 'Persistent Volume Claims',
         no_resource_quotas_found: 'Nie zdefiniowano limitów zasobów.',
         no_limit_ranges_found: 'Nie zdefiniowano zalecanych limitów.',
+        resource_updated_successfully: 'Zasób został pomyślnie zaktualizowany',
 
         // Statuses
         running: 'Uruchomione',
