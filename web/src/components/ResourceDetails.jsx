@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
     ChevronLeft, FileText, List, Terminal, Search, RefreshCw, ChevronRight,
     Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal,
-    ChevronRight as ChevronRightIcon
+    ChevronRight as ChevronRightIcon, ChevronsLeft, ChevronsRight
 } from 'lucide-react';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
@@ -47,6 +47,7 @@ export default function ResourceDetails({ user }) {
     const [logPage, setLogPage] = useState(1);
     const [logLinesPerPage] = useState(36);
     const [logContainer, setLogContainer] = useState('');
+    const [logWrapLines, setLogWrapLines] = useState(false);
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
 
@@ -853,7 +854,16 @@ export default function ResourceDetails({ user }) {
                                 <div className="flex items-center gap-4">
                                     <label className="flex items-center gap-2 cursor-pointer group">
                                         <div
-                                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-info' : 'bg-[var(--border-color)]'}`}
+                                            className={`w-8 h-4 rounded-full relative transition-colors ${logWrapLines ? 'bg-info' : 'bg-slate-700'}`}
+                                            onClick={() => setLogWrapLines(!logWrapLines)}
+                                        >
+                                            <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
+                                        </div>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Wrap Lines</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <div
+                                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-info' : 'bg-slate-700'}`}
                                             onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
@@ -862,23 +872,41 @@ export default function ResourceDetails({ user }) {
                                     </label>
 
                                     {logPaginationEnabled && totalPages > 1 && (
-                                        <div className="flex items-center gap-2 bg-black/30 rounded px-2 py-1 border border-[var(--border-color)]/30">
+                                        <div className="flex items-center gap-1 bg-black/30 rounded px-2 py-1 border border-[var(--border-color)]/30">
+                                            <button
+                                                disabled={logPage === 1}
+                                                onClick={() => setLogPage(1)}
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                title="First Page"
+                                            >
+                                                <ChevronsLeft size={14} />
+                                            </button>
                                             <button
                                                 disabled={logPage === 1}
                                                 onClick={() => setLogPage(p => Math.max(1, p - 1))}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                title="Previous Page"
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
-                                            <span className="text-xs font-mono text-white font-bold px-1 min-w-[3rem] text-center">
-                                                PAGE {logPage} / {totalPages}
+                                            <span className="text-xs font-mono text-white font-bold px-1 min-w-[4rem] text-center">
+                                                {logPage} / {totalPages}
                                             </span>
                                             <button
                                                 disabled={logPage === totalPages}
                                                 onClick={() => setLogPage(p => Math.min(totalPages, p + 1))}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                title="Next Page"
                                             >
                                                 <ChevronRight size={14} />
+                                            </button>
+                                            <button
+                                                disabled={logPage === totalPages}
+                                                onClick={() => setLogPage(totalPages)}
+                                                className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
+                                                title="Last Page"
+                                            >
+                                                <ChevronsRight size={14} />
                                             </button>
                                         </div>
                                     )}
@@ -899,7 +927,7 @@ export default function ResourceDetails({ user }) {
                             </div>
 
                             {/* Log Display */}
-                            <div className="flex-1 pt-2 px-6 pb-6 font-mono text-xs overflow-auto whitespace-pre scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)]">
+                            <div className={`flex-1 pt-2 px-6 pb-6 font-mono text-xs overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)] ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}>
                                 {displayedLines.length > 0 ? (
                                     displayedLines.map((line, i) => {
                                         // Simple syntax highlighting hint (can be expanded)
