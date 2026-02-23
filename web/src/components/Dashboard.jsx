@@ -4,7 +4,7 @@ import {
     Server, Activity, Cpu, Database, Hash,
     ShieldCheck, AlertCircle, Info, RefreshCw, Box
 } from 'lucide-react';
-import { useSettings } from '../SettingsContext';
+import { useSettings, useTranslation } from '../SettingsContext';
 
 // --- Mini Chart Component (SVG) ---
 function MiniChart({ data, color, label }) {
@@ -88,6 +88,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
 
 export default function Dashboard({ isCollapsed }) {
     const { settings } = useSettings();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -123,10 +124,10 @@ export default function Dashboard({ isCollapsed }) {
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">System Overview</h2>
+                    <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">{t('system_overview')}</h2>
                     <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
                         <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
-                        Connected as <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
+                        {t('connected_as')} <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
                 <button
@@ -134,7 +135,7 @@ export default function Dashboard({ isCollapsed }) {
                     className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
                 >
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                    Refresh Stats
+                    {t('reload')}
                 </button>
             </div>
 

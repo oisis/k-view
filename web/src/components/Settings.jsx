@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { User, Shield, Activity, Fingerprint, Globe, Sun, Moon, Palette, ShieldCheck, Check, LayoutGrid, Clock, List, Languages, Server, RefreshCw } from 'lucide-react';
-import { useSettings } from '../SettingsContext';
+import { useSettings, useTranslation } from '../SettingsContext';
 
 export default function Settings({ theme, setTheme }) {
     const { settings, updateSettings } = useSettings();
+    const { t } = useTranslation();
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -129,7 +130,7 @@ export default function Settings({ theme, setTheme }) {
                             <Palette size={20} />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+                            <h1 className="text-2xl font-bold tracking-tight">{t('settings')}</h1>
                             <p className="text-[13px] text-[var(--text-muted)] mt-1">Manage your interface preferences and view session details.</p>
                         </div>
                     </div>
@@ -144,7 +145,7 @@ export default function Settings({ theme, setTheme }) {
                                     : 'bg-transparent border-transparent text-[var(--text-muted)] cursor-default'}`}
                         >
                             <RefreshCw size={16} />
-                            Reload
+                            {t('reload')}
                         </button>
                         <button
                             onClick={handleSave}
@@ -155,7 +156,7 @@ export default function Settings({ theme, setTheme }) {
                                     : 'bg-[var(--bg-muted)] text-[var(--text-muted)] cursor-default'}`}
                         >
                             <ShieldCheck size={16} />
-                            Save Changes
+                            {t('save_changes')}
                         </button>
                     </div>
                 </div>
@@ -195,12 +196,12 @@ export default function Settings({ theme, setTheme }) {
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden glass shadow-sm">
                     <div className="p-6 border-b border-[var(--border-color)]">
                         <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <Server size={18} className="text-info" /> Cluster Configuration
+                            <Server size={18} className="text-info" /> {t('cluster_configuration')}
                         </h2>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <InputField
-                            label="Custom Cluster Name"
+                            label={t('custom_cluster_name')}
                             icon={Fingerprint}
                             value={draftSettings.clusterName}
                             onChange={(v) => handleUpdateDraft({ clusterName: v })}
@@ -208,12 +209,12 @@ export default function Settings({ theme, setTheme }) {
                             description="Will be displayed in the Dashboard instead of the detected platform name."
                         />
                         <SelectField
-                            label="Default Namespace"
+                            label={t('default_namespace')}
                             icon={Globe}
                             value={draftSettings.defaultNamespace}
                             onChange={(v) => handleUpdateDraft({ defaultNamespace: v })}
                             options={[
-                                { value: '', label: 'All Namespaces' },
+                                { value: '', label: t('all_namespaces') },
                                 ...namespaces.map(ns => ({ value: ns, label: ns }))
                             ]}
                             description="The namespace that will be selected by default on all resource lists."
@@ -225,12 +226,12 @@ export default function Settings({ theme, setTheme }) {
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden glass shadow-sm">
                     <div className="p-6 border-b border-[var(--border-color)]">
                         <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <LayoutGrid size={18} className="text-purple-400" /> Interface Preferences
+                            <LayoutGrid size={18} className="text-purple-400" /> {t('interface_preferences')}
                         </h2>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <InputField
-                            label="Items per page"
+                            label={t('items_per_page')}
                             icon={List}
                             type="number"
                             min={5}
@@ -240,7 +241,7 @@ export default function Settings({ theme, setTheme }) {
                             description="Number of resources to display per page in lists."
                         />
                         <InputField
-                            label="Labels limit"
+                            label={t('labels_limit')}
                             icon={Shield}
                             type="number"
                             min={1}
@@ -250,7 +251,7 @@ export default function Settings({ theme, setTheme }) {
                             description="Maximum number of labels to display before truncating in detail views."
                         />
                         <InputField
-                            label="Resource Refresh Interval"
+                            label={t('resource_refresh')}
                             icon={Clock}
                             type="number"
                             min={1}
@@ -260,7 +261,7 @@ export default function Settings({ theme, setTheme }) {
                             description="Seconds between automatic data refreshes in lists and dashboard."
                         />
                         <InputField
-                            label="Logs Refresh Interval"
+                            label={t('logs_refresh')}
                             icon={Activity}
                             type="number"
                             min={0}
@@ -270,12 +271,19 @@ export default function Settings({ theme, setTheme }) {
                             description="Seconds between automatic log refreshes in pod details. Set to 0 to disable."
                         />
                         <SelectField
-                            label="Localization (Language)"
+                            label={t('localization')}
                             icon={Languages}
                             value={draftSettings.locale}
                             onChange={(v) => handleUpdateDraft({ locale: v })}
                             options={[
-                                { value: 'en', label: 'English' }
+                                { value: 'en', label: 'English' },
+                                { value: 'de', label: 'Deutsch' },
+                                { value: 'fr', label: 'Français' },
+                                { value: 'es', label: 'Español' },
+                                { value: 'ja', label: '日本語' },
+                                { value: 'ko', label: '한국어' },
+                                { value: 'pl', label: 'Polski' },
+                                { value: 'zh', label: '简体中文' }
                             ]}
                             description="Support for more languages coming soon."
                         />

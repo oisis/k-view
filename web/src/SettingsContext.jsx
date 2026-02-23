@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { translations } from './translations';
 
 const SettingsContext = createContext();
 
@@ -44,4 +45,16 @@ export function useSettings() {
         throw new Error('useSettings must be used within a SettingsProvider');
     }
     return context;
+}
+
+export function useTranslation() {
+    const { settings } = useSettings();
+    const locale = settings.locale || 'en';
+
+    const t = (key) => {
+        const langDict = translations[locale] || translations.en;
+        return langDict[key] || translations.en[key] || key;
+    };
+
+    return { t, locale };
 }

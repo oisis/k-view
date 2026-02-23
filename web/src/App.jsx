@@ -9,6 +9,7 @@ import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
 import ResourceDetails from './components/ResourceDetails';
 import About from './components/About';
+import { useTranslation } from './SettingsContext';
 
 import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
@@ -86,6 +87,7 @@ function NavItem({ href, icon: Icon, label, active, isCollapsed }) {
 // ── Sidebar ────────────────────────────────────────────────────────────────
 function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed }) {
     const { pathname: p } = useLocation();
+    const { t } = useTranslation();
 
     return (
         <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
@@ -111,51 +113,51 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
 
                 {/* Dashboard — standalone, no section */}
                 <div className={`pb-1 ${isCollapsed ? 'flex flex-col items-center gap-0.5 mb-1' : 'space-y-0.5'}`}>
-                    <NavItem href="/" icon={LayoutDashboard} label="Dashboard" active={p === '/'} isCollapsed={isCollapsed} />
+                    <NavItem href="/" icon={LayoutDashboard} label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
                 </div>
 
-                <Section label="Workloads" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/workloads/cronjobs" icon={Clock} label="CronJobs" active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/daemonsets" icon={RefreshCw} label="DaemonSets" active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/deployments" icon={Package} label="Deployments" active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/jobs" icon={Database} label="Jobs" active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/pods" icon={Boxes} label="Pods" active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicasets" icon={Layers} label="Replica Sets" active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicationcontrollers" icon={Repeat} label="Replication Controllers" active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/statefulsets" icon={GitBranch} label="StatefulSets" active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
+                <Section label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed}>
+                    <NavItem href="/workloads/cronjobs" icon={Clock} label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/daemonsets" icon={RefreshCw} label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/deployments" icon={Package} label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/jobs" icon={Database} label={t('jobs')} active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/pods" icon={Boxes} label={t('pods')} active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicasets" icon={Layers} label={t('replicasets')} active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicationcontrollers" icon={Repeat} label={t('replicationcontrollers')} active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/statefulsets" icon={GitBranch} label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label="Services" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/cluster/ingress-classes" icon={Globe} label="Ingress Classes" active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/ingresses" icon={Globe} label="Ingresses" active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/services" icon={Network} label="Services" active={p === '/network/services'} isCollapsed={isCollapsed} />
+                <Section label={t('network')} defaultOpen={false} isCollapsed={isCollapsed}>
+                    <NavItem href="/cluster/ingress-classes" icon={Globe} label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/ingresses" icon={Globe} label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/services" icon={Network} label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label="Config &amp; Storage" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/config/configmaps" icon={FileText} label="ConfigMaps" active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvcs" icon={Database} label="PVCs" active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/secrets" icon={Lock} label="Secrets" active={p === '/config/secrets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/storage-classes" icon={Database} label="Storage Classes" active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
+                <Section label={t('config')} defaultOpen={false} isCollapsed={isCollapsed}>
+                    <NavItem href="/config/configmaps" icon={FileText} label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvcs" icon={Database} label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/secrets" icon={Lock} label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/storage-classes" icon={Database} label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label="Cluster" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/cluster/cluster-role-bindings" icon={Link} label="Cluster Role Bindings" active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/cluster-roles" icon={Shield} label="Cluster Roles" active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/crd" icon={Puzzle} label="Custom Resource Definitions" active={p === '/crd'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/events" icon={Activity} label="Events" active={p === '/cluster/events'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/namespaces" icon={Globe2} label="Namespaces" active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/network-policies" icon={AlertTriangle} label="Network Policies" active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" icon={Server} label="Nodes" active={p === '/nodes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvs" icon={Database} label="Persistent Volumes" active={p === '/config/pvs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/role-bindings" icon={Key} label="Role Bindings" active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/roles" icon={Key} label="Roles" active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/service-accounts" icon={Users} label="Service Accounts" active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
+                <Section label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed}>
+                    <NavItem href="/cluster/cluster-role-bindings" icon={Link} label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/cluster-roles" icon={Shield} label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
+                    <NavItem href="/crd" icon={Puzzle} label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/events" icon={Activity} label={t('events')} active={p === '/cluster/events'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/namespaces" icon={Globe2} label={t('namespaces')} active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/network-policies" icon={AlertTriangle} label={t('network_policies')} active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
+                    <NavItem href="/nodes" icon={Server} label={t('nodes')} active={p === '/nodes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvs" icon={Database} label={t('pv')} active={p === '/config/pvs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/role-bindings" icon={Link} label={t('rolebindings')} active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/roles" icon={Key} label={t('roles')} active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/service-accounts" icon={Users} label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label="Tools" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/about" icon={Info} label="About" active={p === '/about'} isCollapsed={isCollapsed} />
-                    <NavItem href="/console" icon={Terminal} label="Console" active={p === '/console'} isCollapsed={isCollapsed} />
-                    <NavItem href="/settings" icon={SettingsIcon} label="Settings" active={p === '/settings'} isCollapsed={isCollapsed} />
+                <Section label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed}>
+                    <NavItem href="/about" icon={Info} label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
+                    <NavItem href="/console" icon={Terminal} label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
+                    <NavItem href="/settings" icon={SettingsIcon} label={t('settings')} active={p === '/settings'} isCollapsed={isCollapsed} />
                 </Section>
 
             </nav>

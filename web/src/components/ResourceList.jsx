@@ -3,7 +3,7 @@ import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical,
 import { Link, useNavigate } from 'react-router-dom';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
-import { useSettings } from '../SettingsContext';
+import { useSettings, useTranslation } from '../SettingsContext';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -311,6 +311,7 @@ function StatusBadge({ value }) {
 
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
+    const { t } = useTranslation();
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
@@ -545,7 +546,7 @@ export default function ResourceList({ kind }) {
             {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between bg-[var(--bg-glass)] glass rounded-xl border border-[var(--border-color)] px-6 py-4">
                     <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                        Showing {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} of {filteredItems.length}
+                        {t('showing')} {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} {t('of')} {filteredItems.length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button
