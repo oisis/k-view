@@ -19,7 +19,7 @@ rules:
 - apiGroups: [""]
   resources: ["pods", "services", "namespaces", "nodes", "persistentvolumes",
               "persistentvolumeclaims", "configmaps", "secrets", "serviceaccounts",
-              "endpoints", "events"]
+              "endpoints", "events", "replicationcontrollers", "resourcequotas", "limitranges"]
   verbs: ["get", "watch", "list", "update", "patch", "delete"]
 # Pod subresources for exec and logs
 - apiGroups: [""]
