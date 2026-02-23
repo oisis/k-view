@@ -34,75 +34,78 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 
 // getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
 func getGVR(kind string) schema.GroupVersionResource {
+	var gvr schema.GroupVersionResource
 	switch strings.ToLower(kind) {
 	case "pods":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
 	case "deployments":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+		gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
 	case "services":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
 	case "configmaps":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "configmaps"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "configmaps"}
 	case "secrets":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
 	case "ingresses":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
+		gvr = schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
 	case "ingress-classes":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
+		gvr = schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
 	case "statefulsets":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+		gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
 	case "daemonsets":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
+		gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
 	case "replicasets", "replicaset":
-		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "replicasets"}
+		gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "replicasets"}
 	case "replicationcontrollers", "replicationcontroller":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "replicationcontrollers"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "replicationcontrollers"}
 	case "jobs":
-		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
+		gvr = schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
 	case "cronjobs":
-		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
+		gvr = schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
 	case "namespaces":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
 	case "events":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	case "nodes":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
 	case "pvs":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
 	case "pvcs":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
 	case "storage-classes":
-		return schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
+		gvr = schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
 	case "crds":
-		return schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
+		gvr = schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
 	case "cluster-roles":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+		gvr = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
 	case "cluster-role-bindings":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
+		gvr = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
 	case "roles":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
+		gvr = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
 	case "role-bindings":
-		return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+		gvr = schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
 	case "serviceaccounts", "service-accounts":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "serviceaccounts"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "serviceaccounts"}
 	case "hpas", "hpa", "horizontalpodautoscalers":
-		return schema.GroupVersionResource{Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers"}
+		gvr = schema.GroupVersionResource{Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers"}
 	case "vpas", "vpa", "verticalpodautoscalers":
-		return schema.GroupVersionResource{Group: "autoscaling.k8s.io", Version: "v1", Resource: "verticalpodautoscalers"}
+		gvr = schema.GroupVersionResource{Group: "autoscaling.k8s.io", Version: "v1", Resource: "verticalpodautoscalers"}
 	case "pdbs", "pdb", "poddisruptionbudgets":
-		return schema.GroupVersionResource{Group: "policy", Version: "v1", Resource: "poddisruptionbudgets"}
+		gvr = schema.GroupVersionResource{Group: "policy", Version: "v1", Resource: "poddisruptionbudgets"}
 	case "networkpolicies", "network-policies":
-		return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
+		gvr = schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
 	case "endpoints":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
 	case "resourcequotas", "resource-quotas":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "resourcequotas"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "resourcequotas"}
 	case "limitranges", "limit-ranges":
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "limitranges"}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "limitranges"}
 	default:
 		// Attempt a best-effort guess for unknown kinds
-		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
+		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
 	}
+	fmt.Printf("[getGVR] Resolved %s -> %v\n", kind, gvr)
+	return gvr
 }
 
 // clusterScopedKinds is the set of resource kinds that are NOT namespaced.
@@ -330,6 +333,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	}
 
 	gvr := getGVR(kind)
+	fmt.Printf("[List] Fetching %s (ns: %s, GVR: %v)\n", kind, ns, gvr)
 	
 	var listInterface dynamic.ResourceInterface
 	if ns != "" && !isClusterScoped(kind) {
@@ -340,6 +344,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 	unstructuredList, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
 	if err != nil {
+		fmt.Printf("[List] Error listing %s: %v\n", kind, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list resources: " + err.Error()})
 		return
 	}

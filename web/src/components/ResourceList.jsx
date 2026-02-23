@@ -355,7 +355,20 @@ export default function ResourceList({ kind }) {
         setError(null);
         const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : '';
         fetch(`/api/resources/${kind}${qs}`)
-            .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch')))
+            .then(async r => {
+                if (r.ok) return r.json();
+                let errorMessage = 'Failed to fetch';
+                try {
+                    const data = await r.json();
+                    errorMessage = data.error || errorMessage;
+                } catch (e) {
+                    try {
+                        const text = await r.text();
+                        if (text) errorMessage = text;
+                    } catch (e2) { }
+                }
+                throw new Error(errorMessage);
+            })
             .then(data => setItems(data || []))
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
