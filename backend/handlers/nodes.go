@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"k-view/k8s"
 
@@ -62,7 +63,8 @@ func (h *NodeHandler) ListNodes(c *gin.Context) {
 		return
 	}
 
-	var response []NodeResponse
+	// Initialize as empty slice to avoid 'null' in JSON
+	response := []NodeResponse{}
 	for _, n := range nodes {
 		cpu := n.Status.Capacity.Cpu()
 		mem := n.Status.Capacity.Memory()
@@ -73,7 +75,7 @@ func (h *NodeHandler) ListNodes(c *gin.Context) {
 			Name:              n.Name,
 			Role:              nodeRole(n),
 			Status:            nodeStatus(n),
-			Age:               n.CreationTimestamp.Time.String(),
+			Age:               n.CreationTimestamp.Format(time.RFC3339),
 			KubeletVersion:    n.Status.NodeInfo.KubeletVersion,
 			ContainerRuntime:  n.Status.NodeInfo.ContainerRuntimeVersion,
 			OS:                n.Status.NodeInfo.OSImage,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers, MoreVertical } from 'lucide-react';
+import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers, MoreVertical, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ResourceActionMenu from './ResourceActionMenu';
 
