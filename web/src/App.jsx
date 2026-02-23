@@ -17,7 +17,8 @@ import {
     Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, Users, Link, AlertTriangle, Globe2, Activity,
-    Settings, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen
+    Settings, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
+    Layers, Repeat
 } from 'lucide-react';
 
 // ── Collapsible section ────────────────────────────────────────────────────
@@ -112,12 +113,14 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                 </div>
 
                 <Section label="Workloads" defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/workloads/pods" icon={Boxes} label="Pods" active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/deployments" icon={Package} label="Deployments" active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/statefulsets" icon={GitBranch} label="StatefulSets" active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/daemonsets" icon={RefreshCw} label="DaemonSets" active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/jobs" icon={Database} label="Jobs" active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/cronjobs" icon={Clock} label="CronJobs" active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/daemonsets" icon={RefreshCw} label="DaemonSets" active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/deployments" icon={Package} label="Deployments" active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/jobs" icon={Database} label="Jobs" active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/pods" icon={Boxes} label="Pods" active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicasets" icon={Layers} label="Replica Sets" active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicationcontrollers" icon={Repeat} label="Replication Controllers" active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/statefulsets" icon={GitBranch} label="StatefulSets" active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label="Services" defaultOpen={false} isCollapsed={isCollapsed}>
@@ -338,6 +341,8 @@ function App() {
                         <Route path="/workloads/daemonsets" element={protect(<ResourceList kind="daemonsets" />)} />
                         <Route path="/workloads/jobs" element={protect(<ResourceList kind="jobs" />)} />
                         <Route path="/workloads/cronjobs" element={protect(<ResourceList kind="cronjobs" />)} />
+                        <Route path="/workloads/replicasets" element={protect(<ResourceList kind="replicasets" />)} />
+                        <Route path="/workloads/replicationcontrollers" element={protect(<ResourceList kind="replicationcontrollers" />)} />
 
                         {/* Services / Networking */}
                         <Route path="/network/services" element={protect(<ResourceList kind="services" />)} />

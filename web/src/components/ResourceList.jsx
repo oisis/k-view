@@ -74,6 +74,30 @@ const SCHEMAS = {
             { key: 'age', label: 'Age' },
         ],
     },
+    replicasets: {
+        title: 'Replica Sets',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.desired', label: 'Desired' },
+            { key: 'extra.current', label: 'Current' },
+            { key: 'extra.ready', label: 'Ready' },
+            { key: 'status', label: 'Status', badge: true },
+            { key: 'age', label: 'Age' },
+        ],
+    },
+    replicationcontrollers: {
+        title: 'Replication Controllers',
+        cols: [
+            { key: 'name', label: 'Name' },
+            { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.desired', label: 'Desired' },
+            { key: 'extra.current', label: 'Current' },
+            { key: 'extra.ready', label: 'Ready' },
+            { key: 'status', label: 'Status', badge: true },
+            { key: 'age', label: 'Age' },
+        ],
+    },
     services: {
         title: 'Services',
         cols: [

@@ -53,8 +53,10 @@ func getGVR(kind string) schema.GroupVersionResource {
 		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
 	case "daemonsets":
 		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
-	case "replicasets":
+	case "replicasets", "replicaset":
 		return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "replicasets"}
+	case "replicationcontrollers", "replicationcontroller":
+		return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "replicationcontrollers"}
 	case "jobs":
 		return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
 	case "cronjobs":
@@ -461,6 +463,16 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			extra["desired"] = fmt.Sprintf("%d", desired)
 			extra["ready"] = fmt.Sprintf("%d", ready)
 			extra["available"] = fmt.Sprintf("%d", avail)
+		case "replicasets", "replicationcontrollers":
+			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
+			extra["desired"] = fmt.Sprintf("%d", replicas)
+			extra["current"] = fmt.Sprintf("%d", replicas) // Simplified
+			extra["ready"] = fmt.Sprintf("%d", ready)
+			if avail > 0 {
+				extra["available"] = fmt.Sprintf("%d", avail)
+			}
 		case "services":
 			if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok {
 				status = sType
@@ -1187,6 +1199,17 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "kube-proxy", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
 			{Name: "node-exporter", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
 			{Name: "calico-node", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
+		}
+
+	case "replicasets":
+		items = []ResourceItem{
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2")},
+		}
+
+	case "replicationcontrollers":
+		items = []ResourceItem{
+			{Name: "legacy-worker", Namespace: "default", Age: "100d", Status: "Active", Extra: ex("desired", "1", "current", "1", "ready", "1")},
 		}
 
 	case "jobs":
