@@ -51,9 +51,17 @@ export function useTranslation() {
     const { settings } = useSettings();
     const locale = settings.locale || 'en';
 
-    const t = (key) => {
+    const t = (key, params = {}) => {
         const langDict = translations[locale] || translations.en;
-        return langDict[key] || translations.en[key] || key;
+        let val = langDict[key] || translations.en[key] || key;
+
+        if (params) {
+            Object.keys(params).forEach(p => {
+                val = val.replace(`{${p}}`, params[p]);
+            });
+        }
+
+        return val;
     };
 
     return { t, locale };

@@ -281,7 +281,9 @@ function getVal(item, key) {
 }
 
 function StatusBadge({ value }) {
+    const { t } = useTranslation();
     const v = String(value);
+    const translatedValue = t(v.toLowerCase()) || v;
     const map = {
         Normal: 'bg-info/10 text-black border-info',
         Warning: 'bg-warning/10 text-warning border-warning/20',
@@ -304,7 +306,7 @@ function StatusBadge({ value }) {
     return (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${cls}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
-            {v}
+            {translatedValue}
         </span>
     );
 }
@@ -322,8 +324,13 @@ export default function ResourceList({ kind }) {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
+
+    const getLabel = useCallback((label) => {
+        const key = `label_${label.toLowerCase().replace(/ /g, '_').replace(/-/g, '_')}`;
+        const translated = t(key);
+        return translated !== key ? translated : label;
+    }, [t]);
 
     // Persist namespace
     useEffect(() => {
@@ -426,17 +433,17 @@ export default function ResourceList({ kind }) {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">{schema.title}</h2>
+                    <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">{t(kind) || schema.title}</h2>
                     <p className="text-[var(--text-secondary)] text-sm">
-                        {loading ? 'Loading...' : `${filteredItems.length} item${filteredItems.length !== 1 ? 's' : ''}`}
-                        {namespace && ` in "${namespace}"`}
-                        {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+                        {loading ? t('loading') : `${filteredItems.length} ${filteredItems.length === 1 ? t('item') : t('items')}`}
+                        {namespace && ` ${t('in_ns')} "${namespace}"`}
+                        {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder={t('search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10"
@@ -450,7 +457,7 @@ export default function ResourceList({ kind }) {
                     )}
                     <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                        Refresh
+                        {t('refresh')}
                     </button>
                 </div>
             </div>
@@ -471,7 +478,7 @@ export default function ResourceList({ kind }) {
                                         className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors group select-none"
                                     >
                                         <div className="flex items-center gap-2">
-                                            {col.label}
+                                            {getLabel(col.label)}
                                             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (
                                                     sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
@@ -483,14 +490,14 @@ export default function ResourceList({ kind }) {
                                     </th>
                                 ))}
                                 {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-10"></th>}
-                                <th className="px-4 py-3 whitespace-nowrap w-20 text-right">Actions</th>
+                                <th className="px-4 py-3 whitespace-nowrap w-20 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
                             {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">Loading...</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)] italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">No {kind.replace(/-/g, ' ')} found.</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {schema.cols.map(col => {

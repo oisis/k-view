@@ -7,12 +7,13 @@ import {
 } from 'lucide-react';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
-import { useSettings } from '../SettingsContext';
+import { useSettings, useTranslation } from '../SettingsContext';
 
 export default function ResourceDetails({ user }) {
     const { settings } = useSettings();
     const { kind, namespace, name } = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'overview';
 
@@ -145,9 +146,9 @@ export default function ResourceDetails({ user }) {
         }
     }, [loading, data, searchParams, canEdit, kind]);
 
-    if (loading) return <div className="p-8 text-[var(--text-secondary)]">Loading resource...</div>;
-    if (error) return <div className="p-8 text-red-400">Error: {error}</div>;
-    if (!data) return <div className="p-8 text-[var(--text-muted)]">Resource not found</div>;
+    if (loading) return <div className="p-8 text-[var(--text-secondary)]">{t('loading')}</div>;
+    if (error) return <div className="p-8 text-red-400">{t('error')}: {error}</div>;
+    if (!data) return <div className="p-8 text-[var(--text-muted)]">{t('resource_not_found')}</div>;
 
     // Safety check: Ensure we have at least metadata
     if (!data.metadata) return <div className="p-8 text-red-400">Error: Invalid resource data received from API</div>;
@@ -219,8 +220,8 @@ export default function ResourceDetails({ user }) {
                         </h2>
                     </div>
                     <p className="text-[var(--text-secondary)] text-xs mt-2 font-medium flex items-center gap-2">
-                        Namespace <ChevronRight size={12} className="text-[var(--text-muted)]" />
-                        <span className="text-[var(--accent)] font-bold">{namespace === '-' ? 'Cluster-scoped' : namespace}</span>
+                        {t('label_namespace')} <ChevronRight size={12} className="text-[var(--text-muted)]" />
+                        <span className="text-[var(--accent)] font-bold">{namespace === '-' ? t('cluster_scoped') : namespace}</span>
                     </p>
                 </div>
             </div>
@@ -228,12 +229,12 @@ export default function ResourceDetails({ user }) {
             {/* Tabs */}
             <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
                 {[
-                    { id: 'overview', label: 'Overview', icon: Info },
-                    { id: 'yaml', label: 'YAML', icon: FileText },
-                    { id: 'events', label: 'Events', icon: List },
-                    { id: 'logs', label: 'Logs', icon: Terminal, hidden: kind !== 'pods' },
-                    { id: 'exec', label: 'Exec', icon: SquareTerminal, hidden: kind !== 'pods' },
-                    { id: 'trace', label: 'Visual Trace', icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
+                    { id: 'overview', label: t('overview'), icon: Info },
+                    { id: 'yaml', label: t('yaml'), icon: FileText },
+                    { id: 'events', label: t('events'), icon: List },
+                    { id: 'logs', label: t('logs'), icon: Terminal, hidden: kind !== 'pods' },
+                    { id: 'exec', label: t('terminal'), icon: SquareTerminal, hidden: kind !== 'pods' },
+                    { id: 'trace', label: t('trace'), icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
                     <button
                         key={tab.id}
@@ -259,15 +260,15 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Status Bar */}
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
                             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/60">
-                                <StatusItem label="Status">
+                                <StatusItem label={t('label_status')}>
                                     <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
                                         <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                        <span>{status.phase || data.resource?.status || 'Unknown'}</span>
+                                        <span>{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
                                     </div>
                                 </StatusItem>
 
                                 {isPod && (
-                                    <StatusItem label="Ready">
+                                    <StatusItem label={t('label_ready')}>
                                         <div className="flex flex-col ml-1">
                                             <span className={readyCount === totalContainers ? 'text-success' : 'text-warning'}>
                                                 {readyCount}/{totalContainers}
@@ -277,7 +278,7 @@ export default function ResourceDetails({ user }) {
                                 )}
 
                                 {isPod && (
-                                    <StatusItem label="Restarts">
+                                    <StatusItem label={t('label_restarts')}>
                                         <span className={restarts > 0 ? 'text-warning' : 'text-[var(--text-white)]'}>
                                             {restarts}
                                         </span>
@@ -295,22 +296,22 @@ export default function ResourceDetails({ user }) {
                                     </>
                                 )}
 
-                                <StatusItem label="Age">
+                                <StatusItem label={t('label_age')}>
                                     <span className="text-[var(--text-white)]">{data.resource?.age || '—'}</span>
                                 </StatusItem>
 
                                 {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
-                                    <StatusItem label="Replicas">
+                                    <StatusItem label={t('replicas')}>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-success" title="Ready">{status.readyReplicas || status.availableReplicas || 0}</span>
+                                            <span className="text-success" title={t('label_ready')}>{status.readyReplicas || status.availableReplicas || 0}</span>
                                             <span className="text-[var(--text-muted)]">/</span>
-                                            <span className="text-[var(--text-white)]" title="Desired">{spec.replicas || 0}</span>
+                                            <span className="text-[var(--text-white)]" title={t('desired')}>{spec.replicas || 0}</span>
                                         </div>
                                     </StatusItem>
                                 )}
 
                                 {status.loadBalancer?.ingress?.length > 0 && (
-                                    <StatusItem label="External IP">
+                                    <StatusItem label={t('label_ip_external')}>
                                         <span className="text-info font-mono text-sm">
                                             {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
                                         </span>
@@ -318,13 +319,13 @@ export default function ResourceDetails({ user }) {
                                 )}
 
                                 {spec.clusterIP && (
-                                    <StatusItem label="Cluster IP">
+                                    <StatusItem label={t('label_ip_cluster')}>
                                         <span className="text-[var(--text-secondary)] font-mono text-sm">{spec.clusterIP}</span>
                                     </StatusItem>
                                 )}
 
                                 {isPod && spec.nodeName && (
-                                    <StatusItem label="Host">
+                                    <StatusItem label={t('label_node')}>
                                         <span className="text-[var(--text-white)] font-mono text-sm">{spec.nodeName}</span>
                                     </StatusItem>
                                 )}
@@ -332,14 +333,14 @@ export default function ResourceDetails({ user }) {
                         </div>
 
                         {/* Section: Metadata */}
-                        <DetailSection title="Metadata">
+                        <DetailSection title={t('metadata')}>
                             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600">
                                 <div>
                                     <table className="w-full text-sm text-left border-collapse">
                                         <tbody className="divide-y divide-slate-600">
-                                            <DetailRow label="Name" value={name} />
-                                            <DetailRow label="Created" value={new Date(metadata.creationTimestamp).toLocaleString()} />
-                                            <DetailRow label="Labels">
+                                            <DetailRow label={t('label_name')} value={name} />
+                                            <DetailRow label={t('label_created')} value={new Date(metadata.creationTimestamp).toLocaleString()} />
+                                            <DetailRow label={t('label_labels')}>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
                                                         <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-sm text-info font-mono">
@@ -348,7 +349,7 @@ export default function ResourceDetails({ user }) {
                                                     ))}
                                                     {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
                                                         <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded border border-[var(--border-color)] self-center">
-                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} more
+                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -359,9 +360,9 @@ export default function ResourceDetails({ user }) {
                                 <div>
                                     <table className="w-full text-sm text-left border-collapse">
                                         <tbody className="divide-y divide-slate-600">
-                                            <DetailRow label="Namespace" value={namespace === '-' ? '—' : namespace} />
-                                            <DetailRow label="UID" value={metadata.uid} />
-                                            <DetailRow label="Annotations">
+                                            <DetailRow label={t('label_namespace')} value={namespace === '-' ? '—' : namespace} />
+                                            <DetailRow label={t('label_uid')} value={metadata.uid} />
+                                            <DetailRow label={t('label_annotations')}>
                                                 <div className="space-y-1">
                                                     {Object.entries(metadata.annotations || {}).map(([k, v]) => (
                                                         <div key={k} className="text-sm font-mono text-[var(--text-secondary)]">
@@ -370,7 +371,7 @@ export default function ResourceDetails({ user }) {
                                                     ))}
                                                     {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
                                                         <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded-md border border-[var(--border-color)] self-center">
-                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} more
+                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -382,11 +383,11 @@ export default function ResourceDetails({ user }) {
                         </DetailSection>
 
                         {/* Section: Resource Info (Spec) */}
-                        <DetailSection title="Resource Info">
+                        <DetailSection title={t('resource_info')}>
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-slate-600">
-                                    {spec.strategy?.type && <DetailRow label="Strategy" value={spec.strategy.type} />}
-                                    {spec.clusterIP && <DetailRow label="Cluster IP" value={spec.clusterIP} />}
+                                    {spec.strategy?.type && <DetailRow label={t('strategy')} value={spec.strategy.type} />}
+                                    {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
                                     {mountedConfigMaps.length > 0 && (
                                         <DetailRow label="ConfigMaps">
@@ -414,7 +415,7 @@ export default function ResourceDetails({ user }) {
 
 
                                     {(spec.selector?.matchLabels || spec.selector) && (
-                                        <DetailRow label="Selectors">
+                                        <DetailRow label={t('label_selector')}>
                                             <div className="flex flex-wrap gap-1.5">
                                                 {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
                                                     <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)]">
@@ -425,7 +426,7 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
-                                    <DetailRow label="Containers">
+                                    <DetailRow label={t('containers')}>
                                         <div className="space-y-4">
                                             {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
                                                 <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
@@ -440,14 +441,14 @@ export default function ResourceDetails({ user }) {
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4 text-xs">
                                                         <div>
-                                                            <p className="text-[var(--text-muted)] mb-1">Ports</p>
+                                                            <p className="text-[var(--text-muted)] mb-1">{t('label_port')}s</p>
                                                             <div className="font-mono text-info">
                                                                 {c.ports?.map(p => `${p.containerPort || p.port}/${p.protocol || 'TCP'}`).join(', ') || '—'}
                                                             </div>
                                                         </div>
                                                         {(c.resources?.requests || c.resources?.limits) && (
                                                             <div>
-                                                                <p className="text-[var(--text-muted)] mb-1">Resources</p>
+                                                                <p className="text-[var(--text-muted)] mb-1">{t('usage_metrics')}</p>
                                                                 <div className="font-mono text-[var(--text-secondary)]">
                                                                     {c.resources.requests && `Requests: cpu=${c.resources.requests.cpu}, mem=${c.resources.requests.memory}`}
                                                                     {c.resources.requests && c.resources.limits && <br />}
@@ -457,11 +458,11 @@ export default function ResourceDetails({ user }) {
                                                         )}
                                                     </div>
                                                     <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
-                                                        <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">Health Probes</p>
+                                                        <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            <ProbeDetail label="Liveness" probe={c.livenessProbe} />
-                                                            <ProbeDetail label="Readiness" probe={c.readinessProbe} />
-                                                            <ProbeDetail label="Startup" probe={c.startupProbe} />
+                                                            <ProbeDetail label={t('liveness')} probe={c.livenessProbe} />
+                                                            <ProbeDetail label={t('readiness')} probe={c.readinessProbe} />
+                                                            <ProbeDetail label={t('startup')} probe={c.startupProbe} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -477,15 +478,15 @@ export default function ResourceDetails({ user }) {
 
                         {/* Section: Conditions */}
                         {(status.conditions || []).length > 0 && (
-                            <DetailSection title="Conditions">
+                            <DetailSection title={t('status_conditions')}>
                                 <table className="w-full text-sm text-left border-collapse">
                                     <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                         <tr>
-                                            <th className="px-6 py-3">Type</th>
-                                            <th className="px-6 py-3">Status</th>
-                                            <th className="px-6 py-3">Last Transition</th>
-                                            <th className="px-6 py-3">Reason</th>
-                                            <th className="px-6 py-3">Message</th>
+                                            <th className="px-6 py-3">{t('type')}</th>
+                                            <th className="px-6 py-3">{t('label_status')}</th>
+                                            <th className="px-6 py-3">{t('last_transition')}</th>
+                                            <th className="px-6 py-3">{t('reason')}</th>
+                                            <th className="px-6 py-3">{t('message')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[var(--border-color)]">
@@ -508,7 +509,7 @@ export default function ResourceDetails({ user }) {
                         )}
 
                         {mountedPvcs.length > 0 && (
-                            <DetailSection title="Persistent Volume Claims" className="mt-4">
+                            <DetailSection title={t('mounted_pvcs')} className="mt-4">
                                 <div className="p-4 flex flex-wrap gap-3">
                                     {mountedPvcs.map(pvc => (
                                         <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
@@ -516,7 +517,7 @@ export default function ResourceDetails({ user }) {
                                                 <Clipboard size={16} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
+                                                <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">{t('mounted_pvc')}</span>
                                                 <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
                                             </div>
                                         </div>
@@ -527,7 +528,7 @@ export default function ResourceDetails({ user }) {
 
                         {kind === 'namespaces' && (
                             <>
-                                <DetailSection title="Resource Quotas" className="mt-4">
+                                <DetailSection title={t('resource_quotas')} className="mt-4">
                                     <div className="p-4 space-y-4">
                                         {quotas && quotas.length > 0 ? quotas.map(q => (
                                             <div key={q.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4">
@@ -555,12 +556,12 @@ export default function ResourceDetails({ user }) {
                                                 </div>
                                             </div>
                                         )) : (
-                                            <p className="text-[var(--text-muted)] italic text-sm">No resource quotas defined.</p>
+                                            <p className="text-[var(--text-muted)] italic text-sm">{t('no_resource_quotas_found') || 'No resource quotas defined.'}</p>
                                         )}
                                     </div>
                                 </DetailSection>
 
-                                <DetailSection title="Limit Ranges" className="mt-4">
+                                <DetailSection title={t('limit_ranges')} className="mt-4">
                                     <div className="p-4 space-y-4">
                                         {limits && limits.length > 0 ? limits.map(l => (
                                             <div key={l.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4 overflow-x-auto">
@@ -570,8 +571,8 @@ export default function ResourceDetails({ user }) {
                                                 <table className="w-full text-xs text-left">
                                                     <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
                                                         <tr>
-                                                            <th className="px-3 py-2">Type</th>
-                                                            <th className="px-3 py-2">Resource</th>
+                                                            <th className="px-3 py-2">{t('type')}</th>
+                                                            <th className="px-3 py-2">{t('usage_metrics')}</th>
                                                             <th className="px-3 py-2">Min</th>
                                                             <th className="px-3 py-2">Max</th>
                                                             <th className="px-3 py-2">Default</th>
@@ -591,39 +592,22 @@ export default function ResourceDetails({ user }) {
                                                 </table>
                                             </div>
                                         )) : (
-                                            <p className="text-[var(--text-muted)] italic text-sm">No limit ranges defined.</p>
+                                            <p className="text-[var(--text-muted)] italic text-sm">{t('no_limit_ranges_found') || 'No limit ranges defined.'}</p>
                                         )}
                                     </div>
                                 </DetailSection>
                             </>
                         )}
-                        {mountedPvcs.length > 0 && (
-                            <DetailSection title="Persistent Volume Claims" className="mt-4">
-                                <div className="p-4 flex flex-wrap gap-3">
-                                    {mountedPvcs.map(pvc => (
-                                        <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
-                                            <div className="p-2 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
-                                                <Clipboard size={16} />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">Mounted PVC</span>
-                                                <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </DetailSection>
-                        )}
 
                         {/* Section: Recent Events */}
-                        <DetailSection title="Recent Events" className="mt-4">
+                        <DetailSection title={t('recent_events')} className="mt-4">
                             <table className="w-full text-sm text-left border-collapse">
                                 <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                     <tr>
-                                        <th className="px-6 py-3">Type</th>
-                                        <th className="px-6 py-3">Reason</th>
-                                        <th className="px-6 py-3">Message</th>
-                                        <th className="px-6 py-3">Age</th>
+                                        <th className="px-6 py-3">{t('type')}</th>
+                                        <th className="px-6 py-3">{t('reason')}</th>
+                                        <th className="px-6 py-3">{t('message')}</th>
+                                        <th className="px-6 py-3">{t('label_age')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[var(--border-color)]">
@@ -646,7 +630,7 @@ export default function ResourceDetails({ user }) {
                                     )) : (
                                         <tr>
                                             <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
-                                                No recent events found.
+                                                {t('no_events')}
                                             </td>
                                         </tr>
                                     )}
@@ -661,7 +645,7 @@ export default function ResourceDetails({ user }) {
                         <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
                                 <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
-                                    {isEditing ? `Editing ${format.toUpperCase()}` : `${format.toUpperCase()} Manifest`}
+                                    {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                                 </span>
                                 {!isEditing && (
                                     <div className="flex bg-black/30 rounded p-0.5">
@@ -687,7 +671,7 @@ export default function ResourceDetails({ user }) {
                                         onClick={() => setIsEditing(true)}
                                         className="text-xs font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-widest"
                                     >
-                                        Edit {format.toUpperCase()}
+                                        {t('edit_manifest', { format: format.toUpperCase() })}
                                     </button>
                                 )}
                                 {isEditing && (
@@ -697,7 +681,7 @@ export default function ResourceDetails({ user }) {
                                             className="text-xs font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
                                             disabled={isSaving}
                                         >
-                                            Cancel
+                                            {t('cancel')}
                                         </button>
                                         <button
                                             onClick={async () => {
@@ -725,7 +709,7 @@ export default function ResourceDetails({ user }) {
                                             disabled={isSaving}
                                         >
                                             {isSaving ? <Activity size={10} className="animate-pulse" /> : <CheckCircle2 size={10} />}
-                                            {isSaving ? 'Saving...' : 'Save Changes'}
+                                            {isSaving ? t('saving') : t('save_changes')}
                                         </button>
                                     </>
                                 )}
@@ -745,14 +729,14 @@ export default function ResourceDetails({ user }) {
                 )}
 
                 {activeTab === 'events' && (
-                    <DetailSection title="Recent Events" className="flex-1 min-h-[400px]">
+                    <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
                         <table className="w-full text-sm text-left border-collapse">
                             <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                                 <tr>
-                                    <th className="px-6 py-3">Type</th>
-                                    <th className="px-6 py-3">Reason</th>
-                                    <th className="px-6 py-3">Message</th>
-                                    <th className="px-6 py-3">Age</th>
+                                    <th className="px-6 py-3">{t('type')}</th>
+                                    <th className="px-6 py-3">{t('reason')}</th>
+                                    <th className="px-6 py-3">{t('message')}</th>
+                                    <th className="px-6 py-3">{t('label_age')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-color)]">
@@ -775,7 +759,7 @@ export default function ResourceDetails({ user }) {
                                 )) : (
                                     <tr>
                                         <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
-                                            No recent events found.
+                                            {t('no_events')}
                                         </td>
                                     </tr>
                                 )}
@@ -813,7 +797,7 @@ export default function ResourceDetails({ user }) {
                                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-info transition-colors" />
                                         <input
                                             type="text"
-                                            placeholder="Search logs..."
+                                            placeholder={t('search_logs')}
                                             value={logSearchTerm}
                                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
                                             className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-info/50 w-64 transition-all"
@@ -821,14 +805,14 @@ export default function ResourceDetails({ user }) {
                                         <button
                                             onClick={() => setLogSearchRegex(!logSearchRegex)}
                                             className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-transparent text-white/50 border-transparent hover:text-white'}`}
-                                            title="Włącz/Wyłącz obsługę wyrażeń regularnych (Regex) w wyszukiwaniu"
+                                            title={t('regex_tooltip')}
                                         >
                                             .*
                                         </button>
                                     </div>
 
                                     <div className="flex items-center gap-2 bg-slate-200/50 p-1 rounded-md border border-slate-300">
-                                        <span className="text-xs uppercase font-black text-black pl-2">Refresh</span>
+                                        <span className="text-xs uppercase font-black text-black pl-2">{t('refresh')}</span>
                                         <select
                                             value={logRefreshInterval}
                                             onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
@@ -845,7 +829,7 @@ export default function ResourceDetails({ user }) {
 
                                     {spec?.containers?.length > 1 && (
                                         <div className="flex items-center gap-2 bg-black/20 p-1 rounded-md border border-[var(--border-color)]/30 ml-2">
-                                            <span className="text-xs uppercase font-bold text-[var(--text-muted)] pl-2">Container</span>
+                                            <span className="text-xs uppercase font-bold text-[var(--text-muted)] pl-2">{t('label_container')}</span>
                                             <select
                                                 value={logContainer}
                                                 onChange={(e) => {
@@ -871,7 +855,7 @@ export default function ResourceDetails({ user }) {
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
                                         </div>
-                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Wrap Lines</span>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">{t('wrap_lines')}</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
                                         <div
@@ -880,7 +864,7 @@ export default function ResourceDetails({ user }) {
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
                                         </div>
-                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">Pagination</span>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">{t('pagination')}</span>
                                     </label>
 
                                     {logPaginationEnabled && totalPages > 1 && (
@@ -889,7 +873,7 @@ export default function ResourceDetails({ user }) {
                                                 disabled={logPage === 1}
                                                 onClick={() => setLogPage(1)}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
-                                                title="First Page"
+                                                title={t('first_page')}
                                             >
                                                 <ChevronsLeft size={14} />
                                             </button>
@@ -897,7 +881,7 @@ export default function ResourceDetails({ user }) {
                                                 disabled={logPage === 1}
                                                 onClick={() => setLogPage(p => Math.max(1, p - 1))}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
-                                                title="Previous Page"
+                                                title={t('prev_page')}
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
@@ -908,7 +892,7 @@ export default function ResourceDetails({ user }) {
                                                 disabled={logPage === totalPages}
                                                 onClick={() => setLogPage(p => Math.min(totalPages, p + 1))}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
-                                                title="Next Page"
+                                                title={t('next_page')}
                                             >
                                                 <ChevronRight size={14} />
                                             </button>
@@ -916,7 +900,7 @@ export default function ResourceDetails({ user }) {
                                                 disabled={logPage === totalPages}
                                                 onClick={() => setLogPage(totalPages)}
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
-                                                title="Last Page"
+                                                title={t('last_page')}
                                             >
                                                 <ChevronsRight size={14} />
                                             </button>
@@ -926,12 +910,12 @@ export default function ResourceDetails({ user }) {
                                     <div className="text-[var(--text-muted)] text-xs font-mono flex items-center gap-3">
                                         <span className="flex items-center gap-1.5 text-info font-bold">
                                             <List size={10} />
-                                            {filteredLines.length} MATCHES
+                                            {filteredLines.length} {t('matches')}
                                         </span>
                                         {logRefreshInterval > 0 && (
                                             <span className="flex items-center gap-1.5 text-success font-bold animate-pulse">
                                                 <RefreshCw size={10} className="animate-spin-slow" />
-                                                LIVE
+                                                {t('live')}
                                             </span>
                                         )}
                                     </div>
@@ -956,7 +940,7 @@ export default function ResourceDetails({ user }) {
                                 ) : (
                                     <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)] gap-3 italic">
                                         <Search size={32} className="opacity-20" />
-                                        {logSearchTerm ? 'No logs matching your search criteria.' : 'No logs found for this container.'}
+                                        {logSearchTerm ? t('no_logs_matching') : t('no_logs_found')}
                                     </div>
                                 )}
                             </div>
@@ -1082,7 +1066,7 @@ function ProbeDetail({ label, probe }) {
     if (!probe) return (
         <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
-            <span className="text-[var(--text-muted)] italic">Not defined</span>
+            <span className="text-[var(--text-muted)] italic">{t('not_defined')}</span>
         </div>
     );
 
@@ -1099,9 +1083,9 @@ function ProbeDetail({ label, probe }) {
                 {details || 'Unknown'}
             </div>
             <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
-                <span>Delay: {probe.initialDelaySeconds || 0}s</span>
-                <span>Timeout: {probe.timeoutSeconds || 1}s</span>
-                <span>Period: {probe.periodSeconds || 10}s</span>
+                <span>{t('delay')}: {probe.initialDelaySeconds || 0}s</span>
+                <span>{t('timeout')}: {probe.timeoutSeconds || 1}s</span>
+                <span>{t('period')}: {probe.periodSeconds || 10}s</span>
             </div>
         </div>
     );

@@ -57,9 +57,9 @@ export default function Settings({ theme, setTheme }) {
     }, []);
 
     const themes = [
-        { id: 'default', name: 'K-view', icon: ShieldCheck, desc: 'Deep cosmic indigo with glass accents' },
-        { id: 'light', name: 'Crisp Light', icon: Sun, desc: 'Professional clean light interface' },
-        { id: 'black', name: 'Midnight', icon: Moon, desc: 'Pure dark for focused work' },
+        { id: 'default', name: t('theme_kview'), icon: ShieldCheck, desc: t('theme_kview_desc') },
+        { id: 'light', name: t('theme_light'), icon: Sun, desc: t('theme_light_desc') },
+        { id: 'black', name: t('theme_midnight'), icon: Moon, desc: t('theme_midnight_desc') },
     ];
 
     if (loading) {
@@ -67,7 +67,7 @@ export default function Settings({ theme, setTheme }) {
             <div className="flex-1 flex items-center justify-center bg-[var(--bg-main)]">
                 <div className="flex flex-col items-center gap-3">
                     <Activity className="animate-spin text-info" size={32} />
-                    <p className="text-[13px] text-[var(--text-muted)]">Loading settings...</p>
+                    <p className="text-[13px] text-[var(--text-muted)]">{t('loading_settings')}</p>
                 </div>
             </div>
         );
@@ -131,7 +131,7 @@ export default function Settings({ theme, setTheme }) {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">{t('settings')}</h1>
-                            <p className="text-[13px] text-[var(--text-muted)] mt-1">Manage your interface preferences and view session details.</p>
+                            <p className="text-[13px] text-[var(--text-muted)] mt-1">{t('settings_desc')}</p>
                         </div>
                     </div>
 
@@ -164,7 +164,7 @@ export default function Settings({ theme, setTheme }) {
                 {/* Theme Selection */}
                 <div className="space-y-4">
                     <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                        <Palette size={14} /> Interface Theme
+                        <Palette size={14} /> {t('interface_theme')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {themes.map((t) => (
@@ -206,7 +206,7 @@ export default function Settings({ theme, setTheme }) {
                             value={draftSettings.clusterName}
                             onChange={(v) => handleUpdateDraft({ clusterName: v })}
                             placeholder="My Dev Cluster"
-                            description="Will be displayed in the Dashboard instead of the detected platform name."
+                            description={t('custom_cluster_name_desc')}
                         />
                         <SelectField
                             label={t('default_namespace')}
@@ -217,7 +217,7 @@ export default function Settings({ theme, setTheme }) {
                                 { value: '', label: t('all_namespaces') },
                                 ...namespaces.map(ns => ({ value: ns, label: ns }))
                             ]}
-                            description="The namespace that will be selected by default on all resource lists."
+                            description={t('default_namespace_desc')}
                         />
                     </div>
                 </div>
@@ -238,7 +238,7 @@ export default function Settings({ theme, setTheme }) {
                             max={100}
                             value={draftSettings.itemsPerPage}
                             onChange={(v) => handleUpdateDraft({ itemsPerPage: v })}
-                            description="Number of resources to display per page in lists."
+                            description={t('items_per_page_desc')}
                         />
                         <InputField
                             label={t('labels_limit')}
@@ -248,7 +248,7 @@ export default function Settings({ theme, setTheme }) {
                             max={50}
                             value={draftSettings.labelsLimit}
                             onChange={(v) => handleUpdateDraft({ labelsLimit: v })}
-                            description="Maximum number of labels to display before truncating in detail views."
+                            description={t('labels_limit_desc')}
                         />
                         <InputField
                             label={t('resource_refresh')}
@@ -258,7 +258,7 @@ export default function Settings({ theme, setTheme }) {
                             max={300}
                             value={draftSettings.resourceRefreshInterval}
                             onChange={(v) => handleUpdateDraft({ resourceRefreshInterval: v })}
-                            description="Seconds between automatic data refreshes in lists and dashboard."
+                            description={t('resource_refresh_desc')}
                         />
                         <InputField
                             label={t('logs_refresh')}
@@ -268,7 +268,7 @@ export default function Settings({ theme, setTheme }) {
                             max={300}
                             value={draftSettings.logsRefreshInterval}
                             onChange={(v) => handleUpdateDraft({ logsRefreshInterval: v })}
-                            description="Seconds between automatic log refreshes in pod details. Set to 0 to disable."
+                            description={t('logs_refresh_desc')}
                         />
                         <SelectField
                             label={t('localization')}
@@ -285,7 +285,7 @@ export default function Settings({ theme, setTheme }) {
                                 { value: 'pl', label: 'Polski' },
                                 { value: 'zh', label: '简体中文' }
                             ]}
-                            description="Support for more languages coming soon."
+                            description={t('localization_desc')}
                         />
                     </div>
                 </div>
@@ -299,20 +299,20 @@ export default function Settings({ theme, setTheme }) {
                                     <User size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-semibold">User Identity</h2>
-                                    <p className="text-[13px] text-[var(--text-muted)]">Authenticated user profile.</p>
+                                    <h2 className="text-lg font-semibold">{t('user_identity')}</h2>
+                                    <p className="text-[13px] text-[var(--text-muted)]">{t('user_identity_desc')}</p>
                                 </div>
                             </div>
                             <div className="mt-6 space-y-4">
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Email / Username</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('email_username')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <Fingerprint size={14} className="text-info" />
                                         {details?.email}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Namespace Scope</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('namespace_scope')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <Globe size={14} className="text-info" />
                                         {details?.namespace || '<all namespaces>'}
@@ -330,12 +330,12 @@ export default function Settings({ theme, setTheme }) {
                                     <Shield size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-semibold">Cluster Permissions</h2>
-                                    <p className="text-[13px] text-[var(--text-muted)]">Computed RBAC classification.</p>
+                                    <h2 className="text-lg font-semibold">{t('cluster_permissions')}</h2>
+                                    <p className="text-[13px] text-[var(--text-muted)]">{t('cluster_permissions_desc')}</p>
                                 </div>
                             </div>
                             <div className="mt-6">
-                                <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Assigned Role</dt>
+                                <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('assigned_role')}</dt>
                                 <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
                                     {details?.role}
                                 </dd>
@@ -347,15 +347,15 @@ export default function Settings({ theme, setTheme }) {
                 {/* Permissions Table */}
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
                     <div className="p-6 border-b border-[var(--border-color)]">
-                        <h2 className="text-lg font-semibold">Effective Permissions</h2>
-                        <p className="text-[13px] text-[var(--text-muted)]">What you are authorized to do in the cluster.</p>
+                        <h2 className="text-lg font-semibold">{t('effective_permissions')}</h2>
+                        <p className="text-[13px] text-[var(--text-muted)]">{t('effective_permissions_desc')}</p>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-[var(--bg-muted)]/30">
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Resources</th>
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">Allowed Verbs</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('resources')}</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('allowed_verbs')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-color)]">

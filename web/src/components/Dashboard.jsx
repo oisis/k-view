@@ -114,7 +114,7 @@ export default function Dashboard({ isCollapsed }) {
         return (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-[var(--text-secondary)]">
                 <RefreshCw size={32} className="animate-spin text-blue-500" />
-                <p className="animate-pulse">Analyzing cluster state...</p>
+                <p className="animate-pulse">{t('analyzing_cluster')}</p>
             </div>
         );
     }
@@ -144,9 +144,9 @@ export default function Dashboard({ isCollapsed }) {
                 <div className="mb-8 p-4 bg-warning/10 border border-warning/30 text-warning rounded-xl flex items-start gap-3 shadow-lg">
                     <AlertCircle size={20} className="shrink-0 mt-0.5" />
                     <div>
-                        <p className="font-bold text-sm">Metrics Server Missing</p>
+                        <p className="font-bold text-sm">{t('metrics_server_missing')}</p>
                         <p className="text-xs opacity-80 mt-1">
-                            Real-time CPU and RAM metrics are unavailable because Metrics Server is not installed in the cluster.
+                            {t('metrics_server_desc')}
                         </p>
                         <a
                             href="https://github.com/kubernetes-sigs/metrics-server"
@@ -154,7 +154,7 @@ export default function Dashboard({ isCollapsed }) {
                             rel="noopener noreferrer"
                             className="inline-block mt-2 text-xs font-bold underline hover:opacity-80"
                         >
-                            View Installation Guide
+                            {t('view_install_guide')}
                         </a>
                     </div>
                 </div>
@@ -172,7 +172,7 @@ export default function Dashboard({ isCollapsed }) {
 
                 {/* Cluster Identity */}
                 <MetricCard
-                    title="Cluster Platform"
+                    title={t('cluster_platform')}
                     value={settings.clusterName || stats?.clusterName || "K8s Cluster"}
                     subValue={`Version: ${stats?.k8sVersion || '—'}`}
                     icon={ShieldCheck}
@@ -184,9 +184,9 @@ export default function Dashboard({ isCollapsed }) {
 
                 {/* Nodes */}
                 <MetricCard
-                    title="Total Nodes"
+                    title={t('total_nodes')}
                     value={stats?.nodeCount || 0}
-                    subValue={`${stats?.nodeCountReady || 0} READY NODES`}
+                    subValue={`${stats?.nodeCountReady || 0} ${t('ready_nodes')}`}
                     icon={Server}
                     color="purple"
                     onClick={() => navigate('/nodes')}
@@ -195,9 +195,9 @@ export default function Dashboard({ isCollapsed }) {
 
                 {/* Pods Status */}
                 <MetricCard
-                    title="Active Pods"
+                    title={t('active_pods')}
                     value={stats?.podCount || 0}
-                    subValue={`${stats?.podCountFailed || 0} FAILED / EVICKTED`}
+                    subValue={`${stats?.podCountFailed || 0} ${t('failed_evicted')}`}
                     icon={Box}
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
                     onClick={() => navigate('/workloads/pods')}
@@ -211,16 +211,16 @@ export default function Dashboard({ isCollapsed }) {
                             ></div>
                         </div>
                         <span className="text-xs font-mono text-[var(--text-muted)]">
-                            {stats?.podCount ? Math.round(((stats.podCount - stats.podCountFailed) / stats.podCount) * 100) : 0}% Healthy
+                            {stats?.podCount ? Math.round(((stats.podCount - stats.podCountFailed) / stats.podCount) * 100) : 0}% {t('healthy')}
                         </span>
                     </div>
                 </MetricCard>
 
                 {/* Control Plane Health (linked to Nodes status) */}
                 <MetricCard
-                    title="Control Plane"
-                    value={(!stats || stats.nodeCountReady === stats.nodeCount) ? 'Healthy' : 'Not healthy'}
-                    subValue="etcd & apiserver status"
+                    title={t('control_plane')}
+                    value={(!stats || stats.nodeCountReady === stats.nodeCount) ? t('healthy') : t('not_healthy')}
+                    subValue={t('control_plane_desc')}
                     icon={Activity}
                     color={(!stats || stats.nodeCountReady === stats.nodeCount) ? "green" : "red"}
                     valueClassName={(!stats || stats.nodeCountReady === stats.nodeCount) ? "text-success" : "text-error"}
@@ -230,10 +230,10 @@ export default function Dashboard({ isCollapsed }) {
                 {/* CPU Usage */}
                 <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{t('compute_load')}</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.cpuTotal || '—'} cores</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -242,17 +242,17 @@ export default function Dashboard({ isCollapsed }) {
                     <MiniChart
                         data={stats?.cpuHistory}
                         color={stats?.cpuUsage >= 80 ? "#ef4444" : "#10b981"}
-                        label="Load"
+                        label={t('load')}
                     />
                 </div>
 
                 {/* RAM Usage */}
                 <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{t('memory_pressure')}</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.ramTotal || '—'}</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -261,7 +261,7 @@ export default function Dashboard({ isCollapsed }) {
                     <MiniChart
                         data={stats?.ramHistory}
                         color={stats?.ramUsage >= 80 ? "#ef4444" : "#10b981"}
-                        label="Used"
+                        label={t('used')}
                     />
                 </div>
 
@@ -270,12 +270,14 @@ export default function Dashboard({ isCollapsed }) {
             {/* Quick Info Footer */}
             <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
                 <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
-                    <Info size={14} className="text-info/60" />
-                    Metrics update every 5 seconds
+                    <div className="flex items-center gap-2">
+                        <Info size={14} className="text-info/60" />
+                        {t('metrics_update_info', { sec: settings.resourceRefreshInterval })}
+                    </div>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
                     <Activity size={14} className="text-success/60" />
-                    Cluster Health: Stable
+                    {t('cluster_health_stable')}
                 </div>
             </div>
         </div>

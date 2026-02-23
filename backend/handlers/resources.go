@@ -1482,6 +1482,12 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "default-limits", Namespace: "default", Age: "30d", Extra: ex("limits", "Container: cpu 100m-1, mem 128Mi-1Gi")},
 			{Name: "db-limits", Namespace: "database", Age: "25d", Extra: ex("limits", "Container: cpu 500m-2, mem 512Mi-4Gi")},
 		}
+	case "nodes":
+		items = []ResourceItem{
+			{Name: "master-01", Age: "30d", Status: "Ready", Extra: ex("role", "control-plane", "cpu", "4", "memory", "8Gi")},
+			{Name: "worker-01", Age: "20d", Status: "Ready", Extra: ex("role", "worker", "cpu", "8", "memory", "32Gi")},
+			{Name: "worker-02", Age: "20d", Status: "Ready", Extra: ex("role", "worker", "cpu", "8", "memory", "32Gi")},
+		}
 	}
 
 	return filter(items, ns)

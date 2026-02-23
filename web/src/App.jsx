@@ -102,7 +102,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className={`p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
                         ${isCollapsed ? 'hover:bg-[var(--accent)]/10 text-[var(--accent)]' : ''}`}
-                    title={isCollapsed ? "Expand menu" : "Collapse menu"}
+                    title={isCollapsed ? t('expand_menu') : t('collapse_menu')}
                 >
                     {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
                 </button>
@@ -172,7 +172,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                                 ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-sm'
                                 : 'text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
                     >
-                        <ShieldAlert size={16} /> Admin Panel
+                        <ShieldAlert size={16} /> {t('admin_panel')}
                     </a>
                 )}
 
@@ -180,18 +180,18 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                     {user.devMode ? (
                         <div className={`flex items-center gap-1.5 text-[11px] font-black text-green-500 tracking-tight uppercase ${isCollapsed ? 'flex-col items-center' : ''}`}>
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                            {!isCollapsed ? 'DEVELOPMENT' : <span className="text-[8px]">DEV</span>}
+                            {!isCollapsed ? t('development') : <span className="text-[8px]">DEV</span>}
                         </div>
                     ) : (
                         <div className={`flex items-center gap-1.5 text-[11px] font-black text-red-600 tracking-tight uppercase ${isCollapsed ? 'flex-col items-center' : ''}`}>
                             <div className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_6px_rgba(220,38,38,0.4)]" />
-                            {!isCollapsed ? 'PRODUCTION' : <span className="text-[8px]">PROD</span>}
+                            {!isCollapsed ? t('production') : <span className="text-[8px]">PROD</span>}
                         </div>
                     )}
                     <button
                         onClick={onLogout}
                         className={`p-1.5 rounded-xl bg-red-600/20 text-red-500 border border-red-600/40 hover:bg-red-600/30 hover:text-red-400 hover:border-red-600/60 transition-all active:scale-90 flex items-center justify-center group shadow-sm ${isCollapsed ? 'w-10 h-10' : ''}`}
-                        title="Logout"
+                        title={t('logout')}
                     >
                         <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
@@ -265,7 +265,7 @@ function App() {
     };
 
     if (loading) {
-        return <div className="flex items-center justify-center min-h-screen text-[var(--text-secondary)] bg-[var(--bg-main)]">Loading...</div>;
+        return <div className="flex items-center justify-center min-h-screen text-[var(--text-secondary)] bg-[var(--bg-main)]">{t('loading')}</div>;
     }
 
     const protect = (el) => user ? el : <Navigate to="/login" />;
