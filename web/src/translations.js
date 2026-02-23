@@ -226,6 +226,9 @@ export const translations = {
         no_resource_quotas_found: 'No resource quotas defined.',
         no_limit_ranges_found: 'No limit ranges defined.',
         resource_updated_successfully: 'Resource updated successfully',
+        role_definitions: 'Role Definitions',
+        api_groups: 'API Groups',
+        verbs: 'Verbs',
 
         // Statuses
         running: 'Running',
@@ -1609,6 +1612,9 @@ export const translations = {
         no_resource_quotas_found: 'Nie zdefiniowano limitów zasobów.',
         no_limit_ranges_found: 'Nie zdefiniowano zalecanych limitów.',
         resource_updated_successfully: 'Zasób został pomyślnie zaktualizowany',
+        role_definitions: 'Definicje Ról',
+        api_groups: 'Grupy API',
+        verbs: 'Czasowniki (Akcje)',
 
         // Statuses
         running: 'Uruchomione',

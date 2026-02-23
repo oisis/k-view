@@ -67,7 +67,7 @@ func main() {
 	nodeHandler := handlers.NewNodeHandler(k8sProvider)
 	consoleHandler := handlers.NewConsoleHandler(devMode)
 	resourceHandler := handlers.NewResourceHandler(devMode, k8sProvider)
-	rbacHandler := handlers.NewRBACHandler(authHandler.GetRBACConfig())
+	rbacHandler := handlers.NewRBACHandler(devMode, authHandler.GetRBACConfig(), k8sProvider)
 	networkHandler := handlers.NewNetworkHandler(k8sProvider)
 	execHandler := handlers.NewExecHandler(k8sProvider)
 
@@ -132,6 +132,7 @@ func main() {
 			admin.Use(authHandler.AdminMiddleware())
 			{
 				admin.GET("/status", rbacHandler.GetStatus)
+				admin.GET("/roles", rbacHandler.ListRoles)
 			}
 		}
 	}

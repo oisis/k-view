@@ -6,15 +6,26 @@ import (
 
 	"k-view/rbac"
 
+	"k-view/k8s"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	"github.com/gin-gonic/gin"
 )
 
 type RBACHandler struct {
-	config *rbac.RBACConfig
+	devMode     bool
+	config      *rbac.RBACConfig
+	k8sProvider k8s.KubernetesProvider
 }
 
-func NewRBACHandler(config *rbac.RBACConfig) *RBACHandler {
-	return &RBACHandler{config: config}
+func NewRBACHandler(devMode bool, config *rbac.RBACConfig, k8sProvider k8s.KubernetesProvider) *RBACHandler {
+	return &RBACHandler{
+		devMode:     devMode,
+		config:      config,
+		k8sProvider: k8sProvider,
+	}
 }
 
 type Rule struct {
@@ -70,6 +81,56 @@ func (h *RBACHandler) GetStatus(c *gin.Context) {
 		Rules:       rules,
 		Assignments: h.config.Assignments,
 	})
+}
+
+// ListRoles returns all ClusterRoles labeled as part of k-view.
+func (h *RBACHandler) ListRoles(c *gin.Context) {
+	if h.devMode {
+		// Mock roles for development
+		mockRoles := []gin.H{
+			{
+				"name": "kview-cluster-admin",
+				"rules": []gin.H{
+					{"apiGroups": []string{"*"}, "resources": []string{"*"}, "verbs": []string{"*"}},
+				},
+			},
+			{
+				"name": "kview-cluster-viewer",
+				"rules": []gin.H{
+					{"apiGroups": []string{""}, "resources": []string{"pods", "services"}, "verbs": []string{"get", "list", "watch"}},
+				},
+			},
+		}
+		c.JSON(http.StatusOK, mockRoles)
+		return
+	}
+
+	dyn, err := h.k8sProvider.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get kubernetes client: " + err.Error()})
+		return
+	}
+
+	gvr := schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+	list, err := dyn.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{
+		LabelSelector: "app.kubernetes.io/name=k-view",
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list ClusterRoles: " + err.Error()})
+		return
+	}
+
+	var roles []gin.H
+	for _, item := range list.Items {
+		name := item.GetName()
+		rules, _, _ := unstructured.NestedSlice(item.Object, "rules")
+		roles = append(roles, gin.H{
+			"name":  name,
+			"rules": rules,
+		})
+	}
+
+	c.JSON(http.StatusOK, roles)
 }
 
 // GetMyDetails returns the current user's computed permissions.
