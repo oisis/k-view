@@ -55,7 +55,7 @@ function MiniChart({ data, color, label }) {
 }
 
 // --- Metric Card Component ---
-function MetricCard({ title, value, subValue, icon: Icon, color, children, onClick, valueClassName = "" }) {
+function MetricCard({ title, value, subValue, icon: Icon, color, children, onClick, valueClassName = "", isCollapsed }) {
     const colorMap = {
         blue: 'text-info bg-info/10 border-info/20',
         green: 'text-success bg-success/10 border-success/20',
@@ -70,22 +70,22 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
     return (
         <div
             onClick={onClick}
-            className={`bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
+            className={`bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
         >
-            <div className="mb-3">
-                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{title}</p>
-                <h3 className={`text-3xl font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
-                {subValue && <p className="text-[11px] text-[var(--text-secondary)] mt-1.5 font-medium opacity-80">{subValue}</p>}
+            <div className={isCollapsed ? 'mb-5' : 'mb-3'}>
+                <p className={`${isCollapsed ? 'text-[11px]' : 'text-[10px]'} font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
+                <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
+                {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-[11px]'} text-[var(--text-secondary)] mt-1.5 font-medium opacity-80`}>{subValue}</p>}
             </div>
-            <div className={`absolute top-2 right-2 p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
-                <Icon size={18} />
+            <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
+                <Icon size={isCollapsed ? 22 : 18} />
             </div>
             {children}
         </div>
     );
 }
 
-export default function Dashboard() {
+export default function Dashboard({ isCollapsed }) {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -117,7 +117,7 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="p-10 max-w-[1600px] mx-auto">
+        <div className={`p-10 ${isCollapsed ? 'max-w-[1800px]' : 'max-w-[1600px]'} mx-auto transition-all duration-500`}>
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
@@ -165,7 +165,7 @@ export default function Dashboard() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isCollapsed ? 'gap-6' : 'gap-4'} transition-all duration-500`}>
 
                 {/* Cluster Identity */}
                 <MetricCard
@@ -174,8 +174,9 @@ export default function Dashboard() {
                     subValue={`Version: ${stats?.k8sVersion || '—'}`}
                     icon={ShieldCheck}
                     color="cyan"
-                    valueClassName="text-xl"
+                    valueClassName={isCollapsed ? 'text-2xl' : 'text-xl'}
                     onClick={() => navigate('/nodes')}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Nodes */}
@@ -186,6 +187,7 @@ export default function Dashboard() {
                     icon={Server}
                     color="purple"
                     onClick={() => navigate('/nodes')}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* Pods Status */}
@@ -196,6 +198,7 @@ export default function Dashboard() {
                     icon={Box}
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
                     onClick={() => navigate('/workloads/pods')}
+                    isCollapsed={isCollapsed}
                 >
                     <div className="mt-3 flex items-center gap-2">
                         <div className="h-3 flex-1 bg-error/30 rounded-full overflow-hidden relative">
@@ -218,19 +221,20 @@ export default function Dashboard() {
                     icon={Activity}
                     color={(!stats || stats.nodeCountReady === stats.nodeCount) ? "green" : "red"}
                     valueClassName={(!stats || stats.nodeCountReady === stats.nodeCount) ? "text-success" : "text-error"}
+                    isCollapsed={isCollapsed}
                 />
 
                 {/* CPU Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden">
+                <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Compute Load (CPU)</p>
-                        <h3 className={`text-3xl font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                            <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.cpuTotal || '—'} cores</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.cpuTotal || '—'} cores</span>
                         </h3>
                     </div>
-                    <div className="absolute top-2 right-2 p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300">
-                        <Cpu size={18} />
+                    <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300`}>
+                        <Cpu size={isCollapsed ? 22 : 18} />
                     </div>
                     <MiniChart
                         data={stats?.cpuHistory}
@@ -240,16 +244,16 @@ export default function Dashboard() {
                 </div>
 
                 {/* RAM Usage */}
-                <div className="md:col-span-2 bg-[var(--bg-glass)] glass p-4 rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden">
+                <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">Memory Pressure (RAM)</p>
-                        <h3 className={`text-3xl font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                            <span className="text-xs text-[var(--text-secondary)] font-medium opacity-60">of {stats?.ramTotal || '—'}</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>of {stats?.ramTotal || '—'}</span>
                         </h3>
                     </div>
-                    <div className="absolute top-2 right-2 p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300">
-                        <Database size={18} />
+                    <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300`}>
+                        <Database size={isCollapsed ? 22 : 18} />
                     </div>
                     <MiniChart
                         data={stats?.ramHistory}

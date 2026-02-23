@@ -333,7 +333,7 @@ function App() {
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
 
                         {/* Top-level */}
-                        <Route path="/" element={protect(<Dashboard />)} />
+                        <Route path="/" element={protect(<Dashboard isCollapsed={isCollapsed} />)} />
                         <Route path="/nodes" element={protect(<Nodes />)} />
                         <Route path="/console" element={protect(<Console />)} />
                         <Route path="/about" element={protect(<About />)} />
