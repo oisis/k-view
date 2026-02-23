@@ -544,6 +544,45 @@ export default function ResourceDetails({ user }) {
                                 </DetailSection>
                             </>
                         )}
+
+                        {/* Section: Recent Events */}
+                        <DetailSection title="Recent Events" className="mt-4">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                    <tr>
+                                        <th className="px-6 py-3">Type</th>
+                                        <th className="px-6 py-3">Reason</th>
+                                        <th className="px-6 py-3">Message</th>
+                                        <th className="px-6 py-3">Age</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[var(--border-color)]">
+                                    {events && events.length > 0 ? events.slice(0, 10).map((e, i) => (
+                                        <tr key={i} className="hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                                    {e.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
+                                            <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
+                                            <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Clock size={12} />
+                                                    {e.age}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
+                                                No recent events found.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </DetailSection>
                     </>
                 )}
 
