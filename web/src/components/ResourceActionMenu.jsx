@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
+import { useTranslation } from '../SettingsContext';
 
 export default function ResourceActionMenu({ kind, namespace, name, onRefresh }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -8,9 +10,11 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const [confirmAction, setConfirmAction] = useState(null); // 'delete', 'restart', 'scale'
     const [forceDelete, setForceDelete] = useState(false);
     const [scaleValue, setScaleValue] = useState(1);
+    const [menuRect, setMenuRect] = useState(null);
     const menuRef = useRef(null);
     const navigate = useNavigate();
     const { icons } = useTheme();
+    const { t } = useTranslation();
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
@@ -20,6 +24,10 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     useEffect(() => {
         function handleClickOutside(event) {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
+                // If portal is used, we need to check if click was on the portal content too
+                const portal = document.getElementById('menu-portal-root');
+                if (portal && portal.contains(event.target)) return;
+
                 setIsOpen(false);
                 setConfirmAction(null);
             }
@@ -27,6 +35,16 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const toggleMenu = (e) => {
+        e.stopPropagation();
+        if (!isOpen) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setMenuRect(rect);
+        }
+        setIsOpen(!isOpen);
+        setConfirmAction(null);
+    };
 
     const handleActionTrigger = (e, action) => {
         e.stopPropagation();
@@ -112,10 +130,6 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 ? `/api/resources/${kind}/${nsPath}/${name}/scale`
                 : `/api/resources/${kind}/-/${name}/scale`;
 
-            // Note: In a real app we might want to fetch current replicas first, 
-            // but for simplicity we'll just send the relative change or an absolute value.
-            // Let's assume the scaleValue is a target for now, or we'd need more complex UI.
-            // For now, let's just send the value.
             const res = await fetch(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -157,17 +171,20 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         }
     };
 
-    return (
-        <div className="relative" ref={menuRef}>
-            <button
-                onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); setConfirmAction(null); }}
-                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]'}`}
-            >
-                <icons.more size={16} />
-            </button>
+    // Portal Menu Component
+    const PortalMenu = () => {
+        if (!isOpen || !menuRect) return null;
 
-            {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+        const style = {
+            position: 'fixed',
+            top: `${menuRect.bottom + window.scrollY + 8}px`,
+            left: `${menuRect.right - 224 + window.scrollX}px`, // 224px is w-56
+            zIndex: 9999,
+        };
+
+        return createPortal(
+            <div id="menu-portal-root" style={style} onClick={(e) => e.stopPropagation()}>
+                <div className="w-56 bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                     {!confirmAction ? (
                         <>
                             {(isPod || isWorkload) && (
@@ -272,7 +289,21 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                         </div>
                     )}
                 </div>
-            )}
+            </div>,
+            document.body
+        );
+    };
+
+    return (
+        <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
+            <button
+                onClick={toggleMenu}
+                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]'}`}
+            >
+                <icons.more size={16} />
+            </button>
+
+            <PortalMenu />
         </div>
     );
 }

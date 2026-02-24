@@ -602,8 +602,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 
 		if found == nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
-			return
+			// Create a generic fallback mock so detail views don't break in dev mode
+			found = &ResourceItem{
+				Name:      name,
+				Namespace: ns,
+				Age:       "1h",
+				Status:    "Active",
+			}
 		}
 
 		revision := "4"
@@ -823,12 +828,18 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	}
 
 	if h.devMode {
+		// Use provided namespace or default for mock
+		mockNs := ns
+		if mockNs == "" {
+			mockNs = "default"
+		}
+
 		mockObj := map[string]interface{}{
 			"apiVersion": "apps/v1",
 			"kind":       strings.Title(kind),
 			"metadata": map[string]interface{}{
 				"name":      name,
-				"namespace": "default",
+				"namespace": mockNs,
 				"labels": map[string]string{
 					"app": name,
 				},
@@ -859,6 +870,19 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 					},
 				},
 			},
+		}
+
+		// Adjust mock for non-workload types
+		if strings.Contains(kind, "service") {
+			mockObj["apiVersion"] = "v1"
+			mockObj["kind"] = "Service"
+			delete(mockObj, "spec")
+			mockObj["spec"] = map[string]interface{}{
+				"ports": []map[string]interface{}{
+					{"port": 80, "targetPort": 80, "protocol": "TCP"},
+				},
+				"selector": map[string]interface{}{"app": name},
+			}
 		}
 
 		format := c.DefaultQuery("format", "yaml")

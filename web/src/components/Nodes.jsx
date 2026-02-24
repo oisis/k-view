@@ -100,7 +100,7 @@ export default function Nodes() {
             )}
 
             {/* Nodes table */}
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-xl">
                 <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
                     <h3 className="font-semibold text-[var(--text-secondary)]">Node Details</h3>
                 </div>

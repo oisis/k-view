@@ -506,7 +506,7 @@ export default function ResourceList({ kind }) {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-2xl">
+            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-2xl">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
                         <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-[0.15em] border-b border-[var(--border-color)]">
