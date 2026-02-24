@@ -484,13 +484,6 @@ export default function ResourceList({ kind }) {
                         <icons.refresh size={14} className={loading ? 'animate-spin' : ''} />
                         {t('refresh')}
                     </button>
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 text-sm bg-[var(--accent)] text-white px-4 py-2 rounded-lg transition-all hover:opacity-90 shadow-lg shadow-indigo-500/20 active:scale-95 h-10 font-bold"
-                    >
-                        <icons.plus size={16} />
-                        {t('add_resource')}
-                    </button>
                 </div>
             </div>
 
