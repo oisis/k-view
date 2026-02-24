@@ -6,6 +6,7 @@ metadata:
     {{- include "k-view.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   selector:
     matchLabels:
       {{- include "k-view.selectorLabels" . | nindent 6 }}

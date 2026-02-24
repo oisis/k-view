@@ -5,6 +5,9 @@
 # -- Number of replicas for the K-View application pod
 replicaCount: 1
 
+# -- Number of old ReplicaSets to retain
+revisionHistoryLimit: 2
+
 image:
   # -- Repository containing the K-View image
   repository: ghcr.io/oisis/k-view
