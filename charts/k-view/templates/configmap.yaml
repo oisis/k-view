@@ -12,7 +12,7 @@ data:
 {{- $role := .role }}
 {{- $ns := .namespace }}
 {{- if .user }}
-  {{- if kindIs "slice" .user }}
+  {{- if not (typeIs "string" .user) }}
     {{- range .user }}
       - user: {{ . | quote }}
         role: {{ $role | quote }}
@@ -28,7 +28,7 @@ data:
     {{- end }}
   {{- end }}
 {{- else if .group }}
-  {{- if kindIs "slice" .group }}
+  {{- if not (typeIs "string" .group) }}
     {{- range .group }}
       - group: {{ . | quote }}
         role: {{ $role | quote }}

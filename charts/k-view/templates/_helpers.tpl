@@ -94,20 +94,24 @@ Common environment variables
 Calculate authorized users list from assignments and local users
 */}}
 {{- define "k-view.authorizedUsers" -}}
-{{- $users := list -}}
-{{- range .Values.rbac.assignments -}}
-  {{- if .user -}}
-    {{- if kindIs "slice" .user -}}
-      {{- range .user -}}
-        {{- $users = append $users . -}}
+{{- $state := dict "list" (list) -}}
+{{- if .Values.rbac.assignments -}}
+  {{- range .Values.rbac.assignments -}}
+    {{- if .user -}}
+      {{- if typeIs "string" .user -}}
+        {{- $_ := set $state "list" (append $state.list .user) -}}
+      {{- else -}}
+        {{- range .user -}}
+          {{- $_ := set $state "list" (append $state.list .) -}}
+        {{- end -}}
       {{- end -}}
-    {{- else -}}
-      {{- $users = append $users .user -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{- range .Values.localUsers -}}
-  {{- $users = append $users .username -}}
+{{- if .Values.localUsers -}}
+  {{- range .Values.localUsers -}}
+    {{- $_ := set $state "list" (append $state.list .username) -}}
+  {{- end -}}
 {{- end -}}
-{{- $users | compact | uniq | join "," -}}
+{{- $state.list | compact | uniq | join "," -}}
 {{- end -}}
