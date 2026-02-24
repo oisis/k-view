@@ -118,6 +118,8 @@ func main() {
 			protected.POST("/console/exec", consoleHandler.Exec)
 			protected.GET("/resources/:kind", resourceHandler.List)
 			protected.GET("/cluster/stats", resourceHandler.GetStats)
+			protected.POST("/resources/:kind", resourceHandler.Create)
+			protected.POST("/resources/:kind/:namespace", resourceHandler.Create)
 			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
 			protected.PUT("/resources/:kind/:namespace/:name/yaml", resourceHandler.UpdateYAML)

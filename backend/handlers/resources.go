@@ -23,13 +23,18 @@ import (
 type ResourceHandler struct {
 	devMode    bool
 	k8sClient  k8s.KubernetesProvider
-	mu         sync.Mutex
-	cpuHistory []MetricHistory
-	ramHistory []MetricHistory
+	mu            sync.Mutex
+	cpuHistory    []MetricHistory
+	ramHistory    []MetricHistory
+	mockResources map[string][]ResourceItem
 }
 
 func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *ResourceHandler {
-	return &ResourceHandler{devMode: devMode, k8sClient: k8sClient}
+	return &ResourceHandler{
+		devMode:       devMode,
+		k8sClient:     k8sClient,
+		mockResources: make(map[string][]ResourceItem),
+	}
 }
 
 // getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
@@ -321,7 +326,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 	// Serve mock data if running in developer mode
 	if h.devMode {
-		items := mockResourceList(kind, ns)
+		items := h.mockResourceList(kind, ns)
 		c.JSON(http.StatusOK, items)
 		return
 	}
@@ -587,7 +592,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	}
 
 	if h.devMode {
-		items := mockResourceList(kind, ns)
+		items := h.mockResourceList(kind, ns)
 		var found *ResourceItem
 		for _, it := range items {
 			if it.Name == name {
@@ -1028,6 +1033,118 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Resource deleted"})
 }
 
+func (h *ResourceHandler) Create(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
+	if !isClusterScoped(kind) {
+		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+			// If creating in a namespace, it must match or be empty (if they can create in any)
+			// But usually, they should be restricted to their allowed namespace.
+			if ns != "" && ns != rbacNs.(string) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+				return
+			}
+			// If ns is empty from URL, use the one from RBAC
+			if ns == "" {
+				ns = rbacNs.(string)
+			}
+		}
+	}
+
+	// Verify Edit/Create Permissions
+	role, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
+		return
+	}
+	roleStr := role.(string)
+	if roleStr != "kview-cluster-admin" && roleStr != "admin" && roleStr != "edit" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Creation permissions required (admin or edit role)"})
+		return
+	}
+
+	body, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
+	if h.devMode {
+		var obj unstructured.Unstructured
+		if err := yaml.Unmarshal(body, &obj); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON: " + err.Error()})
+			return
+		}
+		if ns != "" {
+			obj.SetNamespace(ns)
+		}
+
+		h.mu.Lock()
+		if h.mockResources == nil {
+			h.mockResources = make(map[string][]ResourceItem)
+		}
+		name := obj.GetName()
+		if name == "" {
+			name = "mock-resource-" + fmt.Sprintf("%d", time.Now().Unix())
+		}
+		h.mockResources[kind] = append(h.mockResources[kind], ResourceItem{
+			Name:      name,
+			Namespace: obj.GetNamespace(),
+			Age:       "0s",
+			Status:    "Created",
+		})
+		h.mu.Unlock()
+
+		fmt.Printf("[DEV MODE] Created mock %s in namespace %s: %s\n", kind, ns, name)
+		c.JSON(http.StatusCreated, gin.H{"message": "Resource created (mocked)", "name": name})
+		return
+	}
+
+	var obj unstructured.Unstructured
+	// Handle both YAML and JSON
+	if err := yaml.Unmarshal(body, &obj); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON: " + err.Error()})
+		return
+	}
+
+	// Ensure namespace matches URL if provided in YAML
+	if ns != "" {
+		obj.SetNamespace(ns)
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if obj.GetNamespace() != "" {
+		resInterface = dynClient.Resource(gvr).Namespace(obj.GetNamespace())
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	fmt.Printf("[Create] Attempting to create %s %s in namespace %s\n", kind, obj.GetName(), obj.GetNamespace())
+	created, err := resInterface.Create(c.Request.Context(), &obj, metav1.CreateOptions{})
+	if err != nil {
+		fmt.Printf("[Create] Error creating %s %s: %v\n", kind, obj.GetName(), err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create resource: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Resource created successfully",
+		"name":    created.GetName(),
+	})
+}
+
 func (h *ResourceHandler) Restart(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
@@ -1242,7 +1359,7 @@ func filter(items []ResourceItem, ns string) []ResourceItem {
 	return filtered
 }
 
-func mockResourceList(kind, ns string) []ResourceItem {
+func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 	var items []ResourceItem
 
 	switch kind {
@@ -1496,6 +1613,14 @@ func mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "worker-02", Age: "20d", Status: "Ready", Extra: ex("role", "worker", "cpu", "8", "memory", "32Gi")},
 		}
 	}
+
+	h.mu.Lock()
+	if h.mockResources != nil {
+		if dynItems, ok := h.mockResources[kind]; ok {
+			items = append(items, dynItems...)
+		}
+	}
+	h.mu.Unlock()
 
 	return filter(items, ns)
 }

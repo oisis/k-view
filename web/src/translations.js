@@ -122,6 +122,14 @@ export const translations = {
         search_placeholder: 'Search...',
         refresh: 'Refresh',
         actions: 'Actions',
+        add_resource: 'Add Resource',
+        create: 'Create',
+        create_resource: 'Create Resource',
+        template: 'Template',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'Switch to YAML Editor',
+        resource_kind: 'Resource Kind',
+        name_required: 'Name is required',
         no_resources_found: 'No {kind} found.',
 
         // Resource Details
@@ -360,6 +368,14 @@ export const translations = {
         search_placeholder: 'Suchen...',
         refresh: 'Aktualisieren',
         actions: 'Aktionen',
+        add_resource: 'Ressource hinzufügen',
+        create: 'Erstellen',
+        create_resource: 'Ressource erstellen',
+        template: 'Vorlage',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'Zum YAML-Editor wechseln',
+        resource_kind: 'Ressourcen-Art',
+        name_required: 'Name ist erforderlich',
         no_resources_found: 'Keine {kind} gefunden.',
 
         // Resource Details
@@ -600,6 +616,14 @@ export const translations = {
         search_placeholder: 'Rechercher...',
         refresh: 'Rafraîchir',
         actions: 'Actions',
+        add_resource: 'Ajouter une ressource',
+        create: 'Créer',
+        create_resource: 'Créer une ressource',
+        template: 'Modèle',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'Passer à l\'éditeur YAML',
+        resource_kind: 'Type de ressource',
+        name_required: 'Le nom est requis',
         no_resources_found: 'Aucun {kind} trouvé.',
 
         // Resource Details
@@ -830,6 +854,14 @@ export const translations = {
         search_placeholder: 'Buscar...',
         refresh: 'Refrescar',
         actions: 'Acciones',
+        add_resource: 'Agregar recurso',
+        create: 'Crear',
+        create_resource: 'Crear recurso',
+        template: 'Plantilla',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'Cambiar al editor YAML',
+        resource_kind: 'Tipo de recurso',
+        name_required: 'El nombre es obligatorio',
         no_resources_found: 'No se encontraron {kind}.',
 
         // Resource Details
@@ -1053,6 +1085,14 @@ export const translations = {
         search_placeholder: '検索...',
         refresh: '更新',
         actions: 'アクション',
+        add_resource: 'リソースを追加',
+        create: '作成',
+        create_resource: 'リソースを作成',
+        template: 'テンプレート',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'YAMLエディタに切り替え',
+        resource_kind: 'リソースの種類',
+        name_required: '名前は必須です',
         no_resources_found: '{kind} が見つかりませんでした。',
 
         // Resource Details
@@ -1276,6 +1316,14 @@ export const translations = {
         search_placeholder: '검색...',
         refresh: '새로고침',
         actions: '작업',
+        add_resource: '리소스 추가',
+        create: '생성',
+        create_resource: '리소스 생성',
+        template: '템플릿',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'YAML 에디터로 전환',
+        resource_kind: '리소스 종류',
+        name_required: '이름이 필요합니다',
         no_resources_found: '{kind}을(를) 찾을 수 없습니다.',
 
         // Resource Details
@@ -1507,6 +1555,14 @@ export const translations = {
         search_placeholder: 'Szukaj...',
         refresh: 'Odśwież',
         actions: 'Akcje',
+        add_resource: 'Dodaj zasób',
+        create: 'Utwórz',
+        create_resource: 'Utwórz zasób',
+        template: 'Szablon',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: 'Przełącz na edytor YAML',
+        resource_kind: 'Typ zasobu',
+        name_required: 'Nazwa jest wymagana',
         no_resources_found: 'Nie znaleziono zasobów typu {kind}.',
 
         // Resource Details
@@ -1736,6 +1792,14 @@ export const translations = {
         search_placeholder: '搜索...',
         refresh: '刷新',
         actions: '操作',
+        add_resource: '添加资源',
+        create: '创建',
+        create_resource: '创建资源',
+        template: '模板',
+        raw_manifest: 'YAML / JSON',
+        switch_to_yaml: '切换到 YAML 编辑器',
+        resource_kind: '资源类型',
+        name_required: '名称是必须的',
         no_resources_found: '未找到 {kind}。',
 
         // Resource Details

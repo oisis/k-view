@@ -3,7 +3,9 @@ import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical,
 import { Link, useNavigate } from 'react-router-dom';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
+import CreateResourceModal from './CreateResourceModal';
 import { useSettings, useTranslation } from '../SettingsContext';
+import { Plus } from 'lucide-react';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -325,6 +327,7 @@ export default function ResourceList({ kind }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const getLabel = useCallback((label) => {
@@ -375,6 +378,11 @@ export default function ResourceList({ kind }) {
     }, [kind, namespace]);
 
     useEffect(() => { load(); }, [load]);
+
+    const handleCreated = () => {
+        load();
+        setIsCreateModalOpen(false);
+    };
 
     useEffect(() => {
         const interval = setInterval(load, settings.resourceRefreshInterval * 1000);
@@ -473,8 +481,23 @@ export default function ResourceList({ kind }) {
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {t('refresh')}
                     </button>
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="flex items-center gap-2 text-sm bg-[var(--accent)] text-white px-4 py-2 rounded-lg transition-all hover:opacity-90 shadow-lg shadow-indigo-500/20 active:scale-95 h-10 font-bold"
+                    >
+                        <Plus size={16} />
+                        {t('add_resource')}
+                    </button>
                 </div>
             </div>
+
+            <CreateResourceModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onCreated={handleCreated}
+                initialKind={kind}
+                namespaces={namespaces}
+            />
 
             {error && (
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
