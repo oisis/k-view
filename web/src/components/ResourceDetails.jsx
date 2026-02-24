@@ -674,59 +674,6 @@ export default function ResourceDetails({ user }) {
                                 </DetailSection>
                             </>
                         )}
-
-                        {/* Section: Recent Events */}
-                        <DetailSection title={t('recent_events')} className="mt-4">
-                            <table className="w-full text-sm text-left border-collapse">
-                                <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
-                                    <tr>
-                                        <th className="px-6 py-3">{t('type')}</th>
-                                        <th className="px-6 py-3">{t('reason')}</th>
-                                        <th className="px-6 py-3">{t('message')}</th>
-                                        <th className="px-6 py-3">{t('label_source')}</th>
-                                        <th className="px-6 py-3">{t('label_count')}</th>
-                                        <th className="px-6 py-3">{t('label_age')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[var(--border-color)]">
-                                    {events && events.length > 0 ? events.slice(0, 10).map((e, i) => (
-                                        <tr key={i} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
-                                                    {e.type}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 font-medium text-[var(--text-primary)]">{e.reason}</td>
-                                            <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
-                                            <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
-                                                {e.source?.component || e.source || '—'}
-                                            </td>
-                                            <td className="px-6 py-4 text-[var(--text-secondary)] text-center">
-                                                {e.count || 1}
-                                            </td>
-                                            <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <icons.clock size={10} />
-                                                        <span>First: {e.firstSeen || e.age}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 font-bold">
-                                                        <icons.clock size={10} />
-                                                        <span>Last: {e.lastSeen || e.age}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )) : (
-                                        <tr>
-                                            <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
-                                                {t('no_events')}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </DetailSection>
                     </>
                 )}
 
