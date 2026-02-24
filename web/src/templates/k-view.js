@@ -131,6 +131,7 @@ export default {
                 '--bg-dropdown': '#111827',
                 '--text-editor-code': '#93C5FD',
                 '--wallpaper-opacity': '0.12',
+                '--wallpaper-grayscale': '100%',
                 '--wallpaper-brightness': '0.5',
                 '--text-success': '#4ADE80',
                 '--text-error': '#F87171',

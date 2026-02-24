@@ -301,7 +301,7 @@ function App() {
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                         opacity: 'var(--wallpaper-opacity)',
-                        filter: `grayscale(100%) brightness(var(--wallpaper-brightness))`,
+                        filter: `grayscale(var(--wallpaper-grayscale, 100%)) brightness(var(--wallpaper-brightness))`,
                     }}
                 />
                 {user && (

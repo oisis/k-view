@@ -130,6 +130,7 @@ export default {
                 '--bg-glass-deep': 'rgba(0, 0, 0, 0.65)',
                 '--text-editor-code': '#60A5FA',
                 '--wallpaper-opacity': '0.15',
+                '--wallpaper-grayscale': '100%',
                 '--wallpaper-brightness': '0.4',
                 '--text-success': '#4ADE80',
                 '--text-error': '#F87171',
