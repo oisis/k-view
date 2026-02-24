@@ -97,7 +97,7 @@ Calculate authorized users list from assignments and local users
 {{- $users := list -}}
 {{- range .Values.rbac.assignments -}}
   {{- if .user -}}
-    {{- if typeIs "[]interface {}" .user -}}
+    {{- if kindIs "slice" .user -}}
       {{- range .user -}}
         {{- $users = append $users . -}}
       {{- end -}}
