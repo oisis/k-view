@@ -11,7 +11,7 @@ image:
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "0.30.4"
+  tag: "0.30.5"
   # -- Internal port used by the K-View application container
   containerPort: 8080
 
@@ -156,6 +156,15 @@ extraObjects: []
 #    data:
 #      key: value
 
+# -- List of RBAC assignments mapping identities to Kubernetes Roles.
+# Simplified structure (supports lists for multiple users with same role):
+# - user: ["admin@kview.local", "manager@kview.local"]
+#   role: "kview-cluster-admin"
+# - group: "dev-team"
+#   role: "kview-namespace-developer"
+#   namespace: "dev"
+assignments: []
+
 # -- Declarative RBAC configurations for K-View
 rbac:
   # -- Enable or disable the declarative RBAC system
@@ -165,12 +174,4 @@ rbac:
   # "cluster" (default) allows K-View to manage resources across the entire cluster.
   # "namespace" restricts K-View to its own namespace only.
   scope: "cluster"
-  
-  # -- List of RBAC assignments mapping identities to Kubernetes Roles.
-  # Simplified structure (supports lists for multiple users with same role):
-  # - user: ["admin@kview.local", "manager@kview.local"]
-  #   role: "kview-cluster-admin"
-  # - group: "dev-team"
-  #   role: "kview-namespace-developer"
-  #   namespace: "dev"
-  assignments: []
+

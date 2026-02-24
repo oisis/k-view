@@ -8,39 +8,41 @@ metadata:
 data:
   assignments.yaml: |
     assignments:
-{{- range .Values.rbac.assignments }}
+{{- range .Values.assignments }}
 {{- $role := .role }}
 {{- $ns := .namespace }}
 {{- if .user }}
-  {{- if not (typeIs "string" .user) }}
-    {{- range .user }}
+  {{- $current := .user }}
+  {{- if typeIs "string" $current }}
+      - user: {{ $current | quote }}
+        role: {{ $role | quote }}
+    {{- if $ns }}
+        namespace: {{ $ns | quote }}
+    {{- end }}
+  {{- else }}
+    {{- range $current }}
       - user: {{ . | quote }}
         role: {{ $role | quote }}
       {{- if $ns }}
         namespace: {{ $ns | quote }}
       {{- end }}
     {{- end }}
-  {{- else }}
-      - user: {{ .user | quote }}
+  {{- end }}
+{{- else if .group }}
+  {{- $current := .group }}
+  {{- if typeIs "string" $current }}
+      - group: {{ $current | quote }}
         role: {{ $role | quote }}
     {{- if $ns }}
         namespace: {{ $ns | quote }}
     {{- end }}
-  {{- end }}
-{{- else if .group }}
-  {{- if not (typeIs "string" .group) }}
-    {{- range .group }}
+  {{- else }}
+    {{- range $current }}
       - group: {{ . | quote }}
         role: {{ $role | quote }}
       {{- if $ns }}
         namespace: {{ $ns | quote }}
       {{- end }}
-    {{- end }}
-  {{- else }}
-      - group: {{ .group | quote }}
-        role: {{ $role | quote }}
-    {{- if $ns }}
-        namespace: {{ $ns | quote }}
     {{- end }}
   {{- end }}
 {{- end }}
