@@ -166,11 +166,17 @@ export default function Dashboard({ isCollapsed }) {
                 {/* Cluster Identity */}
                 <MetricCard
                     title={t('cluster_platform')}
-                    value={`Name: ${settings.clusterName || stats?.clusterName || "K8s Cluster"}`}
+                    value={
+                        <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1 font-black">Name</span>
+                            <span className="text-2xl md:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+                                {settings.clusterName || stats?.clusterName || "K8s Cluster"}
+                            </span>
+                        </div>
+                    }
                     subValue={`K8s version: ${stats?.k8sVersion || '—'}`}
                     iconKey="clusterrole"
                     color="cyan"
-                    valueClassName={isCollapsed ? 'text-2xl' : 'text-xl'}
                     onClick={() => navigate('/nodes')}
                     isCollapsed={isCollapsed}
                 />
