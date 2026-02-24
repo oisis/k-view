@@ -105,10 +105,10 @@ const commonIcons = {
 export default {
     id: 'k-view',
     name: 'K-view',
-    author: 'Oisis',
+    author: 'OiSiS',
     themes: {
         dark: {
-            name: 'K-view Dark',
+            name: 'K-view',
             variables: {
                 '--bg-main': 'rgba(11, 15, 25, 0.8)',
                 '--bg-sidebar': '#0F172A',

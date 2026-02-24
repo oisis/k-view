@@ -105,10 +105,10 @@ const commonIcons = {
 export default {
     id: 'light',
     name: 'Light',
-    author: 'Oisis',
+    author: 'OiSiS',
     themes: {
         light: {
-            name: 'Crisp Light',
+            name: 'Light',
             variables: {
                 '--bg-main': '#ffffff',
                 '--bg-sidebar': '#f1f5f9',

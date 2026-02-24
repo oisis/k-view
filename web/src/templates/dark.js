@@ -105,10 +105,10 @@ const commonIcons = {
 export default {
     id: 'dark',
     name: 'Dark',
-    author: 'Oisis',
+    author: 'OiSiS',
     themes: {
         black: {
-            name: 'Deep Black',
+            name: 'Black',
             variables: {
                 '--bg-main': 'rgba(0, 0, 0, 0.8)',
                 '--bg-sidebar': 'rgba(0, 0, 0, 0.8)',
