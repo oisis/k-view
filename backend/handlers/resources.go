@@ -606,6 +606,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			return
 		}
 
+		revision := "4"
+		if r, ok := found.Extra["revision"]; ok {
+			revision = r
+		}
+
+		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
+
 		details := gin.H{
 			"resource": found,
 			"metadata": gin.H{
@@ -614,11 +621,20 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
 				"creationTimestamp": "2024-02-18T10:00:00Z",
 				"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
-				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": "4"},
+				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
 			},
 			"spec": gin.H{
-				"nodeName": "mock-node-1",
-				"replicas": 3,
+				"nodeName":             "mock-node-1",
+				"replicas":             3,
+				"minReadySeconds":      0,
+				"revisionHistoryLimit": 10,
+				"strategy": gin.H{
+					"type": "RollingUpdate",
+					"rollingUpdate": gin.H{
+						"maxSurge":       "25%",
+						"maxUnavailable": "25%",
+					},
+				},
 				"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
 				"template": gin.H{
 					"spec": gin.H{
@@ -728,6 +744,17 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					},
 				},
 			},
+			"newReplicaSet": gin.H{
+				"metadata": gin.H{
+					"name":      found.Name + "-hash123",
+					"namespace": found.Namespace,
+					"uid":       "rs-uid-456",
+				},
+			},
+		}
+
+		if !isDeployment {
+			delete(details, "newReplicaSet")
 		}
 
 		c.JSON(http.StatusOK, details)
@@ -1428,10 +1455,10 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "cronjobs":
 		items = []ResourceItem{
-			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "last-schedule", "4h ago")},
-			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "last-schedule", "1h ago")},
-			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "last-schedule", "7d ago")},
-			{Name: "log-rotate", Namespace: "logging", Age: "28d", Status: "Active", Extra: ex("schedule", "0 0 * * *", "last-schedule", "8h ago")},
+			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "last-schedule", "4h ago", "images", "postgres:15-alpine", "labels", "app=db,env=prod", "suspend", "False", "active", "1")},
+			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "last-schedule", "1h ago", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "suspend", "False", "active", "0")},
+			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "last-schedule", "7d ago", "images", "reports-worker:latest", "labels", "tier=frontend", "suspend", "True", "active", "0")},
+			{Name: "log-rotate", Namespace: "logging", Age: "28d", Status: "Active", Extra: ex("schedule", "0 0 * * *", "last-schedule", "8h ago", "images", "fluentd:v1.16", "labels", "role=logging", "suspend", "False", "active", "1")},
 		}
 
 	case "services":

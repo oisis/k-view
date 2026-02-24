@@ -75,7 +75,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
         >
             <div className={isCollapsed ? 'mb-5' : 'mb-3'}>
                 <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
-                <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-[var(--text-white)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
+                <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-[var(--text-primary)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
                 {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-[var(--text-secondary)] mt-1.5 font-medium opacity-80`}>{subValue}</p>}
             </div>
             <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
@@ -124,7 +124,7 @@ export default function Dashboard({ isCollapsed }) {
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-[var(--text-white)] tracking-tight">{t('system_overview')}</h2>
+                    <h2 className="text-4xl font-extrabold text-[var(--text-primary)] tracking-tight">{t('system_overview')}</h2>
                     <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
                         <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
                         {t('connected_as')} <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
@@ -132,7 +132,7 @@ export default function Dashboard({ isCollapsed }) {
                 </div>
                 <button
                     onClick={fetchStats}
-                    className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
+                    className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
                 >
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     {t('reload')}

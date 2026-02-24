@@ -9,6 +9,7 @@ import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
 import ResourceDetails from './components/ResourceDetails';
 import About from './components/About';
+import CreateResourceModal from './components/CreateResourceModal';
 import { useTranslation } from './SettingsContext';
 
 import logo from './assets/k-view-logo.png';
@@ -20,7 +21,7 @@ import {
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
     Settings as SettingsIcon, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
-    Layers, Repeat, ShieldCheck
+    Layers, Repeat, ShieldCheck, Plus
 } from 'lucide-react';
 
 // ── Collapsible section ────────────────────────────────────────────────────
@@ -84,8 +85,26 @@ function NavItem({ href, icon: Icon, label, active, isCollapsed }) {
     );
 }
 
+// ── Nav action item ────────────────────────────────────────────────────────
+function NavActionButton({ onClick, icon: Icon, label, isCollapsed }) {
+    return (
+        <button
+            onClick={onClick}
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
+        text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)]
+        ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full text-left'}`}
+            title={isCollapsed ? label : ''}
+        >
+            <Icon size={isCollapsed ? 20 : 16} className="text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors shrink-0" />
+            {!isCollapsed && (
+                <span className="flex-1 truncate tracking-tight font-bold text-[var(--accent)]">{label}</span>
+            )}
+        </button>
+    );
+}
+
 // ── Sidebar ────────────────────────────────────────────────────────────────
-function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed }) {
+function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed, onCreateResource }) {
     const { pathname: p } = useLocation();
     const { t } = useTranslation();
 
@@ -154,7 +173,8 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed 
                     <NavItem href="/cluster/service-accounts" icon={Users} label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed}>
+                <Section label={t('tools')} defaultOpen={true} isCollapsed={isCollapsed}>
+                    <NavActionButton onClick={onCreateResource} icon={Plus} label={t('add_resource')} isCollapsed={isCollapsed} />
                     <NavItem href="/about" icon={Info} label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
                     <NavItem href="/console" icon={Terminal} label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
                     <NavItem href="/settings" icon={SettingsIcon} label={t('settings')} active={p === '/settings'} isCollapsed={isCollapsed} />
@@ -232,6 +252,8 @@ function App() {
     const { t } = useTranslation();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [namespaces, setNamespaces] = useState(['default']);
     const [theme, setTheme] = useState(() => localStorage.getItem('kview-theme') || 'default');
     const [isCollapsed, setIsCollapsed] = useState(() => {
         try { return JSON.parse(localStorage.getItem('kview-sidebar-collapsed')) ?? false; }
@@ -253,7 +275,14 @@ function App() {
     useEffect(() => {
         fetch('/api/auth/me')
             .then(r => r.ok ? r.json() : Promise.reject())
-            .then(d => setUser(d))
+            .then(d => {
+                setUser(d);
+                // Pre-fetch namespaces if logged in
+                fetch('/api/resources/namespaces')
+                    .then(r => r.json())
+                    .then(data => setNamespaces(data.map(ns => ns.name)))
+                    .catch(() => { });
+            })
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
     }, []);
@@ -293,8 +322,18 @@ function App() {
                         setTheme={setTheme}
                         isCollapsed={isCollapsed}
                         setIsCollapsed={setIsCollapsed}
+                        onCreateResource={() => setIsCreateModalOpen(true)}
                     />
                 )}
+
+                <CreateResourceModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onCreated={() => {
+                        // Individual lists refresh themselves
+                    }}
+                    namespaces={namespaces}
+                />
                 <main className="flex-1 overflow-auto flex flex-col">
                     <Routes>
                         {/* Auth */}

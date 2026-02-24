@@ -216,7 +216,7 @@ export default function ResourceDetails({ user }) {
                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
                             {t(kind.toLowerCase().replace(/s$/, '')) || (kind.replace(/s$/, ''))}
                         </span>
-                        <h2 className="text-3xl font-black text-[var(--text-white)] tracking-tight">
+                        <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">
                             {name}
                         </h2>
                     </div>
@@ -298,7 +298,7 @@ export default function ResourceDetails({ user }) {
                                 )}
 
                                 <StatusItem label={t('label_age')}>
-                                    <span className="text-[var(--text-white)]">{data.resource?.age || '—'}</span>
+                                    <span className="text-[var(--text-primary)]">{data.resource?.age || '—'}</span>
                                 </StatusItem>
 
                                 {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
@@ -306,7 +306,7 @@ export default function ResourceDetails({ user }) {
                                         <div className="flex items-center gap-2">
                                             <span className="text-success" title={t('label_ready')}>{status.readyReplicas || status.availableReplicas || 0}</span>
                                             <span className="text-[var(--text-muted)]">/</span>
-                                            <span className="text-[var(--text-white)]" title={t('desired')}>{spec.replicas || 0}</span>
+                                            <span className="text-[var(--text-primary)]" title={t('desired')}>{spec.replicas || 0}</span>
                                         </div>
                                     </StatusItem>
                                 )}
@@ -327,7 +327,7 @@ export default function ResourceDetails({ user }) {
 
                                 {isPod && spec.nodeName && (
                                     <StatusItem label={t('label_node')}>
-                                        <span className="text-[var(--text-white)] font-mono text-sm">{spec.nodeName}</span>
+                                        <span className="text-[var(--text-primary)] font-mono text-sm">{spec.nodeName}</span>
                                     </StatusItem>
                                 )}
                             </div>
@@ -355,6 +355,7 @@ export default function ResourceDetails({ user }) {
                                                     )}
                                                 </div>
                                             </DetailRow>
+                                            <DetailRow label={t('label_service_account')} value={spec.serviceAccountName || spec.serviceAccount || '—'} />
                                         </tbody>
                                     </table>
                                 </div>
@@ -363,6 +364,7 @@ export default function ResourceDetails({ user }) {
                                         <tbody className="divide-y divide-slate-600">
                                             <DetailRow label={t('label_namespace')} value={namespace === '-' ? '—' : namespace} />
                                             <DetailRow label={t('label_uid')} value={metadata.uid} />
+                                            <DetailRow label={t('label_restarts')} value={restarts || '0'} />
                                             <DetailRow label={t('label_annotations')}>
                                                 <div className="space-y-1">
                                                     {Object.entries(metadata.annotations || {}).map(([k, v]) => (
@@ -388,6 +390,8 @@ export default function ResourceDetails({ user }) {
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-slate-600">
                                     {spec.strategy?.type && <DetailRow label={t('strategy')} value={spec.strategy.type} />}
+                                    {spec.minReadySeconds !== undefined && <DetailRow label={t('min_ready_seconds')} value={spec.minReadySeconds} />}
+                                    {spec.revisionHistoryLimit !== undefined && <DetailRow label={t('revision_history_limit')} value={spec.revisionHistoryLimit} />}
                                     {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
                                     {mountedConfigMaps.length > 0 && (
@@ -427,12 +431,49 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
+                                    {spec.nodeName && <DetailRow label={t('label_node')} value={spec.nodeName} />}
+                                    {status.podIP && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
+                                    {spec.qosClass && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
+
+                                    {isDeployment && spec.strategy?.rollingUpdate && (
+                                        <DetailRow label={t('rolling_update_strategy')}>
+                                            <div className="flex gap-4 text-xs font-mono">
+                                                <span className="text-[var(--text-secondary)]">{t('max_surge')}: <span className="text-info">{spec.strategy.rollingUpdate.maxSurge}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('max_unavailable')}: <span className="text-error">{spec.strategy.rollingUpdate.maxUnavailable}</span></span>
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
+                                    {isDeployment && (
+                                        <DetailRow label={t('pods_status')}>
+                                            <div className="flex gap-4 text-xs font-mono">
+                                                <span className="text-[var(--text-secondary)]">{t('updated')}: <span className="text-success">{status.updatedReplicas || 0}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('total')}: <span className="text-[var(--text-primary)]">{status.replicas || 0}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('available')}: <span className="text-info">{status.availableReplicas || 0}</span></span>
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
+                                    {isDeployment && data.newReplicaSet && (
+                                        <DetailRow label={t('new_replica_set')}>
+                                            <div className="space-y-1 py-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-info font-bold">{data.newReplicaSet.metadata.name}</span>
+                                                    <span className="text-xs text-[var(--text-muted)] bg-black/20 px-1.5 py-0.5 rounded">{data.newReplicaSet.metadata.namespace}</span>
+                                                </div>
+                                                <div className="text-[11px] text-[var(--text-secondary)]">
+                                                    UID: <span className="font-mono">{data.newReplicaSet.metadata.uid}</span>
+                                                </div>
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
                                     <DetailRow label={t('containers')}>
                                         <div className="space-y-4">
                                             {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
                                                 <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
                                                     <div className="flex items-center justify-between mb-3">
-                                                        <span className="font-bold text-[var(--text-white)] flex items-center gap-2">
+                                                        <span className="font-bold text-[var(--text-primary)] flex items-center gap-2">
                                                             <Terminal size={12} className="text-info" />
                                                             {c.name}
                                                         </span>
@@ -459,6 +500,35 @@ export default function ResourceDetails({ user }) {
                                                         )}
                                                     </div>
                                                     <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                            <div>
+                                                                <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_env_variables')}</p>
+                                                                <div className="space-y-1">
+                                                                    {c.env?.map(ev => (
+                                                                        <div key={ev.name} className="flex text-xs font-mono">
+                                                                            <span className="text-info w-32 shrink-0">{ev.name}:</span>
+                                                                            <span className="text-[var(--text-secondary)] truncate">{ev.value || (ev.valueFrom ? '<from-source>' : '—')}</span>
+                                                                        </div>
+                                                                    )) || <p className="text-xs text-[var(--text-muted)] italic">No env variables</p>}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_mounts')}</p>
+                                                                <div className="space-y-2">
+                                                                    {c.volumeMounts?.map(vm => (
+                                                                        <div key={vm.mountPath} className="text-[10px] p-2 bg-black/20 rounded border border-white/5">
+                                                                            <div className="font-bold text-info mb-1">{vm.name}</div>
+                                                                            <div className="grid grid-cols-2 gap-x-2 text-[var(--text-muted)]">
+                                                                                <span>Path: <span className="text-[var(--text-secondary)]">{vm.mountPath}</span></span>
+                                                                                <span>ReadOnly: <span className="text-[var(--text-secondary)]">{vm.readOnly ? 'Yes' : 'No'}</span></span>
+                                                                                {vm.subPath && <span className="col-span-2">SubPath: <span className="text-[var(--text-secondary)]">{vm.subPath}</span></span>}
+                                                                            </div>
+                                                                        </div>
+                                                                    )) || <p className="text-xs text-[var(--text-muted)] italic">No mounts</p>}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                         <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                             <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
@@ -486,6 +556,7 @@ export default function ResourceDetails({ user }) {
                                             <th className="px-6 py-3">{t('type')}</th>
                                             <th className="px-6 py-3">{t('label_status')}</th>
                                             <th className="px-6 py-3">{t('last_transition')}</th>
+                                            <th className="px-6 py-3">{t('last_probe')}</th>
                                             <th className="px-6 py-3">{t('reason')}</th>
                                             <th className="px-6 py-3">{t('message')}</th>
                                         </tr>
@@ -493,13 +564,14 @@ export default function ResourceDetails({ user }) {
                                     <tbody className="divide-y divide-[var(--border-color)]">
                                         {status.conditions.map(c => (
                                             <tr key={c.type} className="hover:bg-white/5 transition-colors">
-                                                <td className="px-6 py-4 font-medium text-[var(--text-white)]">{c.type}</td>
+                                                <td className="px-6 py-4 font-medium text-[var(--text-primary)]">{c.type}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                                         {c.status}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-[var(--text-secondary)]">{new Date(c.lastTransitionTime).toLocaleString()}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] italic text-xs">{c.lastProbeTime ? new Date(c.lastProbeTime).toLocaleString() : '—'}</td>
                                                 <td className="px-6 py-4 text-[var(--text-secondary)]">{c.reason}</td>
                                                 <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{c.message}</td>
                                             </tr>
@@ -519,7 +591,7 @@ export default function ResourceDetails({ user }) {
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">{t('mounted_pvc')}</span>
-                                                <span className="text-sm font-mono text-[var(--text-white)]">{pvc}</span>
+                                                <span className="text-sm font-mono text-[var(--text-primary)]">{pvc}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -582,7 +654,7 @@ export default function ResourceDetails({ user }) {
                                                     <tbody className="divide-y divide-[var(--border-color)]/20">
                                                         {l.spec?.limits?.map((lim, idx) => (
                                                             <tr key={idx}>
-                                                                <td className="px-3 py-2 font-bold text-[var(--text-white)]">{lim.type}</td>
+                                                                <td className="px-3 py-2 font-bold text-[var(--text-primary)]">{lim.type}</td>
                                                                 <td className="px-3 py-2 text-[var(--text-secondary)]">CPU/Memory</td>
                                                                 <td className="px-3 py-2 text-info font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
                                                                 <td className="px-3 py-2 text-error font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
@@ -608,6 +680,8 @@ export default function ResourceDetails({ user }) {
                                         <th className="px-6 py-3">{t('type')}</th>
                                         <th className="px-6 py-3">{t('reason')}</th>
                                         <th className="px-6 py-3">{t('message')}</th>
+                                        <th className="px-6 py-3">{t('label_source')}</th>
+                                        <th className="px-6 py-3">{t('label_count')}</th>
                                         <th className="px-6 py-3">{t('label_age')}</th>
                                     </tr>
                                 </thead>
@@ -619,12 +693,24 @@ export default function ResourceDetails({ user }) {
                                                     {e.type}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
+                                            <td className="px-6 py-4 font-medium text-[var(--text-primary)]">{e.reason}</td>
                                             <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
+                                            <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
+                                                {e.source?.component || e.source || '—'}
+                                            </td>
+                                            <td className="px-6 py-4 text-[var(--text-secondary)] text-center">
+                                                {e.count || 1}
+                                            </td>
                                             <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Clock size={12} />
-                                                    {e.age}
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Clock size={10} />
+                                                        <span>First: {e.firstSeen || e.age}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 font-bold">
+                                                        <Clock size={10} />
+                                                        <span>Last: {e.lastSeen || e.age}</span>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -749,6 +835,8 @@ export default function ResourceDetails({ user }) {
                                     <th className="px-6 py-3">{t('type')}</th>
                                     <th className="px-6 py-3">{t('reason')}</th>
                                     <th className="px-6 py-3">{t('message')}</th>
+                                    <th className="px-6 py-3">{t('label_source')}</th>
+                                    <th className="px-6 py-3">{t('label_count')}</th>
                                     <th className="px-6 py-3">{t('label_age')}</th>
                                 </tr>
                             </thead>
@@ -762,10 +850,22 @@ export default function ResourceDetails({ user }) {
                                         </td>
                                         <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
                                         <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
+                                        <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
+                                            {e.source?.component || e.source || '—'}
+                                        </td>
+                                        <td className="px-6 py-4 text-[var(--text-secondary)] text-center">
+                                            {e.count || 1}
+                                        </td>
                                         <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
-                                            <div className="flex items-center gap-1.5">
-                                                <Clock size={12} />
-                                                {e.age}
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Clock size={10} />
+                                                    <span>First: {e.firstSeen || e.age}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 font-bold">
+                                                    <Clock size={10} />
+                                                    <span>Last: {e.lastSeen || e.age}</span>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>

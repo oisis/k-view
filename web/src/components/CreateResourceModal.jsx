@@ -228,11 +228,11 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                             <Zap size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-[var(--text-white)]">{t('create_resource')}</h2>
+                            <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('create_resource')}</h2>
                             <p className="text-xs text-[var(--text-muted)] mt-0.5 uppercase tracking-widest font-bold">Standard API v1.25+</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
+                    <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
                         <X size={20} />
                     </button>
                 </div>
@@ -241,13 +241,13 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-[var(--border-color)]">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
                         <Layout size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
                         <FileText size={14} /> {t('raw_manifest')}
                     </button>
@@ -270,10 +270,10 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                     <select
                                         value={selectedKind}
                                         onChange={(e) => setSelectedKind(e.target.value)}
-                                        className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
+                                        className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
                                     >
                                         {Object.entries(TEMPLATES).map(([key, tmpl]) => (
-                                            <option key={key} value={key} className="bg-[var(--bg-card)]">
+                                            <option key={key} value={key} className="bg-[var(--bg-main)] text-[var(--text-primary)]">
                                                 {tmpl.name}
                                             </option>
                                         ))}
@@ -297,10 +297,10 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                             <select
                                                 value={namespace}
                                                 onChange={(e) => setNamespace(e.target.value)}
-                                                className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
+                                                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
                                             >
                                                 {namespaces?.map(ns => (
-                                                    <option key={ns} value={ns}>{ns}</option>
+                                                    <option key={ns} value={ns} className="bg-[var(--bg-main)] text-[var(--text-primary)]">{ns}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -309,7 +309,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <button
                                     onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="flex items-center gap-2 text-[var(--text-white)] text-xs font-black uppercase tracking-widest hover:text-[var(--accent)] transition-colors"
+                                    className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-black uppercase tracking-widest hover:text-[var(--accent)] transition-colors"
                                 >
                                     <ChevronRight size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
                                     Advanced Options
@@ -414,7 +414,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="p-6 bg-[var(--bg-sidebar)]/30 border-t border-[var(--border-color)] flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors"
+                        className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                     >
                         {t('cancel')}
                     </button>

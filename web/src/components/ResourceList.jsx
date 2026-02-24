@@ -71,9 +71,12 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
             { key: 'extra.schedule', label: 'Schedule' },
+            { key: 'extra.suspend', label: 'Suspend' },
+            { key: 'extra.active', label: 'Active' },
             { key: 'extra.last-schedule', label: 'Last Run' },
-            { key: 'status', label: 'Status', badge: true },
             { key: 'age', label: 'Age' },
         ],
     },
@@ -455,7 +458,7 @@ export default function ResourceList({ kind }) {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">{t(kind) || schema.title}</h2>
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">{t(kind) || schema.title}</h2>
                     <p className="text-[var(--text-secondary)] text-sm">
                         {loading ? t('loading') : `${filteredItems.length} ${filteredItems.length === 1 ? t('item') : t('items')}`}
                         {namespace && ` ${t('in_ns')} "${namespace}"`}
@@ -468,7 +471,7 @@ export default function ResourceList({ kind }) {
                         placeholder={t('search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10"
+                        className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10"
                     />
                     {isNamespaced && (
                         <NamespaceSelect
@@ -477,7 +480,7 @@ export default function ResourceList({ kind }) {
                             onChange={setNamespace}
                         />
                     )}
-                    <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-white)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
+                    <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {t('refresh')}
                     </button>
@@ -512,7 +515,7 @@ export default function ResourceList({ kind }) {
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)] transition-colors group select-none"
+                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none"
                                     >
                                         <div className="flex items-center gap-2">
                                             {getLabel(col.label)}
@@ -547,7 +550,7 @@ export default function ResourceList({ kind }) {
                                                         ? (
                                                             <Link
                                                                 to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                                className="font-bold text-[var(--accent)] hover:text-[var(--text-white)] transition-colors"
+                                                                className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
                                                             >
                                                                 {val}
                                                             </Link>
@@ -612,7 +615,7 @@ export default function ResourceList({ kind }) {
                                             className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
                                                 ${currentPage === p
                                                     ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
-                                                    : 'text-[var(--text-muted)] hover:text-[var(--text-white)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
+                                                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
                                         >
                                             {p}
                                         </button>
