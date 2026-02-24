@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Info } from 'lucide-react';
 import { useTranslation } from '../SettingsContext';
+import { useTheme } from '../ThemeContext';
 
 export default function About() {
     const { t } = useTranslation();
+    const { icons } = useTheme();
     const [version, setVersion] = useState(t('loading'));
 
     useEffect(() => {
@@ -12,6 +13,8 @@ export default function About() {
             .then(data => setVersion(data.version || "unknown"))
             .catch(() => setVersion("unknown"));
     }, []);
+
+    const InfoIcon = icons.about || icons.info;
 
     return (
         <div className="flex-1 overflow-auto bg-[var(--bg-main)]">
@@ -25,7 +28,7 @@ export default function About() {
                     <div className="p-6">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-info/10 text-info rounded-xl border border-info/20">
-                                <Info size={32} />
+                                {InfoIcon && <InfoIcon size={32} />}
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-[var(--text-primary)]">{t('version_info')}</h2>

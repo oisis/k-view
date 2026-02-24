@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    Server, Activity, Cpu, Database, Hash,
-    ShieldCheck, AlertCircle, Info, RefreshCw, Box
-} from 'lucide-react';
 import { useSettings, useTranslation } from '../SettingsContext';
+import { useTheme } from '../ThemeContext';
 
 // --- Mini Chart Component (SVG) ---
 function MiniChart({ data, color, label }) {
@@ -56,7 +53,9 @@ function MiniChart({ data, color, label }) {
 }
 
 // --- Metric Card Component ---
-function MetricCard({ title, value, subValue, icon: Icon, color, children, onClick, valueClassName = "", isCollapsed }) {
+function MetricCard({ title, value, subValue, iconKey, color, children, onClick, valueClassName = "", isCollapsed }) {
+    const { icons } = useTheme();
+    const Icon = icons[iconKey] || icons.pod;
     const colorMap = {
         blue: 'text-info bg-info/10 border-info/20',
         green: 'text-success bg-success/10 border-success/20',
@@ -89,6 +88,7 @@ function MetricCard({ title, value, subValue, icon: Icon, color, children, onCli
 export default function Dashboard({ isCollapsed }) {
     const { settings } = useSettings();
     const { t } = useTranslation();
+    const { icons } = useTheme();
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ export default function Dashboard({ isCollapsed }) {
     if (loading && !stats) {
         return (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-[var(--text-secondary)]">
-                <RefreshCw size={32} className="animate-spin text-blue-500" />
+                <icons.refresh size={32} className="animate-spin text-blue-500" />
                 <p className="animate-pulse">{t('analyzing_cluster')}</p>
             </div>
         );
@@ -134,7 +134,7 @@ export default function Dashboard({ isCollapsed }) {
                     onClick={fetchStats}
                     className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
                 >
-                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                    <icons.refresh size={14} className={loading ? 'animate-spin' : ''} />
                     {t('reload')}
                 </button>
             </div>
@@ -142,7 +142,7 @@ export default function Dashboard({ isCollapsed }) {
             {/* Metrics Server Warning */}
             {stats && !stats.metricsServer && (
                 <div className="mb-8 p-4 bg-warning/10 border border-warning/30 text-warning rounded-xl flex items-start gap-3 shadow-lg">
-                    <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                    <icons.alert size={20} className="shrink-0 mt-0.5" />
                     <div>
                         <p className="font-bold text-sm">{t('metrics_server_missing')}</p>
                         <p className="text-xs opacity-80 mt-1">
@@ -162,7 +162,7 @@ export default function Dashboard({ isCollapsed }) {
 
             {error && (
                 <div className="mb-8 p-4 bg-error/10 border border-error/30 text-error rounded-xl flex items-center gap-2 shadow-lg">
-                    <AlertCircle size={18} />
+                    <icons.alert size={18} />
                     <span className="text-sm font-medium">{error}</span>
                 </div>
             )}
@@ -175,7 +175,7 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('cluster_platform')}
                     value={settings.clusterName || stats?.clusterName || "K8s Cluster"}
                     subValue={`Version: ${stats?.k8sVersion || '—'}`}
-                    icon={ShieldCheck}
+                    iconKey="clusterrole"
                     color="cyan"
                     valueClassName={isCollapsed ? 'text-2xl' : 'text-xl'}
                     onClick={() => navigate('/nodes')}
@@ -187,7 +187,7 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('total_nodes')}
                     value={stats?.nodeCount || 0}
                     subValue={`${stats?.nodeCountReady || 0} ${t('ready_nodes')}`}
-                    icon={Server}
+                    iconKey="nodes"
                     color="purple"
                     onClick={() => navigate('/nodes')}
                     isCollapsed={isCollapsed}
@@ -198,7 +198,7 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('active_pods')}
                     value={stats?.podCount || 0}
                     subValue={`${stats?.podCountFailed || 0} ${t('failed_evicted')}`}
-                    icon={Box}
+                    iconKey="pod"
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
                     onClick={() => navigate('/workloads/pods')}
                     isCollapsed={isCollapsed}
@@ -221,7 +221,7 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('control_plane')}
                     value={(!stats || stats.nodeCountReady === stats.nodeCount) ? t('healthy') : t('not_healthy')}
                     subValue={t('control_plane_desc')}
-                    icon={Activity}
+                    iconKey="activity"
                     color={(!stats || stats.nodeCountReady === stats.nodeCount) ? "green" : "red"}
                     valueClassName={(!stats || stats.nodeCountReady === stats.nodeCount) ? "text-success" : "text-error"}
                     isCollapsed={isCollapsed}
@@ -237,7 +237,7 @@ export default function Dashboard({ isCollapsed }) {
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300`}>
-                        <Cpu size={isCollapsed ? 22 : 18} />
+                        <icons.cpu size={isCollapsed ? 22 : 18} />
                     </div>
                     <MiniChart
                         data={stats?.cpuHistory}
@@ -256,7 +256,7 @@ export default function Dashboard({ isCollapsed }) {
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300`}>
-                        <Database size={isCollapsed ? 22 : 18} />
+                        <icons.pvc size={isCollapsed ? 22 : 18} />
                     </div>
                     <MiniChart
                         data={stats?.ramHistory}
@@ -271,12 +271,12 @@ export default function Dashboard({ isCollapsed }) {
             <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
                 <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
                     <div className="flex items-center gap-2">
-                        <Info size={14} className="text-info/60" />
+                        <icons.about size={14} className="text-info/60" />
                         {t('metrics_update_info', { sec: settings.resourceRefreshInterval })}
                     </div>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
-                    <Activity size={14} className="text-success/60" />
+                    <icons.activity size={14} className="text-success/60" />
                     {t('cluster_health_stable')}
                 </div>
             </div>

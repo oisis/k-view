@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Activity, RefreshCw, ChevronUp, ChevronDown, ArrowUpDown, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSettings, useTranslation } from '../SettingsContext';
+import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
-import { useSettings, useTranslation } from '../SettingsContext';
-import { Plus } from 'lucide-react';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -319,6 +318,7 @@ function StatusBadge({ value }) {
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
     const { t } = useTranslation();
+    const { icons } = useTheme();
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
@@ -481,14 +481,14 @@ export default function ResourceList({ kind }) {
                         />
                     )}
                     <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        <icons.refresh size={14} className={loading ? 'animate-spin' : ''} />
                         {t('refresh')}
                     </button>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="flex items-center gap-2 text-sm bg-[var(--accent)] text-white px-4 py-2 rounded-lg transition-all hover:opacity-90 shadow-lg shadow-indigo-500/20 active:scale-95 h-10 font-bold"
                     >
-                        <Plus size={16} />
+                        <icons.plus size={16} />
                         {t('add_resource')}
                     </button>
                 </div>
@@ -521,9 +521,9 @@ export default function ResourceList({ kind }) {
                                             {getLabel(col.label)}
                                             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (
-                                                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                                                    sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                 ) : (
-                                                    <ArrowUpDown size={12} className="opacity-0 group-hover:opacity-100" />
+                                                    <icons.sort size={12} className="opacity-0 group-hover:opacity-100" />
                                                 )}
                                             </span>
                                         </div>
@@ -570,7 +570,7 @@ export default function ResourceList({ kind }) {
                                                 className="text-info/70 hover:text-info p-1.5 hover:bg-info/10 rounded inline-flex transition-colors"
                                                 title="Visual Trace"
                                             >
-                                                <Activity size={16} />
+                                                <icons.activity size={16} />
                                             </button>
                                         </td>
                                     )}
@@ -599,9 +599,9 @@ export default function ResourceList({ kind }) {
                         <button
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
-                            <ChevronLeft size={18} />
+                            <icons.chevron_left size={18} />
                         </button>
 
                         <div className="flex items-center gap-1">
@@ -627,9 +627,9 @@ export default function ResourceList({ kind }) {
                         <button
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
-                            <ChevronRight size={18} />
+                            <icons.chevron_right size={18} />
                         </button>
                     </div>
                 </div>

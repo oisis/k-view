@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshCw, AlertCircle, Activity, Box, Network, Globe } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
 import mermaid from 'mermaid';
 
 mermaid.initialize({
@@ -21,14 +21,15 @@ mermaid.initialize({
     }
 });
 
-const kindIconMap = {
-    'ingress': <Globe size={14} className="text-purple-400" />,
-    'service': <Network size={14} className="text-orange-400" />,
-    'pod': <Box size={14} className="text-blue-400" />,
-    'external': <Activity size={14} className="text-success" />
-};
-
 export default function NetworkTrace({ kind, namespace, name }) {
+    const { icons } = useTheme();
+
+    const kindIconMap = {
+        'ingress': icons.external && <icons.external size={14} className="text-purple-400" />,
+        'service': icons.network && <icons.network size={14} className="text-orange-400" />,
+        'pod': icons.pod && <icons.pod size={14} className="text-blue-400" />,
+        'external': icons.activity && <icons.activity size={14} className="text-success" />
+    };
     const [traceData, setTraceData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -162,7 +163,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
             <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/60 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-900/30 text-blue-400 rounded-lg">
-                        <Activity size={18} />
+                        {icons.activity && <icons.activity size={18} />}
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-[var(--text-white)] uppercase tracking-wider">Network Flow Trace</h2>
@@ -172,7 +173,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                     </div>
                 </div>
                 <button onClick={fetchTrace} className="p-2 text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
-                    <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+                    {icons.refresh && <icons.refresh size={16} className={loading ? "animate-spin" : ""} />}
                 </button>
             </div>
 
@@ -180,12 +181,12 @@ export default function NetworkTrace({ kind, namespace, name }) {
             <div className="flex-1 overflow-auto bg-[var(--bg-sidebar)]/20 backdrop-blur-md p-6">
                 {loading ? (
                     <div className="flex flex-col items-center justify-center p-20 text-[var(--text-muted)] h-full min-h-[300px]">
-                        <Activity size={32} className="animate-pulse mb-4 text-blue-500/50" />
+                        {icons.activity && <icons.activity size={32} className="animate-pulse mb-4 text-blue-500/50" />}
                         <p>Analyzing network topology...</p>
                     </div>
                 ) : error ? (
                     <div className="flex items-start gap-3 p-4 bg-error/10 border border-error/30 rounded-lg text-error">
-                        <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                        {icons.alert && <icons.alert size={20} className="shrink-0 mt-0.5" />}
                         <div>
                             <h3 className="font-bold mb-1">Trace Failed</h3>
                             <p className="text-sm opacity-90">{error}</p>
@@ -198,7 +199,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                             {traceData.nodes.map((n, i) => (
                                 <div key={i} className={`flex items-start gap-2.5 p-2.5 rounded-lg border ${n.healthy ? 'bg-success/10 border-success/20 shadow-sm' : 'bg-error/10 border-error/20 shadow-sm'}`}>
                                     <div className="mt-0.5 text-[var(--text-muted)]">
-                                        {kindIconMap[n.type.toLowerCase()] || <Box size={14} />}
+                                        {kindIconMap[n.type.toLowerCase()] || (icons.pod && <icons.pod size={14} />)}
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">

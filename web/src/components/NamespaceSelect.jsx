@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Server, ChevronDown, X, Search } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
+import { useTranslation } from '../SettingsContext';
 
 export default function NamespaceSelect({ namespaces, selected, onChange }) {
+    const { icons } = useTheme();
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const containerRef = useRef(null);
@@ -40,10 +43,10 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                 className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
             >
                 <span className="flex items-center gap-2">
-                    <Server size={14} className="text-[var(--text-muted)]" />
+                    {icons.nodes && <icons.nodes size={14} className="text-[var(--text-muted)]" />}
                     <span className="truncate">{displayValue}</span>
                 </span>
-                <ChevronDown size={14} className={`text-[var(--text-muted)] transition-transform ${open ? 'rotate-180' : ''}`} />
+                {icons.chevron_down && <icons.chevron_down size={14} className={`text-[var(--text-muted)] transition-transform ${open ? 'rotate-180' : ''}`} />}
             </button>
 
             {open && (
@@ -51,7 +54,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     {/* Search input */}
                     <div className="p-2 border-b border-[var(--border-color)]">
                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 rounded px-2 py-1.5">
-                            <Search size={13} className="text-[var(--text-muted)] shrink-0" />
+                            {icons.search && <icons.search size={13} className="text-[var(--text-muted)] shrink-0" />}
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -62,7 +65,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                             />
                             {query && (
                                 <button onClick={() => setQuery('')}>
-                                    <X size={13} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)]" />
+                                    {icons.close && <icons.close size={13} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)]" />}
                                 </button>
                             )}
                         </div>
@@ -84,7 +87,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors
                       ${isSelected ? 'bg-info/10 text-info' : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)]'}`}
                                     >
-                                        <Server size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />
+                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />}
                                         <span className="flex-1 text-left">{ns}</span>
                                         {isSystem && (
                                             <span className="text-xs text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>

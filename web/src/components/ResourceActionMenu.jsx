@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-    MoreVertical, Edit3, Trash2, Download, ExternalLink,
-    FileText, Terminal, Activity, AlertTriangle, RefreshCw,
-    ChevronUp, ChevronDown, Zap
-} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../ThemeContext';
 
 export default function ResourceActionMenu({ kind, namespace, name, onRefresh }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +10,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const [scaleValue, setScaleValue] = useState(1);
     const menuRef = useRef(null);
     const navigate = useNavigate();
+    const { icons } = useTheme();
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
@@ -164,9 +161,9 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         <div className="relative" ref={menuRef}>
             <button
                 onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); setConfirmAction(null); }}
-                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-[var(--sidebar-hover)]'}`}
+                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]'}`}
             >
-                <MoreVertical size={16} />
+                <icons.more size={16} />
             </button>
 
             {isOpen && (
@@ -174,37 +171,37 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                     {!confirmAction ? (
                         <>
                             {(isPod || isWorkload) && (
-                                <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-[var(--text-white)] hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group">
-                                    <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-500" /> Restart
+                                <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group">
+                                    <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" /> Restart
                                 </button>
                             )}
-                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                <ExternalLink size={14} /> View Details
+                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                <icons.external_link size={14} /> View Details
                             </button>
-                            <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                <Edit3 size={14} /> Edit YAML
+                            <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                <icons.edit size={14} /> Edit YAML
                             </button>
                             {isScalable && (
-                                <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    <Activity size={14} /> Scale Replicas
+                                <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                    <icons.activity size={14} /> Scale Replicas
                                 </button>
                             )}
                             {isPod && (
                                 <>
-                                    <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                        <FileText size={14} /> View Logs
+                                    <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                        <icons.manifest size={14} /> View Logs
                                     </button>
-                                    <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                        <Terminal size={14} /> Exec Shell
+                                    <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                        <icons.terminal size={14} /> Exec Shell
                                     </button>
                                 </>
                             )}
-                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--accent)]/10 transition-colors">
-                                <Download size={14} /> Export YAML
+                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                <icons.download size={14} /> Export YAML
                             </button>
                             <div className="h-px bg-[var(--border-color)] my-1" />
                             <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors">
-                                <Trash2 size={14} /> Delete
+                                <icons.trash size={14} /> Delete
                             </button>
                         </>
                     ) : (
@@ -212,7 +209,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                             {confirmAction === 'delete' && (
                                 <>
                                     <div className="flex items-center gap-2 text-rose-400 mb-2 px-1">
-                                        <AlertTriangle size={16} />
+                                        <icons.alert_triangle size={16} />
                                         <span className="text-xs font-black uppercase tracking-wider">Confirm Delete?</span>
                                     </div>
                                     <label className="flex items-center gap-2 mb-4 px-1 cursor-pointer group">
@@ -236,7 +233,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                             {confirmAction === 'restart' && (
                                 <>
                                     <div className="flex items-center gap-2 text-[var(--accent)] mb-4 px-1">
-                                        <Zap size={16} />
+                                        <icons.zap size={16} />
                                         <span className="text-xs font-black uppercase tracking-wider">Confirm Restart?</span>
                                     </div>
                                     <div className="flex gap-2">
@@ -251,18 +248,18 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                             {confirmAction === 'scale' && (
                                 <>
                                     <div className="flex items-center gap-2 text-cyan-400 mb-4 px-1">
-                                        <Activity size={16} />
+                                        <icons.activity size={16} />
                                         <span className="text-xs font-black uppercase tracking-wider">Set Replicas</span>
                                     </div>
                                     <div className="flex items-center gap-3 mb-4 bg-[var(--bg-muted)]/50 p-2 rounded-lg border border-[var(--border-color)]">
-                                        <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-1 hover:text-[var(--accent)] transition-colors"><ChevronDown size={14} /></button>
+                                        <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-1 hover:text-[var(--accent)] transition-colors"><icons.chevron_down size={14} /></button>
                                         <input
                                             type="number"
                                             value={scaleValue}
                                             onChange={(e) => setScaleValue(parseInt(e.target.value) || 0)}
                                             className="w-full bg-transparent text-center text-sm font-bold text-[var(--text-white)] focus:outline-none"
                                         />
-                                        <button onClick={() => setScaleValue(scaleValue + 1)} className="p-1 hover:text-[var(--accent)] transition-colors"><ChevronUp size={14} /></button>
+                                        <button onClick={() => setScaleValue(scaleValue + 1)} className="p-1 hover:text-[var(--accent)] transition-colors"><icons.chevron_up size={14} /></button>
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2 bg-[#4ed8ff] hover:bg-[#72e1ff] text-black text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">

@@ -11,21 +11,14 @@ import ResourceDetails from './components/ResourceDetails';
 import About from './components/About';
 import CreateResourceModal from './components/CreateResourceModal';
 import { useTranslation } from './SettingsContext';
+import { useTheme } from './ThemeContext';
 
 import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
 
-import {
-    LayoutDashboard, Server, Terminal, LogOut, FlaskConical, ShieldAlert,
-    Boxes, Package, GitBranch, RefreshCw, Clock, Network, Globe,
-    FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
-    Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
-    Settings as SettingsIcon, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
-    Layers, Repeat, ShieldCheck, Plus
-} from 'lucide-react';
-
 // ── Collapsible section ────────────────────────────────────────────────────
 function Section({ label, children, defaultOpen = true, isCollapsed }) {
+    const { icons } = useTheme();
     const key = `sidebar-section-${label}`;
     const [open, setOpen] = useState(() => {
         try { return JSON.parse(localStorage.getItem(key)) ?? defaultOpen; }
@@ -53,8 +46,8 @@ function Section({ label, children, defaultOpen = true, isCollapsed }) {
                     {label}
                 </span>
                 {open
-                    ? <ChevronDown size={10} className="text-[var(--text-muted)]" />
-                    : <ChevronRight size={10} className="text-[var(--text-muted)]" />
+                    ? <icons.chevron_down size={10} className="text-[var(--text-muted)]" />
+                    : <icons.chevron_right size={10} className="text-[var(--text-muted)]" />
                 }
             </button>
             {open && <div className="space-y-0.5">{children}</div>}
@@ -63,22 +56,24 @@ function Section({ label, children, defaultOpen = true, isCollapsed }) {
 }
 
 // ── Nav item ───────────────────────────────────────────────────────────────
-function NavItem({ href, icon: Icon, label, active, isCollapsed }) {
+function NavItem({ href, iconKey, label, active, isCollapsed }) {
+    const { icons } = useTheme();
+    const Icon = icons[iconKey] || icons.pod;
     return (
         <a
             href={href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
         ${active
                     ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)]'}
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]'}
                 ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : 'text-[var(--text-muted)] group-hover:text-[var(--text-white)]'} transition-colors shrink-0`} />
+            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'} transition-colors shrink-0`} />
             {!isCollapsed && (
                 <>
                     <span className="flex-1 truncate tracking-tight">{label}</span>
-                    {active && <ChevronRight size={12} className="text-white/70" />}
+                    {active && <icons.chevron_right size={12} className="text-white/70" />}
                 </>
             )}
         </a>
@@ -86,16 +81,18 @@ function NavItem({ href, icon: Icon, label, active, isCollapsed }) {
 }
 
 // ── Nav action item ────────────────────────────────────────────────────────
-function NavActionButton({ onClick, icon: Icon, label, isCollapsed }) {
+function NavActionButton({ onClick, iconKey, label, isCollapsed }) {
+    const { icons } = useTheme();
+    const Icon = icons[iconKey] || icons.plus;
     return (
         <button
             onClick={onClick}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
-        text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-white)]
+        text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]
         ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full text-left'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className="text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors shrink-0" />
+            <Icon size={isCollapsed ? 20 : 16} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors shrink-0" />
             {!isCollapsed && (
                 <span className="flex-1 truncate tracking-tight font-bold text-[var(--accent)]">{label}</span>
             )}
@@ -104,9 +101,10 @@ function NavActionButton({ onClick, icon: Icon, label, isCollapsed }) {
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────
-function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed, onCreateResource }) {
+function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource }) {
     const { pathname: p } = useLocation();
     const { t } = useTranslation();
+    const { icons } = useTheme();
 
     return (
         <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
@@ -119,11 +117,11 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed,
                 ) : null}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
+                    className={`p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
                         ${isCollapsed ? 'hover:bg-[var(--accent)]/10 text-[var(--accent)]' : ''}`}
                     title={isCollapsed ? t('expand_menu') : t('collapse_menu')}
                 >
-                    {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+                    {isCollapsed ? <icons.expand_menu size={20} /> : <icons.collapse_menu size={20} />}
                 </button>
             </div>
 
@@ -132,52 +130,52 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed,
 
                 {/* Dashboard — standalone, no section */}
                 <div className={`pb-1 ${isCollapsed ? 'flex flex-col items-center gap-0.5 mb-1' : 'space-y-0.5'}`}>
-                    <NavItem href="/" icon={LayoutDashboard} label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
+                    <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
                 </div>
 
                 <Section label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/workloads/cronjobs" icon={Clock} label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/daemonsets" icon={RefreshCw} label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/deployments" icon={Package} label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/jobs" icon={Database} label={t('jobs')} active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/pods" icon={Boxes} label={t('pods')} active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicasets" icon={Layers} label={t('replicasets')} active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicationcontrollers" icon={Repeat} label={t('replicationcontrollers')} active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/statefulsets" icon={GitBranch} label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/jobs" iconKey="job" label={t('jobs')} active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/pods" iconKey="pod" label={t('pods')} active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicasets" iconKey="replicaset" label={t('replicasets')} active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicationcontrollers" iconKey="replicationcontroller" label={t('replicationcontrollers')} active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label={t('network')} defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/cluster/ingress-classes" icon={Globe} label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/ingresses" icon={Globe} label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/services" icon={Network} label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/services" iconKey="service" label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label={t('config')} defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/config/configmaps" icon={FileText} label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvcs" icon={Database} label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/secrets" icon={Lock} label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/storage-classes" icon={Database} label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed}>
-                    <NavItem href="/cluster/cluster-role-bindings" icon={Link} label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/cluster-roles" icon={Shield} label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/crd" icon={Puzzle} label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/events" icon={Activity} label={t('events')} active={p === '/cluster/events'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/namespaces" icon={Globe2} label={t('namespaces')} active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/network-policies" icon={AlertTriangle} label={t('network_policies')} active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" icon={Server} label={t('nodes')} active={p === '/nodes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvs" icon={Database} label={t('pv')} active={p === '/config/pvs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/role-bindings" icon={Link} label={t('rolebindings')} active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/roles" icon={Key} label={t('roles')} active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/service-accounts" icon={Users} label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
+                    <NavItem href="/crd" iconKey="crd" label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/events" iconKey="event" label={t('events')} active={p === '/cluster/events'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/namespaces" iconKey="namespace" label={t('namespaces')} active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/network-policies" iconKey="networkpolicy" label={t('network_policies')} active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
+                    <NavItem href="/nodes" iconKey="nodes" label={t('nodes')} active={p === '/nodes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvs" iconKey="pv" label={t('pv')} active={p === '/config/pvs'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/role-bindings" iconKey="rolebinding" label={t('rolebindings')} active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/roles" iconKey="role" label={t('roles')} active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section label={t('tools')} defaultOpen={true} isCollapsed={isCollapsed}>
-                    <NavActionButton onClick={onCreateResource} icon={Plus} label={t('add_resource')} isCollapsed={isCollapsed} />
-                    <NavItem href="/about" icon={Info} label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
-                    <NavItem href="/console" icon={Terminal} label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
-                    <NavItem href="/settings" icon={SettingsIcon} label={t('settings')} active={p === '/settings'} isCollapsed={isCollapsed} />
+                    <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
+                    <NavItem href="/about" iconKey="about" label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
+                    <NavItem href="/console" iconKey="console" label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
+                    <NavItem href="/settings" iconKey="settings" label={t('settings')} active={p === '/settings'} isCollapsed={isCollapsed} />
                 </Section>
 
             </nav>
@@ -192,7 +190,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed,
                                 ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-sm'
                                 : 'text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
                     >
-                        <ShieldAlert size={16} /> {t('admin_panel')}
+                        <icons.admin_panel size={16} /> {t('admin_panel')}
                     </a>
                 )}
 
@@ -213,7 +211,7 @@ function Sidebar({ user, onLogout, theme, setTheme, isCollapsed, setIsCollapsed,
                         className={`p-1.5 rounded-xl bg-red-600/20 text-red-500 border border-red-600/40 hover:bg-red-600/30 hover:text-red-400 hover:border-red-600/60 transition-all active:scale-90 flex items-center justify-center group shadow-sm ${isCollapsed ? 'w-10 h-10' : ''}`}
                         title={t('logout')}
                     >
-                        <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                        <icons.logout size={18} className="group-hover:translate-x-0.5 transition-transform" />
                     </button>
                 </div>
             </div>
@@ -250,11 +248,11 @@ window.fetch = async (...args) => {
 // ── App ────────────────────────────────────────────────────────────────────
 function App() {
     const { t } = useTranslation();
+    const { setTheme, activeTheme: theme } = useTheme();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [namespaces, setNamespaces] = useState(['default']);
-    const [theme, setTheme] = useState(() => localStorage.getItem('kview-theme') || 'default');
     const [isCollapsed, setIsCollapsed] = useState(() => {
         try { return JSON.parse(localStorage.getItem('kview-sidebar-collapsed')) ?? false; }
         catch { return false; }
@@ -263,14 +261,6 @@ function App() {
     useEffect(() => {
         localStorage.setItem('kview-sidebar-collapsed', JSON.stringify(isCollapsed));
     }, [isCollapsed]);
-
-    useEffect(() => {
-        // Apply theme class to the root <html> element for reliable CSS variable inheritance
-        const root = document.documentElement;
-        root.classList.remove('theme-default', 'theme-light', 'theme-black');
-        root.classList.add(`theme-${theme}`);
-        localStorage.setItem('kview-theme', theme);
-    }, [theme]);
 
     useEffect(() => {
         fetch('/api/auth/me')
@@ -318,8 +308,6 @@ function App() {
                     <Sidebar
                         user={user}
                         onLogout={handleLogout}
-                        theme={theme}
-                        setTheme={setTheme}
                         isCollapsed={isCollapsed}
                         setIsCollapsed={setIsCollapsed}
                         onCreateResource={() => setIsCreateModalOpen(true)}

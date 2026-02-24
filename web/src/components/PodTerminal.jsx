@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Terminal as TerminalIcon, CircleAlert, RefreshCw } from 'lucide-react';
+import { useTheme } from '../ThemeContext';
 
 export default function PodTerminal({ pod, namespace, containers = [] }) {
+    const { icons } = useTheme();
     const [selectedContainer, setSelectedContainer] = useState(containers.length === 1 ? containers[0].name : "");
     const [status, setStatus] = useState("idle"); // idle, connecting, connected, error
     const [errorMsg, setErrorMsg] = useState("");
@@ -201,7 +202,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             {/* Toolbar */}
             <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-[var(--border-color)] shrink-0 backdrop-blur-md">
                 <div className="flex items-center gap-3">
-                    <TerminalIcon size={18} className="text-info" />
+                    {icons.terminal && <icons.terminal size={18} className="text-info" />}
                     <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
                         Interactive Shell
                     </span>
@@ -241,7 +242,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                         className="p-1.5 text-[var(--text-muted)] hover:text-info hover:bg-info/10 rounded transition-colors"
                         title="Reconnect"
                     >
-                        <RefreshCw size={16} className={status === "connecting" ? "animate-spin" : ""} />
+                        {icons.refresh && <icons.refresh size={16} className={status === "connecting" ? "animate-spin" : ""} />}
                     </button>
                 </div>
             </div>
@@ -251,7 +252,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 {(status === "idle" && containers.length > 1) ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center p-8 border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]/50 max-w-sm w-full">
-                            <TerminalIcon size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />
+                            {icons.terminal && <icons.terminal size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />}
                             <h3 className="text-[var(--text-white)] font-medium mb-2">Multiple Containers</h3>
                             <p className="text-sm text-[var(--text-secondary)] mb-6">Select a container from the toolbar to start a remote shell session.</p>
                         </div>
@@ -266,7 +267,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 ) : status === "error" && !terminalInstance.current ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center p-8 border border-error/30 rounded-xl bg-error/10 max-w-sm w-full">
-                            <CircleAlert size={32} className="mx-auto text-error mb-4" />
+                            {icons.alert && <icons.alert size={32} className="mx-auto text-error mb-4" />}
                             <h3 className="text-error font-medium mb-2">Connection Failed</h3>
                             <p className="text-sm text-error/80 mb-6">{errorMsg || "Failed to establish terminal session."}</p>
                             <button

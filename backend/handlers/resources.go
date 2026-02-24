@@ -1376,10 +1376,9 @@ func filter(items []ResourceItem, ns string) []ResourceItem {
 	}
 	var filtered []ResourceItem
 	for _, it := range items {
-		// Non-namespaced resources (like Nodes, CRDs, PVs) have empty Namespace
-		// If ns is provided, we only return those that match it, OR if it's cluster-scoped, we return all?
-		// Actually, standard behavior: if ns is specified, only return namespaced items in that ns.
-		if it.Namespace == ns {
+		// Cluster-scoped resources have empty Namespace and should be shown
+		// regardless of the namespace filter.
+		if it.Namespace == "" || it.Namespace == ns {
 			filtered = append(filtered, it)
 		}
 	}

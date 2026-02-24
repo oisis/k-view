@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-    ChevronLeft, FileText, List, Terminal, Search, RefreshCw, ChevronRight,
-    Info, Clipboard, CheckCircle2, AlertCircle, Clock, Activity, SquareTerminal,
-    ChevronRight as ChevronRightIcon, ChevronsLeft, ChevronsRight
-} from 'lucide-react';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
 import { useSettings, useTranslation } from '../SettingsContext';
+import { useTheme } from '../ThemeContext';
+import {
+    Activity, CheckCircle2, Clipboard, Clock, Search, ChevronsLeft,
+    ChevronLeft, ChevronRight, ChevronsRight, List, RefreshCw, AlertCircle,
+    FileText, X, Edit3, Trash2, ArrowLeft, MoreVertical, Terminal, Share2,
+    BookOpen, Layers, ShieldCheck, Zap
+} from 'lucide-react';
 
 export default function ResourceDetails({ user }) {
     const { settings } = useSettings();
     const { kind, namespace, name } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { icons } = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'overview';
 
@@ -207,9 +210,9 @@ export default function ResourceDetails({ user }) {
             <div className="flex items-center gap-6 mb-6">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-white)] hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
+                    className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
                 >
-                    <ChevronLeft size={22} />
+                    <icons.chevron_left size={22} />
                 </button>
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
@@ -221,7 +224,7 @@ export default function ResourceDetails({ user }) {
                         </h2>
                     </div>
                     <p className="text-[var(--text-secondary)] text-xs mt-2 font-medium flex items-center gap-2">
-                        {t('label_namespace')} <ChevronRight size={12} className="text-[var(--text-muted)]" />
+                        {t('label_namespace')} <icons.chevron_right size={12} className="text-[var(--text-muted)]" />
                         <span className="text-[var(--accent)] font-bold">{namespace === '-' ? t('cluster_scoped') : namespace}</span>
                     </p>
                 </div>
@@ -230,12 +233,12 @@ export default function ResourceDetails({ user }) {
             {/* Tabs */}
             <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
                 {[
-                    { id: 'overview', label: t('overview'), icon: Info },
-                    { id: 'yaml', label: t('yaml'), icon: FileText },
-                    { id: 'events', label: t('events'), icon: List },
-                    { id: 'logs', label: t('logs'), icon: Terminal, hidden: kind !== 'pods' },
-                    { id: 'exec', label: t('terminal'), icon: SquareTerminal, hidden: kind !== 'pods' },
-                    { id: 'trace', label: t('trace'), icon: Activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
+                    { id: 'overview', label: t('overview'), icon: icons.about },
+                    { id: 'yaml', label: t('yaml'), icon: icons.manifest },
+                    { id: 'events', label: t('events'), icon: icons.list },
+                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: kind !== 'pods' },
+                    { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
+                    { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
                     <button
                         key={tab.id}
@@ -246,7 +249,7 @@ export default function ResourceDetails({ user }) {
                         className={`flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
                                 ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
-                                : 'text-[var(--text-muted)] hover:text-[var(--text-white)] hover:bg-white/5'}`}
+                                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]/20'}`}
                     >
                         <tab.icon size={14} />
                         {tab.label}
@@ -280,7 +283,7 @@ export default function ResourceDetails({ user }) {
 
                                 {isPod && (
                                     <StatusItem label={t('label_restarts')}>
-                                        <span className={restarts > 0 ? 'text-warning' : 'text-[var(--text-white)]'}>
+                                        <span className={restarts > 0 ? 'text-warning' : 'text-[var(--text-primary)]'}>
                                             {restarts}
                                         </span>
                                     </StatusItem>
@@ -474,7 +477,7 @@ export default function ResourceDetails({ user }) {
                                                 <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className="font-bold text-[var(--text-primary)] flex items-center gap-2">
-                                                            <Terminal size={12} className="text-info" />
+                                                            <icons.terminal size={12} className="text-info" />
                                                             {c.name}
                                                         </span>
                                                         <span className="text-sm font-mono text-[var(--text-muted)] bg-black/30 px-2 py-0.5 rounded">
@@ -587,7 +590,7 @@ export default function ResourceDetails({ user }) {
                                     {mountedPvcs.map(pvc => (
                                         <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
                                             <div className="p-2 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
-                                                <Clipboard size={16} />
+                                                <icons.clipboard size={16} />
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">{t('mounted_pvc')}</span>
@@ -606,7 +609,7 @@ export default function ResourceDetails({ user }) {
                                         {quotas && quotas.length > 0 ? quotas.map(q => (
                                             <div key={q.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4">
                                                 <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
-                                                    <Activity size={14} /> {q.metadata.name}
+                                                    <icons.activity size={14} /> {q.metadata.name}
                                                 </h4>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                                                     {Object.entries(q.status?.hard || {}).map(([res, hard]) => {
@@ -639,7 +642,7 @@ export default function ResourceDetails({ user }) {
                                         {limits && limits.length > 0 ? limits.map(l => (
                                             <div key={l.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4 overflow-x-auto">
                                                 <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
-                                                    <Info size={14} /> {l.metadata.name}
+                                                    <icons.about size={14} /> {l.metadata.name}
                                                 </h4>
                                                 <table className="w-full text-xs text-left">
                                                     <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
@@ -704,11 +707,11 @@ export default function ResourceDetails({ user }) {
                                             <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
                                                 <div className="flex flex-col gap-0.5">
                                                     <div className="flex items-center gap-1.5">
-                                                        <Clock size={10} />
+                                                        <icons.clock size={10} />
                                                         <span>First: {e.firstSeen || e.age}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5 font-bold">
-                                                        <Clock size={10} />
+                                                        <icons.clock size={10} />
                                                         <span>Last: {e.lastSeen || e.age}</span>
                                                     </div>
                                                 </div>
@@ -753,7 +756,7 @@ export default function ResourceDetails({ user }) {
                             </div>
                             <div className="flex items-center gap-2">
                                 {saveError && <span className="text-xs text-error mr-2 animate-pulse">{saveError}</span>}
-                                {showSuccess && <span className="text-xs text-success mr-2 flex items-center gap-1"><CheckCircle2 size={12} /> {t('resource_updated_successfully') || 'Resource updated successfully'}</span>}
+                                {showSuccess && <span className="text-xs text-success mr-2 flex items-center gap-1"><icons.check_circle_alt size={12} /> {t('resource_updated_successfully') || 'Resource updated successfully'}</span>}
                                 {canEdit && !isEditing && (
                                     <button
                                         onClick={() => setIsEditing(true)}

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileText, Layout, Zap, AlertCircle, ChevronRight, Check, Lock, Globe, Database, HardDrive } from 'lucide-react';
 import { useTranslation } from '../SettingsContext';
+import { useTheme } from '../ThemeContext';
+import { ChevronRight } from 'lucide-react';
 
 const TEMPLATES = {
     pods: {
-        name: 'Pod',
-        icon: Layout,
+        name: 'pod', // use translation key
+        iconKey: 'pod',
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: Pod
 metadata:
@@ -20,8 +21,8 @@ spec:
     ${adv.ports ? `ports:\n    - containerPort: ${adv.ports}` : 'ports:\n    - containerPort: 80'}`
     },
     deployments: {
-        name: 'Deployment',
-        icon: Zap,
+        name: 'deployment',
+        iconKey: 'deployment',
         yaml: (ns, name, adv) => `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,8 +47,8 @@ spec:
         ${adv.ports ? `ports:\n        - containerPort: ${adv.ports}` : 'ports:\n        - containerPort: 80'}`
     },
     services: {
-        name: 'Service',
-        icon: Zap,
+        name: 'service',
+        iconKey: 'service',
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: Service
 metadata:
@@ -64,8 +65,8 @@ spec:
     targetPort: ${adv.ports || 80}`
     },
     configmaps: {
-        name: 'ConfigMap',
-        icon: FileText,
+        name: 'configmap',
+        iconKey: 'configmap',
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -77,8 +78,8 @@ data:
   example.key: example.value`
     },
     secrets: {
-        name: 'Secret',
-        icon: Lock,
+        name: 'secret',
+        iconKey: 'secret',
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: Secret
 metadata:
@@ -92,8 +93,8 @@ stringData:
   password: changeit`
     },
     ingresses: {
-        name: 'Ingress',
-        icon: Globe,
+        name: 'ingress',
+        iconKey: 'ingress',
         yaml: (ns, name, adv) => `apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -115,8 +116,8 @@ spec:
               number: ${adv.ports || 80}`
     },
     pvs: {
-        name: 'Persistent Volume',
-        icon: Database,
+        name: 'pv',
+        iconKey: 'pv',
         isClusterScoped: true,
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: PersistentVolume
@@ -134,8 +135,8 @@ spec:
     path: /mnt/data`
     },
     pvcs: {
-        name: 'Persistent Volume Claim',
-        icon: HardDrive,
+        name: 'pvc',
+        iconKey: 'pvc',
         yaml: (ns, name, adv) => `apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -154,6 +155,7 @@ spec:
 
 export default function CreateResourceModal({ isOpen, onClose, onCreated, initialKind, namespaces }) {
     const { t } = useTranslation();
+    const { icons } = useTheme();
     const [mode, setMode] = useState('template'); // 'template' or 'raw'
     const [selectedKind, setSelectedKind] = useState(initialKind || 'pods');
     const [name, setName] = useState('');
@@ -218,14 +220,21 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
         return match ? match[1] : null;
     };
 
+    const StatusIcon = icons.alert_circle || icons.alert;
+    const ZapIcon = icons.zap;
+    const LayoutIcon = icons.layout;
+    const FileIcon = icons.manifest || icons.file_code;
+    const CloseIcon = icons.close;
+    const ChevronRightIcon = icons.chevron_right;
+
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-[var(--bg-glass-deep)] border border-[var(--border-color)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 backdrop-saturate-150 border-white/10">
+            <div className="bg-[var(--bg-glass-deep)] border border-[var(--border-color)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 backdrop-saturate-150">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-[var(--accent)] text-white rounded-lg">
-                            <Zap size={20} />
+                            <ZapIcon size={20} />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('create_resource')}</h2>
@@ -233,7 +242,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
-                        <X size={20} />
+                        <CloseIcon size={20} />
                     </button>
                 </div>
 
@@ -243,13 +252,13 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         onClick={() => setMode('template')}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
-                        <Layout size={14} /> {t('template')}
+                        <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
-                        <FileText size={14} /> {t('raw_manifest')}
+                        <FileIcon size={14} /> {t('raw_manifest')}
                     </button>
                 </div>
 
@@ -257,7 +266,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="flex-1 overflow-auto p-6">
                     {error && (
                         <div className="mb-6 p-4 bg-[var(--text-error)]/10 border border-[var(--text-error)]/30 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
-                            <AlertCircle className="text-[var(--text-error)] shrink-0" size={18} />
+                            <StatusIcon className="text-[var(--text-error)] shrink-0" size={18} />
                             <p className="text-sm text-[var(--text-error)] font-bold">{error}</p>
                         </div>
                     )}
@@ -267,17 +276,22 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                             <div className="space-y-6">
                                 <div>
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3 block">{t('resource_kind')}</label>
-                                    <select
-                                        value={selectedKind}
-                                        onChange={(e) => setSelectedKind(e.target.value)}
-                                        className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
-                                    >
-                                        {Object.entries(TEMPLATES).map(([key, tmpl]) => (
-                                            <option key={key} value={key} className="bg-[var(--bg-main)] text-[var(--text-primary)]">
-                                                {tmpl.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="relative">
+                                        <select
+                                            value={selectedKind}
+                                            onChange={(e) => setSelectedKind(e.target.value)}
+                                            className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
+                                        >
+                                            {Object.entries(TEMPLATES).map(([key, tmpl]) => (
+                                                <option key={key} value={key} className="bg-[var(--bg-main)] text-[var(--text-primary)]">
+                                                    {t(tmpl.name)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+                                            {icons[TEMPLATES[selectedKind]?.iconKey] ? React.createElement(icons[TEMPLATES[selectedKind].iconKey], { size: 16 }) : <ZapIcon size={16} />}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -288,7 +302,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             placeholder="e.g. my-app"
-                                            className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                            className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                         />
                                     </div>
                                     {!TEMPLATES[selectedKind]?.isClusterScoped && (
@@ -311,7 +325,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                     onClick={() => setShowAdvanced(!showAdvanced)}
                                     className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-black uppercase tracking-widest hover:text-[var(--accent)] transition-colors"
                                 >
-                                    <ChevronRight size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
+                                    <ChevronRightIcon size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
                                     Advanced Options
                                 </button>
 
@@ -324,7 +338,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     type="text"
                                                     value={image}
                                                     onChange={(e) => setImage(e.target.value)}
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-2 text-xs text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -335,7 +349,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     type="number"
                                                     value={replicas}
                                                     onChange={(e) => setReplicas(parseInt(e.target.value) || 1)}
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-2 text-xs text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -347,7 +361,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     value={ports}
                                                     onChange={(e) => setPorts(e.target.value)}
                                                     placeholder="80"
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-2 text-xs text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -357,7 +371,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                 <textarea
                                                     value={labels}
                                                     onChange={(e) => setLabels(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="env: prod"
                                                 />
                                             </div>
@@ -366,7 +380,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                 <textarea
                                                     value={annotations}
                                                     onChange={(e) => setAnnotations(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-white)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="managed-by: k-view"
                                                 />
                                             </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Server, Cpu, MemoryStick, CheckCircle, XCircle, Shield, Layers, MoreVertical, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 
 function bytesToGiB(str) {
@@ -14,33 +14,37 @@ function bytesToGiB(str) {
 }
 
 function RoleBadge({ role }) {
+    const { icons } = useTheme();
     if (role === 'control-plane') {
         return (
             <span className="flex items-center gap-1 text-xs font-semibold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
-                <Shield size={12} /> control-plane
+                <icons.clusterrole size={12} /> control-plane
             </span>
         );
     }
     return (
         <span className="flex items-center gap-1 text-xs font-semibold text-info bg-info/10 px-2 py-0.5 rounded-full">
-            <Layers size={12} /> worker
+            <icons.replicaset size={12} /> worker
         </span>
     );
 }
 
 const StatusIcon = ({ status }) => {
-    if (status === 'Ready') return <CheckCircle size={16} className="text-success" />;
-    return <AlertCircle size={16} className="text-error" />;
+    const { icons } = useTheme();
+    if (status === 'Ready') return <icons.check_circle size={16} className="text-success" />;
+    return <icons.alert size={16} className="text-error" />;
 }
 
-function StatCard({ label, value, sub, icon: Icon, color }) {
+function StatCard({ label, value, sub, iconKey, color }) {
+    const { icons } = useTheme();
+    const Icon = icons[iconKey] || icons.pod;
     return (
         <div className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-2xl p-5 flex items-start gap-4 shadow-lg">
             <div className={`p-2 rounded-lg ${color}`}>
                 <Icon size={20} />
             </div>
             <div>
-                <p className="text-2xl font-bold text-[var(--text-white)]">{value}</p>
+                <p className="text-2xl font-bold text-[var(--text-primary)]">{value}</p>
                 <p className="text-sm text-[var(--text-secondary)]">{label}</p>
                 {sub && <p className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</p>}
             </div>
@@ -49,6 +53,7 @@ function StatCard({ label, value, sub, icon: Icon, color }) {
 }
 
 export default function Nodes() {
+    const { icons } = useTheme();
     const [nodes, setNodes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -74,7 +79,7 @@ export default function Nodes() {
     return (
         <div className="p-8">
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-[var(--text-white)] mb-1">Nodes</h2>
+                <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Nodes</h2>
                 <p className="text-[var(--text-secondary)] text-sm">
                     {loading ? 'Loading...' : `${nodes.length} node${nodes.length !== 1 ? 's' : ''} in cluster`}
                 </p>
@@ -87,10 +92,10 @@ export default function Nodes() {
             {/* Stats cards */}
             {!loading && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard label="Total Nodes" value={nodes.length} icon={Server} color="bg-info/10 text-info" />
-                    <StatCard label="Ready" value={ready} sub={`${notReady} Not Ready`} icon={CheckCircle} color="bg-green-500/10 text-green-500" />
-                    <StatCard label="Control Plane" value={controlPlane} icon={Shield} color="bg-purple-500/10 text-purple-400" />
-                    <StatCard label="Workers" value={workers} icon={Layers} color="bg-cyan-500/10 text-cyan-400" />
+                    <StatCard label="Total Nodes" value={nodes.length} iconKey="nodes" color="bg-info/10 text-info" />
+                    <StatCard label="Ready" value={ready} sub={`${notReady} Not Ready`} iconKey="check_circle" color="bg-green-500/10 text-green-500" />
+                    <StatCard label="Control Plane" value={controlPlane} iconKey="clusterrole" color="bg-purple-500/10 text-purple-400" />
+                    <StatCard label="Workers" value={workers} iconKey="replicaset" color="bg-cyan-500/10 text-cyan-400" />
                 </div>
             )}
 
@@ -124,8 +129,8 @@ export default function Nodes() {
                                 nodes.map((node, i) => (
                                     <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-white)]">
-                                                <Server size={14} className="text-[var(--text-muted)] shrink-0" />
+                                            <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-primary)]">
+                                                <icons.nodes size={14} className="text-[var(--text-muted)] shrink-0" />
                                                 <Link
                                                     to={`/nodes/-/${node.name}`}
                                                     className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
@@ -146,14 +151,14 @@ export default function Nodes() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1">
-                                                <Cpu size={12} className="text-[var(--text-muted)]" />
+                                                <icons.cpu size={12} className="text-[var(--text-muted)]" />
                                                 <span>{node.cpuCapacity}</span>
                                                 <span className="text-[var(--text-muted)] text-xs">/ {node.cpuAllocatable} alloc</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1">
-                                                <MemoryStick size={12} className="text-[var(--text-muted)]" />
+                                                <icons.memory size={12} className="text-[var(--text-muted)]" />
                                                 <span>{bytesToGiB(node.memoryCapacity)}</span>
                                                 <span className="text-[var(--text-muted)] text-xs">/ {bytesToGiB(node.memoryAllocatable)} alloc</span>
                                             </div>
