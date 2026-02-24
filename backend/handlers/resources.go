@@ -962,8 +962,8 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	}
 
 	if h.devMode {
-		fmt.Printf("[DEV MODE] Would update %s/%s/%s with YAML:\n%s\n", kind, ns, name, string(body))
-		c.JSON(http.StatusOK, gin.H{"message": "Resource updated (mocked)"})
+		fmt.Printf("[DEV MODE] Update %s/%s/%s with YAML:\n%s\n", kind, ns, name, string(body))
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Mock %s '%s' updated in namespace '%s'", kind, name, ns)})
 		return
 	}
 
@@ -1017,15 +1017,19 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 		}
 	}
 
-	// Verify Delete Permissions
-	role, exists := c.Get("role")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
-		return
-	}
-	roleStr := role.(string)
-	if roleStr != "kview-cluster-admin" && roleStr != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Admin permissions required to delete resources"})
+	if h.devMode {
+		h.mu.Lock()
+		if list, ok := h.mockResources[kind]; ok {
+			var newList []ResourceItem
+			for _, item := range list {
+				if item.Name != name || (ns != "" && item.Namespace != ns) {
+					newList = append(newList, item)
+				}
+			}
+			h.mockResources[kind] = newList
+		}
+		h.mu.Unlock()
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Mock %s '%s' deleted from namespace '%s'", kind, name, ns)})
 		return
 	}
 
@@ -1188,7 +1192,7 @@ func (h *ResourceHandler) Restart(c *gin.Context) {
 	}
 
 	if h.devMode {
-		c.JSON(http.StatusOK, gin.H{"message": "Restart triggered (mocked)"})
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Restart triggered for mock %s '%s' in namespace '%s'", kind, name, ns)})
 		return
 	}
 

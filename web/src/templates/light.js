@@ -127,6 +127,7 @@ export default {
                 '--border-color': '#e2e8f0',
                 '--sidebar-hover': '#e2e8f0',
                 '--scrollbar-thumb': '#cbd5e1',
+                '--bg-editor': '#ffffff',
                 '--text-editor-code': '#0F172A',
                 '--wallpaper-opacity': '0.05',
                 '--wallpaper-brightness': '0.9',

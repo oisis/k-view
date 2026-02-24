@@ -14,7 +14,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
-    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller'].includes(kind.toLowerCase());
+    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
     const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
 
     useEffect(() => {
@@ -171,37 +171,37 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                     {!confirmAction ? (
                         <>
                             {(isPod || isWorkload) && (
-                                <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group">
-                                    <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" /> Restart
+                                <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                                    <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" /> {t('restart') || 'Restart'}
                                 </button>
                             )}
-                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                <icons.edit size={14} /> {t('edit') || 'Edit YAML'}
+                            </button>
+                            <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                                <icons.trash size={14} /> {t('delete') || 'Delete'}
+                            </button>
+
+                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 <icons.external_link size={14} /> View Details
                             </button>
-                            <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                <icons.edit size={14} /> Edit YAML
-                            </button>
                             {isScalable && (
-                                <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                     <icons.activity size={14} /> Scale Replicas
                                 </button>
                             )}
                             {isPod && (
                                 <>
-                                    <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                    <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                         <icons.manifest size={14} /> View Logs
                                     </button>
-                                    <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                    <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                         <icons.terminal size={14} /> Exec Shell
                                     </button>
                                 </>
                             )}
-                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 <icons.download size={14} /> Export YAML
-                            </button>
-                            <div className="h-px bg-[var(--border-color)] my-1" />
-                            <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors">
-                                <icons.trash size={14} /> Delete
                             </button>
                         </>
                     ) : (
