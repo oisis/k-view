@@ -120,7 +120,7 @@ export default function Dashboard({ isCollapsed }) {
     }
 
     return (
-        <div className={`p-10 ${isCollapsed ? 'max-w-[1800px]' : 'max-w-[1600px]'} mx-auto transition-all duration-500`}>
+        <div className="p-6 md:p-8 lg:p-10 w-full transition-all duration-500">
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
