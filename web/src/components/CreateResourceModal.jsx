@@ -256,9 +256,9 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 {/* Content */}
                 <div className="flex-1 overflow-auto p-6">
                     {error && (
-                        <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
-                            <AlertCircle className="text-rose-500 shrink-0" size={18} />
-                            <p className="text-sm text-rose-300 font-medium">{error}</p>
+                        <div className="mb-6 p-4 bg-[var(--text-error)]/10 border border-[var(--text-error)]/30 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2">
+                            <AlertCircle className="text-[var(--text-error)] shrink-0" size={18} />
+                            <p className="text-sm text-[var(--text-error)] font-bold">{error}</p>
                         </div>
                     )}
 
