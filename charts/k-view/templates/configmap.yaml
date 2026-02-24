@@ -9,15 +9,40 @@ data:
   assignments.yaml: |
     assignments:
 {{- range .Values.rbac.assignments }}
-{{- $role := .roleName }}
+{{- $role := .role }}
 {{- $ns := .namespace }}
-{{- $sType := .subjectType }}
-{{- range .subjects }}
-      - {{ if eq $sType "User" }}user{{ else }}group{{ end }}: {{ . | quote }}
+{{- if .user }}
+  {{- if typeIs "[]interface {}" .user }}
+    {{- range .user }}
+      - user: {{ . | quote }}
         role: {{ $role | quote }}
-{{- if $ns }}
+      {{- if $ns }}
         namespace: {{ $ns | quote }}
-{{- end }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+      - user: {{ .user | quote }}
+        role: {{ $role | quote }}
+    {{- if $ns }}
+        namespace: {{ $ns | quote }}
+    {{- end }}
+  {{- end }}
+{{- else if .group }}
+  {{- if typeIs "[]interface {}" .group }}
+    {{- range .group }}
+      - group: {{ . | quote }}
+        role: {{ $role | quote }}
+      {{- if $ns }}
+        namespace: {{ $ns | quote }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+      - group: {{ .group | quote }}
+        role: {{ $role | quote }}
+    {{- if $ns }}
+        namespace: {{ $ns | quote }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- range .Values.localUsers }}

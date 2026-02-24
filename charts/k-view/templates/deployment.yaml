@@ -33,40 +33,29 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.image.containerPort }}
               protocol: TCP
           env:
-            - name: APP_VERSION
-              value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
-            - name: GIN_MODE
-              value: {{ .Values.env.ginMode }}
-            - name: TZ
-              value: {{ .Values.env.timezone | quote }}
-            - name: RBAC_CONFIG_PATH
-              value: "/etc/kview/rbac/assignments.yaml"
-            - name: KVIEW_AUTHORIZED_USERS
-              value: {{ .Values.env.authorizedUsers | join "," | quote }}
-            - name: KVIEW_ENABLE_SSO
-              value: {{ .Values.enable_sso | quote }}
+            {{- include "k-view.commonEnv" . | nindent 12 }}
             {{- if .Values.enable_sso }}
             - name: KVIEW_OAUTH_REDIRECT_URL
               value: {{ .Values.env.oauthRedirectUrl }}
             - name: KVIEW_GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "k-view.fullname" . }}-secret
+                  name: {{ include "k-view.secretName" . }}
                   key: googleClientId
             - name: KVIEW_GOOGLE_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "k-view.fullname" . }}-secret
+                  name: {{ include "k-view.secretName" . }}
                   key: googleClientSecret
             {{- end }}
-            {{- if .Values.localUsers }}
+            {{- if or .Values.localUsers .Values.secrets.existingSecret }}
             - name: KVIEW_STATIC_USERS
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "k-view.fullname" . }}-secret
+                  name: {{ include "k-view.secretName" . }}
                   key: KVIEW_STATIC_USERS
             {{- end }}
           volumeMounts:

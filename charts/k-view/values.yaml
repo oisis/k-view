@@ -11,7 +11,9 @@ image:
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "0.29.5"
+  tag: "0.30.0"
+  # -- Internal port used by the K-View application container
+  containerPort: 8080
 
 # -- Optionally specify an array of imagePullSecrets.
 # Secrets must be manually created in the namespace.
@@ -117,9 +119,6 @@ env:
   # -- OAuth 2.0 Redirect URL configured in your Google Cloud Console.
   # This must exactly match the Authorized redirect URI, including the domain and scheme.
   oauthRedirectUrl: "http://kview.local/api/auth/callback"
-  # -- List of authorized Google email addresses.
-  # If empty, any user with a valid Google account can log in.
-  authorizedUsers: []
 
 # -- Enable Google SSO (OIDC) authentication
 enable_sso: false
@@ -129,6 +128,9 @@ enable_sso: false
 # (e.g., using External Secrets Operator, AWS Secrets Manager, or HashiCorp Vault)
 # rather than passing them directly via values.yaml.
 secrets:
+  # -- Use an existing secret for Google OIDC and Static Users.
+  # If provided, `googleClientId`, `googleClientSecret`, and `localUsers` in this file are ignored.
+  existingSecret: ""
   # -- Your Google OAuth 2.0 Client ID
   googleClientId: "YOUR_GOOGLE_CLIENT_ID"
   # -- Your Google OAuth 2.0 Client Secret
@@ -159,17 +161,16 @@ rbac:
   # -- Enable or disable the declarative RBAC system
   enabled: true
   
-  # -- List of RBAC assignments mapping identities to Kubernetes Roles
+  # -- Maximum scope of visibility for the K-View application.
+  # "cluster" (default) allows K-View to manage resources across the entire cluster.
+  # "namespace" restricts K-View to its own namespace only.
+  scope: "cluster"
+  
+  # -- List of RBAC assignments mapping identities to Kubernetes Roles.
+  # Simplified structure (supports lists for multiple users with same role):
+  # - user: ["admin@kview.local", "manager@kview.local"]
+  #   role: "kview-cluster-admin"
+  # - group: "dev-team"
+  #   role: "kview-namespace-developer"
+  #   namespace: "dev"
   assignments: []
-  # Example:
-  # - name: "admin-user"
-  #   subjectType: "User"
-  #   subjects:
-  #     - "admin@kview.local"
-  #   roleName: "kview-cluster-admin"
-  # - name: "dev-team-namespace"
-  #   subjectType: "Group"
-  #   subjects:
-  #     - "developers@example.com"
-  #   roleName: "kview-namespace-developer"
-  #   namespace: "dev-namespace"

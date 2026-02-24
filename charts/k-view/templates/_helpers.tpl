@@ -60,3 +60,54 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create secret name for Google OIDC and Static Users
+*/}}
+{{- define "k-view.secretName" -}}
+{{- if .Values.secrets.existingSecret -}}
+{{- .Values.secrets.existingSecret -}}
+{{- else -}}
+{{- include "k-view.fullname" . }}-secret
+{{- end -}}
+{{- end }}
+
+{{/*
+Common environment variables
+*/}}
+{{- define "k-view.commonEnv" -}}
+- name: APP_VERSION
+  value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+- name: GIN_MODE
+  value: {{ .Values.env.ginMode | quote }}
+- name: TZ
+  value: {{ .Values.env.timezone | quote }}
+- name: RBAC_CONFIG_PATH
+  value: "/etc/kview/rbac/assignments.yaml"
+- name: KVIEW_AUTHORIZED_USERS
+  value: {{ include "k-view.authorizedUsers" . | quote }}
+- name: KVIEW_ENABLE_SSO
+  value: {{ .Values.enable_sso | quote }}
+{{- end }}
+
+{{/*
+Calculate authorized users list from assignments and local users
+*/}}
+{{- define "k-view.authorizedUsers" -}}
+{{- $users := list -}}
+{{- range .Values.rbac.assignments -}}
+  {{- if .user -}}
+    {{- if typeIs "[]interface {}" .user -}}
+      {{- range .user -}}
+        {{- $users = append $users . -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $users = append $users .user -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range .Values.localUsers -}}
+  {{- $users = append $users .username -}}
+{{- end -}}
+{{- $users | compact | uniq | join "," -}}
+{{- end -}}

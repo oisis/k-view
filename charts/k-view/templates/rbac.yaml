@@ -67,9 +67,12 @@ rules:
   verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ if eq .Values.rbac.scope "cluster" }}ClusterRoleBinding{{ else }}RoleBinding{{ end }}
 metadata:
   name: {{ include "k-view.fullname" . }}-rolebinding
+  {{- if ne .Values.rbac.scope "cluster" }}
+  namespace: {{ .Release.Namespace }}
+  {{- end }}
 subjects:
 - kind: ServiceAccount
   name: {{ include "k-view.serviceAccountName" . }}
