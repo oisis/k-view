@@ -469,16 +469,15 @@ export default function ResourceList({ kind }) {
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        placeholder={t('search_placeholder')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10"
-                    />
-                    {isNamespaced && (
-                        <NamespaceSelect
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="text"
+                                        placeholder={t('search_placeholder')}
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                                    />
+                                    {isNamespaced && (                        <NamespaceSelect
                             namespaces={namespaces}
                             selected={namespace}
                             onChange={setNamespace}

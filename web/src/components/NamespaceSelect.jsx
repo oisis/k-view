@@ -53,7 +53,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                 <div className="absolute z-50 mt-1 right-0 w-full min-w-[220px] bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden">
                     {/* Search input */}
                     <div className="p-2 border-b border-[var(--border-color)]">
-                        <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 rounded px-2 py-1.5">
+                        <div className="flex items-center gap-2 bg-[var(--bg-input)] rounded px-2 py-1.5">
                             {icons.search && <icons.search size={13} className="text-[var(--text-muted)] shrink-0" />}
                             <input
                                 ref={inputRef}
@@ -61,7 +61,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                 value={query}
                                 onChange={e => setQuery(e.target.value)}
                                 placeholder="Search namespaces..."
-                                className="bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none flex-1 w-full"
+                                className="bg-transparent text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] outline-none flex-1 w-full"
                             />
                             {query && (
                                 <button onClick={() => setQuery('')}>
@@ -85,14 +85,14 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         key={ns}
                                         onClick={() => selectNs(ns)}
                                         className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors
-                      ${isSelected ? 'bg-info/10 text-info' : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)]'}`}
+                      ${isSelected ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'text-[var(--text-input)] hover:bg-[var(--sidebar-hover)]'}`}
                                     >
                                         {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />}
                                         <span className="flex-1 text-left">{ns}</span>
                                         {isSystem && (
                                             <span className="text-xs text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
                                         )}
-                                        {isSelected && <span className="text-info text-xs text-right">✓</span>}
+                                        {isSelected && <span className="text-[var(--accent)] text-xs text-right">✓</span>}
                                     </li>
                                 );
                             })

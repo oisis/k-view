@@ -122,6 +122,8 @@ export default {
                 '--text-secondary': '#94A3B8',
                 '--text-muted': '#64748B',
                 '--sidebar-hover': '#1E293B',
+                '--bg-input': '#1e293b',
+                '--text-input': '#ffffff',
                 '--accent': '#6366F1',
                 '--accent-hover': '#4F46E5',
                 '--bg-console': '#020617',

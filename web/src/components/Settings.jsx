@@ -15,7 +15,7 @@ const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, ma
                 min={min}
                 max={max}
                 placeholder={placeholder}
-                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all"
+                className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
             />
         </div>
         {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
@@ -30,10 +30,10 @@ const SelectField = ({ label, icon: Icon, value, onChange, options, description 
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
+            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
         >
             {options.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value} className="bg-[var(--bg-card)] text-[var(--text-primary)]">{opt.label}</option>
             ))}
         </select>
         {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}

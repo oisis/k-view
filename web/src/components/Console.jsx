@@ -389,7 +389,7 @@ export default function Console() {
                     <div className="relative" ref={nsRef}>
                         <button
                             onClick={toggleNsMenu}
-                            className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-1 hover:border-info transition-colors min-w-[160px] font-sans font-medium justify-between shadow-sm"
+                            className="flex items-center gap-2 bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-input)] text-sm rounded-lg px-3 py-1 hover:border-info transition-colors min-w-[160px] font-sans font-medium justify-between shadow-sm"
                         >
                             <span className="truncate">{selectedNs || '(all namespaces)'}</span>
                             <span className={`transition-transform duration-200 ${nsMenuOpen ? 'rotate-180' : ''}`}>▾</span>
@@ -407,14 +407,14 @@ export default function Console() {
                                 }}
                                 className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-2 duration-200"
                             >
-                                <div className="max-h-60 overflow-y-auto">
+                                <div className="max-h-60 overflow-y-auto bg-[var(--bg-input)]">
                                     <button
                                         onClick={(e) => { 
                                             e.preventDefault();
                                             e.stopPropagation();
                                             handleNsSelect('');
                                         }}
-                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === '' ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
+                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === '' ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-input)]'}`}
                                     >
                                         (all namespaces)
                                     </button>
@@ -426,7 +426,7 @@ export default function Console() {
                                                 e.stopPropagation();
                                                 handleNsSelect(ns);
                                             }}
-                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === ns ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === ns ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-input)]'}`}
                                         >
                                             {ns}
                                         </button>

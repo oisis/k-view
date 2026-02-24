@@ -280,10 +280,10 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                         <select
                                             value={selectedKind}
                                             onChange={(e) => setSelectedKind(e.target.value)}
-                                            className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
                                         >
                                             {Object.entries(TEMPLATES).map(([key, tmpl]) => (
-                                                <option key={key} value={key} className="bg-[var(--bg-main)] text-[var(--text-primary)]">
+                                                <option key={key} value={key} className="bg-[var(--bg-card)] text-[var(--text-primary)]">
                                                     {t(tmpl.name)}
                                                 </option>
                                             ))}
@@ -302,7 +302,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             placeholder="e.g. my-app"
-                                            className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                         />
                                     </div>
                                     {!TEMPLATES[selectedKind]?.isClusterScoped && (
@@ -311,10 +311,10 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                             <select
                                                 value={namespace}
                                                 onChange={(e) => setNamespace(e.target.value)}
-                                                className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
                                             >
                                                 {namespaces?.map(ns => (
-                                                    <option key={ns} value={ns} className="bg-[var(--bg-main)] text-[var(--text-primary)]">{ns}</option>
+                                                    <option key={ns} value={ns} className="bg-[var(--bg-card)] text-[var(--text-primary)]">{ns}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -338,7 +338,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     type="text"
                                                     value={image}
                                                     onChange={(e) => setImage(e.target.value)}
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -349,7 +349,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     type="number"
                                                     value={replicas}
                                                     onChange={(e) => setReplicas(parseInt(e.target.value) || 1)}
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -361,7 +361,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                     value={ports}
                                                     onChange={(e) => setPorts(e.target.value)}
                                                     placeholder="80"
-                                                    className="w-full bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
@@ -371,7 +371,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                 <textarea
                                                     value={labels}
                                                     onChange={(e) => setLabels(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="env: prod"
                                                 />
                                             </div>
@@ -380,7 +380,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                 <textarea
                                                     value={annotations}
                                                     onChange={(e) => setAnnotations(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-sidebar)]/50 border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="managed-by: k-view"
                                                 />
                                             </div>
@@ -416,7 +416,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                             <textarea
                                 value={rawContent}
                                 onChange={(e) => setRawContent(e.target.value)}
-                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-sidebar)]/30 border border-[var(--border-color)] rounded-2xl p-6 text-[13px] font-mono text-[var(--text-editor-code)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
+                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-2xl p-6 text-[13px] font-mono text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
                                 placeholder={"apiVersion: v1\nkind: Pod\n..."}
                             />
                             <p className="text-[10px] text-[var(--text-muted)] mt-3 italic">Paste your Kubernetes resource definition here. Supports Multi-resource YAML (WIP).</p>

@@ -25,6 +25,8 @@
   --accent: #6366F1;
   --bg-console: #020617;
   --bg-editor: #0D1117;
+  --bg-input: #1e293b;
+  --text-input: #ffffff;
   --bg-glass: rgba(15, 23, 42, 0.4);
   --bg-glass-deep: rgba(15, 23, 42, 0.7);
   --bg-dropdown: #111827;
