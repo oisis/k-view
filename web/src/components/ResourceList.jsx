@@ -607,7 +607,7 @@ export default function ResourceList({ kind }) {
                                             onClick={() => setCurrentPage(p)}
                                             className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
                                                 ${currentPage === p
-                                                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                                                    ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
                                                     : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
                                         >
                                             {p}

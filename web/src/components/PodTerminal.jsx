@@ -253,7 +253,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center p-8 border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]/50 max-w-sm w-full">
                             {icons.terminal && <icons.terminal size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />}
-                            <h3 className="text-[var(--text-white)] font-medium mb-2">Multiple Containers</h3>
+                            <h3 className="text-[var(--text-[var(--text-white)])] font-medium mb-2">Multiple Containers</h3>
                             <p className="text-sm text-[var(--text-secondary)] mb-6">Select a container from the toolbar to start a remote shell session.</p>
                         </div>
                     </div>

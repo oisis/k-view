@@ -248,7 +248,7 @@ export default function ResourceDetails({ user }) {
                         }}
                         className={`flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
-                                ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
+                                ? 'text-[var(--text-white)] bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
                                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]/20'}`}
                     >
                         <tab.icon size={14} />
@@ -732,7 +732,7 @@ export default function ResourceDetails({ user }) {
 
                 {activeTab === 'yaml' && (
                     <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-none">
-                        <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-[var(--border-color)]/20">
+                        <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-[var(--text-white)])]/5 border-b border-[var(--border-color)]/20">
                             <div className="flex items-center gap-4">
                                 <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
                                     {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
@@ -741,13 +741,13 @@ export default function ResourceDetails({ user }) {
                                     <div className="flex bg-black/30 rounded p-0.5">
                                         <button
                                             onClick={() => setFormat('yaml')}
-                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])]'}`}
                                         >
                                             YAML
                                         </button>
                                         <button
                                             onClick={() => setFormat('json')}
-                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-white)]'}`}
+                                            className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])]'}`}
                                         >
                                             JSON
                                         </button>
@@ -769,7 +769,7 @@ export default function ResourceDetails({ user }) {
                                     <>
                                         <button
                                             onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                            className="text-xs font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
+                                            className="text-xs font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])] transition-colors uppercase tracking-widest"
                                             disabled={isSaving}
                                         >
                                             {t('cancel')}
@@ -816,7 +816,7 @@ export default function ResourceDetails({ user }) {
                                     </>
                                 )}
                                 {!isEditing && (
-                                    <button className="text-[var(--text-muted)] hover:text-[var(--text-white)] transition-colors">
+                                    <button className="text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])] transition-colors">
                                         <Clipboard size={14} />
                                     </button>
                                 )}
@@ -851,7 +851,7 @@ export default function ResourceDetails({ user }) {
                                                 {e.type}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
+                                        <td className="px-6 py-4 font-medium text-[var(--text-[var(--text-white)])]">{e.reason}</td>
                                         <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
                                         <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
                                             {e.source?.component || e.source || '—'}
@@ -907,7 +907,7 @@ export default function ResourceDetails({ user }) {
                     return (
                         <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px]">
                             {/* Log Toolbar */}
-                            <div className="px-4 py-3 bg-[var(--text-white)]/5 border-b-2 border-slate-600 flex flex-wrap items-center justify-between gap-4">
+                            <div className="px-4 py-3 bg-[var(--text-[var(--text-white)])]/5 border-b-2 border-slate-600 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative group">
                                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-info transition-colors" />
@@ -916,11 +916,11 @@ export default function ResourceDetails({ user }) {
                                             placeholder={t('search_logs')}
                                             value={logSearchTerm}
                                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
-                                            className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-info/50 w-64 transition-all"
+                                            className="pl-9 pr-4 py-1.5 bg-slate-800 border border-[var(--border-color)]/50 rounded-md text-xs text-[var(--text-white)] placeholder:text-slate-400 focus:outline-none focus:border-info/50 w-64 transition-all"
                                         />
                                         <button
                                             onClick={() => setLogSearchRegex(!logSearchRegex)}
-                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-transparent text-white/50 border-transparent hover:text-white'}`}
+                                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black border transition-colors ${logSearchRegex ? 'bg-indigo-600 text-[var(--text-white)] border-indigo-400' : 'bg-transparent text-[var(--text-white)]/50 border-transparent hover:text-[var(--text-white)]'}`}
                                             title={t('regex_tooltip')}
                                         >
                                             .*
@@ -932,7 +932,7 @@ export default function ResourceDetails({ user }) {
                                         <select
                                             value={logRefreshInterval}
                                             onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
-                                            className="bg-slate-800 text-xs font-bold text-white outline-none rounded px-2 py-0.5 cursor-pointer border border-slate-600"
+                                            className="bg-slate-800 text-xs font-bold text-[var(--text-white)] outline-none rounded px-2 py-0.5 cursor-pointer border border-slate-600"
                                         >
                                             <option value="0">OFF</option>
                                             <option value="5">5s</option>
@@ -971,7 +971,7 @@ export default function ResourceDetails({ user }) {
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
                                         </div>
-                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">{t('wrap_lines')}</span>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-[var(--text-white)])] transition-colors">{t('wrap_lines')}</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer group">
                                         <div
@@ -980,7 +980,7 @@ export default function ResourceDetails({ user }) {
                                         >
                                             <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
                                         </div>
-                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-white)] transition-colors">{t('pagination')}</span>
+                                        <span className="text-xs uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-[var(--text-white)])] transition-colors">{t('pagination')}</span>
                                     </label>
 
                                     {logPaginationEnabled && totalPages > 1 && (
@@ -1001,7 +1001,7 @@ export default function ResourceDetails({ user }) {
                                             >
                                                 <ChevronLeft size={14} />
                                             </button>
-                                            <span className="text-xs font-mono text-white font-bold px-1 min-w-[4rem] text-center">
+                                            <span className="text-xs font-mono text-[var(--text-white)] font-bold px-1 min-w-[4rem] text-center">
                                                 {logPage} / {totalPages}
                                             </span>
                                             <button
@@ -1087,7 +1087,7 @@ function StatusItem({ label, value, children }) {
     return (
         <div className="flex flex-col gap-1 min-w-[100px]">
             <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
-            <div className="text-base font-bold text-[var(--text-white)] flex items-center min-h-[1.5rem] tracking-tight">
+            <div className="text-base font-bold text-[var(--text-[var(--text-white)])] flex items-center min-h-[1.5rem] tracking-tight">
                 {children || (value ?? '—')}
             </div>
         </div>
@@ -1115,7 +1115,7 @@ function DetailRow({ label, value, children }) {
             </td>
             <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
                 {children || (
-                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-white)]'}>
+                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-[var(--text-white)])]'}>
                         {value ?? '—'}
                     </span>
                 )}
@@ -1194,7 +1194,7 @@ function ProbeDetail({ label, probe, t }) {
 
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
+            <span className="text-xs font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">{label}</span>
             <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
                 {details || 'Unknown'}
             </div>

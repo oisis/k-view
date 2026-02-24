@@ -64,16 +64,16 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
             href={href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
         ${active
-                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                    ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]'}
                 ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'} transition-colors shrink-0`} />
+            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-[var(--text-white)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'} transition-colors shrink-0`} />
             {!isCollapsed && (
                 <>
                     <span className="flex-1 truncate tracking-tight">{label}</span>
-                    {active && <icons.chevron_right size={12} className="text-white/70" />}
+                    {active && <icons.chevron_right size={12} className="text-[var(--text-white)]/70" />}
                 </>
             )}
         </a>

@@ -54,7 +54,7 @@ export default function AdminPanel() {
         <div className="p-8 space-y-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-white)] mb-2 flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
                         {icons.role && React.createElement(icons.role, { className: "text-info" })} {t('access_control')}
                     </h2>
                     <p className="text-[var(--text-secondary)]">{t('effective_permissions_desc')}</p>
@@ -89,7 +89,7 @@ export default function AdminPanel() {
                                     {icons.check_circle && React.createElement(icons.check_circle, { size: 16, className: "text-green-500 shrink-0" })}
                                     <span className="text-sm font-medium text-[var(--text-primary)]">{rule.resource}</span>
                                 </div>
-                                <div className="sm:w-2/3 text-sm text-[var(--text-muted)] font-mono bg-black/20 p-1.5 rounded">
+                                <div className="sm:w-2/3 text-sm text-[var(--text-muted)] font-mono bg-[var(--bg-muted)]/80 p-1.5 rounded">
                                     {rule.verbs}
                                 </div>
                             </div>
@@ -189,7 +189,7 @@ export default function AdminPanel() {
                             ) : (
                                 status.assignments.map((assignment, i) => (
                                     <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-[var(--text-white)]">
+                                        <td className="px-6 py-4 font-medium text-[var(--text-primary)]">
                                             {assignment.user || assignment.group || 'Unknown'}
                                         </td>
                                         <td className="px-6 py-4">

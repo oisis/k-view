@@ -233,7 +233,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[var(--accent)] text-white rounded-lg">
+                        <div className="p-2 bg-[var(--accent)] text-[var(--text-white)] rounded-lg">
                             <ZapIcon size={20} />
                         </div>
                         <div>
@@ -250,13 +250,13 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-[var(--border-color)]">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
                         <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                     >
                         <FileIcon size={14} /> {t('raw_manifest')}
                     </button>
@@ -435,7 +435,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                     <button
                         onClick={handleCreate}
                         disabled={isSubmitting || (mode === 'template' && !name) || !rawContent}
-                        className={`px-8 py-2.5 bg-[var(--accent)] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`px-8 py-2.5 bg-[var(--accent)] text-[var(--text-white)] text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {isSubmitting ? t('saving') : t('create')}
                     </button>

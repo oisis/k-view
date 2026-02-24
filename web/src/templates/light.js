@@ -121,7 +121,7 @@ export default {
                 '--text-primary': '#0F172A',
                 '--text-secondary': '#475569',
                 '--text-muted': '#64748b',
-                '--text-white': '#ffffff',
+                '--text-white': '#0F172A',
                 '--accent': '#3b82f6',
                 '--accent-hover': '#2563eb',
                 '--border-color': '#e2e8f0',

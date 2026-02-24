@@ -40,7 +40,7 @@ export default function About() {
                             <dl className="space-y-4">
                                 <div>
                                     <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('image_version')}</dt>
-                                    <dd className="mt-1 text-2xl font-mono text-[var(--text-white)]">{version}</dd>
+                                    <dd className="mt-1 text-2xl font-mono text-[var(--text-[var(--text-white)])]">{version}</dd>
                                 </div>
                                 <div className="pt-2">
                                     <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('homepage')}</dt>

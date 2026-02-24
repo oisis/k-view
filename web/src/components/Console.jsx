@@ -339,7 +339,7 @@ export default function Console() {
                         {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-info">
                                 <span className="shrink-0">{PROMPT}</span>
-                                <span className="text-white font-bold">{entry.text}</span>
+                                <span className="text-[var(--text-white)] font-bold">{entry.text}</span>
                             </div>
                         )}
                         {entry.type === 'output' && (

@@ -166,13 +166,13 @@ export default function NetworkTrace({ kind, namespace, name }) {
                         {icons.activity && <icons.activity size={18} />}
                     </div>
                     <div>
-                        <h2 className="text-sm font-bold text-[var(--text-white)] uppercase tracking-wider">Network Flow Trace</h2>
+                        <h2 className="text-sm font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">Network Flow Trace</h2>
                         <p className="text-xs text-[var(--text-muted)] font-mono">
                             {kind.toUpperCase()} • {namespace ? `${namespace}/` : ''}{name}
                         </p>
                     </div>
                 </div>
-                <button onClick={fetchTrace} className="p-2 text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
+                <button onClick={fetchTrace} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
                     {icons.refresh && <icons.refresh size={16} className={loading ? "animate-spin" : ""} />}
                 </button>
             </div>

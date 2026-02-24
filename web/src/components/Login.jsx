@@ -114,7 +114,7 @@ export default function Login() {
                 {providers.oidc && (
                     <button
                         onClick={handleGoogleLogin}
-                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors mb-4"
+                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-white)] bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors mb-4"
                     >
                         Sign in with Google OIDC
                     </button>
@@ -168,7 +168,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#238636] hover:bg-[#2ea043] focus:outline-none transition-colors disabled:opacity-50"
+                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-white)] bg-[#238636] hover:bg-[#2ea043] focus:outline-none transition-colors disabled:opacity-50"
                         >
                             {submitting ? 'Signing in...' : 'Sign In'}
                         </button>
