@@ -173,8 +173,8 @@ export default function Dashboard({ isCollapsed }) {
                 {/* Cluster Identity */}
                 <MetricCard
                     title={t('cluster_platform')}
-                    value={settings.clusterName || stats?.clusterName || "K8s Cluster"}
-                    subValue={`Version: ${stats?.k8sVersion || '—'}`}
+                    value={`Name: ${settings.clusterName || stats?.clusterName || "K8s Cluster"}`}
+                    subValue={`K8s version: ${stats?.k8sVersion || '—'}`}
                     iconKey="clusterrole"
                     color="cyan"
                     valueClassName={isCollapsed ? 'text-2xl' : 'text-xl'}

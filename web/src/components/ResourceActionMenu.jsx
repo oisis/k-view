@@ -24,9 +24,11 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     useEffect(() => {
         function handleClickOutside(event) {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                // If portal is used, we need to check if click was on the portal content too
-                const portal = document.getElementById('menu-portal-root');
-                if (portal && portal.contains(event.target)) return;
+                // Check if the click is inside any portal root
+                const dropdownPortal = document.getElementById('menu-portal-root');
+                const modalPortal = document.getElementById('modal-portal-root');
+                if (dropdownPortal && dropdownPortal.contains(event.target)) return;
+                if (modalPortal && modalPortal.contains(event.target)) return;
 
                 setIsOpen(false);
                 setConfirmAction(null);
@@ -171,6 +173,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         }
     };
 
+    // Portal Menu Component
     return (
         <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
             <button
@@ -180,121 +183,158 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 {icons.more ? <icons.more size={16} /> : <span>•••</span>}
             </button>
 
-            {isOpen && menuRect && createPortal(
-                <div 
-                    id="menu-portal-root" 
+            {/* Action Dropdown Menu */}
+            {isOpen && !confirmAction && menuRect && createPortal(
+                <div
+                    id="menu-portal-root"
                     style={{
                         position: 'fixed',
                         top: `${menuRect.bottom + 8}px`,
-                        left: `${Math.max(8, menuRect.right - 224)}px`, // Prevent menu from going off-screen left
+                        left: `${Math.max(8, menuRect.right - 224)}px`,
                         zIndex: 9999,
-                    }} 
+                    }}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="w-56 bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                        {!confirmAction ? (
-                            <>
-                                {(isPod || isWorkload) && (
-                                    <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
-                                        {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart') || 'Restart'}
-                                    </button>
-                                )}
-                                <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    {icons.edit && <icons.edit size={14} />} {t('edit') || 'Edit YAML'}
-                                </button>
-                                <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-[var(--border-color)]/30 mb-1 pb-2">
-                                    {icons.trash && <icons.trash size={14} />} {t('delete') || 'Delete'}
-                                </button>
+                        {(isPod || isWorkload) && (
+                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                                {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
+                            </button>
+                        )}
+                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            {icons.edit && <icons.edit size={14} />} {t('edit')}
+                        </button>
+                        <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                            {icons.trash && <icons.trash size={14} />} {t('delete')}
+                        </button>
 
-                                <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    {icons.external_link && <icons.external_link size={14} />} {t('view_details') || 'View Details'}
+                        <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
+                        </button>
+                        {isScalable && (
+                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                {icons.activity && <icons.activity size={14} />} {t('scale_replicas')}
+                            </button>
+                        )}
+                        {isPod && (
+                            <>
+                                <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                    {icons.manifest && <icons.manifest size={14} />} {t('view_logs')}
                                 </button>
-                                {isScalable && (
-                                    <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                        {icons.activity && <icons.activity size={14} />} {t('scale_replicas') || 'Scale Replicas'}
-                                    </button>
-                                )}
-                                {isPod && (
-                                    <>
-                                        <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                            {icons.manifest && <icons.manifest size={14} />} {t('view_logs') || 'View Logs'}
-                                        </button>
-                                        <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                            {icons.terminal && <icons.terminal size={14} />} {t('exec_shell') || 'Exec Shell'}
-                                        </button>
-                                    </>
-                                )}
-                                <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    {icons.download && <icons.download size={14} />} {t('export_yaml') || 'Export YAML'}
+                                <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                    {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                                 </button>
                             </>
-                        ) : (
-                            <div className="p-4">
-                                {confirmAction === 'delete' && (
-                                    <>
-                                        <div className="flex items-center gap-2 text-rose-400 mb-2 px-1">
-                                            {icons.alert_triangle && <icons.alert_triangle size={16} />}
-                                            <span className="text-xs font-black uppercase tracking-wider">Confirm Delete?</span>
-                                        </div>
-                                        <label className="flex items-center gap-2 mb-4 px-1 cursor-pointer group">
-                                            <input
-                                                type="checkbox"
-                                                checked={forceDelete}
-                                                onChange={(e) => setForceDelete(e.target.checked)}
-                                                className="w-3 h-3 rounded border-[var(--border-color)] bg-transparent text-rose-500 focus:ring-0"
-                                            />
-                                            <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-rose-300 transition-colors">Force (Grace Period 0)</span>
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                                {isProcessing ? 'Deleting...' : 'Delete Now'}
-                                            </button>
-                                            <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {confirmAction === 'restart' && (
-                                    <>
-                                        <div className="flex items-center gap-2 text-[var(--accent)] mb-4 px-1">
-                                            {icons.zap && <icons.zap size={16} />}
-                                            <span className="text-xs font-black uppercase tracking-wider">Confirm Restart?</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2 bg-[var(--accent)] hover:bg-[#7d86f5] text-white text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                                {isProcessing ? 'Restarting...' : 'Restart'}
-                                            </button>
-                                            <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
-                                        </div>
-                                    </>
-                                )}
-
-                                {confirmAction === 'scale' && (
-                                    <>
-                                        <div className="flex items-center gap-2 text-cyan-400 mb-4 px-1">
-                                            {icons.activity && <icons.activity size={16} />}
-                                            <span className="text-xs font-black uppercase tracking-wider">Set Replicas</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 mb-4 bg-[var(--bg-muted)]/50 p-2 rounded-lg border border-[var(--border-color)]">
-                                            <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-1 hover:text-[var(--accent)] transition-colors">{icons.chevron_down && <icons.chevron_down size={14} />}</button>
-                                            <input
-                                                type="number"
-                                                value={scaleValue}
-                                                onChange={(e) => setScaleValue(parseInt(e.target.value) || 0)}
-                                                className="w-full bg-transparent text-center text-sm font-bold text-[var(--text-white)] focus:outline-none"
-                                            />
-                                            <button onClick={() => setScaleValue(scaleValue + 1)} className="p-1 hover:text-[var(--accent)] transition-colors">{icons.chevron_up && <icons.chevron_up size={14} />}</button>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2 bg-[#4ed8ff] hover:bg-[#72e1ff] text-black text-xs font-bold uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                                                {isProcessing ? 'Scaling...' : 'Scale Now'}
-                                            </button>
-                                            <button onClick={() => setConfirmAction(null)} className="flex-1 py-2 bg-[var(--bg-muted)] text-[var(--text-secondary)] text-xs font-bold uppercase rounded-lg active:scale-95 transition-all">Cancel</button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
                         )}
+                        <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            {icons.download && <icons.download size={14} />} {t('export_yaml')}
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Confirmation Modal */}
+            {isOpen && confirmAction && createPortal(
+                <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setConfirmAction(null); setIsOpen(false); }} />
+                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            {confirmAction === 'delete' && (
+                                <>
+                                    <div className="flex items-center gap-3 text-rose-400 mb-4">
+                                        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                                            {icons.alert_triangle && <icons.alert_triangle size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_delete')}</h3>
+                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <label className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--bg-muted)]/50 border border-[var(--border-color)] cursor-pointer group transition-colors hover:border-rose-500/30">
+                                        <input
+                                            type="checkbox"
+                                            checked={forceDelete}
+                                            onChange={(e) => setForceDelete(e.target.checked)}
+                                            className="w-4 h-4 rounded border-[var(--border-color)] bg-transparent text-rose-500 focus:ring-0"
+                                        />
+                                        <span className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+                                            {t('force_delete')}
+                                        </span>
+                                    </label>
+
+                                    <div className="flex gap-3">
+                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                            {t('cancel')}
+                                        </button>
+                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
+                                            {isProcessing ? '...' : t('delete_now')}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {confirmAction === 'restart' && (
+                                <>
+                                    <div className="flex items-center gap-3 text-[var(--accent)] mb-6">
+                                        <div className="p-3 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20">
+                                            {icons.zap && <icons.zap size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_restart')}</h3>
+                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                            {t('cancel')}
+                                        </button>
+                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">
+                                            {isProcessing ? '...' : t('restart')}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {confirmAction === 'scale' && (
+                                <>
+                                    <div className="flex items-center gap-3 text-cyan-400 mb-6">
+                                        <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                                            {icons.activity && <icons.activity size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('set_replicas')}</h3>
+                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-4 mb-6 bg-[var(--bg-muted)]/50 p-4 rounded-2xl border border-[var(--border-color)]">
+                                        <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-2 bg-[var(--bg-card)] rounded-lg hover:text-[var(--accent)] border border-[var(--border-color)] transition-colors shadow-sm">
+                                            {icons.chevron_down && <icons.chevron_down size={20} />}
+                                        </button>
+                                        <input
+                                            type="number"
+                                            value={scaleValue}
+                                            onChange={(e) => setScaleValue(parseInt(e.target.value) || 0)}
+                                            className="flex-1 bg-transparent text-center text-2xl font-black text-[var(--text-primary)] focus:outline-none"
+                                        />
+                                        <button onClick={() => setScaleValue(scaleValue + 1)} className="p-2 bg-[var(--bg-card)] rounded-lg hover:text-[var(--accent)] border border-[var(--border-color)] transition-colors shadow-sm">
+                                            {icons.chevron_up && <icons.chevron_up size={20} />}
+                                        </button>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                            {t('cancel')}
+                                        </button>
+                                        <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+                                            {isProcessing ? '...' : t('scale_now')}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>,
                 document.body
