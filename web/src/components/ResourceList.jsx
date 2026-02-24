@@ -322,11 +322,33 @@ export default function ResourceList({ kind }) {
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
     const [items, setItems] = useState([]);
     const [namespaces, setNamespaces] = useState([]);
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        fetch('/api/auth/me')
+            .then(r => r.ok ? r.json() : null)
+            .then(d => setUser(d))
+            .catch(() => { });
+    }, []);
+
+    const scope = user?.email || 'anonymous';
+    const nsKey = `kview-selected-namespace-${scope}`;
+
     const [namespace, setNamespace] = useState(() => {
-        const saved = localStorage.getItem('kview-selected-namespace');
+        const saved = localStorage.getItem(nsKey);
         if (saved !== null) return saved;
         return settings.defaultNamespace;
     });
+
+    // Update namespace if scope changes and no previous manual selection
+    useEffect(() => {
+        const saved = localStorage.getItem(nsKey);
+        if (saved === null) {
+            setNamespace(settings.defaultNamespace);
+        } else {
+            setNamespace(saved);
+        }
+    }, [nsKey, settings.defaultNamespace]);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -341,8 +363,10 @@ export default function ResourceList({ kind }) {
 
     // Persist namespace
     useEffect(() => {
-        localStorage.setItem('kview-selected-namespace', namespace);
-    }, [namespace]);
+        if (namespace !== undefined) {
+            localStorage.setItem(nsKey, namespace);
+        }
+    }, [namespace, nsKey]);
 
     // Sorting state
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });

@@ -13,10 +13,13 @@ const DEFAULT_SETTINGS = {
     locale: 'en'
 };
 
-export function SettingsProvider({ children }) {
+export function SettingsProvider({ children, userEmail }) {
+    const scope = userEmail || 'anonymous';
+    const settingsKey = `kview-settings-${scope}`;
+
     const [settings, setSettings] = useState(() => {
         try {
-            const saved = localStorage.getItem('kview-settings');
+            const saved = localStorage.getItem(settingsKey);
             return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
         } catch (e) {
             console.error('Failed to load settings:', e);
@@ -24,9 +27,19 @@ export function SettingsProvider({ children }) {
         }
     });
 
+    // Reload settings when user scope changes
     useEffect(() => {
-        localStorage.setItem('kview-settings', JSON.stringify(settings));
-    }, [settings]);
+        try {
+            const saved = localStorage.getItem(settingsKey);
+            setSettings(saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS);
+        } catch (e) {
+            setSettings(DEFAULT_SETTINGS);
+        }
+    }, [settingsKey]);
+
+    useEffect(() => {
+        localStorage.setItem(settingsKey, JSON.stringify(settings));
+    }, [settings, settingsKey]);
 
     const updateSettings = (newSettings) => {
         setSettings(prev => ({ ...prev, ...newSettings }));

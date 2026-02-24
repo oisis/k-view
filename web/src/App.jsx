@@ -17,9 +17,10 @@ import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
 
 // ── Collapsible section ────────────────────────────────────────────────────
-function Section({ label, children, defaultOpen = true, isCollapsed }) {
+function Section({ label, children, defaultOpen = true, isCollapsed, userEmail }) {
     const { icons } = useTheme();
-    const key = `sidebar-section-${label}`;
+    const scope = userEmail || 'anonymous';
+    const key = `sidebar-section-${scope}-${label}`;
     const [open, setOpen] = useState(() => {
         try { return JSON.parse(localStorage.getItem(key)) ?? defaultOpen; }
         catch { return defaultOpen; }
@@ -133,7 +134,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
                 </div>
 
-                <Section label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed}>
+                <Section label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
@@ -144,20 +145,20 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('network')} defaultOpen={false} isCollapsed={isCollapsed}>
+                <Section label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
                     <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
                     <NavItem href="/network/services" iconKey="service" label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('config')} defaultOpen={false} isCollapsed={isCollapsed}>
+                <Section label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed}>
+                <Section label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
                     <NavItem href="/crd" iconKey="crd" label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
@@ -171,7 +172,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('tools')} defaultOpen={true} isCollapsed={isCollapsed}>
+                <Section label={t('tools')} defaultOpen={true} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
                     <NavItem href="/about" iconKey="about" label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
                     <NavItem href="/console" iconKey="console" label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
@@ -253,14 +254,24 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [namespaces, setNamespaces] = useState(['default']);
-    const [isCollapsed, setIsCollapsed] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('kview-sidebar-collapsed')) ?? false; }
-        catch { return false; }
-    });
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
-        localStorage.setItem('kview-sidebar-collapsed', JSON.stringify(isCollapsed));
-    }, [isCollapsed]);
+        if (user?.email) {
+            const key = `kview-sidebar-collapsed-${user.email}`;
+            try {
+                const saved = localStorage.getItem(key);
+                if (saved !== null) setIsCollapsed(JSON.parse(saved));
+            } catch (e) { }
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (user?.email) {
+            const key = `kview-sidebar-collapsed-${user.email}`;
+            localStorage.setItem(key, JSON.stringify(isCollapsed));
+        }
+    }, [isCollapsed, user]);
 
     useEffect(() => {
         fetch('/api/auth/me')
@@ -291,90 +302,92 @@ function App() {
     const protect = (el) => user ? el : <Navigate to="/login" />;
 
     return (
-        <Router>
-            <div className={`flex h-screen bg-[var(--bg-main)] text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
-                <div
-                    className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
-                    style={{
-                        backgroundImage: `url(${background})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        opacity: 'var(--wallpaper-opacity)',
-                        filter: `grayscale(var(--wallpaper-grayscale, 100%)) brightness(var(--wallpaper-brightness))`,
-                    }}
-                />
-                {user && (
-                    <Sidebar
-                        user={user}
-                        onLogout={handleLogout}
-                        isCollapsed={isCollapsed}
-                        setIsCollapsed={setIsCollapsed}
-                        onCreateResource={() => setIsCreateModalOpen(true)}
+        <SettingsProvider userEmail={user?.email}>
+            <Router>
+                <div className={`flex h-screen bg-[var(--bg-main)] text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
+                    <div
+                        className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
+                        style={{
+                            backgroundImage: `url(${background})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            opacity: 'var(--wallpaper-opacity)',
+                            filter: `grayscale(var(--wallpaper-grayscale, 100%)) brightness(var(--wallpaper-brightness))`,
+                        }}
                     />
-                )}
+                    {user && (
+                        <Sidebar
+                            user={user}
+                            onLogout={handleLogout}
+                            isCollapsed={isCollapsed}
+                            setIsCollapsed={setIsCollapsed}
+                            onCreateResource={() => setIsCreateModalOpen(true)}
+                        />
+                    )}
 
-                <CreateResourceModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onCreated={() => {
-                        // Individual lists refresh themselves
-                    }}
-                    namespaces={namespaces}
-                />
-                <main className="flex-1 overflow-auto flex flex-col">
-                    <Routes>
-                        {/* Auth */}
-                        <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+                    <CreateResourceModal
+                        isOpen={isCreateModalOpen}
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onCreated={() => {
+                            // Individual lists refresh themselves
+                        }}
+                        namespaces={namespaces}
+                    />
+                    <main className="flex-1 overflow-auto flex flex-col">
+                        <Routes>
+                            {/* Auth */}
+                            <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
 
-                        {/* Top-level */}
-                        <Route path="/" element={protect(<Dashboard isCollapsed={isCollapsed} />)} />
-                        <Route path="/nodes" element={protect(<Nodes />)} />
-                        <Route path="/console" element={protect(<Console />)} />
-                        <Route path="/about" element={protect(<About />)} />
-                        <Route path="/settings" element={protect(<Settings theme={theme} setTheme={setTheme} />)} />
+                            {/* Top-level */}
+                            <Route path="/" element={protect(<Dashboard isCollapsed={isCollapsed} />)} />
+                            <Route path="/nodes" element={protect(<Nodes />)} />
+                            <Route path="/console" element={protect(<Console />)} />
+                            <Route path="/about" element={protect(<About />)} />
+                            <Route path="/settings" element={protect(<Settings theme={theme} setTheme={setTheme} />)} />
 
-                        {/* Workloads */}
-                        <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />
-                        <Route path="/workloads/deployments" element={protect(<ResourceList kind="deployments" />)} />
-                        <Route path="/workloads/statefulsets" element={protect(<ResourceList kind="statefulsets" />)} />
-                        <Route path="/workloads/daemonsets" element={protect(<ResourceList kind="daemonsets" />)} />
-                        <Route path="/workloads/jobs" element={protect(<ResourceList kind="jobs" />)} />
-                        <Route path="/workloads/cronjobs" element={protect(<ResourceList kind="cronjobs" />)} />
-                        <Route path="/workloads/replicasets" element={protect(<ResourceList kind="replicasets" />)} />
-                        <Route path="/workloads/replicationcontrollers" element={protect(<ResourceList kind="replicationcontrollers" />)} />
+                            {/* Workloads */}
+                            <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />
+                            <Route path="/workloads/deployments" element={protect(<ResourceList kind="deployments" />)} />
+                            <Route path="/workloads/statefulsets" element={protect(<ResourceList kind="statefulsets" />)} />
+                            <Route path="/workloads/daemonsets" element={protect(<ResourceList kind="daemonsets" />)} />
+                            <Route path="/workloads/jobs" element={protect(<ResourceList kind="jobs" />)} />
+                            <Route path="/workloads/cronjobs" element={protect(<ResourceList kind="cronjobs" />)} />
+                            <Route path="/workloads/replicasets" element={protect(<ResourceList kind="replicasets" />)} />
+                            <Route path="/workloads/replicationcontrollers" element={protect(<ResourceList kind="replicationcontrollers" />)} />
 
-                        {/* Services / Networking */}
-                        <Route path="/network/services" element={protect(<ResourceList kind="services" />)} />
-                        <Route path="/network/ingresses" element={protect(<ResourceList kind="ingresses" />)} />
+                            {/* Services / Networking */}
+                            <Route path="/network/services" element={protect(<ResourceList kind="services" />)} />
+                            <Route path="/network/ingresses" element={protect(<ResourceList kind="ingresses" />)} />
 
-                        {/* Config & Storage */}
-                        <Route path="/config/configmaps" element={protect(<ResourceList kind="configmaps" />)} />
-                        <Route path="/config/secrets" element={protect(<ResourceList kind="secrets" />)} />
-                        <Route path="/config/pvcs" element={protect(<ResourceList kind="pvcs" />)} />
-                        <Route path="/config/pvs" element={protect(<ResourceList kind="pvs" />)} />
-                        <Route path="/config/storage-classes" element={protect(<ResourceList kind="storage-classes" />)} />
+                            {/* Config & Storage */}
+                            <Route path="/config/configmaps" element={protect(<ResourceList kind="configmaps" />)} />
+                            <Route path="/config/secrets" element={protect(<ResourceList kind="secrets" />)} />
+                            <Route path="/config/pvcs" element={protect(<ResourceList kind="pvcs" />)} />
+                            <Route path="/config/pvs" element={protect(<ResourceList kind="pvs" />)} />
+                            <Route path="/config/storage-classes" element={protect(<ResourceList kind="storage-classes" />)} />
 
-                        {/* CRD */}
-                        <Route path="/crd" element={protect(<ResourceList kind="crds" />)} />
+                            {/* CRD */}
+                            <Route path="/crd" element={protect(<ResourceList kind="crds" />)} />
 
-                        {/* Cluster */}
-                        <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
-                        <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
-                        <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
-                        <Route path="/cluster/events" element={protect(<ResourceList kind="events" />)} />
-                        <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
-                        <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
-                        <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />
-                        <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />
-                        <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
+                            {/* Cluster */}
+                            <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
+                            <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
+                            <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
+                            <Route path="/cluster/events" element={protect(<ResourceList kind="events" />)} />
+                            <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
+                            <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
+                            <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />
+                            <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />
+                            <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
 
-                        <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails user={user} />)} />
-                        <Route path="/access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? protect(<AdminPanel />) : <Navigate to="/" />} />
-                    </Routes>
-                </main>
-            </div>
-        </Router>
+                            <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails user={user} />)} />
+                            <Route path="/access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? protect(<AdminPanel />) : <Navigate to="/" />} />
+                        </Routes>
+                    </main>
+                </div>
+            </Router>
+        </SettingsProvider>
     );
 }
 
