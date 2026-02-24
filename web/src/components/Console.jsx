@@ -49,16 +49,20 @@ export default function Console() {
             .catch(() => { });
     }, []);
 
-    // Update input when namespace changes
-    useEffect(() => {
-        const prefix = getPrefix(selectedNs);
+    const updateInputWithNamespace = useCallback((ns) => {
+        const prefix = getPrefix(ns);
         setInput(prev => {
-            // Remove any existing kubectl prefix (with or without -n flag)
-            // and replace it with the new one
             const commandPart = prev.replace(/^kubectl\s*(-n\s+[^\s]+\s*)?/i, '');
             return prefix + commandPart;
         });
-    }, [selectedNs, getPrefix]);
+    }, [getPrefix]);
+
+    const handleNsSelect = (ns) => {
+        setSelectedNs(ns);
+        setNsMenuOpen(false);
+        updateInputWithNamespace(ns);
+        setTimeout(focusAndEnd, 10);
+    };
 
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
@@ -84,6 +88,12 @@ export default function Console() {
 
     useEffect(() => {
         function handleClickOutside(event) {
+            // Check if the click is inside the portal
+            const portal = document.getElementById('ns-portal-root');
+            if (portal && portal.contains(event.target)) {
+                return;
+            }
+
             if (nsRef.current && !nsRef.current.contains(event.target)) {
                 setNsMenuOpen(false);
             }
@@ -202,7 +212,7 @@ export default function Console() {
 
     const appendToInput = (type, value) => {
         if (type === 'ns') {
-            setSelectedNs(value);
+            handleNsSelect(value);
             return;
         }
         setInput(prev => {
@@ -387,6 +397,7 @@ export default function Console() {
 
                         {nsMenuOpen && nsBtnRect && createPortal(
                             <div 
+                                id="ns-portal-root"
                                 style={{
                                     position: 'fixed',
                                     bottom: `${window.innerHeight - nsBtnRect.top + 8}px`,
@@ -398,7 +409,11 @@ export default function Console() {
                             >
                                 <div className="max-h-60 overflow-y-auto">
                                     <button
-                                        onClick={() => { setSelectedNs(''); setNsMenuOpen(false); }}
+                                        onClick={(e) => { 
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleNsSelect('');
+                                        }}
                                         className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === '' ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
                                     >
                                         (all namespaces)
@@ -406,7 +421,11 @@ export default function Console() {
                                     {namespaces.map(ns => (
                                         <button
                                             key={ns}
-                                            onClick={() => { setSelectedNs(ns); setNsMenuOpen(false); }}
+                                            onClick={(e) => { 
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleNsSelect(ns);
+                                            }}
                                             className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === ns ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
                                         >
                                             {ns}
