@@ -43,7 +43,7 @@ const SelectField = ({ label, icon: Icon, value, onChange, options, description 
 export default function Settings() {
     const { settings, updateSettings } = useSettings();
     const { t } = useTranslation();
-    const { icons, templates, activeTemplate, activeTheme, setTheme, setTemplate } = useTheme();
+    const { icons, themes, activeTheme, setTheme } = useTheme();
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -94,9 +94,6 @@ export default function Settings() {
                 setLoading(false);
             });
     }, []);
-
-    // We no longer need the hardcoded themes array here
-    // const themes = [ ... ];
 
     if (loading) {
         return (
@@ -160,65 +157,33 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* Template & Theme Selection */}
-                <div className="space-y-6">
-                    <div className="space-y-4">
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                            <icons.palette size={14} /> UI Template
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {templates.map((tmpl) => (
-                                <button
-                                    key={tmpl.id}
-                                    onClick={() => setTemplate(tmpl.id)}
-                                    className={`flex flex-col text-left p-4 rounded-xl border transition-all duration-200 group relative
-                                        ${activeTemplate?.id === tmpl.id
-                                            ? 'bg-info/10 bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
-                                            : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
-                                >
-                                    <div className={`p-2 w-fit rounded-lg mb-3 ${activeTemplate?.id === tmpl.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
-                                        <icons.palette size={18} />
+                {/* Theme Selection */}
+                <div className="space-y-4">
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+                        <icons.layers size={14} /> {t('interface_theme')}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {Object.entries(themes || {}).map(([id, themeCfg]) => (
+                            <button
+                                key={id}
+                                onClick={() => setTheme(id)}
+                                className={`flex flex-col text-left p-4 rounded-xl border transition-all duration-200 group relative
+                                    ${activeTheme === id
+                                        ? 'bg-info/10 bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
+                                        : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
+                            >
+                                <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
+                                    {id === 'light' ? <icons.sun size={18} /> : id === 'black' ? <icons.zap size={18} /> : <icons.moon size={18} />}
+                                </div>
+                                <h3 className="font-bold text-[var(--text-primary)]">{themeCfg.name}</h3>
+
+                                {activeTheme === id && (
+                                    <div className="absolute top-4 right-4 text-[var(--accent)]">
+                                        <icons.check size={16} />
                                     </div>
-                                    <h3 className="font-bold text-[var(--text-primary)]">{t(`template_${tmpl.id}`)}</h3>
-                                    <p className="text-xs text-[var(--text-muted)] mt-1">by {tmpl.author}</p>
-
-                                    {activeTemplate?.id === tmpl.id && (
-                                        <div className="absolute top-4 right-4 text-[var(--accent)]">
-                                            <icons.check size={16} />
-                                        </div>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                            <icons.layers size={14} /> {t('interface_theme')}
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {Object.entries(activeTemplate?.themes || {}).map(([id, themeCfg]) => (
-                                <button
-                                    key={id}
-                                    onClick={() => setTheme(id)}
-                                    className={`flex flex-col text-left p-4 rounded-xl border transition-all duration-200 group relative
-                                        ${activeTheme === id
-                                            ? 'bg-info/10 bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
-                                            : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
-                                >
-                                    <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
-                                        {id === 'light' ? <icons.sun size={18} /> : id === 'black' ? <icons.zap size={18} /> : <icons.moon size={18} />}
-                                    </div>
-                                    <h3 className="font-bold text-[var(--text-primary)]">{t(`theme_${id}`)}</h3>
-
-                                    {activeTheme === id && (
-                                        <div className="absolute top-4 right-4 text-[var(--accent)]">
-                                            <icons.check size={16} />
-                                        </div>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
+                                )}
+                            </button>
+                        ))}
                     </div>
                 </div>
 

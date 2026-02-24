@@ -3,47 +3,49 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-    const [templates, setTemplates] = useState({});
-    const [activeTemplateId, setActiveTemplateId] = useState(localStorage.getItem('kview-template') || 'k-view');
+    const [themes, setThemes] = useState({});
     const [activeTheme, setActiveTheme] = useState(localStorage.getItem('kview-theme') || 'dark');
+    const [icons, setIcons] = useState({});
     const [loading, setLoading] = useState(true);
 
-    // Dynamic loading of templates using Vite's import.meta.glob
     useEffect(() => {
-        const loadTemplates = async () => {
+        const loadThemes = async () => {
             const modules = import.meta.glob('/src/templates/*.js');
-            const loadedTemplates = {};
+            const allThemes = {};
+            let globalIcons = {};
 
             for (const path in modules) {
                 const module = await modules[path]();
                 const template = module.default;
-                if (template && template.id) {
-                    loadedTemplates[template.id] = template;
+                if (template && template.themes) {
+                    Object.assign(allThemes, template.themes);
+                }
+                // Use icons from the main k-view template as the global icon set
+                if (template && template.id === 'k-view' && template.icons) {
+                    globalIcons = template.icons;
                 }
             }
 
-            setTemplates(loadedTemplates);
-            // Default to first template if current one doesn't exist
-            if (!loadedTemplates[activeTemplateId]) {
-                const firstId = Object.keys(loadedTemplates)[0];
-                if (firstId) setActiveTemplateId(firstId);
+            setThemes(allThemes);
+            setIcons(globalIcons);
+
+            // Default to 'dark' theme if current one doesn't exist
+            if (!allThemes[activeTheme]) {
+                setActiveTheme('dark');
             }
             setLoading(false);
         };
 
-        loadTemplates();
+        loadThemes();
     }, []);
 
-    const template = templates[activeTemplateId] || templates['standard'];
-    const themeConfig = template?.themes[activeTheme] || template?.themes[Object.keys(template?.themes || {})[0]];
+    const themeConfig = themes[activeTheme];
 
     useEffect(() => {
         if (!themeConfig) return;
 
         const root = document.documentElement;
-        // Reset classes
-        root.className = '';
-        root.classList.add(`template-${activeTemplateId}`);
+        root.className = ''; // Reset classes
         root.classList.add(`theme-${activeTheme}`);
 
         // Inject CSS variables
@@ -51,17 +53,14 @@ export function ThemeProvider({ children }) {
             root.style.setProperty(key, value);
         });
 
-        localStorage.setItem('kview-template', activeTemplateId);
         localStorage.setItem('kview-theme', activeTheme);
-    }, [activeTemplateId, activeTheme, themeConfig]);
+    }, [activeTheme, themeConfig]);
 
     const value = {
-        templates: Object.values(templates),
-        activeTemplate: template,
+        themes,
         activeTheme,
         setTheme: setActiveTheme,
-        setTemplate: setActiveTemplateId,
-        icons: template?.icons || {},
+        icons,
         loading
     };
 
