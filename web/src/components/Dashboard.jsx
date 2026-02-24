@@ -106,9 +106,9 @@ export default function Dashboard({ isCollapsed }) {
 
     useEffect(() => {
         fetchStats();
-        const interval = setInterval(fetchStats, settings.resourceRefreshInterval * 1000);
+        const interval = setInterval(fetchStats, 5000);
         return () => clearInterval(interval);
-    }, [fetchStats, settings.resourceRefreshInterval]);
+    }, [fetchStats]);
 
     if (loading && !stats) {
         return (
@@ -130,13 +130,6 @@ export default function Dashboard({ isCollapsed }) {
                         {t('connected_as')} <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
-                <button
-                    onClick={fetchStats}
-                    className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-5 py-3 rounded-xl transition-all hover:bg-[var(--bg-card-hover)] shadow-sm active:scale-95"
-                >
-                    <icons.refresh size={14} className={loading ? 'animate-spin' : ''} />
-                    {t('reload')}
-                </button>
             </div>
 
             {/* Metrics Server Warning */}

@@ -380,9 +380,13 @@ export default function ResourceList({ kind }) {
             .finally(() => setLoading(false));
     }, [kind, namespace]);
 
-    useEffect(() => { load(); }, [load]);
-
-    const handleCreated = () => {
+        useEffect(() => {
+            load();
+            const interval = setInterval(load, 5000);
+            return () => clearInterval(interval);
+        }, [load]);
+    
+        const handleCreated = () => {
         load();
         setIsCreateModalOpen(false);
     };
@@ -480,10 +484,6 @@ export default function ResourceList({ kind }) {
                             onChange={setNamespace}
                         />
                     )}
-                    <button onClick={load} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] border border-[var(--border-color)] px-3 py-2 rounded-lg transition-colors h-10">
-                        <icons.refresh size={14} className={loading ? 'animate-spin' : ''} />
-                        {t('refresh')}
-                    </button>
                 </div>
             </div>
 

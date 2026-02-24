@@ -69,6 +69,8 @@ export default function Nodes() {
 
     useEffect(() => {
         loadNodes();
+        const interval = setInterval(loadNodes, 5000);
+        return () => clearInterval(interval);
     }, [loadNodes]);
 
     const ready = nodes.filter(n => n.status === 'Ready').length;
