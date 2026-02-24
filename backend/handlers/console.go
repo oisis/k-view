@@ -133,8 +133,25 @@ func mockKubectl(cmd string, user k8s.UserContext) (string, int) {
 		return kubectlHelp(), 0
 	}
 
-	sub := parts[1]
-	args := parts[2:]
+	// Skip kubectl and any global flags like -n <ns> or --namespace=<ns>
+	// to find the actual subcommand (get, describe, etc.)
+	subIdx := 1
+	for subIdx < len(parts) && strings.HasPrefix(parts[subIdx], "-") {
+		if parts[subIdx] == "-n" || parts[subIdx] == "--namespace" {
+			subIdx += 2 // skip flag and its value
+		} else if strings.HasPrefix(parts[subIdx], "--namespace=") {
+			subIdx += 1 // skip the combined flag
+		} else {
+			subIdx += 1 // skip other potential global flags
+		}
+	}
+
+	if subIdx >= len(parts) {
+		return kubectlHelp(), 0
+	}
+
+	sub := parts[subIdx]
+	args := parts[subIdx+1:]
 
 	// Simulate RBAC restrictions for viewers
 	if user.Role == "viewer" {
@@ -144,8 +161,9 @@ func mockKubectl(cmd string, user k8s.UserContext) (string, int) {
 		}
 	}
 
-	// Helper to find flag value like -n or --namespace
-	ns := extractFlag(args, "-n", "--namespace")
+	// Helper to find flag value like -n or --namespace in the entire command
+	allArgs := parts[1:]
+	ns := extractFlag(allArgs, "-n", "--namespace")
 
 	switch sub {
 	case "get":

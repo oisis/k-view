@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 
 const WELCOME = `K-View Kubernetes Console
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Connected to: k-view-dev-cluster
-  kubectl commands are supported (alias: k)
   Type 'kubectl help' for available commands
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
@@ -12,10 +12,13 @@ const PROMPT = '❯';
 
 const VERBS = ['get', 'describe', 'logs', 'top', 'delete', 'apply', 'edit', 'version', 'cluster-info'];
 const RESOURCES = ['pods', 'nodes', 'svc', 'deploy', 'ns', 'all', 'pv', 'pvc', 'cm', 'secret', 'ing', 'events'];
-const FLAGS = ['-A', '-o wide', '-n default', '-w', '--all-namespaces', '-o yaml'];
+const FLAGS = ['-A', '-o wide', '-w', '--all-namespaces', '-o yaml'];
 
 export default function Console() {
-    // Input always starts with "kubectl "
+    const [selectedNs, setSelectedNs] = useState('');
+    const [nsMenuOpen, setNsMenuOpen] = useState(false);
+    const [nsBtnRect, setNsBtnRect] = useState(null);
+    // Input always starts with "kubectl " or "kubectl -n <ns> "
     const [input, setInput] = useState('kubectl ');
     const [history, setHistory] = useState([
         { type: 'banner', text: WELCOME }
@@ -26,13 +29,18 @@ export default function Console() {
     const [loading, setLoading] = useState(false);
     const [namespaces, setNamespaces] = useState([]);
 
+    const nsRef = useRef(null);
+
+    const getPrefix = useCallback((ns) => {
+        return ns ? `kubectl -n ${ns} ` : 'kubectl ';
+    }, []);
+
     useEffect(() => {
         // Fetch all namespaces to make them clickable in console output
         fetch('/api/namespaces')
             .then(r => r.ok ? r.json() : null)
             .then(data => {
                 if (Array.isArray(data)) {
-                    // Backend returns []string directly
                     setNamespaces(data);
                 } else if (data && data.items) {
                     setNamespaces(data.items.map(ns => ns.metadata.name));
@@ -40,6 +48,17 @@ export default function Console() {
             })
             .catch(() => { });
     }, []);
+
+    // Update input when namespace changes
+    useEffect(() => {
+        const prefix = getPrefix(selectedNs);
+        setInput(prev => {
+            // Remove any existing kubectl prefix (with or without -n flag)
+            // and replace it with the new one
+            const commandPart = prev.replace(/^kubectl\s*(-n\s+[^\s]+\s*)?/i, '');
+            return prefix + commandPart;
+        });
+    }, [selectedNs, getPrefix]);
 
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
@@ -63,26 +82,48 @@ export default function Console() {
         focusAndEnd();
     }, [focusAndEnd]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (nsRef.current && !nsRef.current.contains(event.target)) {
+                setNsMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const toggleNsMenu = (e) => {
+        e.stopPropagation();
+        if (!nsMenuOpen) {
+            setNsBtnRect(e.currentTarget.getBoundingClientRect());
+        }
+        setNsMenuOpen(!nsMenuOpen);
+    };
+
     // Robust Command fragment suggestions
     const suggestions = useMemo(() => {
         const trimmedInput = input.trim();
         const parts = trimmedInput.split(/\s+/);
 
+        // Find the index where the actual command starts (after kubectl [-n ns])
+        let startIndex = 1;
+        if (parts[1] === '-n' && parts.length > 2) {
+            startIndex = 3;
+        }
+
         // Only suggest if we start with kubectl/k
         if (parts[0] !== 'kubectl' && parts[0] !== 'k') return null;
 
-        // Find the Verb (first match from our known list after current 'kubectl' prefix)
-        const verb = parts.slice(1).find(p => VERBS.includes(p));
+        // Find the Verb (first match from our known list after current prefix)
+        const verb = parts.slice(startIndex).find(p => VERBS.includes(p));
         const verbIdx = verb ? parts.indexOf(verb) : -1;
 
         // Find the potential Resource (the first non-flag after the verb)
-        // Or if no verb, check if any non-flag is present (unlikely for valid kubectl yet)
         const potentialResource = verbIdx !== -1
             ? parts.slice(verbIdx + 1).find(p => !p.startsWith('-'))
             : null;
 
         // Stage 1: No Verb -> suggest Actions
-        // Also if we are at the very end of 'kubectl '
         if (!verb) {
             return {
                 title: 'Actions',
@@ -91,7 +132,6 @@ export default function Console() {
         }
 
         // Stage 2: We have Verb but no Resource -> suggest Resources
-        // (Certain verbs don't need resources, but for simple mock mode we assume they do)
         if (!potentialResource && !['version', 'cluster-info'].includes(verb)) {
             return {
                 title: 'Resources',
@@ -100,7 +140,6 @@ export default function Console() {
         }
 
         // Stage 3: We have Verb and Resource -> suggest Flags
-        // Filter out flags that are already in the command (checking by prefix like -n or -o)
         const currentFlags = parts.filter(p => p.startsWith('-'));
         const remainingFlags = FLAGS.filter(f => {
             const flagPrefix = f.split(' ')[0];
@@ -162,12 +201,12 @@ export default function Console() {
     };
 
     const appendToInput = (type, value) => {
+        if (type === 'ns') {
+            setSelectedNs(value);
+            return;
+        }
         setInput(prev => {
             const trimmed = prev.trim();
-            if (type === 'ns') {
-                if (trimmed.includes(`-n ${value}`) || trimmed.includes(`--namespace ${value}`)) return prev;
-                return `${trimmed} -n ${value} `;
-            }
             if (trimmed.endsWith(value)) return prev;
             return `${trimmed} ${value} `;
         });
@@ -176,7 +215,6 @@ export default function Console() {
 
     const handleSuggestionClick = (val) => {
         setInput(prev => {
-            // Append with space, ensuring we don't have double spaces
             const trimmed = prev.trim();
             return trimmed + ' ' + val + ' ';
         });
@@ -196,7 +234,7 @@ export default function Console() {
 
         setCmdHistory(h => [cmd, ...h]);
         setHistIdx(-1);
-        setInput('kubectl ');
+        setInput(getPrefix(selectedNs));
         setLoading(true);
 
         try {
@@ -215,7 +253,7 @@ export default function Console() {
             setLoading(false);
             setTimeout(focusAndEnd, 50);
         }
-    }, [bannerVisible, focusAndEnd]);
+    }, [bannerVisible, focusAndEnd, selectedNs, getPrefix]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -230,7 +268,7 @@ export default function Console() {
             e.preventDefault();
             const next = histIdx - 1;
             setHistIdx(next);
-            if (next < 0) setInput('kubectl ');
+            if (next < 0) setInput(getPrefix(selectedNs));
             else setInput(cmdHistory[next]);
             setTimeout(focusAndEnd, 0);
         } else if (e.key === 'l' && e.ctrlKey) {
@@ -240,24 +278,35 @@ export default function Console() {
         } else if (e.key === 'c' && e.ctrlKey) {
             e.preventDefault();
             setHistory(h => [...h, { type: 'cmd', text: input + ' ^C' }]);
-            setInput('kubectl ');
-        } else if (e.key === 'Backspace' && input === 'kubectl ') {
-            e.preventDefault();
+            setInput(getPrefix(selectedNs));
+        } else if (e.key === 'Backspace') {
+            const prefix = getPrefix(selectedNs);
+            if (input === prefix) {
+                e.preventDefault();
+            }
         }
     };
 
     const handleInputChange = (e) => {
         const val = e.target.value;
-        // Extract the command part by removing the prefix regardless of where it appears
-        // This prevents "kubectl dkubectl get" duplication
-        const commandPart = val.replace(/^kubectl\s*/i, '').replace(/kubectl\s*/gi, '');
-        setInput('kubectl ' + commandPart);
+        const prefix = getPrefix(selectedNs);
+        
+        // If the user tries to delete the prefix, force it back
+        if (!val.startsWith(prefix)) {
+            // Check if they are typing something new or just deleted
+            const commandPart = val.replace(/^kubectl\s*(-n\s+[^\s]+\s*)?/i, '');
+            setInput(prefix + commandPart);
+            return;
+        }
+        
+        const commandPart = val.slice(prefix.length);
+        setInput(prefix + commandPart);
     };
 
     const handleSelect = (e) => {
-        // Prevent cursor from entering the protected "kubectl " prefix area
-        if (e.target.selectionStart < 8) {
-            e.target.setSelectionRange(8, 8);
+        const prefix = getPrefix(selectedNs);
+        if (e.target.selectionStart < prefix.length) {
+            e.target.setSelectionRange(prefix.length, prefix.length);
         }
     };
 
@@ -275,7 +324,7 @@ export default function Console() {
                 {history.map((entry, i) => (
                     <div key={i} className="mb-1">
                         {entry.type === 'banner' && (
-                            <div className="text-success mb-3 whitespace-pre">{entry.text}</div>
+                            <div className="text-red-500 mb-3 whitespace-pre">{entry.text}</div>
                         )}
                         {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-info">
@@ -307,27 +356,71 @@ export default function Console() {
             {/* Input & Suggestions row */}
             <div className="border-t border-[var(--border-color)] bg-[var(--bg-card)]/80 flex flex-col shrink-0">
                 {/* Suggestions bar */}
-                <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--border-color)] h-10 overflow-x-auto no-scrollbar">
-                    {suggestions ? (
-                        <>
-                            <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
-                            {suggestions.items.map((s, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => handleSuggestionClick(s.val)}
-                                    className="px-2.5 py-1 bg-info/10 hover:bg-info/20 text-info border border-info/30 hover:border-info/50 rounded text-xs transition-all whitespace-nowrap font-bold"
-                                >
-                                    {s.label}
-                                </button>
-                            ))}
-                        </>
-                    ) : (
-                        <span className="text-xs text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
-                    )}
+                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-color)] h-10 bg-[var(--bg-muted)]/50">
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                        {suggestions ? (
+                            <>
+                                <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                                {suggestions.items.map((s, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => handleSuggestionClick(s.val)}
+                                        className="px-3 py-1 bg-green-500/10 hover:bg-green-500/20 text-success border border-green-500/50 rounded text-sm transition-all whitespace-nowrap font-bold"
+                                    >
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </>
+                        ) : (
+                            <span className="text-xs text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
+                        )}
+                    </div>
+
+                    <div className="relative" ref={nsRef}>
+                        <button
+                            onClick={toggleNsMenu}
+                            className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-1 hover:border-info transition-colors min-w-[160px] font-sans font-medium justify-between shadow-sm"
+                        >
+                            <span className="truncate">{selectedNs || '(all namespaces)'}</span>
+                            <span className={`transition-transform duration-200 ${nsMenuOpen ? 'rotate-180' : ''}`}>▾</span>
+                        </button>
+
+                        {nsMenuOpen && nsBtnRect && createPortal(
+                            <div 
+                                style={{
+                                    position: 'fixed',
+                                    bottom: `${window.innerHeight - nsBtnRect.top + 8}px`,
+                                    left: `${nsBtnRect.left}px`,
+                                    width: `${nsBtnRect.width}px`,
+                                    zIndex: 10000,
+                                }}
+                                className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-2 duration-200"
+                            >
+                                <div className="max-h-60 overflow-y-auto">
+                                    <button
+                                        onClick={() => { setSelectedNs(''); setNsMenuOpen(false); }}
+                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === '' ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
+                                    >
+                                        (all namespaces)
+                                    </button>
+                                    {namespaces.map(ns => (
+                                        <button
+                                            key={ns}
+                                            onClick={() => { setSelectedNs(ns); setNsMenuOpen(false); }}
+                                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[var(--accent)]/10 transition-colors ${selectedNs === ns ? 'text-success font-bold bg-[var(--accent)]/5' : 'text-[var(--text-secondary)]'}`}
+                                        >
+                                            {ns}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>,
+                            document.body
+                        )}
+                    </div>
                 </div>
 
                 {/* Input row */}
-                <div className="flex items-center gap-2 px-4 py-3">
+                <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-main)]/30">
                     <span className="text-info font-mono font-bold select-none">{PROMPT}</span>
                     <input
                         ref={inputRef}
@@ -339,7 +432,7 @@ export default function Console() {
                         disabled={loading}
                         spellCheck={false}
                         autoComplete="off"
-                        className="flex-1 bg-transparent outline-none text-[var(--text-white)] font-mono caret-[var(--text-info)]"
+                        className="flex-1 bg-transparent outline-none text-[var(--text-primary)] font-mono caret-[var(--text-info)] font-bold"
                     />
                 </div>
 
