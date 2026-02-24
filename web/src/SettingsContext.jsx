@@ -13,29 +13,35 @@ const DEFAULT_SETTINGS = {
     locale: 'en'
 };
 
-export function SettingsProvider({ children, userEmail }) {
-    const scope = userEmail || 'anonymous';
+export function SettingsProvider({ children }) {
+    const [scope, setScope] = useState('anonymous');
     const settingsKey = `kview-settings-${scope}`;
 
     const [settings, setSettings] = useState(() => {
         try {
-            const saved = localStorage.getItem(settingsKey);
+            const saved = localStorage.getItem(`kview-settings-anonymous`);
             return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
         } catch (e) {
-            console.error('Failed to load settings:', e);
             return DEFAULT_SETTINGS;
         }
     });
 
-    // Reload settings when user scope changes
+    // Reload settings when scope changes
     useEffect(() => {
         try {
             const saved = localStorage.getItem(settingsKey);
-            setSettings(saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS);
+            if (saved) {
+                setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+            } else if (scope !== 'anonymous') {
+                // If switching to a user who has no settings, try to inherit from anonymous or use defaults
+                const anonSaved = localStorage.getItem('kview-settings-anonymous');
+                if (anonSaved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(anonSaved) });
+                else setSettings(DEFAULT_SETTINGS);
+            }
         } catch (e) {
             setSettings(DEFAULT_SETTINGS);
         }
-    }, [settingsKey]);
+    }, [settingsKey, scope]);
 
     useEffect(() => {
         localStorage.setItem(settingsKey, JSON.stringify(settings));
@@ -46,7 +52,7 @@ export function SettingsProvider({ children, userEmail }) {
     };
 
     return (
-        <SettingsContext.Provider value={{ settings, updateSettings }}>
+        <SettingsContext.Provider value={{ settings, updateSettings, setScope }}>
             {children}
         </SettingsContext.Provider>
     );
