@@ -553,8 +553,8 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Conditions */}
                         {(status.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
-                                <table className="w-full text-sm text-left border-collapse">
-                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                <table className="w-full text-sm border-collapse">
+                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
                                         <tr>
                                             <th className="px-6 py-3">{t('type')}</th>
                                             <th className="px-6 py-3">{t('label_status')}</th>
@@ -564,7 +564,7 @@ export default function ResourceDetails({ user }) {
                                             <th className="px-6 py-3">{t('message')}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[var(--border-color)]">
+                                    <tbody className="divide-y divide-[var(--border-color)] text-left">
                                         {status.conditions.map(c => (
                                             <tr key={c.type} className="hover:bg-white/5 transition-colors">
                                                 <td className="px-6 py-4 font-medium text-[var(--text-primary)]">{c.type}</td>
@@ -644,8 +644,8 @@ export default function ResourceDetails({ user }) {
                                                 <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
                                                     <icons.about size={14} /> {l.metadata.name}
                                                 </h4>
-                                                <table className="w-full text-xs text-left">
-                                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600">
+                                                <table className="w-full text-xs">
+                                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
                                                         <tr>
                                                             <th className="px-3 py-2">{t('type')}</th>
                                                             <th className="px-3 py-2">{t('usage_metrics')}</th>
@@ -654,7 +654,7 @@ export default function ResourceDetails({ user }) {
                                                             <th className="px-3 py-2">Default</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody className="divide-y divide-[var(--border-color)]/20">
+                                                    <tbody className="divide-y divide-[var(--border-color)]/20 text-left">
                                                         {l.spec?.limits?.map((lim, idx) => (
                                                             <tr key={idx}>
                                                                 <td className="px-3 py-2 font-bold text-[var(--text-primary)]">{lim.type}</td>
@@ -779,8 +779,8 @@ export default function ResourceDetails({ user }) {
 
                 {activeTab === 'events' && (
                     <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
-                        <table className="w-full text-sm text-left border-collapse">
-                            <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <table className="w-full text-sm border-collapse">
+                            <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
                                 <tr>
                                     <th className="px-6 py-3">{t('type')}</th>
                                     <th className="px-6 py-3">{t('reason')}</th>
@@ -790,7 +790,7 @@ export default function ResourceDetails({ user }) {
                                     <th className="px-6 py-3">{t('label_age')}</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-color)]">
+                            <tbody className="divide-y divide-[var(--border-color)] text-left">
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
@@ -1044,7 +1044,7 @@ function StatusItem({ label, value, children }) {
 function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-6 py-3 border-b-2 border-slate-600 bg-[var(--bg-sidebar)]/30 flex-shrink-0">
+            <div className="px-6 py-3 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
                 <h3 className="text-xs font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
