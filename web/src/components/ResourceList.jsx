@@ -58,10 +58,10 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.completions', label: 'Completions' },
-            { key: 'extra.duration', label: 'Duration' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.ready', label: 'Pods' },
+            { key: 'age', label: 'Created' },
         ],
     },
     cronjobs: {

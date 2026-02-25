@@ -356,6 +356,63 @@ function ReplicaSetsTable({ title, replicaSets, t }) {
     );
 }
 
+function PodsTable({ pods, t }) {
+    return (
+        <DetailSection title="Pods" className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left">Images</th>
+                            <th className="px-4 py-3 text-left">Labels</th>
+                            <th className="px-4 py-3 text-left">Node</th>
+                            <th className="px-4 py-3 text-left">Status</th>
+                            <th className="px-4 py-3 text-center">Restarts</th>
+                            <th className="px-4 py-3 text-left">CPU</th>
+                            <th className="px-4 py-3 text-left">RAM</th>
+                            <th className="px-4 py-3 text-left">Created</th>
+                            <th className="px-4 py-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)]">
+                        {pods.length === 0 ? (
+                            <tr><td colSpan="11" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No pods found.</td></tr>
+                        ) : (
+                            pods.map((pod, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-2">
+                                        <Link to={`/pods/${pod.namespace}/${pod.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
+                                            {pod.name}
+                                        </Link>
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{pod.namespace}</td>
+                                    <td className="px-4 py-2"><ExpandableCell value={pod.extra?.images} type="images" /></td>
+                                    <td className="px-4 py-2"><ExpandableCell value={pod.extra?.labels} type="labels" /></td>
+                                    <td className="px-4 py-2 text-xs font-mono text-info truncate max-w-[120px]">{pod.extra?.node || '—'}</td>
+                                    <td className="px-4 py-2">
+                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${pod.status === 'Running' || pod.status === 'Succeeded' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                                            {pod.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-2 text-center font-bold">{pod.extra?.restarts || 0}</td>
+                                    <td className="px-4 py-2 font-mono text-xs text-info">{pod.extra?.cpu || '—'}</td>
+                                    <td className="px-4 py-2 font-mono text-xs text-teal-400">{pod.extra?.ram || '—'}</td>
+                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{pod.age}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        <ResourceActionMenu kind="pods" namespace={pod.namespace} name={pod.name} onRefresh={() => window.location.reload()} />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
+    );
+}
+
 function HpaTable({ hpas, t }) {
     return (
         <DetailSection title="Horizontal Pod Autoscalers" className="mt-4">
@@ -536,10 +593,10 @@ export default function ResourceDetails({ user }) {
                     }
                 }
 
-                if (kindLower.includes('daemonset')) {
+                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs') {
                     const [podsRes, svcsRes] = await Promise.all([
                         fetch(`/api/resources/pods?namespace=${nsQuery}`),
-                        fetch(`/api/resources/services?namespace=${nsQuery}`)
+                        kindLower.includes('daemonset') ? fetch(`/api/resources/services?namespace=${nsQuery}`) : Promise.resolve(null)
                     ]);
                     if (podsRes && podsRes.ok) {
                         const podsData = await podsRes.json();
@@ -651,6 +708,7 @@ export default function ResourceDetails({ user }) {
     const status = data.status || {};
     const kindLower = kind?.toLowerCase() || '';
     const isPod = kindLower.startsWith('pod');
+    const isJob = kindLower === 'job' || kindLower === 'jobs';
     const isCronJob = kindLower.startsWith('cronjob');
     const isDaemonSet = kindLower.includes('daemonset');
     const isDeployment = kindLower.startsWith('deploy');
@@ -723,7 +781,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'events', label: t('events'), icon: icons.list },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
-                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: kind !== 'pods' },
+                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: !['pods', 'jobs'].includes(kind.toLowerCase()) },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
@@ -782,7 +840,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'overview' && (
                     <>
                         <DetailSection title={t('metadata')}>
-                            {isDeployment ? (
+                            {(isDeployment || isJob) ? (
                                 <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                                     <div className="px-6 py-4 flex flex-col items-center text-center">
                                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -979,89 +1037,129 @@ export default function ResourceDetails({ user }) {
                                                 </td>
                                             </tr>
                                         )}
-                                        {!isCronJob && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
-                                            <tr className="border-b border-slate-600">
-                                                <td colSpan="2" className="p-0">
-                                                    <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
-                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('strategy')}</span>
-                                                            <span className="font-mono text-info truncate w-full">{spec.strategy?.type || '—'}</span>
-                                                        </div>
-                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Min Ready</span>
-                                                            <span className="font-mono text-info">{spec.minReadySeconds !== undefined ? `${spec.minReadySeconds}s` : '—'}</span>
-                                                        </div>
-                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Rev. History</span>
-                                                            <span className="font-mono text-info">{spec.revisionHistoryLimit ?? '—'}</span>
-                                                        </div>
-                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
-                                                            <Link to={`/nodes/-/${spec.nodeName}`} className="font-mono text-info truncate w-full hover:underline">
-                                                                {spec.nodeName || '—'}
-                                                            </Link>
-                                                        </div>
+                                    {isJob && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Completions</span>
+                                                        <span className="font-mono text-info font-bold">{spec.completions ?? '1'}</span>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        )}
-
-                                        {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
-                                            <DetailRow label="">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {mountedConfigMaps.length > 0 && (
-                                                        <div>
-                                                            <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">ConfigMaps</p>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {mountedConfigMaps.map(cm => (
-                                                                    <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono hover:bg-warning/20 transition-colors">
-                                                                        {cm}
-                                                                    </Link>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {mountedSecrets.length > 0 && (
-                                                        <div>
-                                                            <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Secrets</p>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {mountedSecrets.map(s => (
-                                                                    <Link key={s} to={`/secrets/${namespace}/${s}`} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono hover:bg-purple-500/20 transition-colors">
-                                                                        {s}
-                                                                    </Link>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Parallelism</span>
+                                                        <span className="font-mono text-info font-bold">{spec.parallelism ?? '1'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Succeeded</span>
+                                                        <span className="font-bold text-success">{status.succeeded || 0}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Desired</span>
+                                                        <span className="font-bold text-[var(--text-primary)]">{spec.completions ?? 1}</span>
+                                                    </div>
                                                 </div>
-                                            </DetailRow>
-                                        )}
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {isJob && (
+                                        <tr>
+                                            <td colSpan="2" className="p-0">
+                                                <div className="px-4 py-3 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                                                    <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold block mb-2">Images</span>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
+                                                            <span key={c.name} className="px-2 py-0.5 bg-black/30 rounded text-xs font-mono text-white border border-white/10">
+                                                                {c.image}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {!isCronJob && !isDeployment && !isJob && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('strategy')}</span>
+                                                        <span className="font-mono text-info truncate w-full">{spec.strategy?.type || '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Min Ready</span>
+                                                        <span className="font-mono text-info">{spec.minReadySeconds !== undefined ? `${spec.minReadySeconds}s` : '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Rev. History</span>
+                                                        <span className="font-mono text-info">{spec.revisionHistoryLimit ?? '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
+                                                        <Link to={`/nodes/-/${spec.nodeName}`} className="font-mono text-info truncate w-full hover:underline">
+                                                            {spec.nodeName || '—'}
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
 
-                                        {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
-
-                                        {!isCronJob && !isDeployment && (
-                                            <DetailRow label={t('label_selector')}>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
+                                        <DetailRow label="">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {mountedConfigMaps.length > 0 && (
                                                     <div>
-                                                        <div className="flex flex-wrap gap-1.5">
-                                                            {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
-                                                                <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)] font-mono">
-                                                                    {k}: {v}
-                                                                </span>
+                                                        <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">ConfigMaps</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {mountedConfigMaps.map(cm => (
+                                                                <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono hover:bg-warning/20 transition-colors">
+                                                                    {cm}
+                                                                </Link>
                                                             ))}
-                                                            {!(spec.selector?.matchLabels || spec.selector) && <span className="text-[var(--text-muted)] italic">—</span>}
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col gap-1 border-l border-slate-600 pl-8">
-                                                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">{t('label_service_account')}</span>
-                                                        <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold font-mono text-sm">
-                                                            <icons.terminal size={14} className="text-info" />
-                                                            {spec.serviceAccountName || spec.serviceAccount || 'default'}
+                                                )}
+                                                {mountedSecrets.length > 0 && (
+                                                    <div>
+                                                        <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Secrets</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {mountedSecrets.map(s => (
+                                                                <Link key={s} to={`/secrets/${namespace}/${s}`} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono hover:bg-purple-500/20 transition-colors">
+                                                                    {s}
+                                                                </Link>
+                                                            ))}
                                                         </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
+                                    {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
+
+                                    {!isCronJob && !isDeployment && !isJob && (
+                                        <DetailRow label={t('label_selector')}>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
+                                                            <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)] font-mono">
+                                                                {k}: {v}
+                                                            </span>
+                                                        ))}
+                                                        {!(spec.selector?.matchLabels || spec.selector) && <span className="text-[var(--text-muted)] italic">—</span>}
                                                     </div>
                                                 </div>
-                                            </DetailRow>
-                                        )}
+                                                <div className="flex flex-col gap-1 border-l border-slate-600 pl-8">
+                                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">{t('label_service_account')}</span>
+                                                    <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold font-mono text-sm">
+                                                        <icons.terminal size={14} className="text-info" />
+                                                        {spec.serviceAccountName || spec.serviceAccount || 'default'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </DetailRow>
+                                    )}
 
                                         {isDeployment && spec.strategy?.rollingUpdate && (
                                             <DetailRow label={t('rolling_update_strategy')}>
@@ -1250,60 +1348,19 @@ export default function ResourceDetails({ user }) {
                             </>
                         )}
 
+                        {isJob && (
+                            <>
+                                <ConditionsTable 
+                                    conditions={status.conditions} 
+                                    t={t} 
+                                />
+                                <PodsTable pods={relatedPods} t={t} />
+                            </>
+                        )}
+
                         {isDaemonSet && (
                             <>
-                                <DetailSection title="Pods" className="mt-4">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                                            <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
-                                                <tr>
-                                                    <th className="px-4 py-3 text-left">{t('label_name')}</th>
-                                                    <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
-                                                    <th className="px-4 py-3 text-left">Images</th>
-                                                    <th className="px-4 py-3 text-left">Labels</th>
-                                                    <th className="px-4 py-3 text-left">Node</th>
-                                                    <th className="px-4 py-3 text-left">Status</th>
-                                                    <th className="px-4 py-3 text-center">Restarts</th>
-                                                    <th className="px-4 py-3 text-left">CPU</th>
-                                                    <th className="px-4 py-3 text-left">RAM</th>
-                                                    <th className="px-4 py-3 text-left">Created</th>
-                                                    <th className="px-4 py-3 text-right"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-[var(--border-color)]">
-                                                {relatedPods.length === 0 ? (
-                                                    <tr><td colSpan="11" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No pods found.</td></tr>
-                                                ) : (
-                                                    relatedPods.map((pod, i) => (
-                                                        <tr key={i} className="hover:bg-white/5 transition-colors">
-                                                            <td className="px-4 py-2">
-                                                                <Link to={`/pods/${pod.namespace}/${pod.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
-                                                                    {pod.name}
-                                                                </Link>
-                                                            </td>
-                                                            <td className="px-4 py-2 text-[var(--text-secondary)]">{pod.namespace}</td>
-                                                            <td className="px-4 py-2"><ExpandableCell value={pod.extra?.images} type="images" /></td>
-                                                            <td className="px-4 py-2"><ExpandableCell value={pod.extra?.labels} type="labels" /></td>
-                                                            <td className="px-4 py-2 text-xs font-mono text-info truncate max-w-[120px]">{pod.extra?.node || '—'}</td>
-                                                            <td className="px-4 py-2">
-                                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${pod.status === 'Running' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                                                    {pod.status}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-4 py-2 text-center font-bold">{pod.extra?.restarts || 0}</td>
-                                                            <td className="px-4 py-2 font-mono text-xs text-info">{pod.extra?.cpu || '—'}</td>
-                                                            <td className="px-4 py-2 font-mono text-xs text-teal-400">{pod.extra?.ram || '—'}</td>
-                                                            <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{pod.age}</td>
-                                                            <td className="px-4 py-2 text-right">
-                                                                <ResourceActionMenu kind="pods" namespace={pod.namespace} name={pod.name} onRefresh={() => window.location.reload()} />
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </DetailSection>
+                                <PodsTable pods={relatedPods} t={t} />
 
                                 <DetailSection title="Services" className="mt-4">
                                     <div className="overflow-x-auto">

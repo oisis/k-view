@@ -702,75 +702,83 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			revision = r
 		}
 
-		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
-		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
-
-		statusObj := gin.H{
-			"phase":               "Running",
-			"observedGeneration": 4,
-			"conditions": []gin.H{
-				{
-					"type":               "Ready",
-					"status":             "True",
-					"lastTransitionTime": "2024-02-18T10:00:00Z",
-					"reason":             "PodReady",
-					"message":            "Resource is healthy",
-				},
-			},
-		}
-
-		if isDeployment {
-			statusObj["replicas"] = 3
-			statusObj["readyReplicas"] = 3
-			statusObj["updatedReplicas"] = 3
-			statusObj["availableReplicas"] = 3
-		}
-
-		if isDaemonSet {
-			statusObj["numberReady"] = 7
-			statusObj["desiredNumberScheduled"] = 7
-			statusObj["numberAvailable"] = 7
-			statusObj["currentNumberScheduled"] = 7
-		}
-
-		details := gin.H{
-			"resource": found,
-			"metadata": gin.H{
-				"name":              found.Name,
-				"namespace":         found.Namespace,
-				"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-				"creationTimestamp": "2024-02-18T10:00:00Z",
-				"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
-				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
-			},
-			"spec": gin.H{
-				"nodeName":             "worker-01",
-				"replicas":             3,
-				"minReadySeconds":      0,
-				"revisionHistoryLimit": 10,
-				"strategy": gin.H{
-					"type": "RollingUpdate",
-					"rollingUpdate": gin.H{
-						"maxSurge":       "25%",
-						"maxUnavailable": "25%",
-					},
-				},
-				"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
-				"template": gin.H{
-					"spec": gin.H{
-						"containers": []gin.H{
-							{
-								"name":  "main",
-								"image": "nginx:1.21",
-								"ports": []gin.H{{"containerPort": 80}},
-							},
-						},
-					},
-				},
-			},
-			"status": statusObj,
-			"metrics": gin.H{
-				"containers": []gin.H{
+		                isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
+		                isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
+		                isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
+		
+		                statusObj := gin.H{
+		                        "phase":               "Running",
+		                        "observedGeneration": 4,
+		                        "conditions": []gin.H{
+		                                {
+		                                        "type":               "Ready",
+		                                        "status":             "True",
+		                                        "lastTransitionTime": "2024-02-18T10:00:00Z",
+		                                        "reason":             "PodReady",
+		                                        "message":            "Resource is healthy",
+		                                },
+		                        },
+		                }
+		
+		                specObj := gin.H{
+		                        "nodeName":             "worker-01",
+		                        "replicas":             3,
+		                        "minReadySeconds":      0,
+		                        "revisionHistoryLimit": 10,
+		                        "strategy": gin.H{
+		                                "type": "RollingUpdate",
+		                                "rollingUpdate": gin.H{
+		                                        "maxSurge":       "25%",
+		                                        "maxUnavailable": "25%",
+		                                },
+		                        },
+		                        "selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
+		                        "template": gin.H{
+		                                "spec": gin.H{
+		                                        "containers": []gin.H{
+		                                                {
+		                                                        "name":  "main",
+		                                                        "image": "nginx:1.21",
+		                                                        "ports": []gin.H{{"containerPort": 80}},
+		                                                },
+		                                        },
+		                                },
+		                        },
+		                }
+		
+		                if isDeployment {
+		                        statusObj["replicas"] = 3
+		                        statusObj["readyReplicas"] = 3
+		                        statusObj["updatedReplicas"] = 3
+		                        statusObj["availableReplicas"] = 3
+		                }
+		
+		                if isDaemonSet {
+		                        statusObj["numberReady"] = 7
+		                        statusObj["desiredNumberScheduled"] = 7
+		                        statusObj["numberAvailable"] = 7
+		                        statusObj["currentNumberScheduled"] = 7
+		                }
+		
+		                if isJob {
+		                        statusObj["succeeded"] = 1
+		                        specObj["completions"] = 1
+		                        specObj["parallelism"] = 1
+		                }
+		
+		                details := gin.H{
+		                        "resource": found,
+		                        "metadata": gin.H{
+		                                "name":              found.Name,
+		                                "namespace":         found.Namespace,
+		                                "uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+		                                "creationTimestamp": "2024-02-18T10:00:00Z",
+		                                "labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
+		                                "annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
+		                        },
+		                        "spec":   specObj,
+		                        "status": statusObj,
+		                        "metrics": gin.H{				"containers": []gin.H{
 					{
 						"name": "main",
 						"usage": gin.H{
@@ -1672,9 +1680,9 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "jobs":
 		items = []ResourceItem{
-			{Name: "db-backup-manual-123", Namespace: "database", Age: "2d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "12s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "postgres:15-alpine", "labels", "app=db,env=prod")},
-			{Name: "token-cleanup-manual-456", Namespace: "auth", Age: "1d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "45s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "auth-utils:v2", "labels", "component=auth-cleanup")},
-			{Name: "report-generator-manual-789", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("completions", "0 succeeded, 0 failed, 1 active", "duration", "3s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "reports-worker:latest", "labels", "tier=frontend")},
+			{Name: "db-backup-manual-123", Namespace: "database", Age: "2d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "12s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "postgres:15-alpine", "labels", "app=db, env=prod", "ready", "1/1")},
+			{Name: "token-cleanup-manual-456", Namespace: "auth", Age: "1d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "45s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "ready", "1/1")},
+			{Name: "report-generator-manual-789", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("completions", "0 succeeded, 0 failed, 1 active", "duration", "3s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "reports-worker:latest", "labels", "tier=frontend", "ready", "0/1")},
 		}
 
 	case "cronjobs":
