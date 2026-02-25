@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTheme } from '../ThemeContext';
 import { useTranslation } from '../SettingsContext';
 
@@ -7,13 +8,17 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
+    const [rect, setRect] = useState(null);
     const containerRef = useRef(null);
     const inputRef = useRef(null);
 
     // Close on outside click
     useEffect(() => {
         function handle(e) {
-            if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false);
+            if (containerRef.current && containerRef.current.contains(e.target)) return;
+            const dropdownPortal = document.getElementById('namespace-portal-root');
+            if (dropdownPortal && dropdownPortal.contains(e.target)) return;
+            setOpen(false);
         }
         document.addEventListener('mousedown', handle);
         return () => document.removeEventListener('mousedown', handle);
@@ -39,7 +44,10 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
     return (
         <div className="relative" ref={containerRef}>
             <button
-                onClick={() => setOpen(o => !o)}
+                onClick={(e) => {
+                    if (!open) setRect(e.currentTarget.getBoundingClientRect());
+                    setOpen(o => !o);
+                }}
                 className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
             >
                 <span className="flex items-center gap-2">
@@ -49,8 +57,18 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                 {icons.chevron_down && <icons.chevron_down size={14} className={`text-[var(--text-muted)] transition-transform ${open ? 'rotate-180' : ''}`} />}
             </button>
 
-            {open && (
-                <div className="absolute z-50 mt-1 right-0 w-full min-w-[220px] bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden">
+            {open && rect && createPortal(
+                <div 
+                    id="namespace-portal-root"
+                    style={{
+                        position: 'fixed',
+                        top: rect.bottom + 4,
+                        left: rect.left,
+                        width: Math.max(220, rect.width),
+                        zIndex: 9999
+                    }}
+                    className="bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden"
+                >
                     {/* Search input */}
                     <div className="p-2 border-b border-[var(--border-color)]">
                         <div className="flex items-center gap-2 bg-[var(--bg-input)] rounded px-2 py-1.5">
