@@ -203,8 +203,7 @@ const SCHEMAS = {
         title: 'Cluster Roles',
         cols: [
             { key: 'name', label: 'Name' },
-            { key: 'extra.rules', label: 'Rules (summary)' },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     events: {

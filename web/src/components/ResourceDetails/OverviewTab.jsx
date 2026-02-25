@@ -21,6 +21,7 @@ import CodeEditor from './CodeEditor';
 import ResourceActionMenu from '../ResourceActionMenu.jsx';
 import PersistentVolumesTable from './PersistentVolumesTable';
 import SubjectsTable from './SubjectsTable';
+import RulesTable from './RulesTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -43,6 +44,7 @@ export default function OverviewTab({
     const isService = kindLower.includes('service') && !isIngressClass;
     const isPvc = kindLower.includes('persistentvolumeclaim') || kindLower.includes('pvc');
     const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
+    const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -86,7 +88,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -306,7 +308,11 @@ export default function OverviewTab({
                 </>
             )}
 
-            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isClusterRole && (
+                <RulesTable rules={data.rules} t={t} />
+            )}
+
+            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -766,7 +772,7 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 

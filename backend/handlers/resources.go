@@ -1010,6 +1010,33 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 		}
 
+		isClusterRole := kind == "cluster-roles" || kind == "clusterroles"
+		if isClusterRole {
+			details["rules"] = []gin.H{
+				{
+					"resources":       []string{"pods", "services"},
+					"nonResourceURLs": []string{},
+					"resourceNames":   []string{},
+					"verbs":           []string{"get", "list", "watch"},
+					"apiGroups":       []string{""},
+				},
+				{
+					"resources":       []string{"deployments", "statefulsets"},
+					"nonResourceURLs": []string{},
+					"resourceNames":   []string{"my-app"},
+					"verbs":           []string{"get", "patch", "update"},
+					"apiGroups":       []string{"apps"},
+				},
+				{
+					"resources":       []string{},
+					"nonResourceURLs": []string{"/healthz"},
+					"resourceNames":   []string{},
+					"verbs":           []string{"get"},
+					"apiGroups":       []string{""},
+				},
+			}
+		}
+
 		c.JSON(http.StatusOK, details)
 		return
 	}
