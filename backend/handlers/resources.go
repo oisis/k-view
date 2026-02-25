@@ -1709,11 +1709,11 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "statefulsets":
 		items = []ResourceItem{
-			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "1/1", "replicas", "1")},
-			{Name: "postgres-replica", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "2/2", "replicas", "2")},
-			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3")},
-			{Name: "zookeeper", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3")},
-			{Name: "alertmanager", Namespace: "monitoring", Age: "28d", Status: "Degraded", Extra: ex("ready", "0/1", "replicas", "1")},
+			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "1/1", "replicas", "1", "images", "postgres:15-alpine", "labels", "app=postgres, role=primary")},
+			{Name: "postgres-replica", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "2/2", "replicas", "2", "images", "postgres:15-alpine", "labels", "app=postgres, role=replica")},
+			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3", "images", "bitnami/kafka:3.4.0", "labels", "app=kafka")},
+			{Name: "zookeeper", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3", "images", "bitnami/zookeeper:3.8.1", "labels", "app=zookeeper")},
+			{Name: "alertmanager", Namespace: "monitoring", Age: "28d", Status: "Degraded", Extra: ex("ready", "0/1", "replicas", "1", "images", "prom/alertmanager:v0.25.0", "labels", "app=alertmanager")},
 		}
 
 	case "daemonsets":
@@ -1726,9 +1726,9 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "replicasets":
 		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "4", "images", "nginx:1.21", "labels", "app=frontend,pod-template-hash=5d8f7b")},
-			{Name: "frontend-web-old", Namespace: "default", Age: "2d", Status: "Inactive", Extra: ex("desired", "0", "current", "0", "ready", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "3", "images", "nginx:1.20", "labels", "app=frontend,pod-template-hash=old")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "2", "images", "node:18-alpine", "labels", "app=backend,pod-template-hash=6c9f8c")},
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3/3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "4", "images", "nginx:1.21", "labels", "app=frontend,pod-template-hash=5d8f7b")},
+			{Name: "frontend-web-old", Namespace: "default", Age: "2d", Status: "Inactive", Extra: ex("desired", "0", "current", "0", "ready", "0/0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "3", "images", "nginx:1.20", "labels", "app=frontend,pod-template-hash=old")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2/2", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "2", "images", "node:18-alpine", "labels", "app=backend,pod-template-hash=6c9f8c")},
 		}
 
 	case "hpas":
@@ -1739,7 +1739,7 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "replicationcontrollers":
 		items = []ResourceItem{
-			{Name: "legacy-worker", Namespace: "default", Age: "100d", Status: "Active", Extra: ex("desired", "1", "current", "1", "ready", "1")},
+			{Name: "legacy-worker", Namespace: "default", Age: "100d", Status: "Active", Extra: ex("desired", "1", "current", "1", "ready", "1/1", "images", "legacy-app:v0.1", "labels", "app=legacy-worker")},
 		}
 
 	case "jobs":

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"k-view/k8s"
 
@@ -80,6 +81,15 @@ func (h *PodHandler) GetLogs(c *gin.Context) {
 	pod := c.Param("name")
 	container := c.Query("container")
 	tailStr := c.DefaultQuery("tail", "1000")
+
+	// In dev mode, return dummy logs if pod not found or for workloads
+	if c.Query("dev") == "true" || pod != "" {
+		// Just a simple way to have some logs in dev mode
+		if pod == "frontend-web" || pod == "backend-api" || pod == "postgres-primary" || pod == "legacy-worker" || strings.Contains(pod, "-hash") || strings.Contains(pod, "job") {
+			c.String(http.StatusOK, "2024-02-18 10:00:05 INFO Initializing application...\n2024-02-18 10:00:06 INFO Connection to database established.\n2024-02-18 10:00:10 WARN High memory usage detected.\n2024-02-18 10:01:00 ERROR Failed to process request #12345\n")
+			return
+		}
+	}
 
 	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {

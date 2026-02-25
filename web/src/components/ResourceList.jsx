@@ -40,10 +40,10 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.ready', label: 'Ready' },
-            { key: 'extra.replicas', label: 'Replicas' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.ready', label: 'Pods' },
+            { key: 'age', label: 'Created' },
         ],
     },
     daemonsets: {
@@ -87,11 +87,10 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.desired', label: 'Desired' },
-            { key: 'extra.current', label: 'Current' },
-            { key: 'extra.ready', label: 'Ready' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.ready', label: 'Pods' },
+            { key: 'age', label: 'Created' },
         ],
     },
     replicationcontrollers: {
@@ -99,11 +98,10 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.desired', label: 'Desired' },
-            { key: 'extra.current', label: 'Current' },
-            { key: 'extra.ready', label: 'Ready' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.ready', label: 'Pods' },
+            { key: 'age', label: 'Created' },
         ],
     },
     services: {
