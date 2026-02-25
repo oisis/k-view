@@ -663,19 +663,25 @@ export default function ResourceDetails({ user }) {
                             {/* Second Info Bar: Status, Node, Age */}
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
                                 <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_status')}</span>
-                                    {!isDaemonSet ? (
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                        {isDaemonSet ? 'Pods Running' : t('label_status')}
+                                    </span>
+                                    {isDaemonSet ? (
+                                        <span className="text-sm font-bold text-success">{status.numberReady || 0}</span>
+                                    ) : (
                                         <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
                                             <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
                                             <span className="text-sm font-bold uppercase tracking-wide">{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
                                         </div>
-                                    ) : (
-                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
                                     )}
                                 </div>
                                 <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_node')}</span>
-                                    {spec.nodeName && !isDaemonSet ? (
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                        {isDaemonSet ? 'Pods Desired' : t('label_node')}
+                                    </span>
+                                    {isDaemonSet ? (
+                                        <span className="text-sm font-bold text-[var(--text-primary)]">{status.desiredNumberScheduled || 0}</span>
+                                    ) : spec.nodeName ? (
                                         <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
                                             {spec.nodeName}
                                         </Link>
@@ -796,22 +802,6 @@ export default function ResourceDetails({ user }) {
                                                     <div className="px-4 py-3 flex flex-col items-center text-center">
                                                         <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Starting Deadline</span>
                                                         <span className="font-mono text-[var(--text-primary)]">{spec.startingDeadlineSeconds ?? '—'}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {isDaemonSet && (
-                                        <tr className="border-b border-slate-600">
-                                            <td colSpan="2" className="p-0">
-                                                <div className="grid grid-cols-2 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Pods Running</span>
-                                                        <span className="text-sm font-bold text-success">{status.numberReady || 0}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Pods Desired</span>
-                                                        <span className="text-sm font-bold text-[var(--text-primary)]">{status.desiredNumberScheduled || 0}</span>
                                                     </div>
                                                 </div>
                                             </td>
