@@ -704,11 +704,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 
 		                		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
 		                		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
-		                		isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
-		                		isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
-		                
-		                		statusObj := gin.H{
-		                			"phase":              "Running",
+		                						isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
+		                						isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
+		                						isIngress := strings.ToLower(kind) == "ingresses" || strings.ToLower(kind) == "ingress"
+		                						isService := strings.ToLower(kind) == "services" || strings.ToLower(kind) == "service"
+		                				
+		                						statusObj := gin.H{		                			"phase":              "Running",
 		                			"observedGeneration": 4,
 		                			"conditions": []gin.H{
 		                				{
@@ -770,15 +771,85 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                			statusObj["currentNumberScheduled"] = 7
 		                		}
 		                
-		                		if isJob {
-		                			statusObj["succeeded"] = 1
-		                			statusObj["active"] = 0
-		                			specObj["completions"] = 1
-		                			specObj["parallelism"] = 1
-		                		}
-		                
-		                		if isPod {
-		                			metadataObj["ownerReferences"] = []gin.H{
+		                				if isJob {
+		                					statusObj["succeeded"] = 1
+		                					statusObj["active"] = 0
+		                					specObj["completions"] = 1
+		                					specObj["parallelism"] = 1
+		                				}
+		                		
+		                						if isIngress {
+		                							specObj["rules"] = []gin.H{
+		                								{
+		                									"host": "app.example.com",
+		                									"http": gin.H{
+		                										"paths": []gin.H{
+		                											{
+		                												"path":     "/",
+		                												"pathType": "Prefix",
+		                												"backend": gin.H{
+		                													"service": gin.H{
+		                														"name": "frontend-svc",
+		                														"port": gin.H{"number": 80},
+		                													},
+		                												},
+		                											},
+		                										},
+		                									},
+		                								},
+		                								{
+		                									"host": "api.example.com",
+		                									"http": gin.H{
+		                										"paths": []gin.H{
+		                											{
+		                												"path":     "/api",
+		                												"pathType": "Prefix",
+		                												"backend": gin.H{
+		                													"service": gin.H{
+		                														"name": "backend-svc",
+		                														"port": gin.H{"number": 8080},
+		                													},
+		                												},
+		                											},
+		                										},
+		                									},
+		                								},
+		                							}
+		                							specObj["tls"] = []gin.H{
+		                								{
+		                									"hosts":      []string{"app.example.com", "api.example.com"},
+		                									"secretName": "app-tls-secret",
+		                								},
+		                							}
+		                						}
+		                				
+		                						if isService {
+		                							specObj["type"] = "ClusterIP"
+		                							specObj["clusterIP"] = "10.96.12.34"
+		                							specObj["sessionAffinity"] = "None"
+		                							specObj["selector"] = gin.H{"app": name}
+		                							// Simulate related endpoints
+		                							metadataObj["endpoints"] = []gin.H{
+		                								{
+		                									"host": "10.244.1.5",
+		                									"node": "worker-01",
+		                									"ready": "True",
+		                									"ports": []gin.H{
+		                										{"name": "http", "port": 80, "protocol": "TCP"},
+		                									},
+		                								},
+		                								{
+		                									"host": "10.244.2.3",
+		                									"node": "worker-02",
+		                									"ready": "True",
+		                									"ports": []gin.H{
+		                										{"name": "http", "port": 80, "protocol": "TCP"},
+		                									},
+		                								},
+		                							}
+		                						}
+		                				
+		                						if isPod {		                			metadataObj["ownerReferences"] = []gin.H{
 		                				{
 		                					"apiVersion": "apps/v1",
 		                					"kind":       "ReplicaSet",
@@ -1770,9 +1841,9 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "ingresses":
 		items = []ResourceItem{
-			{Name: "frontend-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "app.example.com", "address", "192.168.1.100")},
-			{Name: "grafana-ingress", Namespace: "monitoring", Age: "28d", Status: "Active", Extra: ex("class", "nginx", "hosts", "grafana.example.com", "address", "192.168.1.100")},
-			{Name: "api-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "api.example.com", "address", "192.168.1.100")},
+			{Name: "frontend-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "app.example.com", "address", "192.168.1.100", "labels", "app=frontend, tier=web")},
+			{Name: "grafana-ingress", Namespace: "monitoring", Age: "28d", Status: "Active", Extra: ex("class", "nginx", "hosts", "grafana.example.com", "address", "192.168.1.100", "labels", "app=grafana")},
+			{Name: "api-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "api.example.com", "address", "192.168.1.100", "labels", "app=backend")},
 		}
 
 	case "ingress-classes":

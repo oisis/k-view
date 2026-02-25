@@ -109,10 +109,12 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.labels', label: 'Labels' },
             { key: 'status', label: 'Type', badge: true },
             { key: 'extra.cluster-ip', label: 'Cluster IP' },
-            { key: 'extra.ports', label: 'Ports' },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.endpoints', label: 'Int Endpoints' },
+            { key: 'extra.external', label: 'Ext Endpoints' },
+            { key: 'age', label: 'Created' },
         ],
     },
     ingresses: {
@@ -120,11 +122,10 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.class', label: 'Class' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.address', label: 'Endpoints' },
             { key: 'extra.hosts', label: 'Hosts' },
-            { key: 'extra.address', label: 'Address' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     'ingress-classes': {
@@ -309,8 +310,8 @@ function StatusBadge({ value }) {
     };
     const cls = map[v] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${cls}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cls}`}>
+            <div className={`w-1 h-1 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {translatedValue}
         </span>
     );
@@ -610,7 +611,7 @@ export default function ResourceList({ kind }) {
 
     // Only show namespace selector for namespaced resources
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
-    const supportsTrace = kind === 'ingresses' || kind === 'services' || kind === 'pods';
+    const supportsTrace = false;
 
     return (
         <div className="p-8">
@@ -693,8 +694,9 @@ export default function ResourceList({ kind }) {
                                             let content;
                                             let cellClass = "px-3 py-1.5 whitespace-nowrap";
 
-                                            if (col.key === 'extra.labels' || col.key === 'extra.images') {
-                                                content = <ExpandableCell value={val} type={col.key === 'extra.labels' ? 'labels' : 'images'} />;
+                                            const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external'];
+                                            if (expandableKeys.includes(col.key)) {
+                                                content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                                             } else if (col.key === 'extra.schedule') {
                                                 content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
                                             } else if (col.key === 'extra.active') {
