@@ -721,6 +721,9 @@ export default function OverviewTab({
                     <ControlledByTable ownerReferences={metadata.ownerReferences} namespace={namespace} t={t} />
                     <PersistenceVolumeClaimsTable pvcNames={mountedPvcs} namespace={namespace} t={t} />
                     <ContainerDetails containers={spec.containers} statuses={status.containerStatuses} t={t} />
+                    {(status?.conditions || []).length > 0 && (
+                        <ConditionsTable conditions={status.conditions} t={t} />
+                    )}
                 </>
             )}
 
