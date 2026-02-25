@@ -174,13 +174,14 @@ const SCHEMAS = {
         title: 'Persistent Volumes',
         cols: [
             { key: 'name', label: 'Name' },
-            { key: 'status', label: 'Status', badge: true },
             { key: 'extra.capacity', label: 'Capacity' },
-            { key: 'extra.access-mode', label: 'Access Mode' },
+            { key: 'extra.access-modes', label: 'Access Modes' },
             { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
-            { key: 'extra.storage-class', label: 'Storage Class' },
+            { key: 'status', label: 'Status', badge: true },
             { key: 'extra.claim', label: 'Claim' },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.storage-class', label: 'Storage Class' },
+            { key: 'extra.reason', label: 'Reason' },
+            { key: 'age', label: 'Created' },
         ],
     },
     'storage-classes': {

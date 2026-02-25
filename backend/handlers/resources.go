@@ -834,6 +834,9 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                					"kubeProxyVersion":       "v1.29.1",
 		                					"operatingSystem":        "linux",
 		                					"architecture":           "arm64",
+		                					"cpuCapacity":            "8 Cores",
+		                					"memoryCapacity":         "16 GiB",
+		                					"podsCapacity":           "110",
 		                				},
 		                			}
 		                		}
@@ -1062,14 +1065,14 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 			details["allocation"] = gin.H{
 				"cpu": gin.H{
-					"requests": "850m",
-					"limits":   "1200m",
-					"capacity": "8",
+					"requests": 0.85,
+					"limits":   1.2,
+					"capacity": 8.0,
 				},
 				"memory": gin.H{
-					"requests": "2400Mi",
-					"limits":   "4000Mi",
-					"capacity": "16Gi",
+					"requests": 2400,
+					"limits":   4000,
+					"capacity": 16384, // 16GiB in MiB
 				},
 				"pods": gin.H{
 					"allocation": 24,
@@ -2264,13 +2267,13 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 		}
 	case "pvs":
 		items = []ResourceItem{
-			{Name: "pv-postgres-primary", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "database/postgres-data-pvc")},
-			{Name: "pv-kafka-0", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-0")},
-			{Name: "pv-kafka-1", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-1")},
-			{Name: "pv-prometheus", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "monitoring/prometheus-data-pvc")},
-			{Name: "pv-loki", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "logging/loki-data-pvc")},
-			{Name: "pv-released-old", Age: "10d", Status: "Released", Extra: ex("capacity", "5Gi", "access-mode", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "default/old-pvc")},
-			{Name: "pv-available-spare", Age: "3d", Status: "Available", Extra: ex("capacity", "100Gi", "access-mode", "ReadWriteMany", "reclaim-policy", "Retain", "storage-class", "fast-ssd", "claim", "")},
+			{Name: "pv-postgres-primary", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "database/postgres-data-pvc", "reason", "")},
+			{Name: "pv-kafka-0", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-0", "reason", "")},
+			{Name: "pv-kafka-1", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-1", "reason", "")},
+			{Name: "pv-prometheus", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "monitoring/prometheus-data-pvc", "reason", "")},
+			{Name: "pv-loki", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "logging/loki-data-pvc", "reason", "")},
+			{Name: "pv-released-old", Age: "10d", Status: "Released", Extra: ex("capacity", "5Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "default/old-pvc", "reason", "Recycle failed")},
+			{Name: "pv-available-spare", Age: "3d", Status: "Available", Extra: ex("capacity", "100Gi", "access-modes", "ReadWriteMany", "reclaim-policy", "Retain", "storage-class", "fast-ssd", "claim", "", "reason", "")},
 		}
 
 	case "cluster-role-bindings":

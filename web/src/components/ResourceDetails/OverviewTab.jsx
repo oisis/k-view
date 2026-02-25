@@ -860,6 +860,15 @@ export default function OverviewTab({
                                         <DetailRow label="Architecture">
                                             <span className="font-bold uppercase">{spec.nodeInfo?.architecture || '—'}</span>
                                         </DetailRow>
+                                        <DetailRow label="CPU Capacity">
+                                            <span className="font-bold">{spec.nodeInfo?.cpuCapacity || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Memory Capacity">
+                                            <span className="font-bold">{spec.nodeInfo?.memoryCapacity || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Pods Capacity">
+                                            <span className="font-bold">{spec.nodeInfo?.podsCapacity || '—'}</span>
+                                        </DetailRow>
                                     </tbody>
                                 </table>
                             </div>
@@ -869,34 +878,34 @@ export default function OverviewTab({
                     <DetailSection title="Allocation">
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 rounded border border-slate-600/30">
                             <PieChart
-                                percent={(parseFloat(data.allocation?.cpu?.requests) / (parseFloat(data.allocation?.cpu?.capacity) * 1000)) * 100 || 0}
+                                percent={(data.allocation?.cpu?.requests / data.allocation?.cpu?.capacity) * 100 || 0}
                                 label="CPU Requests"
                                 subLabel={`Cores: ${data.allocation?.cpu?.requests || '0'}`}
-                                color="var(--accent)"
+                                color="var(--text-info)"
                             />
                             <PieChart
-                                percent={(parseFloat(data.allocation?.cpu?.limits) / (parseFloat(data.allocation?.cpu?.capacity) * 1000)) * 100 || 0}
+                                percent={(data.allocation?.cpu?.limits / data.allocation?.cpu?.capacity) * 100 || 0}
                                 label="CPU Limits"
                                 subLabel={`Cores: ${data.allocation?.cpu?.limits || '0'}`}
-                                color="var(--info)"
+                                color="var(--text-info)"
                             />
                             <PieChart
-                                percent={(parseInt(data.allocation?.memory?.requests) / (parseInt(data.allocation?.memory?.capacity) * 1024)) * 100 || 0}
+                                percent={(data.allocation?.memory?.requests / parseFloat(data.allocation?.memory?.capacity)) * 100 || 0}
                                 label="Memory Requests"
                                 subLabel={`MiB: ${data.allocation?.memory?.requests || '0'}`}
-                                color="var(--accent)"
+                                color="var(--text-info)"
                             />
                             <PieChart
-                                percent={(parseInt(data.allocation?.memory?.limits) / (parseInt(data.allocation?.memory?.capacity) * 1024)) * 100 || 0}
+                                percent={(data.allocation?.memory?.limits / parseFloat(data.allocation?.memory?.capacity)) * 100 || 0}
                                 label="Memory Limits"
                                 subLabel={`MiB: ${data.allocation?.memory?.limits || '0'}`}
-                                color="var(--info)"
+                                color="var(--text-info)"
                             />
                             <PieChart
                                 percent={(data.allocation?.pods?.allocation / data.allocation?.pods?.capacity) * 100 || 0}
                                 label="Pods"
-                                subLabel={`Pods: ${data.allocation?.pods?.allocation || '0'}`}
-                                color="var(--success)"
+                                subLabel={`Pods ${data.allocation?.pods?.allocation || '0'}`}
+                                color="var(--text-success)"
                             />
                         </div>
                     </DetailSection>

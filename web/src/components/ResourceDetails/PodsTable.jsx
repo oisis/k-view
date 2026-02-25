@@ -18,8 +18,8 @@ export default function PodsTable({ pods, t }) {
                             <th className="px-4 py-3 text-left">Node</th>
                             <th className="px-4 py-3 text-left">Status</th>
                             <th className="px-4 py-3 text-center">Restarts</th>
-                            <th className="px-4 py-3 text-left">CPU</th>
-                            <th className="px-4 py-3 text-left">RAM</th>
+                            <th className="px-4 py-3 text-left">CPU Usage (cores)</th>
+                            <th className="px-4 py-3 text-left">Memory Usage (bytes)</th>
                             <th className="px-4 py-3 text-left">Created</th>
                             <th className="px-4 py-3 text-right"></th>
                         </tr>
