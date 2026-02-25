@@ -346,20 +346,20 @@ function ExpandableCell({ value, type }) {
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                    className="text-xs font-bold text-[var(--accent)] hover:text-[var(--text-primary)] bg-[var(--accent)]/10 px-2 py-1 rounded transition-all flex items-center gap-1 active:scale-95"
+                    className="text-[13px] font-bold text-[var(--accent)] hover:text-[var(--text-primary)] bg-[var(--accent)]/10 px-2 py-0.5 rounded transition-all flex items-center gap-1 active:scale-95"
                 >
                     Show all ({items.length})
                 </button>
             ) : (
                 <div className="flex flex-col gap-1 py-1 max-w-[300px]">
                     {items.map((it, idx) => (
-                        <div key={idx} className="text-[11px] font-mono bg-[var(--bg-sidebar)]/50 px-2 py-0.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] truncate" title={it}>
+                        <div key={idx} className="text-[12px] font-mono bg-[var(--bg-sidebar)]/50 px-2 py-0.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] truncate" title={it}>
                             {it}
                         </div>
                     ))}
                     <button
                         onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                        className="text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)] mt-1 text-left px-1 underline"
+                        className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] mt-1 text-left px-1 underline"
                     >
                         Hide
                     </button>
@@ -382,10 +382,61 @@ function ExpandableCell({ value, type }) {
                     </div>
                     <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
                         {items.map((it, idx) => (
-                            <div key={idx} className="text-[11px] font-mono text-[var(--text-tooltip)] break-all leading-tight">
+                            <div key={idx} className="text-[12px] font-mono text-[var(--text-tooltip)] break-all leading-tight">
                                 {it}
                             </div>
                         ))}
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+}
+
+function ScheduleCell({ value, nextRun }) {
+    const [isHovered, setIsHovered] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0 });
+    const ref = useRef(null);
+
+    if (!value || value === '—') return <span className="text-[var(--text-muted)]">—</span>;
+
+    const handleMouseEnter = () => {
+        if (ref.current) {
+            const rect = ref.current.getBoundingClientRect();
+            setCoords({ top: rect.top - 10, left: rect.left });
+        }
+        setIsHovered(true);
+    };
+
+    return (
+        <div className="relative inline-block">
+            <span
+                ref={ref}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={() => setIsHovered(false)}
+                className="text-[13px] font-mono text-[var(--accent)] cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
+            >
+                {value}
+            </span>
+
+            {isHovered && createPortal(
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: coords.top,
+                        left: coords.left,
+                        transform: 'translateY(-100%)',
+                        zIndex: 9999
+                    }}
+                    className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[200px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
+                >
+                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                        Next Run
+                    </div>
+                    <div className="text-[13px] font-bold text-[var(--text-tooltip)] flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        {nextRun || 'Calculating...'}
                     </div>
                 </div>,
                 document.body
@@ -610,9 +661,9 @@ export default function ResourceList({ kind }) {
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold"
+                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
                                             {getLabel(col.label)}
                                             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (
@@ -624,8 +675,8 @@ export default function ResourceList({ kind }) {
                                         </div>
                                     </th>
                                 ))}
-                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-10"></th>}
-                                <th className="px-4 py-3 whitespace-nowrap w-20 text-right">{t('actions')}</th>
+                                {supportsTrace && <th className="px-3 py-2.5 whitespace-nowrap w-10"></th>}
+                                <th className="px-3 py-2.5 whitespace-nowrap w-20 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
@@ -635,42 +686,50 @@ export default function ResourceList({ kind }) {
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
-                                    {schema.cols.map(col => {
-                                        const val = getVal(item, col.key);
-                                        if (col.key === 'extra.labels' || col.key === 'extra.images') {
+                                        {schema.cols.map(col => {
+                                            const val = getVal(item, col.key);
+                                            
+                                            // Conditional rendering based on column key
+                                            let content;
+                                            let cellClass = "px-3 py-1.5 whitespace-nowrap";
+
+                                            if (col.key === 'extra.labels' || col.key === 'extra.images') {
+                                                content = <ExpandableCell value={val} type={col.key === 'extra.labels' ? 'labels' : 'images'} />;
+                                            } else if (col.key === 'extra.schedule') {
+                                                content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
+                                            } else if (col.key === 'extra.active') {
+                                                cellClass = "px-3 py-1.5 whitespace-nowrap w-20 text-center";
+                                                content = <span className="text-[var(--text-primary)] font-bold">{val}</span>;
+                                            } else if (col.badge) {
+                                                content = <StatusBadge value={val} />;
+                                            } else if (col.key === 'name') {
+                                                content = (
+                                                    <Link
+                                                        to={`/${kind}/${item.namespace || '-'}/${val}`}
+                                                        className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+                                                    >
+                                                        {val}
+                                                    </Link>
+                                                );
+                                            } else if (col.key === 'namespace' && val !== '-') {
+                                                content = (
+                                                    <Link
+                                                        to={`/namespaces/-/${val}`}
+                                                        className="text-info hover:underline"
+                                                    >
+                                                        {val}
+                                                    </Link>
+                                                );
+                                            } else {
+                                                content = <span className="text-[var(--text-secondary)] font-medium">{val}</span>;
+                                            }
+
                                             return (
-                                                <td key={col.key} className="px-4 py-2 whitespace-nowrap">
-                                                    <ExpandableCell value={val} type={col.key === 'extra.labels' ? 'labels' : 'images'} />
+                                                <td key={col.key} className={cellClass}>
+                                                    {content}
                                                 </td>
                                             );
-                                        }
-                                        return (
-                                            <td key={col.key} className="px-4 py-2 whitespace-nowrap">
-                                                {col.badge
-                                                    ? <StatusBadge value={val} />
-                                                    : col.key === 'name'
-                                                        ? (
-                                                            <Link
-                                                                to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                                className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
-                                                            >
-                                                                {val}
-                                                            </Link>
-                                                        )
-                                                        : col.key === 'namespace' && val !== '-'
-                                                            ? (
-                                                                <Link
-                                                                    to={`/namespaces/-/${val}`}
-                                                                    className="text-info hover:underline"
-                                                                >
-                                                                    {val}
-                                                                </Link>
-                                                            )
-                                                            : <span className="text-[var(--text-secondary)] font-medium">{val}</span>
-                                                }
-                                            </td>
-                                        );
-                                    })}
+                                        })}
                                     {supportsTrace && (
                                         <td className="px-4 py-2 whitespace-nowrap text-right">
                                             <button
