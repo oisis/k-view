@@ -186,7 +186,7 @@ export default function Login() {
                         <p className="text-xs text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
                         <button
                             onClick={handleDevLogin}
-                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-bold text-[var(--text-button)] bg-yellow-400 hover:bg-yellow-500 transition-colors shadow-lg"
+                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-bold text-[var(--text-button)] bg-[var(--bg-warning)] hover:brightness-110 transition-all shadow-lg"
                         >
                             ⚡ Dev Login (admin@kview.local)
                         </button>

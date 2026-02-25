@@ -120,6 +120,7 @@ export default {
                 '--text-primary': '#FAFAFA',
                 '--text-white': '#FFFFFF',
                 '--text-button': '#FFFFFF',
+                '--bg-warning': '#f97316',
                 '--text-secondary': '#A1A1AA',
                 '--text-muted': '#52525B',
                 '--sidebar-hover': '#111111',
