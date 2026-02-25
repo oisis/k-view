@@ -46,6 +46,7 @@ export default function ResourceDetails({ user }) {
     const [relatedReplicaSets, setRelatedReplicaSets] = useState([]);
     const [relatedHpas, setRelatedHpas] = useState([]);
     const [relatedEndpoints, setRelatedEndpoints] = useState([]);
+    const [relatedPvs, setRelatedPvs] = useState([]);
 
     const [confirmTrigger, setConfirmTrigger] = useState(false);
     const [isTriggering, setIsTriggering] = useState(false);
@@ -144,6 +145,16 @@ export default function ResourceDetails({ user }) {
                         const hpaData = await hpaRes.json();
                         if (Array.isArray(hpaData)) {
                             setRelatedHpas(hpaData.filter(hpa => hpa.extra?.['target-name'] === name || hpa.name === name));
+                        }
+                    }
+                }
+
+                if (kindLower.includes('storage') && kindLower.includes('class')) {
+                    const pvsRes = await fetch(`/api/resources/persistentvolumes`);
+                    if (pvsRes && pvsRes.ok) {
+                        const pvsData = await pvsRes.json();
+                        if (Array.isArray(pvsData)) {
+                            setRelatedPvs(pvsData.filter(pv => pv.spec?.storageClassName === name || pv.extra?.['storage-class'] === name));
                         }
                     }
                 }
@@ -302,6 +313,7 @@ export default function ResourceDetails({ user }) {
                         relatedReplicaSets={relatedReplicaSets}
                         relatedHpas={relatedHpas}
                         relatedEndpoints={relatedEndpoints}
+                        relatedPvs={relatedPvs}
                         t={t}
                         settings={settings}
                     />

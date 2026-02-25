@@ -19,10 +19,11 @@ import ControlledByTable from './ControlledByTable';
 import IngressRulesTable from './IngressRulesTable';
 import CodeEditor from './CodeEditor';
 import ResourceActionMenu from '../ResourceActionMenu.jsx';
+import PersistentVolumesTable from './PersistentVolumesTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
-    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, t, settings
+    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs, t, settings
 }) {
     const { icons } = useTheme();
     const kindLower = kind?.toLowerCase() || '';
@@ -35,6 +36,7 @@ export default function OverviewTab({
     const isCronJob = kindLower.includes('cronjob');
     const isDaemonSet = kindLower.includes('daemonset');
     const isDeployment = kindLower.includes('deployment');
+    const isStorageClass = kindLower.includes('storage') && kindLower.includes('class');
     const isIngressClass = kindLower.includes('ingress') && kindLower.includes('class');
     const isIngress = kindLower.includes('ingress') && !isIngressClass;
     const isService = kindLower.includes('service') && !isIngressClass;
@@ -81,7 +83,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {isIngressClass ? (
+                {(isIngressClass || isStorageClass) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -268,7 +270,19 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {!isDaemonSet && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isStorageClass && (
+                <DetailSection title={t('resource_info')} className="mt-4">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <tbody className="divide-y divide-slate-600">
+                            <DetailRow label="Provisioner">
+                                <span className="font-mono text-info font-bold">{data.provisioner || spec.provisioner || '—'}</span>
+                            </DetailRow>
+                        </tbody>
+                    </table>
+                </DetailSection>
+            )}
+
+            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -728,8 +742,12 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
+            )}
+
+            {isStorageClass && (
+                <PersistentVolumesTable pvs={relatedPvs} t={t} />
             )}
 
             {!isCronJob && !isDaemonSet && mountedPvcs.length > 0 && (
