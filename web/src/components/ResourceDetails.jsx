@@ -349,98 +349,102 @@ function PersistenceVolumeClaimsTable({ pvcNames, namespace, t }) {
 function ContainerDetails({ containers, statuses, t }) {
     const { icons } = useTheme();
     return (
-        <DetailSection title={t('containers')} className="mt-4">
-            <div className="overflow-x-auto">
-                <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
-                        <tr>
-                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
-                            <th className="px-4 py-3 text-left">Image</th>
-                            <th className="px-4 py-3 text-left">Status</th>
-                            <th className="px-4 py-3 text-left">Environment Variables</th>
-                            <th className="px-4 py-3 text-left">Mounts</th>
-                            <th className="px-4 py-3 text-left">Probes</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border-color)]">
-                        {(!containers || containers.length === 0) ? (
-                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No containers found.</td></tr>
-                        ) : (
-                            containers.map((c, i) => {
-                                const status = statuses?.find(s => s.name === c.name);
-                                const stateKey = status?.state ? Object.keys(status.state)[0] : null;
-                                const stateInfo = stateKey ? status.state[stateKey] : null;
+        <div className="space-y-6 mt-4">
+            {(!containers || containers.length === 0) ? (
+                <DetailSection title={t('containers')}>
+                    <div className="px-6 py-8 text-center text-[var(--text-muted)] italic">No containers found.</div>
+                </DetailSection>
+            ) : (
+                containers.map((c, i) => {
+                    const status = statuses?.find(s => s.name === c.name);
+                    const stateKey = status?.state ? Object.keys(status.state)[0] : null;
+                    const stateInfo = stateKey ? status.state[stateKey] : null;
 
-                                return (
-                                    <tr key={i} className="hover:bg-white/5 transition-colors align-top">
-                                        <td className="px-4 py-4">
-                                            <div className="font-bold text-[var(--text-primary)] flex items-center gap-2">
-                                                <icons.terminal size={12} className="text-info" />
-                                                {c.name}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="max-w-[200px] break-all text-xs font-mono bg-black/20 p-1.5 rounded border border-white/5">
-                                                {c.image}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="flex flex-col gap-1.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.ready ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                                        {status?.ready ? 'Ready' : 'Not Ready'}
+                    return (
+                        <DetailSection key={i} title={`${t('label_container')}: ${c.name}`}>
+                            <table className="w-full text-sm text-left border-collapse">
+                                <tbody className="divide-y divide-slate-600">
+                                    <DetailRow label={t('label_image')}>
+                                        <ExpandableCell value={c.image} type="images" />
+                                    </DetailRow>
+                                    <DetailRow label={t('label_status')}>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.ready ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                                                    {status?.ready ? 'Ready' : 'Not Ready'}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.started ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                                                    {status?.started ? 'Started' : 'Not Started'}
+                                                </span>
+                                                {status?.restartCount > 0 && (
+                                                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase border bg-error/10 text-error border-error/20">
+                                                        Restarts: {status.restartCount}
                                                     </span>
-                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.started ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                                        {status?.started ? 'Started' : 'Not Started'}
-                                                    </span>
-                                                </div>
-                                                {stateInfo?.startedAt && (
-                                                    <div className="text-[10px] text-[var(--text-muted)]">
-                                                        Started at: <span className="text-[var(--text-secondary)]">{new Date(stateInfo.startedAt).toLocaleString()}</span>
-                                                    </div>
                                                 )}
                                             </div>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="space-y-1 max-h-[150px] overflow-y-auto">
-                                                {c.env?.map(ev => (
-                                                    <div key={ev.name} className="text-[10px] font-mono flex gap-2">
-                                                        <span className="text-info font-bold shrink-0">{ev.name}:</span>
-                                                        <span className="text-[var(--text-muted)] truncate">{ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}</span>
-                                                    </div>
-                                                )) || <span className="text-[var(--text-muted)] italic">None</span>}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2">
-                                                {c.volumeMounts?.map(vm => (
-                                                    <div key={vm.mountPath} className="p-2 bg-black/20 rounded border border-white/5 text-[10px] flex flex-col gap-1">
-                                                        <div className="font-bold text-info border-b border-white/5 pb-1 flex justify-between">
-                                                            <span>{vm.name}</span>
-                                                            <span className={vm.readOnly ? 'text-warning' : 'text-success'}>{vm.readOnly ? 'RO' : 'RW'}</span>
+                                            {stateInfo?.startedAt && (
+                                                <div className="text-xs text-[var(--text-muted)] flex items-center gap-1.5">
+                                                    <icons.refresh size={12} />
+                                                    Started at: <span className="text-[var(--text-secondary)] font-mono">{new Date(stateInfo.startedAt).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </DetailRow>
+                                    <DetailRow label={t('label_env_variables')}>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-1">
+                                            {c.env?.map(ev => (
+                                                <div key={ev.name} className="bg-black/20 rounded border border-white/5 p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
+                                                    <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
+                                                    <span className="text-[var(--text-muted)] truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
+                                                        {ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}
+                                                    </span>
+                                                </div>
+                                            )) || <span className="text-[var(--text-muted)] italic">None</span>}
+                                        </div>
+                                    </DetailRow>
+                                    <DetailRow label={t('label_mounts')}>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-1">
+                                            {c.volumeMounts?.map(vm => (
+                                                <div key={vm.mountPath} className="p-3 bg-black/20 rounded-xl border border-white/5 text-[11px] flex flex-col gap-2 relative overflow-hidden group">
+                                                    <div className="font-bold text-info border-b border-white/5 pb-1.5 flex justify-between items-center">
+                                                        <div className="flex items-center gap-2">
+                                                            <icons.clipboard size={12} />
+                                                            {vm.name}
                                                         </div>
-                                                        <div className="text-[var(--text-secondary)]">Path: <span className="text-[var(--text-primary)] font-mono">{vm.mountPath}</span></div>
-                                                        {vm.subPath && <div className="text-[var(--text-muted)]">Sub: <span className="font-mono">{vm.subPath}</span></div>}
-                                                        <div className="text-[var(--text-muted)]">Source: <span className="italic">PersistentVolumeClaim</span></div>
+                                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black ${vm.readOnly ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'}`}>
+                                                            {vm.readOnly ? 'READ-ONLY' : 'READ-WRITE'}
+                                                        </span>
                                                     </div>
-                                                )) || <span className="text-[var(--text-muted)] italic">None</span>}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="flex flex-col gap-4">
-                                                <ProbeSummary label="Liveness" probe={c.livenessProbe} t={t} />
-                                                <ProbeSummary label="Readiness" probe={c.readinessProbe} t={t} />
-                                                <ProbeSummary label="Startup" probe={c.startupProbe} t={t} />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </DetailSection>
+                                                    <div className="space-y-1">
+                                                        <div className="flex gap-2">
+                                                            <span className="text-[var(--text-muted)] w-16 shrink-0">Path:</span>
+                                                            <span className="text-[var(--text-primary)] font-mono break-all">{vm.mountPath}</span>
+                                                        </div>
+                                                        {vm.subPath && (
+                                                            <div className="flex gap-2 text-indigo-400/80">
+                                                                <span className="text-[var(--text-muted)] w-16 shrink-0">Sub:</span>
+                                                                <span className="font-mono break-all">{vm.subPath}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )) || <span className="text-[var(--text-muted)] italic">None</span>}
+                                        </div>
+                                    </DetailRow>
+                                    <DetailRow label="Health Probes">
+                                        <div className="flex flex-wrap gap-8 py-2">
+                                            <ProbeSummary label="Liveness" probe={c.livenessProbe} t={t} />
+                                            <ProbeSummary label="Readiness" probe={c.readinessProbe} t={t} />
+                                            <ProbeSummary label="Startup" probe={c.startupProbe} t={t} />
+                                        </div>
+                                    </DetailRow>
+                                </tbody>
+                            </table>
+                        </DetailSection>
+                    );
+                })
+            )}
+        </div>
     );
 }
 
@@ -742,7 +746,8 @@ export default function ResourceDetails({ user }) {
     };
 
     const fetchLogs = async () => {
-        if (!kind.toLowerCase().startsWith('pod')) return;
+        const k = kind.toLowerCase();
+        if (!k.includes('pod') && !k.includes('job') && !k.includes('deploy') && !k.includes('daemonset') && !k.includes('replicaset') && !k.includes('statefulset') && !k.includes('replicationcontroller')) return;
         try {
             const containerQuery = logContainer ? `&container=${logContainer}` : '';
             const logsRes = await fetch(`/api/pods/${namespace}/${name}/logs?tail=1000${containerQuery}`);
@@ -989,6 +994,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'events', label: t('events'), icon: icons.list },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
+                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: true },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
