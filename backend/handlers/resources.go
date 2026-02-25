@@ -750,6 +750,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                		isClusterRole := kindLower == "clusterroles" || kindLower == "cluster-roles"
 		                		isRoleBinding := kindLower == "rolebindings" || kindLower == "rolebinding" || kindLower == "role-bindings"
 		                		isRole := kindLower == "roles" || kindLower == "role"
+		                		isServiceAccount := kindLower == "serviceaccounts" || kindLower == "serviceaccount" || kindLower == "service-accounts"
 		                		isPv := kindLower == "persistentvolumes" || kindLower == "persistentvolume" || kindLower == "pvs"
 		                				
 		                						statusObj := gin.H{
@@ -1151,7 +1152,17 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				},
 			}
 		}
-		
+
+		if isServiceAccount {
+			details["secrets"] = []gin.H{
+				{"name": "my-service-account-token-ab12c"},
+				{"name": "my-service-account-dockercfg-x9z3k"},
+			}
+			details["imagePullSecrets"] = []gin.H{
+				{"name": "registry-credentials"},
+			}
+		}
+
 		if isPv {
 			specObj = gin.H{
 				"persistentVolumeReclaimPolicy": "Retain",

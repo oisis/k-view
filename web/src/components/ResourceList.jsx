@@ -256,8 +256,8 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.secrets', label: 'Secrets' },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'age', label: 'Created' },
         ],
     },
     crds: {
