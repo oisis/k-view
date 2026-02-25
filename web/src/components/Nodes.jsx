@@ -3,6 +3,56 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 
+function parseToMilliCores(str) {
+    if (!str || str === '0') return 0;
+    if (str.endsWith('m')) return parseFloat(str);
+    return parseFloat(str) * 1000;
+}
+
+function formatCores(valStr, capStr) {
+    const val = parseToMilliCores(valStr);
+    const cap = parseToMilliCores(capStr);
+    const perc = cap > 0 ? (val / cap) * 100 : 0;
+
+    // Always show in 'm' if small, or follow user's 850.00m request
+    // If str already has 'm', keep it.
+    let display = val.toFixed(2) + 'm';
+    if (!valStr.endsWith('m') && val >= 1000) {
+        display = (val / 1000).toFixed(2);
+    }
+
+    return `${display} (${perc.toFixed(2)}%)`;
+}
+
+function parseToBytes(str) {
+    if (!str || str === '0') return 0;
+    let bytes = parseFloat(str);
+    if (str.endsWith('Ki')) bytes *= 1024;
+    else if (str.endsWith('Mi')) bytes *= 1024 * 1024;
+    else if (str.endsWith('Gi')) bytes *= 1024 * 1024 * 1024;
+    else if (str.endsWith('Ti')) bytes *= 1024 * 1024 * 1024 * 1024;
+    return bytes;
+}
+
+function formatRAM(valStr, capStr) {
+    const val = parseToBytes(valStr);
+    const cap = parseToBytes(capStr);
+    const perc = cap > 0 ? (val / cap) * 100 : 0;
+
+    const mib = val / (1024 * 1024);
+    const gib = val / (1024 * 1024 * 1024);
+
+    let display = mib.toFixed(2) + ' MiB';
+    if (gib >= 1) display = gib.toFixed(2) + ' GiB';
+    else if (valStr.endsWith('Mi')) display = mib.toFixed(2) + ' Mi'; // Match user's "240.00Mi" format
+
+    // Actually, user requested "240.00Mi" and "850.00m"
+    if (valStr.endsWith('Mi')) display = mib.toFixed(2) + 'Mi';
+    if (valStr.endsWith('Gi')) display = gib.toFixed(2) + 'Gi';
+
+    return `${display} (${perc.toFixed(2)}%)`;
+}
+
 function bytesToGiB(str) {
     if (!str) return '?';
     if (str.endsWith('Ki')) return (parseFloat(str) / (1024 * 1024)).toFixed(1) + ' GiB';
@@ -48,6 +98,35 @@ function StatCard({ label, value, sub, iconKey, color }) {
                 <p className="text-sm text-[var(--text-secondary)]">{label}</p>
                 {sub && <p className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</p>}
             </div>
+        </div>
+    );
+}
+
+function LabelsCell({ labels }) {
+    const [expanded, setExpanded] = React.useState(false);
+    const labelEntries = Object.entries(labels || {});
+    if (labelEntries.length === 0) return <span className="text-[var(--text-muted)] italic">none</span>;
+
+    const visibleLabels = expanded ? labelEntries : labelEntries.slice(0, 2);
+    const hasMore = labelEntries.length > 2;
+
+    return (
+        <div className="flex flex-col gap-1 max-w-[250px]">
+            <div className="flex flex-wrap gap-1">
+                {visibleLabels.map(([k, v]) => (
+                    <span key={k} className="text-[10px] bg-slate-500/10 border border-slate-500/20 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
+                        {k.split('/').pop()}: {v}
+                    </span>
+                ))}
+            </div>
+            {hasMore && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="text-[10px] text-info hover:text-info/80 font-semibold w-fit transition-colors"
+                >
+                    {expanded ? 'Show less' : `Show all (${labelEntries.length})`}
+                </button>
+            )}
         </div>
     );
 }
@@ -110,15 +189,17 @@ export default function Nodes() {
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
                         <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
-                                <th className="px-4 py-3">Node</th>
-                                <th className="px-4 py-3">Role</th>
-                                <th className="px-4 py-3">Status</th>
-                                <th className="px-4 py-3">CPU</th>
-                                <th className="px-4 py-3">Memory</th>
-                                <th className="px-4 py-3">Arch</th>
-                                <th className="px-4 py-3">Kubelet</th>
-                                <th className="px-4 py-3">Runtime</th>
-                                <th className="px-4 py-3">Age</th>
+                                <th className="px-4 py-3">Name</th>
+                                <th className="px-4 py-3">Labels</th>
+                                <th className="px-4 py-3">Ready</th>
+                                <th className="px-4 py-3">CPU requests (cores)</th>
+                                <th className="px-4 py-3">CPU limits (cores)</th>
+                                <th className="px-4 py-3">CPU capacity (cores)</th>
+                                <th className="px-4 py-3">RAM requests</th>
+                                <th className="px-4 py-3">RAM limits</th>
+                                <th className="px-4 py-3">RAM capacity</th>
+                                <th className="px-4 py-3">Pods</th>
+                                <th className="px-4 py-3">Create</th>
                                 <th className="px-4 py-3 w-10 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -132,7 +213,6 @@ export default function Nodes() {
                                     <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-primary)]">
-                                                <icons.nodes size={14} className="text-[var(--text-muted)] shrink-0" />
                                                 <Link
                                                     to={`/nodes/-/${node.name}`}
                                                     className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
@@ -140,34 +220,25 @@ export default function Nodes() {
                                                     {node.name}
                                                 </Link>
                                             </div>
-                                            <div className="text-xs text-[var(--text-muted)] ml-5">{node.os}</div>
                                         </td>
-                                        <td className="px-4 py-3"><RoleBadge role={node.role} /></td>
+                                        <td className="px-4 py-3">
+                                            <LabelsCell labels={node.labels} />
+                                        </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-1.5">
                                                 <StatusIcon status={node.status} />
                                                 <span className={node.status === 'Ready' ? 'text-success' : 'text-error'}>
-                                                    {node.status}
+                                                    {node.status === 'Ready' ? 'True' : 'False'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-1">
-                                                <icons.cpu size={12} className="text-[var(--text-muted)]" />
-                                                <span>{node.cpuCapacity}</span>
-                                                <span className="text-[var(--text-muted)] text-xs">/ {node.cpuAllocatable} alloc</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center gap-1">
-                                                <icons.memory size={12} className="text-[var(--text-muted)]" />
-                                                <span>{bytesToGiB(node.memoryCapacity)}</span>
-                                                <span className="text-[var(--text-muted)] text-xs">/ {bytesToGiB(node.memoryAllocatable)} alloc</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-xs">{node.architecture}</td>
-                                        <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-xs">{node.kubeletVersion}</td>
-                                        <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{node.containerRuntime}</td>
+                                        <td className="px-4 py-3 text-xs font-mono">{formatCores(node.cpuRequests, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono">{formatCores(node.cpuLimits, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono">{node.cpuCapacity}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-right">{formatRAM(node.ramRequests, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-right">{formatRAM(node.ramLimits, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-right">{bytesToGiB(node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-info font-bold">{node.podsCount}</td>
                                         <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(node.age).toLocaleDateString()}</td>
                                         <td className="px-4 py-3 text-right">
                                             <ResourceActionMenu

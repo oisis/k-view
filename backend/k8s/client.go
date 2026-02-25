@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"time"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -327,8 +328,32 @@ func mockPod(name, namespace string, phase corev1.PodPhase, age time.Duration) c
 			Namespace:         namespace,
 			CreationTimestamp: metav1.NewTime(time.Now().Add(age)),
 		},
+		Spec: corev1.PodSpec{
+			NodeName: "worker-01",
+			Containers: []corev1.Container{
+				{
+					Name: "main",
+					Resources: corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceCPU:    resource.MustParse("100m"),
+							corev1.ResourceMemory: resource.MustParse("128Mi"),
+						},
+						Limits: corev1.ResourceList{
+							corev1.ResourceCPU:    resource.MustParse("200m"),
+							corev1.ResourceMemory: resource.MustParse("256Mi"),
+						},
+					},
+				},
+			},
+		},
 		Status: corev1.PodStatus{Phase: phase},
 	}
+	if name == "master-01" || name == "master-02" || name == "master-03" {
+		pod.Spec.NodeName = name
+	} else if strings.HasPrefix(name, "worker-") {
+		pod.Spec.NodeName = "worker-01"
+	}
+	
 	if phase == corev1.PodFailed {
 		pod.Status.ContainerStatuses = []corev1.ContainerStatus{
 			{State: corev1.ContainerState{

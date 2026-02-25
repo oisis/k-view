@@ -8,6 +8,7 @@ import (
 	"k-view/k8s"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +33,12 @@ type NodeResponse struct {
 	MemoryCapacity   string            `json:"memoryCapacity"`
 	CPUAllocatable   string            `json:"cpuAllocatable"`
 	MemoryAllocatable string           `json:"memoryAllocatable"`
+	Labels           map[string]string `json:"labels"`
+	CPURequests      string            `json:"cpuRequests"`
+	CPULimits        string            `json:"cpuLimits"`
+	RAMRequests      string            `json:"ramRequests"`
+	RAMLimits        string            `json:"ramLimits"`
+	PodsCount        int               `json:"podsCount"`
 }
 
 func nodeRole(node corev1.Node) string {
@@ -57,10 +64,45 @@ func nodeStatus(node corev1.Node) string {
 }
 
 func (h *NodeHandler) ListNodes(c *gin.Context) {
-	nodes, err := h.k8sClient.ListNodes(context.Background())
+	ctx := context.Background()
+	nodes, err := h.k8sClient.ListNodes(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list nodes: " + err.Error()})
 		return
+	}
+
+	pods, err := h.k8sClient.ListPods(ctx, "")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list pods for node stats: " + err.Error()})
+		return
+	}
+
+	// Map to store stats per node
+	type nodeStats struct {
+		cpuReq   resource.Quantity
+		cpuLim   resource.Quantity
+		ramReq   resource.Quantity
+		ramLim   resource.Quantity
+		podCount int
+	}
+	statsMap := make(map[string]*nodeStats)
+
+	for _, p := range pods {
+		if p.Spec.NodeName == "" {
+			continue
+		}
+		if _, ok := statsMap[p.Spec.NodeName]; !ok {
+			statsMap[p.Spec.NodeName] = &nodeStats{}
+		}
+		s := statsMap[p.Spec.NodeName]
+		s.podCount++
+
+		for _, container := range p.Spec.Containers {
+			s.cpuReq.Add(*container.Resources.Requests.Cpu())
+			s.cpuLim.Add(*container.Resources.Limits.Cpu())
+			s.ramReq.Add(*container.Resources.Requests.Memory())
+			s.ramLim.Add(*container.Resources.Limits.Memory())
+		}
 	}
 
 	// Initialize as empty slice to avoid 'null' in JSON
@@ -70,6 +112,11 @@ func (h *NodeHandler) ListNodes(c *gin.Context) {
 		mem := n.Status.Capacity.Memory()
 		cpuAlloc := n.Status.Allocatable.Cpu()
 		memAlloc := n.Status.Allocatable.Memory()
+
+		stats := statsMap[n.Name]
+		if stats == nil {
+			stats = &nodeStats{}
+		}
 
 		response = append(response, NodeResponse{
 			Name:              n.Name,
@@ -84,6 +131,12 @@ func (h *NodeHandler) ListNodes(c *gin.Context) {
 			MemoryCapacity:    mem.String(),
 			CPUAllocatable:    cpuAlloc.String(),
 			MemoryAllocatable: memAlloc.String(),
+			Labels:            n.Labels,
+			CPURequests:       stats.cpuReq.String(),
+			CPULimits:         stats.cpuLim.String(),
+			RAMRequests:       stats.ramReq.String(),
+			RAMLimits:         stats.ramLim.String(),
+			PodsCount:         stats.podCount,
 		})
 	}
 
