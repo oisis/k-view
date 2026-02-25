@@ -116,6 +116,7 @@ func main() {
 			protected.GET("/namespaces", podHandler.ListNamespaces)
 			protected.GET("/nodes", nodeHandler.ListNodes)
 			protected.POST("/console/exec", consoleHandler.Exec)
+			protected.GET("/cluster/events", resourceHandler.GetClusterEvents)
 			protected.GET("/resources/:kind", resourceHandler.List)
 			protected.GET("/cluster/stats", resourceHandler.GetStats)
 			protected.POST("/resources/:kind", resourceHandler.Create)

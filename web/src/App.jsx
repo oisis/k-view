@@ -7,6 +7,7 @@ import Settings from './components/Settings';
 import Console from './components/Console';
 import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
+import EventsList from './components/EventsList';
 import ResourceDetails from './components/ResourceDetails';
 import About from './components/About';
 import CreateResourceModal from './components/CreateResourceModal';
@@ -377,7 +378,7 @@ function App() {
                         <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
                         <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
                         <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
-                        <Route path="/cluster/events" element={protect(<ResourceList kind="events" />)} />
+                        <Route path="/cluster/events" element={protect(<EventsList />)} />
                         <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
                         <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
                         <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />

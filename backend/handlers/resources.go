@@ -564,36 +564,6 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				}
 				extra["labels"] = strings.Join(ls, ", ")
 			}
-		case "events":
-			if eType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
-				extra["type"] = eType
-				if eType == "Warning" {
-					status = "Warning"
-				}
-			}
-			if reason, ok, _ := unstructured.NestedString(item.Object, "reason"); ok {
-				extra["reason"] = reason
-			}
-			if message, ok, _ := unstructured.NestedString(item.Object, "message"); ok {
-				extra["message"] = message
-			}
-			kind, _, _ := unstructured.NestedString(item.Object, "involvedObject", "kind")
-			name, _, _ := unstructured.NestedString(item.Object, "involvedObject", "name")
-			extra["object"] = fmt.Sprintf("%s/%s", kind, name)
-			
-			lastSeen := ""
-			if ls, ok, _ := unstructured.NestedString(item.Object, "lastTimestamp"); ok && ls != "" {
-				if t, err := time.Parse(time.RFC3339, ls); err == nil {
-					lastSeen = getAge(t)
-				}
-			} else if es, ok, _ := unstructured.NestedString(item.Object, "eventTime"); ok && es != "" {
-				if t, err := time.Parse(time.RFC3339, es); err == nil {
-					lastSeen = getAge(t)
-				}
-			}
-			if lastSeen != "" {
-				extra["last-seen"] = lastSeen
-			}
 		case "ingresses":
 			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok {
 				extra["class"] = class
@@ -1825,6 +1795,112 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
+func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
+	ns := c.Query("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	// Apply RBAC namespace restriction
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		if ns != "" && ns != rbacNs.(string) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
+			return
+		}
+		ns = rbacNs.(string)
+	}
+
+	if h.devMode {
+		events := []gin.H{
+			{"name": "default-token.181a0e", "reason": "Created", "message": "Created service account token", "source": "kube-controller-manager", "object": "ServiceAccount/default", "count": 1, "firstSeen": "10m", "lastSeen": "10m"},
+			{"name": "frontend-web.181a1f", "reason": "BackOff", "message": "Back-off restarting failed container", "source": "kubelet worker-1", "object": "Pod/frontend-web-5d8f7b", "count": 12, "firstSeen": "5m", "lastSeen": "1m"},
+			{"name": "backend-api.181a2b", "reason": "Scheduled", "message": "Successfully assigned default/backend-api-6c9f8c to node-1", "source": "default-scheduler", "object": "Pod/backend-api-6c9f8c", "count": 1, "firstSeen": "15m", "lastSeen": "15m"},
+		}
+		c.JSON(http.StatusOK, events)
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+		return
+	}
+
+	gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	var listInterface dynamic.ResourceInterface
+	if ns != "" {
+		listInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		listInterface = dynClient.Resource(gvr)
+	}
+
+	list, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
+	if err != nil {
+		c.JSON(http.StatusOK, []gin.H{})
+		return
+	}
+
+	var events []gin.H
+	for _, e := range list.Items {
+		name := e.GetName()
+		reason, _, _ := unstructured.NestedString(e.Object, "reason")
+		message, _, _ := unstructured.NestedString(e.Object, "message")
+		
+		count, _, _ := unstructured.NestedInt64(e.Object, "count")
+		if count == 0 { count = 1 }
+
+		sourceComp, _, _ := unstructured.NestedString(e.Object, "source", "component")
+		sourceHost, _, _ := unstructured.NestedString(e.Object, "source", "host")
+		source := sourceComp
+		if sourceHost != "" {
+			if source != "" { source += " " }
+			source += sourceHost
+		}
+
+		kind, _, _ := unstructured.NestedString(e.Object, "involvedObject", "kind")
+		invName, _, _ := unstructured.NestedString(e.Object, "involvedObject", "name")
+		object := fmt.Sprintf("%s/%s", kind, invName)
+
+		firstTimestamp, okF, _ := unstructured.NestedString(e.Object, "firstTimestamp")
+		firstSeen := "Unknown"
+		if okF && firstTimestamp != "" {
+			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
+				firstSeen = getAge(ft)
+			}
+		}
+
+		lastTimestamp, okL, _ := unstructured.NestedString(e.Object, "lastTimestamp")
+		lastSeen := "Unknown"
+		if okL && lastTimestamp != "" {
+			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
+				lastSeen = getAge(lt)
+			}
+		}
+
+		if firstSeen == "Unknown" {
+			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
+				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
+					firstSeen = getAge(et)
+					lastSeen = getAge(et)
+				}
+			}
+		}
+
+		events = append(events, gin.H{
+			"name":      name,
+			"reason":    reason,
+			"message":   message,
+			"source":    source,
+			"object":    object,
+			"count":     count,
+			"firstSeen": firstSeen,
+			"lastSeen":  lastSeen,
+		})
+	}
+
+	c.JSON(http.StatusOK, events)
+}
+
 func ex(kv ...string) map[string]string {
 	m := make(map[string]string, len(kv)/2)
 	for i := 0; i+1 < len(kv); i += 2 {
@@ -2045,13 +2121,6 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "kube-system", Age: "30d", Status: "Active"},
 			{Name: "kube-public", Age: "30d", Status: "Active"},
 			{Name: "kube-node-lease", Age: "30d", Status: "Active"},
-		}
-
-	case "events":
-		items = []ResourceItem{
-			{Name: "default-token.181a0e", Namespace: "default", Age: "10m", Status: "Normal", Extra: ex("type", "Normal", "reason", "Created", "object", "ServiceAccount/default", "message", "Created service account token", "last-seen", "10m")},
-			{Name: "frontend-web.181a1f", Namespace: "default", Age: "5m", Status: "Warning", Extra: ex("type", "Warning", "reason", "BackOff", "object", "Pod/frontend-web-5d8f7b", "message", "Back-off restarting failed container", "last-seen", "1m")},
-			{Name: "backend-api.181a2b", Namespace: "default", Age: "15m", Status: "Normal", Extra: ex("type", "Normal", "reason", "Scheduled", "object", "Pod/backend-api-6c9f8c", "message", "Successfully assigned default/backend-api-6c9f8c to node-1", "last-seen", "15m")},
 		}
 
 	case "network-policies":
