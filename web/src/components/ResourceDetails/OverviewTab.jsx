@@ -26,6 +26,8 @@ import ResourceQuotasTable from './ResourceQuotasTable';
 import LimitRangesTable from './LimitRangesTable';
 import PolicyRulesTable from './PolicyRulesTable';
 import PieChart from './PieChart';
+import CapacityTable from './CapacityTable';
+import SourceTable from './SourceTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -52,6 +54,7 @@ export default function OverviewTab({
     const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
     const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
     const isNode = kindLower === 'nodes' || kindLower === 'node';
+    const isPv = kindLower === 'persistentvolumes' || kindLower === 'persistentvolume' || kindLower === 'pvs';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -95,24 +98,24 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode) ? (
-                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv) ? (
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono font-bold break-all">{name}</span>
                         </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center text-[var(--text-primary)]">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                            <span className="text-sm font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_uid')}</span>
+                            <span className="text-[var(--font-size-xs)] font-mono text-[var(--text-secondary)] truncate w-full">{metadata.uid}</span>
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
-                            <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                            <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
                         </div>
                     </div>
                 ) : (
                     <>
-                        <div className={`grid grid-cols-1 ${isNode ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
+                        <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                                 <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
@@ -350,7 +353,42 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {!isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !kindLower.includes('role') && !isNamespace && !isNetworkPolicy && (
+            {isPv && (
+                <DetailSection title={t('resource_info')}>
+                    <table className="w-full text-sm text-left border-collapse">
+                        <tbody className="divide-y divide-slate-600">
+                            <tr className="border-b border-slate-600">
+                                <td colSpan="2" className="p-0">
+                                    <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_status')}</span>
+                                            <span className={`font-bold ${status.phase === 'Bound' ? 'text-success' : 'text-warning'}`}>{status.phase || '—'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_reclaim_policy')}</span>
+                                            <span className="font-bold text-[var(--text-primary)]">{spec.persistentVolumeReclaimPolicy || '—'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_storage_class')}</span>
+                                            <span className="font-mono text-info font-bold">{spec.storageClassName || '—'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_mount_options')}</span>
+                                            <span className="text-[var(--text-primary)] font-bold">{spec.mountOptions?.join(', ') || '—'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_access_modes')}</span>
+                                            <span className="text-[var(--text-primary)] font-bold text-xs">{spec.accessModes?.join(', ') || '—'}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </DetailSection>
+            )}
+
+            {!isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !kindLower.includes('role') && !isNamespace && !isNetworkPolicy && !isPv && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -947,8 +985,15 @@ export default function OverviewTab({
                 </>
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !isPv && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
+            )}
+
+            {isPv && (
+                <>
+                    <SourceTable source={data.source} t={t} />
+                    <CapacityTable capacity={data.capacity} t={t} />
+                </>
             )}
 
             {isStorageClass && (

@@ -748,6 +748,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                		isPod := kindLower == "pods" || kindLower == "pod"
 		                		isClusterRoleBinding := kindLower == "clusterrolebindings" || kindLower == "cluster-role-bindings"
 		                		isClusterRole := kindLower == "clusterroles" || kindLower == "cluster-roles"
+		                		isPv := kindLower == "persistentvolumes" || kindLower == "persistentvolume" || kindLower == "pvs"
 		                				
 		                						statusObj := gin.H{
 		                							"phase":              "Running",
@@ -1138,6 +1139,32 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					"resourceNames":   []string{},
 					"verbs":           []string{"get"},
 					"apiGroups":       []string{""},
+				},
+			}
+		}
+		
+		if isPv {
+			specObj = gin.H{
+				"persistentVolumeReclaimPolicy": "Retain",
+				"storageClassName":              "standard",
+				"mountOptions":                  []string{"debug", "noatime"},
+				"accessModes":                   []string{"ReadWriteOnce"},
+				"capacity": gin.H{
+					"storage": "100Gi",
+				},
+			}
+			statusObj = gin.H{
+				"phase": "Bound",
+			}
+			details["source"] = gin.H{
+				"type":   "NFS",
+				"server": "nfs-server.default.svc.cluster.local",
+				"path":   "/exports/data-pv-01",
+			}
+			details["capacity"] = []gin.H{
+				{
+					"resourceName": "storage",
+					"quantity":     "100Gi",
 				},
 			}
 		}
