@@ -50,6 +50,7 @@ export default function OverviewTab({
     const isPvc = kindLower.includes('persistentvolumeclaim') || kindLower.includes('pvc');
     const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
     const isRoleBinding = (kindLower === 'rolebindings' || kindLower === 'rolebinding' || kindLower === 'role-bindings') && !kindLower.includes('cluster');
+    const isRole = (kindLower === 'roles' || kindLower === 'role') && !kindLower.includes('cluster');
     const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
     const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
     const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
@@ -98,7 +99,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv) ? (
                     <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -293,7 +294,7 @@ export default function OverviewTab({
                 </>
             )}
 
-            {isClusterRole && (
+            {(isClusterRole || isRole) && (
                 <RulesTable rules={data.rules} t={t} />
             )}
 
@@ -985,7 +986,7 @@ export default function OverviewTab({
                 </>
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !isPv && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isRoleBinding && !isRole && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !isPv && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 

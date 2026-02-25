@@ -749,6 +749,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                		isClusterRoleBinding := kindLower == "clusterrolebindings" || kindLower == "cluster-role-bindings"
 		                		isClusterRole := kindLower == "clusterroles" || kindLower == "cluster-roles"
 		                		isRoleBinding := kindLower == "rolebindings" || kindLower == "rolebinding" || kindLower == "role-bindings"
+		                		isRole := kindLower == "roles" || kindLower == "role"
 		                		isPv := kindLower == "persistentvolumes" || kindLower == "persistentvolume" || kindLower == "pvs"
 		                				
 		                						statusObj := gin.H{
@@ -1125,7 +1126,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 		}
 
-		if isClusterRole {
+		if isClusterRole || isRole {
 			details["rules"] = []gin.H{
 				{
 					"resources":       []string{"pods", "services"},
