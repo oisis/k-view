@@ -484,6 +484,15 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				}
 				extra["policy-types"] = strings.Join(ts, ", ")
 			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					if vs, ok := v.(string); ok {
+						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
+					}
+				}
+				extra["labels"] = strings.Join(ls, ", ")
+			}
 		case "pods":
 			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
 				status = phase
@@ -734,6 +743,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                		isIngress := strings.ToLower(kind) == "ingresses" || strings.ToLower(kind) == "ingress"
 		                		isService := strings.ToLower(kind) == "services" || strings.ToLower(kind) == "service"
 		                		isNamespace := strings.ToLower(kind) == "namespaces" || strings.ToLower(kind) == "namespace"
+		                		isNetworkPolicy := strings.ToLower(kind) == "networkpolicies" || strings.ToLower(kind) == "networkpolicy" || strings.ToLower(kind) == "network-policies"
 		                				
 		                						statusObj := gin.H{
 		                							"phase":              "Running",
@@ -776,6 +786,45 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                					},
 		                				},
 		                			},
+		                		}
+		                
+		                		if isNetworkPolicy {
+		                			specObj = gin.H{
+		                				"podSelector": gin.H{
+		                					"matchLabels": gin.H{
+		                						"app": found.Name,
+		                					},
+		                				},
+		                				"policyTypes": []string{"Ingress", "Egress"},
+		                				"ingress": []gin.H{
+		                					{
+		                						"from": []gin.H{
+		                							{
+		                								"podSelector": gin.H{
+		                									"matchLabels": gin.H{"role": "frontend"},
+		                								},
+		                							},
+		                						},
+		                						"ports": []gin.H{
+		                							{"protocol": "TCP", "port": 80},
+		                						},
+		                					},
+		                				},
+		                				"egress": []gin.H{
+		                					{
+		                						"to": []gin.H{
+		                							{
+		                								"ipBlock": gin.H{
+		                									"cidr": "10.0.0.0/24",
+		                								},
+		                							},
+		                						},
+		                						"ports": []gin.H{
+		                							{"protocol": "TCP", "port": 5432},
+		                						},
+		                					},
+		                				},
+		                			}
 		                		}
 		                
 		                		metadataObj := gin.H{
@@ -2193,11 +2242,11 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "network-policies":
 		items = []ResourceItem{
-			{Name: "deny-all-ingress", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
-			{Name: "allow-frontend-to-backend", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "app=frontend", "policy-types", "Egress")},
-			{Name: "allow-backend-to-db", Namespace: "database", Age: "20d", Extra: ex("pod-selector", "app=postgres", "policy-types", "Ingress")},
-			{Name: "deny-all-ingress", Namespace: "messaging", Age: "20d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
-			{Name: "allow-prometheus-scrape", Namespace: "monitoring", Age: "28d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress")},
+			{Name: "deny-all-ingress", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "security.k8s.io/policy=deny-all")},
+			{Name: "allow-frontend-to-backend", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "app=frontend", "policy-types", "Egress", "labels", "app=frontend,tier=web")},
+			{Name: "allow-backend-to-db", Namespace: "database", Age: "20d", Extra: ex("pod-selector", "app=postgres", "policy-types", "Ingress", "labels", "app=postgres,tier=db")},
+			{Name: "deny-all-ingress", Namespace: "messaging", Age: "20d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "app=kafka,tier=messaging")},
+			{Name: "allow-prometheus-scrape", Namespace: "monitoring", Age: "28d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "app=prometheus,component=monitoring")},
 		}
 
 	case "role-bindings":

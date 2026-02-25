@@ -24,6 +24,7 @@ import SubjectsTable from './SubjectsTable';
 import RulesTable from './RulesTable';
 import ResourceQuotasTable from './ResourceQuotasTable';
 import LimitRangesTable from './LimitRangesTable';
+import PolicyRulesTable from './PolicyRulesTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -48,6 +49,7 @@ export default function OverviewTab({
     const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
     const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
     const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
+    const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -91,7 +93,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -330,7 +332,35 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {!isDaemonSet && !isNamespace && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isNetworkPolicy && (
+                <DetailSection title={t('resource_info')} className="mt-4">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <tbody className="divide-y divide-slate-600">
+                            <DetailRow label="Pod Selector">
+                                <div className="flex flex-wrap gap-1.5">
+                                    {Object.entries(spec.podSelector?.matchLabels || {}).map(([k, v]) => (
+                                        <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-sm text-info font-mono">
+                                            {k}: {v}
+                                        </span>
+                                    )) || <span className="text-[var(--text-muted)] italic">{"<all>"}</span>}
+                                    {(!spec.podSelector?.matchLabels || Object.keys(spec.podSelector.matchLabels).length === 0) && <span className="text-[var(--text-muted)] italic">{"<all>"}</span>}
+                                </div>
+                            </DetailRow>
+                            <DetailRow label="Policy Types">
+                                <div className="flex flex-wrap gap-1.5">
+                                    {spec.policyTypes?.map(pt => (
+                                        <span key={pt} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono">
+                                            {pt}
+                                        </span>
+                                    )) || <span className="text-[var(--text-muted)] italic">—</span>}
+                                </div>
+                            </DetailRow>
+                        </tbody>
+                    </table>
+                </DetailSection>
+            )}
+
+            {!isDaemonSet && !isNamespace && !isNetworkPolicy && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -730,6 +760,13 @@ export default function OverviewTab({
                 </>
             )}
 
+            {isNetworkPolicy && (
+                <>
+                    <PolicyRulesTable title="Ingress Rules" rules={spec.ingress} t={t} />
+                    <PolicyRulesTable title="Egress Rules" rules={spec.egress} t={t} />
+                </>
+            )}
+
             {isDaemonSet && (
                 <>
                     <PodsTable pods={relatedPods} t={t} />
@@ -790,7 +827,7 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 
