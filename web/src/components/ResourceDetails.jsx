@@ -1,15 +1,273 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
+import ResourceActionMenu from './ResourceActionMenu';
 import { useSettings, useTranslation } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
-import {
-    Activity, CheckCircle2, Clipboard, Clock, Search, ChevronsLeft,
-    ChevronLeft, ChevronRight, ChevronsRight, List, RefreshCw, AlertCircle,
-    FileText, X, Edit3, Trash2, ArrowLeft, MoreVertical, Terminal, Share2,
-    BookOpen, Layers, ShieldCheck, Zap
-} from 'lucide-react';
+
+function ExpandableCell({ value, type }) {
+    const [expanded, setExpanded] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0 });
+    const buttonRef = useRef(null);
+
+    if (!value || value === '—') return <span className="text-[var(--text-muted)]">—</span>;
+
+    const items = typeof value === 'string' ? value.split(',').map(s => s.trim()) : (Array.isArray(value) ? value : [String(value)]);
+    if (items.length === 0) return <span className="text-[var(--text-muted)]">—</span>;
+
+    const handleMouseEnter = () => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setCoords({ top: rect.top - 10, left: rect.left });
+        }
+        setIsHovered(true);
+    };
+
+    return (
+        <div className="relative group/expandable">
+            {!expanded ? (
+                <button
+                    ref={buttonRef}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={() => setIsHovered(false)}
+                    onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+                    className="text-[13px] font-bold text-[var(--accent)] hover:text-[var(--text-primary)] bg-[var(--accent)]/10 px-2 py-0.5 rounded transition-all flex items-center gap-1 active:scale-95"
+                >
+                    Show all ({items.length})
+                </button>
+            ) : (
+                <div className="flex flex-col gap-1 py-1 max-w-[300px]">
+                    {items.map((it, idx) => (
+                        <div key={idx} className="text-[12px] font-mono bg-[var(--bg-sidebar)]/50 px-2 py-0.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] truncate" title={it}>
+                            {it}
+                        </div>
+                    ))}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+                        className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] mt-1 text-left px-1 underline"
+                    >
+                        Hide
+                    </button>
+                </div>
+            )}
+
+            {isHovered && !expanded && createPortal(
+                <div 
+                    style={{ 
+                        position: 'fixed',
+                        top: coords.top,
+                        left: coords.left,
+                        transform: 'translateY(-100%)',
+                        zIndex: 9999
+                    }}
+                    className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
+                >
+                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                        {type === 'labels' ? 'Labels' : 'Images'}
+                    </div>
+                    <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
+                        {items.map((it, idx) => (
+                            <div key={idx} className="text-[12px] font-mono text-[var(--text-tooltip)] break-all leading-tight">
+                                {it}
+                            </div>
+                        ))}
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+}
+
+function DetailSection({ title, children, className = "" }) {
+    const { icons } = useTheme();
+    return (
+        <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
+            <div className="px-6 py-2.5 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
+                <h3 className="text-[13px] font-bold text-[var(--accent)] uppercase tracking-widest">{title}</h3>
+            </div>
+            <div className="overflow-auto flex-1">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function DetailRow({ label, value, children }) {
+    return (
+        <tr className="group">
+            <td className="px-4 py-3 w-48 text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
+                {label}
+            </td>
+            <td className="px-4 py-3 text-[var(--font-size-sm)] text-[var(--text-primary)]">
+                {children || (
+                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-[var(--text-white)])]'}>
+                        {value ?? '—'}
+                    </span>
+                )}
+            </td>
+        </tr>
+    );
+}
+
+function JobsTable({ title, jobs, t, kind, namespace }) {
+    return (
+        <DetailSection title={title} className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left">Images</th>
+                            <th className="px-4 py-3 text-left">Labels</th>
+                            <th className="px-4 py-3 text-center">Pods</th>
+                            <th className="px-4 py-3 text-left">Created</th>
+                            <th className="px-4 py-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)]">
+                        {jobs.length === 0 ? (
+                            <tr>
+                                <td colSpan="7" className="px-4 py-8 text-center text-[var(--text-muted)] italic">
+                                    No jobs found.
+                                </td>
+                            </tr>
+                        ) : (
+                            jobs.map((job, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-2">
+                                        <Link to={`/jobs/${job.namespace}/${job.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
+                                            {job.name}
+                                        </Link>
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{job.namespace}</td>
+                                    <td className="px-4 py-2">
+                                        <ExpandableCell value={job.extra?.images} type="images" />
+                                    </td>
+                                    <td className="px-4 py-2">
+                                        <ExpandableCell value={job.extra?.labels} type="labels" />
+                                    </td>
+                                    <td className="px-4 py-2 text-center font-bold text-[var(--text-primary)]">
+                                        {job.extra?.ready || '1/1'}
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-muted)]">{job.age}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        <ResourceActionMenu
+                                            kind="jobs"
+                                            namespace={job.namespace}
+                                            name={job.name}
+                                            onRefresh={() => window.location.reload()}
+                                        />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
+    );
+}
+
+function StatusItem({ label, value, children }) {
+    return (
+        <div className="flex flex-col gap-1 min-w-[100px]">
+            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
+            <div className="text-base font-bold text-[var(--text-[var(--text-white)])] flex items-center min-h-[1.5rem] tracking-tight">
+                {children || (value ?? '—')}
+            </div>
+        </div>
+    );
+}
+
+function CodeEditor({ value, onChange, readOnly, fontSize = 13 }) {
+    const lines = value.split('\n');
+    const lineCount = lines.length;
+    const LINE_HEIGHT = '1.6rem';
+
+    return (
+        <div className="bg-[var(--bg-main)]/20 border-t border-[var(--border-color)]/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
+            <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
+                {/* Gutter */}
+                <div
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-[var(--text-muted)] text-right pr-3 select-none"
+                    style={{ fontSize: `${fontSize}px` }}
+                >
+                    {lines.map((_, i) => (
+                        <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
+                    ))}
+                </div>
+
+                {/* Text Area / Code View */}
+                {readOnly ? (
+                    <pre
+                        className="flex-1 p-4 font-mono text-[var(--text-editor-code)] whitespace-pre"
+                        style={{ lineHeight: LINE_HEIGHT, fontSize: `${fontSize}px` }}
+                    >
+                        {value}
+                    </pre>
+                ) : (
+                    <textarea
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        className="flex-1 p-4 font-mono bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0 overflow-hidden"
+                        spellCheck="false"
+                        rows={lineCount}
+                        style={{ lineHeight: LINE_HEIGHT, display: 'block', fontSize: `${fontSize}px` }}
+                    />
+                )}
+            </div>
+        </div >
+    );
+}
+
+function ConditionBadge({ label, status }) {
+    const { icons } = useTheme();
+    const isTrue = status === 'True';
+    return (
+        <div className="flex items-center gap-1.5 py-1">
+            {isTrue ? (
+                <icons.check_circle_alt size={12} className="text-success" />
+            ) : (
+                <icons.alert size={12} className="text-warning" />
+            )}
+            <span className="text-xs text-[var(--text-secondary)]">{label}</span>
+        </div>
+    );
+}
+
+function ProbeDetail({ label, probe, t }) {
+    if (!probe) return (
+        <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
+            <span className="text-[var(--text-muted)] italic">{t('not_defined')}</span>
+        </div>
+    );
+
+    let details = '';
+    if (probe.httpGet) details = `HTTP ${probe.httpGet.port} ${probe.httpGet.path}`;
+    else if (probe.tcpSocket) details = `TCP ${probe.tcpSocket.port}`;
+    else if (probe.exec) details = `Exec ${probe.exec.command?.join(' ')}`;
+    else if (probe.grpc) details = `GRPC ${probe.grpc.port || ''} ${probe.grpc.service || ''}`;
+
+    return (
+        <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">{label}</span>
+            <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
+                {details || 'Unknown'}
+            </div>
+            <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
+                <span>{t('delay')}: {probe.initialDelaySeconds || 0}s</span>
+                <span>{t('timeout')}: {probe.timeoutSeconds || 1}s</span>
+                <span>{t('period')}: {probe.periodSeconds || 10}s</span>
+            </div>
+        </div>
+    );
+}
 
 export default function ResourceDetails({ user }) {
     const { settings } = useSettings();
@@ -40,11 +298,16 @@ export default function ResourceDetails({ user }) {
     const [error, setError] = useState(null);
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
+    const [relatedJobs, setRelatedJobs] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const [confirmTrigger, setConfirmTrigger] = useState(false);
+    const [isTriggering, setIsTriggering] = useState(false);
+    const [editorFontSize, setEditorFontSize] = useState(12);
 
     // Logs enhancements state
     const [logRefreshInterval, setLogRefreshInterval] = useState(settings.logsRefreshInterval); // in seconds
@@ -58,6 +321,39 @@ export default function ResourceDetails({ user }) {
     const [logFontSize, setLogFontSize] = useState(14); // default 12 + 2px
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
+
+    const executeTrigger = async () => {
+        setIsTriggering(true);
+        try {
+            const nsPath = namespace ? `/${namespace}` : '/-';
+            const url = `/api/resources/${kind}${nsPath}/${name}/trigger`;
+            const res = await fetch(url, { method: 'POST' });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to trigger resource');
+            }
+            setConfirmTrigger(false);
+            // Refresh data to show new active jobs
+            const nsPathFetch = namespace ? `/${namespace}` : '/-';
+            fetch(`/api/resources/${kind}${nsPathFetch}/${name}`)
+                .then(r => r.json())
+                .then(data => {
+                    setData(data);
+                    if (kind.toLowerCase().startsWith('cronjob')) {
+                        fetch(`/api/resources/jobs?namespace=${namespace === '-' ? '' : namespace}`)
+                            .then(r => r.json())
+                            .then(jobsData => {
+                                const filtered = jobsData.filter(j => j.extra?.['owner-uid'] === data.metadata.uid);
+                                setRelatedJobs(filtered);
+                            });
+                    }
+                });
+        } catch (err) {
+            alert('Trigger failed: ' + err.message);
+        } finally {
+            setIsTriggering(false);
+        }
+    };
 
     const fetchLogs = async () => {
         if (!kind.toLowerCase().startsWith('pod')) return;
@@ -108,6 +404,24 @@ export default function ResourceDetails({ user }) {
                     ]);
                     if (qRes.ok) setQuotas(await qRes.json());
                     if (lRes.ok) setLimits(await lRes.json());
+                }
+
+                const kindLower = kind?.toLowerCase() || '';
+                // Fetch Jobs for CronJob
+                if (kindLower.startsWith('cronjob')) {
+                    const jobsRes = await fetch(`/api/resources/jobs?namespace=${namespace === '-' ? '' : namespace}`);
+                    if (jobsRes.ok) {
+                        const jobsData = await jobsRes.json();
+                        console.log('CronJob Details UID:', detailsData.metadata.uid);
+                        console.log('Fetched Jobs Data:', jobsData);
+                        // Filter jobs owned by this CronJob using owner-uid from backend
+                        const filtered = jobsData.filter(j => {
+                            const ownerUid = j.extra?.['owner-uid'];
+                            return ownerUid === detailsData.metadata.uid;
+                        });
+                        console.log('Filtered Related Jobs:', filtered);
+                        setRelatedJobs(filtered);
+                    }
                 }
 
                 // Initialize logContainer if not set
@@ -188,6 +502,7 @@ export default function ResourceDetails({ user }) {
     const status = data.status || {};
     const kindLower = kind?.toLowerCase() || '';
     const isPod = kindLower.startsWith('pod');
+    const isCronJob = kindLower.startsWith('cronjob');
     const isDeployment = kindLower.startsWith('deploy');
     const isService = kindLower.startsWith('serv');
 
@@ -250,25 +565,47 @@ export default function ResourceDetails({ user }) {
                             {name}
                         </h2>
                     </div>
-                    <p className="text-[var(--text-secondary)] text-xs mt-2 font-medium flex items-center gap-2">
-                        {t('label_namespace')} <icons.chevron_right size={12} className="text-[var(--text-muted)]" />
-                        {namespace === '-' ? (
-                            <span className="text-[var(--accent)] font-bold">{t('cluster_scoped')}</span>
-                        ) : (
-                            <Link to={`/namespaces/-/${namespace}`} className="text-[var(--accent)] font-bold hover:underline">
-                                {namespace}
-                            </Link>
-                        )}
+                    <p className="text-[var(--text-white)] light:text-blue-600 text-xs mt-2 font-mono flex items-center gap-2">
+                        UID: {metadata.uid}
                     </p>
                 </div>
             </div>
+
+            {/* Confirmation Modal for Trigger */}
+            {confirmTrigger && createPortal(
+                <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTrigger(false)} />
+                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 text-emerald-400 mb-6">
+                                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <icons.zap size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_trigger')}</h3>
+                                    <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <button onClick={() => setConfirmTrigger(false)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                    {t('cancel')}
+                                </button>
+                                <button onClick={executeTrigger} disabled={isTriggering} className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                                    {isTriggering ? '...' : t('trigger_now')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* Tabs */}
             <div className="flex items-center justify-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--accent)] mx-auto backdrop-blur-md shadow-lg shadow-indigo-500/10">
                 {[
                     { id: 'overview', label: t('overview'), icon: icons.about },
-                    { id: 'yaml', label: t('yaml'), icon: icons.manifest },
                     { id: 'events', label: t('events'), icon: icons.list },
+                    { id: 'yaml', label: t('yaml'), icon: icons.manifest },
                     { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
@@ -288,97 +625,88 @@ export default function ResourceDetails({ user }) {
                         {tab.label}
                     </button>
                 ))}
+                {isCronJob && canEdit && (
+                    <button
+                        onClick={() => setConfirmTrigger(true)}
+                        className="flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl text-emerald-400 hover:text-[var(--text-white)] hover:bg-emerald-500/30"
+                    >
+                        <icons.zap size={14} />
+                        {t('trigger')}
+                    </button>
+                )}
             </div>
 
             {/* Tab Content */}
             <div className="space-y-2 flex-1 flex flex-col pb-8">
                 {activeTab === 'overview' && (
                     <>
-                        {/* Section: Status Bar */}
-                        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-4 bg-[var(--bg-sidebar)]/60">
-                                <StatusItem label={t('label_status')}>
-                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
-                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                        <span>{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
-                                    </div>
-                                </StatusItem>
-
-                                {isPod && (
-                                    <StatusItem label={t('label_ready')}>
-                                        <div className="flex flex-col ml-1">
-                                            <span className={readyCount === totalContainers ? 'text-success' : 'text-warning'}>
-                                                {readyCount}/{totalContainers}
-                                            </span>
-                                        </div>
-                                    </StatusItem>
-                                )}
-
-                                {isPod && (
-                                    <StatusItem label={t('label_restarts')}>
-                                        <span className={restarts > 0 ? 'text-warning' : 'text-[var(--text-primary)]'}>
-                                            {restarts}
-                                        </span>
-                                    </StatusItem>
-                                )}
-
-                                {isPod && (
-                                    <>
-                                        <StatusItem label="CPU">
-                                            <span className="text-info font-mono">{cpuUsage}</span>
-                                        </StatusItem>
-                                        <StatusItem label="RAM">
-                                            <span className="text-teal-400 font-mono">{ramUsage}</span>
-                                        </StatusItem>
-                                    </>
-                                )}
-
-                                <StatusItem label={t('label_age')}>
-                                    <span className="text-[var(--text-primary)]">{data.resource?.age || '—'}</span>
-                                </StatusItem>
-
-                                {(status.availableReplicas !== undefined || spec.replicas !== undefined) && (
-                                    <StatusItem label={t('replicas')}>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-success" title={t('label_ready')}>{status.readyReplicas || status.availableReplicas || 0}</span>
-                                            <span className="text-[var(--text-muted)]">/</span>
-                                            <span className="text-[var(--text-primary)]" title={t('desired')}>{spec.replicas || 0}</span>
-                                        </div>
-                                    </StatusItem>
-                                )}
-
-                                {status.loadBalancer?.ingress?.length > 0 && (
-                                    <StatusItem label={t('label_ip_external')}>
-                                        <span className="text-info font-mono text-sm">
-                                            {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
-                                        </span>
-                                    </StatusItem>
-                                )}
-
-                                {spec.clusterIP && (
-                                    <StatusItem label={t('label_ip_cluster')}>
-                                        <span className="text-[var(--text-secondary)] font-mono text-sm">{spec.clusterIP}</span>
-                                    </StatusItem>
-                                )}
-
-                                {isPod && spec.nodeName && (
-                                    <StatusItem label={t('label_node')}>
-                                        <Link to={`/nodes/-/${spec.nodeName}`} className="text-[var(--text-primary)] font-mono text-sm hover:text-[var(--accent)] transition-colors">
-                                            {spec.nodeName}
-                                        </Link>
-                                    </StatusItem>
-                                )}
-                            </div>
-                        </div>
-
                         {/* Section: Metadata */}
                         <DetailSection title={t('metadata')}>
+                            {/* Top Info Bar: Name, Namespace, Created */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
+                                    <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
+                                </div>
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
+                                    {namespace === '-' ? (
+                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                    ) : (
+                                        <Link to={`/namespaces/-/${namespace}`} className="text-sm text-[var(--accent)] font-bold hover:underline">
+                                            {namespace}
+                                        </Link>
+                                    )}
+                                </div>
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                                    <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            {/* Second Info Bar: Status, Node, Age */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_status')}</span>
+                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
+                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
+                                        <span className="text-sm font-bold uppercase tracking-wide">{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
+                                    </div>
+                                </div>
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_node')}</span>
+                                    {spec.nodeName ? (
+                                        <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
+                                            {spec.nodeName}
+                                        </Link>
+                                    ) : (
+                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                    )}
+                                </div>
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                    <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600">
-                                <div>
+                                <div className="overflow-hidden">
                                     <table className="w-full text-sm text-left border-collapse">
                                         <tbody className="divide-y divide-slate-600">
-                                            <DetailRow label={t('label_name')} value={name} />
-                                            <DetailRow label={t('label_created')} value={new Date(metadata.creationTimestamp).toLocaleString()} />
+                                            {isPod && (
+                                                <DetailRow label={t('label_ready')}>
+                                                    <span className={`font-bold ${readyCount === totalContainers ? 'text-success' : 'text-warning'}`}>
+                                                        {readyCount}/{totalContainers}
+                                                    </span>
+                                                </DetailRow>
+                                            )}
+                                            {isPod && (
+                                                <DetailRow label={t('label_restarts')}>
+                                                    <span className={`font-bold ${restarts > 0 ? 'text-warning' : 'text-[var(--text-primary)]'}`}>
+                                                        {restarts}
+                                                    </span>
+                                                </DetailRow>
+                                            )}
                                             <DetailRow label={t('label_labels')}>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
@@ -393,16 +721,36 @@ export default function ResourceDetails({ user }) {
                                                     )}
                                                 </div>
                                             </DetailRow>
-                                            <DetailRow label={t('label_service_account')} value={spec.serviceAccountName || spec.serviceAccount || '—'} />
                                         </tbody>
                                     </table>
                                 </div>
-                                <div>
+                                <div className="overflow-hidden">
                                     <table className="w-full text-sm text-left border-collapse">
                                         <tbody className="divide-y divide-slate-600">
-                                            <DetailRow label={t('label_namespace')} value={namespace === '-' ? '—' : namespace} />
-                                            <DetailRow label={t('label_uid')} value={metadata.uid} />
-                                            <DetailRow label={t('label_restarts')} value={restarts || '0'} />
+                                            {isPod && (
+                                                <>
+                                                    <DetailRow label="CPU Usage">
+                                                        <span className="text-info font-mono font-bold">{cpuUsage}</span>
+                                                    </DetailRow>
+                                                    <DetailRow label="RAM Usage">
+                                                        <span className="text-teal-400 font-mono font-bold">{ramUsage}</span>
+                                                    </DetailRow>
+                                                </>
+                                            )}
+                                            {isPod && spec.nodeName && (
+                                                <DetailRow label={t('label_node')}>
+                                                    <Link to={`/nodes/-/${spec.nodeName}`} className="text-[var(--text-primary)] font-mono hover:text-[var(--accent)] transition-colors font-bold underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4">
+                                                        {spec.nodeName}
+                                                    </Link>
+                                                </DetailRow>
+                                            )}
+                                            {status.loadBalancer?.ingress?.length > 0 && (
+                                                <DetailRow label={t('label_ip_external')}>
+                                                    <span className="text-info font-mono font-bold">
+                                                        {status.loadBalancer.ingress[0].ip || status.loadBalancer.ingress[0].hostname}
+                                                    </span>
+                                                </DetailRow>
+                                            )}
                                             <DetailRow label={t('label_annotations')}>
                                                 <div className="space-y-1">
                                                     {Object.entries(metadata.annotations || {}).map(([k, v]) => (
@@ -410,11 +758,6 @@ export default function ResourceDetails({ user }) {
                                                             <span className="text-info">{k}</span>: {v}
                                                         </div>
                                                     ))}
-                                                    {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
-                                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded-md border border-[var(--border-color)] self-center">
-                                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </DetailRow>
                                         </tbody>
@@ -426,7 +769,7 @@ export default function ResourceDetails({ user }) {
                         <DetailSection title={t('resource_info')}>
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-slate-600">
-                                    {(spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                                    {!isCronJob && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
                                         <tr className="border-b border-slate-600">
                                             <td colSpan="2" className="p-0">
                                                 <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
@@ -452,7 +795,7 @@ export default function ResourceDetails({ user }) {
                                         </tr>
                                     )}
 
-                                    {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
+                                    {!isCronJob && (mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
                                         <DetailRow label="">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {mountedConfigMaps.length > 0 && (
@@ -485,26 +828,68 @@ export default function ResourceDetails({ user }) {
 
                                     {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
-                                    {(spec.selector?.matchLabels || spec.selector) && (
+                                    {!isCronJob && (
                                         <DetailRow label={t('label_selector')}>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
-                                                    <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)]">
-                                                        {k}: {v}
-                                                    </span>
-                                                ))}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
+                                                            <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)] font-mono">
+                                                                {k}: {v}
+                                                            </span>
+                                                        ))}
+                                                        {!(spec.selector?.matchLabels || spec.selector) && <span className="text-[var(--text-muted)] italic">—</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-1 border-l border-slate-600 pl-8">
+                                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">{t('label_service_account')}</span>
+                                                    <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold font-mono text-sm">
+                                                        <icons.terminal size={14} className="text-info" />
+                                                        {spec.serviceAccountName || spec.serviceAccount || 'default'}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </DetailRow>
                                     )}
 
-                                    {status.podIP && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
-                                    {spec.qosClass && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
+                                    {isCronJob && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Schedule</span>
+                                                        <span className="font-mono text-info font-bold truncate w-full">{spec.schedule}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Active Jobs</span>
+                                                        <span className="font-bold text-[var(--text-primary)]">{status.active ? status.active.length : 0}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Suspend</span>
+                                                        <span className={`font-bold ${spec.suspend ? 'text-warning' : 'text-success'}`}>{spec.suspend ? 'True' : 'False'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Last Schedule</span>
+                                                        <span className="text-[var(--text-secondary)] text-xs truncate w-full">{status.lastScheduleTime ? new Date(status.lastScheduleTime).toLocaleString() : '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Concurrency Policy</span>
+                                                        <span className="font-mono text-[var(--text-primary)] truncate w-full">{spec.concurrencyPolicy || 'Allow'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Starting Deadline</span>
+                                                        <span className="font-mono text-[var(--text-primary)]">{spec.startingDeadlineSeconds ?? '—'}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
 
                                     {isDeployment && spec.strategy?.rollingUpdate && (
                                         <DetailRow label={t('rolling_update_strategy')}>
                                             <div className="flex gap-4 text-xs font-mono">
-                                                <span className="text-[var(--text-secondary)]">{t('max_surge')}: <span className="text-info">{spec.strategy.rollingUpdate.maxSurge}</span></span>
-                                                <span className="text-[var(--text-secondary)]">{t('max_unavailable')}: <span className="text-error">{spec.strategy.rollingUpdate.maxUnavailable}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('max_surge')}: <span className="text-info font-bold">{spec.strategy.rollingUpdate.maxSurge}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('max_unavailable')}: <span className="text-error font-bold">{spec.strategy.rollingUpdate.maxUnavailable}</span></span>
                                             </div>
                                         </DetailRow>
                                     )}
@@ -512,12 +897,15 @@ export default function ResourceDetails({ user }) {
                                     {isDeployment && (
                                         <DetailRow label={t('pods_status')}>
                                             <div className="flex gap-4 text-xs font-mono">
-                                                <span className="text-[var(--text-secondary)]">{t('updated')}: <span className="text-success">{status.updatedReplicas || 0}</span></span>
-                                                <span className="text-[var(--text-secondary)]">{t('total')}: <span className="text-[var(--text-primary)]">{status.replicas || 0}</span></span>
-                                                <span className="text-[var(--text-secondary)]">{t('available')}: <span className="text-info">{status.availableReplicas || 0}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('updated')}: <span className="text-success font-bold">{status.updatedReplicas || 0}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('total')}: <span className="text-[var(--text-primary)] font-bold">{status.replicas || 0}</span></span>
+                                                <span className="text-[var(--text-secondary)]">{t('available')}: <span className="text-info font-bold">{status.availableReplicas || 0}</span></span>
                                             </div>
                                         </DetailRow>
                                     )}
+
+                                    {status.podIP && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
+                                    {spec.qosClass && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
                                     {isDeployment && data.newReplicaSet && (
                                         <DetailRow label={t('new_replica_set')}>
@@ -533,90 +921,92 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
-                                    <DetailRow label={t('containers')}>
-                                        <div className="space-y-4">
-                                            {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
-                                                <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)] shadow-sm">
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <span className="font-bold text-[var(--text-primary)] flex items-center gap-2">
-                                                            <icons.terminal size={12} className="text-info" />
-                                                            {c.name}
-                                                        </span>
-                                                        <span className="text-[var(--font-size-xs)] font-mono text-white bg-black/30 px-2 py-0.5 rounded">
-                                                            {c.image}
-                                                        </span>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 gap-4 text-xs">
-                                                        <div>
-                                                            <p className="text-[var(--text-muted)] mb-1">{t('label_port')}s</p>
-                                                            <div className="font-mono text-info">
-                                                                {c.ports?.map(p => `${p.containerPort || p.port}/${p.protocol || 'TCP'}`).join(', ') || '—'}
-                                                            </div>
+                                    {!isCronJob && (
+                                        <DetailRow label={t('containers')}>
+                                            <div className="space-y-4">
+                                                {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
+                                                    <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)] shadow-sm">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <span className="font-bold text-[var(--text-primary)] flex items-center gap-2">
+                                                                <icons.terminal size={12} className="text-info" />
+                                                                {c.name}
+                                                            </span>
+                                                            <span className="text-[var(--font-size-xs)] font-mono text-white bg-black/30 px-2 py-0.5 rounded">
+                                                                {c.image}
+                                                            </span>
                                                         </div>
-                                                        {(c.resources?.requests || c.resources?.limits) && (
+                                                        <div className="grid grid-cols-2 gap-4 text-xs">
                                                             <div>
-                                                                <p className="text-[var(--text-muted)] mb-1">{t('usage_metrics')}</p>
-                                                                <div className="font-mono text-[var(--text-secondary)]">
-                                                                    {c.resources.requests && `Requests: cpu=${c.resources.requests.cpu}, mem=${c.resources.requests.memory}`}
-                                                                    {c.resources.requests && c.resources.limits && <br />}
-                                                                    {c.resources.limits && `Limits: cpu=${c.resources.limits.cpu}, mem=${c.resources.limits.memory}`}
+                                                                <p className="text-[var(--text-muted)] mb-1">{t('label_port')}s</p>
+                                                                <div className="font-mono text-info">
+                                                                    {c.ports?.map(p => `${p.containerPort || p.port}/${p.protocol || 'TCP'}`).join(', ') || '—'}
                                                                 </div>
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                                            <div>
-                                                                <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_env_variables')}</p>
-                                                                <div className="space-y-1">
-                                                                    {c.env?.map(ev => (
-                                                                        <div key={ev.name} className="flex text-xs font-mono">
-                                                                            <span className="text-info w-32 shrink-0">{ev.name}:</span>
-                                                                            <span className="text-[var(--text-secondary)] truncate">{ev.value || (ev.valueFrom ? '<from-source>' : '—')}</span>
-                                                                        </div>
-                                                                    )) || <p className="text-xs text-[var(--text-muted)] italic">No env variables</p>}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
-                                                            <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
-                                                            <div className="flex flex-wrap gap-x-12 gap-y-4 mb-6">
-                                                                <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
-                                                                <ProbeDetail label={t('readiness')} probe={c.readinessProbe} t={t} />
-                                                                <ProbeDetail label={t('startup')} probe={c.startupProbe} t={t} />
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
-                                                            <p className="text-[var(--font-size-xs)] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_mounts')}</p>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {c.volumeMounts?.map(vm => (
-                                                                    <div key={vm.mountPath} className="text-[var(--font-size-xs)] p-2 bg-black/20 rounded border border-white/5 min-w-[200px]">
-                                                                        <div className="font-bold text-info mb-1">{vm.name}</div>
-                                                                        <div className="grid grid-cols-2 gap-x-2 text-[var(--text-muted)]">
-                                                                            <span>Path: <span className="text-[var(--text-secondary)]">{vm.mountPath}</span></span>
-                                                                            <span>ReadOnly: <span className="text-[var(--text-secondary)]">{vm.readOnly ? 'Yes' : 'No'}</span></span>
-                                                                            {vm.subPath && <span className="col-span-2">SubPath: <span className="text-[var(--text-secondary)]">{vm.subPath}</span></span>}
-                                                                        </div>
+                                                            {(c.resources?.requests || c.resources?.limits) && (
+                                                                <div>
+                                                                    <p className="text-[var(--text-muted)] mb-1">{t('usage_metrics')}</p>
+                                                                    <div className="font-mono text-[var(--text-secondary)]">
+                                                                        {c.resources.requests && `Requests: cpu=${c.resources.requests.cpu}, mem=${c.resources.requests.memory}`}
+                                                                        {c.resources.requests && c.resources.limits && <br />}
+                                                                        {c.resources.limits && `Limits: cpu=${c.resources.limits.cpu}, mem=${c.resources.limits.memory}`}
                                                                     </div>
-                                                                )) || <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] italic">No mounts</p>}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="mt-4 pt-4 border-t border-[var(--border-color)]/30">
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                                <div>
+                                                                    <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_env_variables')}</p>
+                                                                    <div className="space-y-1">
+                                                                        {c.env?.map(ev => (
+                                                                            <div key={ev.name} className="flex text-xs font-mono">
+                                                                                <span className="text-info w-32 shrink-0">{ev.name}:</span>
+                                                                                <span className="text-[var(--text-secondary)] truncate">{ev.value || (ev.valueFrom ? '<from-source>' : '—')}</span>
+                                                                            </div>
+                                                                        )) || <p className="text-xs text-[var(--text-muted)] italic">No env variables</p>}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
+                                                                <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
+                                                                <div className="flex flex-wrap gap-x-12 gap-y-4 mb-6">
+                                                                    <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
+                                                                    <ProbeDetail label={t('readiness')} probe={c.readinessProbe} t={t} />
+                                                                    <ProbeDetail label={t('startup')} probe={c.startupProbe} t={t} />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
+                                                                <p className="text-[var(--font-size-xs)] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_mounts')}</p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {c.volumeMounts?.map(vm => (
+                                                                        <div key={vm.mountPath} className="text-[var(--font-size-xs)] p-2 bg-black/20 rounded border border-white/5 min-w-[200px]">
+                                                                            <div className="font-bold text-info mb-1">{vm.name}</div>
+                                                                            <div className="grid grid-cols-2 gap-x-2 text-[var(--text-muted)]">
+                                                                                <span>Path: <span className="text-[var(--text-secondary)]">{vm.mountPath}</span></span>
+                                                                                <span>ReadOnly: <span className="text-[var(--text-secondary)]">{vm.readOnly ? 'Yes' : 'No'}</span></span>
+                                                                                {vm.subPath && <span className="col-span-2">SubPath: <span className="text-[var(--text-secondary)]">{vm.subPath}</span></span>}
+                                                                            </div>
+                                                                        </div>
+                                                                    )) || <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] italic">No mounts</p>}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
-                                            {!(isPod ? (spec.containers) : (spec.template?.spec?.containers)) && (
-                                                <div className="text-[var(--text-muted)] italic">No container information available</div>
-                                            )}
-                                        </div>
-                                    </DetailRow>
+                                                ))}
+                                                {!(isPod ? (spec.containers) : (spec.template?.spec?.containers)) && (
+                                                    <div className="text-[var(--text-muted)] italic">No container information available</div>
+                                                )}
+                                            </div>
+                                        </DetailRow>
+                                    )}
                                 </tbody>
                             </table>
                         </DetailSection>
 
-                        {/* Section: Conditions */}
-                        {(status.conditions || []).length > 0 && (
+                        {/* Section: Conditions or Jobs */}
+                        {!isCronJob && (status.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
                                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
                                     <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
@@ -649,7 +1039,34 @@ export default function ResourceDetails({ user }) {
                             </DetailSection>
                         )}
 
-                        {mountedPvcs.length > 0 && (
+                        {isCronJob && (
+                            <>
+                                <JobsTable 
+                                    title="Active Jobs" 
+                                    jobs={relatedJobs.filter(j => {
+                                        const status = j.status?.toLowerCase() || '';
+                                        const comps = j.extra?.completions?.toLowerCase() || '';
+                                        return status === 'active' || (comps.includes('active') && !comps.includes('0 active'));
+                                    })} 
+                                    t={t}
+                                    kind={kind}
+                                    namespace={namespace}
+                                />
+                                <JobsTable 
+                                    title="Inactive Jobs" 
+                                    jobs={relatedJobs.filter(j => {
+                                        const status = j.status?.toLowerCase() || '';
+                                        const comps = j.extra?.completions?.toLowerCase() || '';
+                                        return status !== 'active' && (!comps.includes('active') || comps.includes('0 active'));
+                                    })} 
+                                    t={t}
+                                    kind={kind}
+                                    namespace={namespace}
+                                />
+                            </>
+                        )}
+
+                        {!isCronJob && mountedPvcs.length > 0 && (
                             <DetailSection title={t('mounted_pvcs')} className="mt-4">
                                 <div className="p-4 flex flex-wrap gap-3">
                                     {mountedPvcs.map(pvc => (
@@ -767,6 +1184,18 @@ export default function ResourceDetails({ user }) {
                                 )}
                             </div>
                             <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-[var(--border-color)]/50 mr-2">
+                                    <span className="text-[10px] uppercase font-black text-[var(--text-muted)] pl-2">Size</span>
+                                    <select
+                                        value={editorFontSize}
+                                        onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
+                                        className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-[var(--border-color)]"
+                                    >
+                                        {[10, 11, 12, 13, 14, 16].map(size => (
+                                            <option key={size} value={size}>{size}px</option>
+                                        ))}
+                                    </select>
+                                </div>
                                 {saveError && <span className="text-xs text-error mr-2 animate-pulse">{saveError}</span>}
                                 {showSuccess && <span className="text-xs text-success mr-2 flex items-center gap-1"><icons.check_circle_alt size={12} /> {t('resource_updated_successfully') || 'Resource updated successfully'}</span>}
                                 {canEdit && !isEditing && (
@@ -822,14 +1251,14 @@ export default function ResourceDetails({ user }) {
                                             className="text-xs font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
                                             disabled={isSaving}
                                         >
-                                            {isSaving ? <Activity size={10} className="animate-pulse" /> : <CheckCircle2 size={10} />}
+                                            {isSaving ? <icons.refresh size={10} className="animate-pulse" /> : <icons.check_circle_alt size={10} />}
                                             {isSaving ? t('saving') : t('save_changes')}
                                         </button>
                                     </>
                                 )}
                                 {!isEditing && (
                                     <button className="text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])] transition-colors">
-                                        <Clipboard size={14} />
+                                        <icons.clipboard size={14} />
                                     </button>
                                 )}
                             </div>
@@ -838,6 +1267,7 @@ export default function ResourceDetails({ user }) {
                             value={isEditing ? editedYaml : yaml}
                             onChange={isEditing ? setEditedYaml : null}
                             readOnly={!isEditing}
+                            fontSize={editorFontSize}
                         />
                     </div>
                 )}
@@ -845,22 +1275,24 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'events' && (
                     <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
                         <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                            <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
+                            <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-left">
                                 <tr>
-                                    <th className="px-6 py-3">{t('type')}</th>
+                                    <th className="px-6 py-3">{t('label_name')}</th>
                                     <th className="px-6 py-3">{t('reason')}</th>
                                     <th className="px-6 py-3">{t('message')}</th>
                                     <th className="px-6 py-3">{t('label_source')}</th>
-                                    <th className="px-6 py-3">{t('label_count')}</th>
-                                    <th className="px-6 py-3">{t('label_age')}</th>
+                                    <th className="px-6 py-3">Sub-object</th>
+                                    <th className="px-6 py-3 text-center">{t('label_count')}</th>
+                                    <th className="px-6 py-3">First Seen</th>
+                                    <th className="px-6 py-3">Last Seen</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-color)] text-left">
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded text-[var(--font-size-sm)] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
-                                                {e.type}
+                                            <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                                {e.name || '—'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-[var(--text-[var(--text-white)])]">{e.reason}</td>
@@ -868,25 +1300,22 @@ export default function ResourceDetails({ user }) {
                                         <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
                                             {e.source?.component || e.source || '—'}
                                         </td>
-                                        <td className="px-6 py-4 text-[var(--text-secondary)] text-center">
+                                        <td className="px-6 py-4 text-[var(--text-secondary)] text-xs font-mono break-all max-w-[150px]">
+                                            {e.subObject || '—'}
+                                        </td>
+                                        <td className="px-6 py-4 text-[var(--text-secondary)] text-center font-bold">
                                             {e.count || 1}
                                         </td>
-                                        <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap">
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Clock size={10} />
-                                                    <span>First: {e.firstSeen || e.age}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 font-bold">
-                                                    <Clock size={10} />
-                                                    <span>Last: {e.lastSeen || e.age}</span>
-                                                </div>
-                                            </div>
+                                        <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap text-xs">
+                                            {e.firstSeen || e.age || '—'}
+                                        </td>
+                                        <td className="px-6 py-4 text-[var(--text-primary)] font-bold whitespace-nowrap text-xs">
+                                            {e.lastSeen || e.age || '—'}
                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">
+                                        <td colSpan="8" className="px-6 py-8 text-center text-[var(--text-muted)]">
                                             {t('no_events')}
                                         </td>
                                     </tr>
@@ -922,7 +1351,7 @@ export default function ResourceDetails({ user }) {
                             <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-[var(--border-color)] flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative group">
-                                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors" />
+                                        <icons.search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors" />
                                         <input
                                             type="text"
                                             placeholder={t('search_logs')}
@@ -1016,7 +1445,7 @@ export default function ResourceDetails({ user }) {
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                                 title={t('first_page')}
                                             >
-                                                <ChevronsLeft size={14} />
+                                                <icons.chevrons_left size={14} />
                                             </button>
                                             <button
                                                 disabled={logPage === 1}
@@ -1024,7 +1453,7 @@ export default function ResourceDetails({ user }) {
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                                 title={t('prev_page')}
                                             >
-                                                <ChevronLeft size={14} />
+                                                <icons.chevron_left size={14} />
                                             </button>
                                             <span className="text-xs font-mono text-[var(--text-white)] font-bold px-1 min-w-[4rem] text-center">
                                                 {logPage} / {totalPages}
@@ -1035,7 +1464,7 @@ export default function ResourceDetails({ user }) {
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                                 title={t('next_page')}
                                             >
-                                                <ChevronRight size={14} />
+                                                <icons.chevron_right size={14} />
                                             </button>
                                             <button
                                                 disabled={logPage === totalPages}
@@ -1043,19 +1472,19 @@ export default function ResourceDetails({ user }) {
                                                 className="p-0.5 text-[var(--text-muted)] hover:text-info disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                                                 title={t('last_page')}
                                             >
-                                                <ChevronsRight size={14} />
+                                                <icons.chevrons_right size={14} />
                                             </button>
                                         </div>
                                     )}
 
                                     <div className="text-[var(--text-muted)] text-xs font-mono flex items-center gap-3">
                                         <span className="flex items-center gap-1.5 text-info font-bold">
-                                            <List size={10} />
+                                            <icons.list size={10} />
                                             {filteredLines.length} {t('matches')}
                                         </span>
                                         {logRefreshInterval > 0 && (
                                             <span className="flex items-center gap-1.5 text-success font-bold animate-pulse">
-                                                <RefreshCw size={10} className="animate-spin-slow" />
+                                                <icons.refresh size={10} className="animate-spin-slow" />
                                                 {t('live')}
                                             </span>
                                         )}
@@ -1083,7 +1512,7 @@ export default function ResourceDetails({ user }) {
                                     })
                                 ) : (
                                     <div className="h-full flex flex-col items-center justify-center text-[var(--text-muted)] gap-3 italic">
-                                        <Search size={32} className="opacity-20" />
+                                        <icons.search size={32} className="opacity-20" />
                                         {logSearchTerm ? t('no_logs_matching') : t('no_logs_found')}
                                     </div>
                                 )}
@@ -1108,129 +1537,5 @@ export default function ResourceDetails({ user }) {
                 )}
             </div>
         </div >
-    );
-}
-
-function StatusItem({ label, value, children }) {
-    return (
-        <div className="flex flex-col gap-1 min-w-[100px]">
-            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
-            <div className="text-base font-bold text-[var(--text-[var(--text-white)])] flex items-center min-h-[1.5rem] tracking-tight">
-                {children || (value ?? '—')}
-            </div>
-        </div>
-    );
-}
-
-function DetailSection({ title, children, className = "" }) {
-    return (
-        <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-6 py-2.5 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
-                <h3 className="text-[13px] font-bold text-[var(--accent)] uppercase tracking-widest">{title}</h3>
-            </div>
-            <div className="overflow-auto flex-1">
-                {children}
-            </div>
-        </div>
-    );
-}
-
-function DetailRow({ label, value, children }) {
-    return (
-        <tr className="group border-b border-slate-600">
-            <td className="px-4 py-3 w-48 text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
-                {label}
-            </td>
-            <td className="px-4 py-3 text-[var(--font-size-sm)] text-[var(--text-primary)]">
-                {children || (
-                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-[var(--text-white)])]'}>
-                        {value ?? '—'}
-                    </span>
-                )}
-            </td>
-        </tr>
-    );
-}
-
-function CodeEditor({ value, onChange, readOnly }) {
-    const lines = value.split('\n');
-    const lineCount = lines.length;
-    const LINE_HEIGHT = '1.6rem';
-
-    return (
-        <div className="bg-[var(--bg-main)]/20 border-t border-[var(--border-color)]/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
-            <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
-                {/* Gutter */}
-                <div
-                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-[var(--font-size-xs)] text-[var(--text-muted)] text-right pr-3 select-none"
-                >
-                    {lines.map((_, i) => (
-                        <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
-                    ))}
-                </div>
-
-                {/* Text Area / Code View */}
-                {readOnly ? (
-                    <pre
-                        className="flex-1 p-4 font-mono text-[var(--font-size-sm)] text-[var(--text-editor-code)] whitespace-pre"
-                        style={{ lineHeight: LINE_HEIGHT }}
-                    >
-                        {value}
-                    </pre>
-                ) : (
-                    <textarea
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="flex-1 p-4 font-mono text-[var(--font-size-sm)] bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0 overflow-hidden"
-                        spellCheck="false"
-                        rows={lineCount}
-                        style={{ lineHeight: LINE_HEIGHT, display: 'block' }}
-                    />
-                )}
-            </div>
-        </div >
-    );
-}
-
-function ConditionBadge({ label, status }) {
-    const isTrue = status === 'True';
-    return (
-        <div className="flex items-center gap-1.5 py-1">
-            {isTrue ? (
-                <CheckCircle2 size={12} className="text-success" />
-            ) : (
-                <AlertCircle size={12} className="text-warning" />
-            )}
-            <span className="text-xs text-[var(--text-secondary)]">{label}</span>
-        </div>
-    );
-}
-
-function ProbeDetail({ label, probe, t }) {
-    if (!probe) return (
-        <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
-            <span className="text-[var(--text-muted)] italic">{t('not_defined')}</span>
-        </div>
-    );
-
-    let details = '';
-    if (probe.httpGet) details = `HTTP ${probe.httpGet.port} ${probe.httpGet.path}`;
-    else if (probe.tcpSocket) details = `TCP ${probe.tcpSocket.port}`;
-    else if (probe.exec) details = `Exec ${probe.exec.command?.join(' ')}`;
-    else if (probe.grpc) details = `GRPC ${probe.grpc.port || ''} ${probe.grpc.service || ''}`;
-
-    return (
-        <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">{label}</span>
-            <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
-                {details || 'Unknown'}
-            </div>
-            <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
-                <span>{t('delay')}: {probe.initialDelaySeconds || 0}s</span>
-                <span>{t('timeout')}: {probe.timeoutSeconds || 1}s</span>
-                <span>{t('period')}: {probe.periodSeconds || 10}s</span>
-            </div>
-        </div>
     );
 }

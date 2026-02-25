@@ -375,6 +375,9 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		}
 
 		extra := map[string]string{"kind": item.GetKind()}
+		if len(item.GetOwnerReferences()) > 0 {
+			extra["owner-uid"] = string(item.GetOwnerReferences()[0].UID)
+		}
 		
 		switch kind {
 		case "configmaps":
@@ -1393,7 +1396,28 @@ func (h *ResourceHandler) Trigger(c *gin.Context) {
 	}
 
 	if h.devMode {
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("CronJob %s triggered (mocked)", name)})
+		h.mu.Lock()
+		if h.mockResources == nil {
+			h.mockResources = make(map[string][]ResourceItem)
+		}
+		jobName := fmt.Sprintf("%s-manual-%d", name, time.Now().Unix())
+		newJob := ResourceItem{
+			Name:      jobName,
+			Namespace: ns,
+			Age:       "0s",
+			Status:    "Active",
+			Extra: ex(
+				"completions", "0 succeeded, 0 failed, 1 active",
+				"duration", "1s",
+				"owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+				"images", "mock-image:latest",
+				"labels", "triggered-by=manual",
+			),
+		}
+		h.mockResources["jobs"] = append(h.mockResources["jobs"], newJob)
+		h.mu.Unlock()
+
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("CronJob %s triggered (mocked)", name), "jobName": jobName})
 		return
 	}
 
@@ -1520,18 +1544,55 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 		reason, _, _ := unstructured.NestedString(e.Object, "reason")
 		message, _, _ := unstructured.NestedString(e.Object, "message")
 		
-		var t time.Time
-		if lastTimestamp, ok, _ := unstructured.NestedString(e.Object, "lastTimestamp"); ok && lastTimestamp != "" {
-			t, _ = time.Parse(time.RFC3339, lastTimestamp)
-		} else if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
-			t, _ = time.Parse(time.RFC3339Nano, eventTime)
+		count, _, _ := unstructured.NestedInt64(e.Object, "count")
+		sourceComp, _, _ := unstructured.NestedString(e.Object, "source", "component")
+		sourceHost, _, _ := unstructured.NestedString(e.Object, "source", "host")
+		source := sourceComp
+		if sourceHost != "" {
+			if source != "" {
+				source += " "
+			}
+			source += sourceHost
+		}
+
+		invName, _, _ := unstructured.NestedString(e.Object, "involvedObject", "name")
+		subObject, _, _ := unstructured.NestedString(e.Object, "involvedObject", "fieldPath")
+
+		firstTimestamp, okF, _ := unstructured.NestedString(e.Object, "firstTimestamp")
+		firstSeen := "Unknown"
+		if okF && firstTimestamp != "" {
+			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
+				firstSeen = getAge(ft)
+			}
+		}
+
+		lastTimestamp, okL, _ := unstructured.NestedString(e.Object, "lastTimestamp")
+		lastSeen := "Unknown"
+		if okL && lastTimestamp != "" {
+			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
+				lastSeen = getAge(lt)
+			}
+		}
+
+		if firstSeen == "Unknown" {
+			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
+				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
+					firstSeen = getAge(et)
+					lastSeen = getAge(et)
+				}
+			}
 		}
 
 		events = append(events, gin.H{
-			"type":    eType,
-			"reason":  reason,
-			"message": message,
-			"age":     getAge(t),
+			"type":      eType,
+			"reason":    reason,
+			"message":   message,
+			"name":      invName,
+			"source":    source,
+			"subObject": subObject,
+			"count":     count,
+			"firstSeen": firstSeen,
+			"lastSeen":  lastSeen,
 		})
 	}
 
@@ -1622,10 +1683,9 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "jobs":
 		items = []ResourceItem{
-			{Name: "db-migration-20260218", Namespace: "default", Age: "2d", Status: "Complete", Extra: ex("completions", "1/1", "duration", "12s")},
-			{Name: "backup-job-20260219", Namespace: "database", Age: "1d", Status: "Complete", Extra: ex("completions", "1/1", "duration", "45s")},
-			{Name: "cleanup-tokens-20260220", Namespace: "auth", Age: "4h", Status: "Complete", Extra: ex("completions", "1/1", "duration", "3s")},
-			{Name: "failed-import-20260220", Namespace: "default", Age: "2h", Status: "Failed", Extra: ex("completions", "0/1", "duration", "30s")},
+			{Name: "db-backup-manual-123", Namespace: "database", Age: "2d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "12s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "postgres:15-alpine", "labels", "app=db,env=prod")},
+			{Name: "token-cleanup-manual-456", Namespace: "auth", Age: "1d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "45s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "auth-utils:v2", "labels", "component=auth-cleanup")},
+			{Name: "report-generator-manual-789", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("completions", "0 succeeded, 0 failed, 1 active", "duration", "3s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "reports-worker:latest", "labels", "tier=frontend")},
 		}
 
 	case "cronjobs":
