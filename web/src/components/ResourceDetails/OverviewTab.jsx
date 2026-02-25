@@ -49,6 +49,7 @@ export default function OverviewTab({
     const isService = kindLower.includes('service') && !isIngressClass;
     const isPvc = kindLower.includes('persistentvolumeclaim') || kindLower.includes('pvc');
     const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
+    const isRoleBinding = (kindLower === 'rolebindings' || kindLower === 'rolebinding' || kindLower === 'role-bindings') && !kindLower.includes('cluster');
     const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
     const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
     const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
@@ -97,7 +98,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv) ? (
                     <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -271,7 +272,7 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {isClusterRoleBinding && (
+            {(isClusterRoleBinding || isRoleBinding) && (
                 <>
                     <DetailSection title={t('resource_info')} className="mt-4">
                         <table className="w-full text-sm text-left border-collapse">
@@ -279,7 +280,7 @@ export default function OverviewTab({
                                 <DetailRow label="Role Reference">
                                     <div className="flex items-center gap-2">
                                         <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-wider">
-                                            {data.roleRef?.kind || 'ClusterRole'}
+                                            {data.roleRef?.kind || (isClusterRoleBinding ? 'ClusterRole' : 'Role')}
                                         </span>
                                         <span className="font-mono text-info font-bold">{data.roleRef?.name || '—'}</span>
                                     </div>
@@ -984,7 +985,7 @@ export default function OverviewTab({
                 </>
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !isPv && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !isPv && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 
