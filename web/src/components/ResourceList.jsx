@@ -499,7 +499,7 @@ export default function ResourceList({ kind }) {
                                         placeholder={t('search_placeholder')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                                     />
                                     {isNamespaced && (                        <NamespaceSelect
                             namespaces={namespaces}
@@ -524,16 +524,16 @@ export default function ResourceList({ kind }) {
 
             <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-2xl">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-[0.15em] border-b border-[var(--border-color)]">
+                    <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)]">
+                        <thead className="text-[var(--font-size-xs)] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-wider border-b border-[var(--border-color)] text-center">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none"
+                                        className="px-4 py-3 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold"
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center justify-center gap-2">
                                             {getLabel(col.label)}
                                             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (

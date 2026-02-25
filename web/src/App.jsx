@@ -43,7 +43,7 @@ function Section({ label, children, defaultOpen = true, isCollapsed, userEmail }
                 onClick={toggle}
                 className="w-full flex items-center justify-between px-2 pt-3 pb-1 group"
             >
-                <span className="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors block">
+                <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors block">
                     {label}
                 </span>
                 {open
@@ -63,7 +63,7 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
     return (
         <a
             href={href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
         ${active
                     ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]'}
@@ -88,7 +88,7 @@ function NavActionButton({ onClick, iconKey, label, isCollapsed }) {
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
         text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]
         ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full text-left'}`}
             title={isCollapsed ? label : ''}

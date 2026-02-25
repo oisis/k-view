@@ -55,6 +55,7 @@ export default function ResourceDetails({ user }) {
     const [logLinesPerPage] = useState(36);
     const [logContainer, setLogContainer] = useState('');
     const [logWrapLines, setLogWrapLines] = useState(false);
+    const [logFontSize, setLogFontSize] = useState(14); // default 12 + 2px
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
 
@@ -231,7 +232,7 @@ export default function ResourceDetails({ user }) {
             </div>
 
             {/* Tabs */}
-            <div className="flex items-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--border-color)] w-max backdrop-blur-md">
+            <div className="flex items-center justify-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--accent)] mx-auto backdrop-blur-md shadow-lg shadow-indigo-500/10">
                 {[
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
@@ -388,39 +389,66 @@ export default function ResourceDetails({ user }) {
                             </div>
                         </DetailSection>
 
-                        {/* Section: Resource Info (Spec) */}
                         <DetailSection title={t('resource_info')}>
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-slate-600">
-                                    {spec.strategy?.type && <DetailRow label={t('strategy')} value={spec.strategy.type} />}
-                                    {spec.minReadySeconds !== undefined && <DetailRow label={t('min_ready_seconds')} value={spec.minReadySeconds} />}
-                                    {spec.revisionHistoryLimit !== undefined && <DetailRow label={t('revision_history_limit')} value={spec.revisionHistoryLimit} />}
+                                    {(spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('strategy')}</span>
+                                                        <span className="font-mono text-info truncate w-full">{spec.strategy?.type || '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Min Ready</span>
+                                                        <span className="font-mono text-info">{spec.minReadySeconds !== undefined ? `${spec.minReadySeconds}s` : '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Rev. History</span>
+                                                        <span className="font-mono text-info">{spec.revisionHistoryLimit ?? '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
+                                                        <span className="font-mono text-info truncate w-full">{spec.nodeName || '—'}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                    {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
+                                        <DetailRow label="">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {mountedConfigMaps.length > 0 && (
+                                                    <div>
+                                                        <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">ConfigMaps</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {mountedConfigMaps.map(cm => (
+                                                                <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono">
+                                                                    {cm}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {mountedSecrets.length > 0 && (
+                                                    <div>
+                                                        <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Secrets</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {mountedSecrets.map(s => (
+                                                                <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono">
+                                                                    {s}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </DetailRow>
+                                    )}
+
                                     {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
-
-                                    {mountedConfigMaps.length > 0 && (
-                                        <DetailRow label="ConfigMaps">
-                                            <div className="flex flex-wrap gap-2">
-                                                {mountedConfigMaps.map(cm => (
-                                                    <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono">
-                                                        {cm}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </DetailRow>
-                                    )}
-
-                                    {mountedSecrets.length > 0 && (
-                                        <DetailRow label="Secrets">
-                                            <div className="flex flex-wrap gap-2">
-                                                {mountedSecrets.map(s => (
-                                                    <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono">
-                                                        {s}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </DetailRow>
-                                    )}
-
 
                                     {(spec.selector?.matchLabels || spec.selector) && (
                                         <DetailRow label={t('label_selector')}>
@@ -434,7 +462,6 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
-                                    {spec.nodeName && <DetailRow label={t('label_node')} value={spec.nodeName} />}
                                     {status.podIP && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
                                     {spec.qosClass && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
@@ -474,13 +501,13 @@ export default function ResourceDetails({ user }) {
                                     <DetailRow label={t('containers')}>
                                         <div className="space-y-4">
                                             {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
-                                                <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50">
+                                                <div key={c.name} className="p-4 bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)] shadow-sm">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className="font-bold text-[var(--text-primary)] flex items-center gap-2">
                                                             <icons.terminal size={12} className="text-info" />
                                                             {c.name}
                                                         </span>
-                                                        <span className="text-sm font-mono text-[var(--text-muted)] bg-black/30 px-2 py-0.5 rounded">
+                                                        <span className="text-[var(--font-size-xs)] font-mono text-white bg-black/30 px-2 py-0.5 rounded">
                                                             {c.image}
                                                         </span>
                                                     </div>
@@ -515,28 +542,31 @@ export default function ResourceDetails({ user }) {
                                                                     )) || <p className="text-xs text-[var(--text-muted)] italic">No env variables</p>}
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_mounts')}</p>
-                                                                <div className="space-y-2">
-                                                                    {c.volumeMounts?.map(vm => (
-                                                                        <div key={vm.mountPath} className="text-[10px] p-2 bg-black/20 rounded border border-white/5">
-                                                                            <div className="font-bold text-info mb-1">{vm.name}</div>
-                                                                            <div className="grid grid-cols-2 gap-x-2 text-[var(--text-muted)]">
-                                                                                <span>Path: <span className="text-[var(--text-secondary)]">{vm.mountPath}</span></span>
-                                                                                <span>ReadOnly: <span className="text-[var(--text-secondary)]">{vm.readOnly ? 'Yes' : 'No'}</span></span>
-                                                                                {vm.subPath && <span className="col-span-2">SubPath: <span className="text-[var(--text-secondary)]">{vm.subPath}</span></span>}
-                                                                            </div>
-                                                                        </div>
-                                                                    )) || <p className="text-xs text-[var(--text-muted)] italic">No mounts</p>}
-                                                                </div>
+                                                        </div>
+
+                                                        <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
+                                                            <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
+                                                            <div className="flex flex-wrap gap-x-12 gap-y-4 mb-6">
+                                                                <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
+                                                                <ProbeDetail label={t('readiness')} probe={c.readinessProbe} t={t} />
+                                                                <ProbeDetail label={t('startup')} probe={c.startupProbe} t={t} />
                                                             </div>
                                                         </div>
 
-                                                        <p className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('health_probes')}</p>
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            <ProbeDetail label={t('liveness')} probe={c.livenessProbe} t={t} />
-                                                            <ProbeDetail label={t('readiness')} probe={c.readinessProbe} t={t} />
-                                                            <ProbeDetail label={t('startup')} probe={c.startupProbe} t={t} />
+                                                        <div className="mt-6 pt-4 border-t border-[var(--border-color)]/20">
+                                                            <p className="text-[var(--font-size-xs)] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3">{t('label_mounts')}</p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {c.volumeMounts?.map(vm => (
+                                                                    <div key={vm.mountPath} className="text-[var(--font-size-xs)] p-2 bg-black/20 rounded border border-white/5 min-w-[200px]">
+                                                                        <div className="font-bold text-info mb-1">{vm.name}</div>
+                                                                        <div className="grid grid-cols-2 gap-x-2 text-[var(--text-muted)]">
+                                                                            <span>Path: <span className="text-[var(--text-secondary)]">{vm.mountPath}</span></span>
+                                                                            <span>ReadOnly: <span className="text-[var(--text-secondary)]">{vm.readOnly ? 'Yes' : 'No'}</span></span>
+                                                                            {vm.subPath && <span className="col-span-2">SubPath: <span className="text-[var(--text-secondary)]">{vm.subPath}</span></span>}
+                                                                        </div>
+                                                                    </div>
+                                                                )) || <p className="text-[var(--font-size-xs)] text-[var(--text-muted)] italic">No mounts</p>}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -553,8 +583,8 @@ export default function ResourceDetails({ user }) {
                         {/* Section: Conditions */}
                         {(status.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
-                                <table className="w-full text-sm border-collapse">
-                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
+                                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                                    <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
                                         <tr>
                                             <th className="px-6 py-3">{t('type')}</th>
                                             <th className="px-6 py-3">{t('label_status')}</th>
@@ -569,7 +599,7 @@ export default function ResourceDetails({ user }) {
                                             <tr key={c.type} className="hover:bg-white/5 transition-colors">
                                                 <td className="px-6 py-4 font-medium text-[var(--text-primary)]">{c.type}</td>
                                                 <td className="px-6 py-4">
-                                                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                                    <span className={`px-2 py-0.5 rounded text-[var(--font-size-sm)] font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                                         {c.status}
                                                     </span>
                                                 </td>
@@ -644,8 +674,8 @@ export default function ResourceDetails({ user }) {
                                                 <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
                                                     <icons.about size={14} /> {l.metadata.name}
                                                 </h4>
-                                                <table className="w-full text-xs">
-                                                    <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
+                                                <table className="w-full text-[var(--font-size-xs)]">
+                                                    <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
                                                         <tr>
                                                             <th className="px-3 py-2">{t('type')}</th>
                                                             <th className="px-3 py-2">{t('usage_metrics')}</th>
@@ -779,8 +809,8 @@ export default function ResourceDetails({ user }) {
 
                 {activeTab === 'events' && (
                     <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
-                        <table className="w-full text-sm border-collapse">
-                            <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
+                        <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                            <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
                                 <tr>
                                     <th className="px-6 py-3">{t('type')}</th>
                                     <th className="px-6 py-3">{t('reason')}</th>
@@ -794,7 +824,7 @@ export default function ResourceDetails({ user }) {
                                 {events && events.length > 0 ? events.map((e, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-[var(--font-size-sm)] font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                                                 {e.type}
                                             </span>
                                         </td>
@@ -887,6 +917,19 @@ export default function ResourceDetails({ user }) {
                                             <option value="15">15s</option>
                                             <option value="30">30s</option>
                                             <option value="60">60s</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-[var(--border-color)]/50">
+                                        <span className="text-[10px] uppercase font-black text-[var(--text-muted)] pl-2">Size</span>
+                                        <select
+                                            value={logFontSize}
+                                            onChange={(e) => setLogFontSize(parseInt(e.target.value))}
+                                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-[var(--border-color)]"
+                                        >
+                                            {[10, 12, 14, 16].map(size => (
+                                                <option key={size} value={size}>{size}px</option>
+                                            ))}
                                         </select>
                                     </div>
 
@@ -986,7 +1029,10 @@ export default function ResourceDetails({ user }) {
                             </div>
 
                             {/* Log Display */}
-                            <div className={`flex-1 pt-2 px-6 pb-6 font-mono text-xs overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)] ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}>
+                            <div 
+                                className={`flex-1 pt-2 px-6 pb-6 font-mono overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)] ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}
+                                style={{ fontSize: `${logFontSize}px` }}
+                            >
                                 {displayedLines.length > 0 ? (
                                     displayedLines.map((line, i) => {
                                         // Simple syntax highlighting hint (can be expanded)
@@ -1044,8 +1090,8 @@ function StatusItem({ label, value, children }) {
 function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
-            <div className="px-6 py-3 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
-                <h3 className="text-xs font-black text-[var(--accent)] uppercase tracking-[0.2em]">{title}</h3>
+            <div className="px-6 py-2.5 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
+                <h3 className="text-[13px] font-bold text-[var(--accent)] uppercase tracking-widest">{title}</h3>
             </div>
             <div className="overflow-auto flex-1">
                 {children}
@@ -1057,10 +1103,10 @@ function DetailSection({ title, children, className = "" }) {
 function DetailRow({ label, value, children }) {
     return (
         <tr className="group border-b border-slate-600">
-            <td className="px-4 py-3 w-48 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
+            <td className="px-4 py-3 w-48 text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
                 {label}
             </td>
-            <td className="px-4 py-3 text-sm text-[var(--text-primary)]">
+            <td className="px-4 py-3 text-[var(--font-size-sm)] text-[var(--text-primary)]">
                 {children || (
                     <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-[var(--text-white)])]'}>
                         {value ?? '—'}
@@ -1074,14 +1120,14 @@ function DetailRow({ label, value, children }) {
 function CodeEditor({ value, onChange, readOnly }) {
     const lines = value.split('\n');
     const lineCount = lines.length;
-    const LINE_HEIGHT = '1.4rem';
+    const LINE_HEIGHT = '1.6rem';
 
     return (
         <div className="bg-[var(--bg-main)]/20 border-t border-[var(--border-color)]/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
             <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
                 {/* Gutter */}
                 <div
-                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-xs text-[var(--text-muted)] text-right pr-3 select-none"
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-[var(--border-color)]/20 py-4 font-mono text-[var(--font-size-xs)] text-[var(--text-muted)] text-right pr-3 select-none"
                 >
                     {lines.map((_, i) => (
                         <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
@@ -1091,7 +1137,7 @@ function CodeEditor({ value, onChange, readOnly }) {
                 {/* Text Area / Code View */}
                 {readOnly ? (
                     <pre
-                        className="flex-1 p-4 font-mono text-xs text-[var(--text-editor-code)] whitespace-pre"
+                        className="flex-1 p-4 font-mono text-[var(--font-size-sm)] text-[var(--text-editor-code)] whitespace-pre"
                         style={{ lineHeight: LINE_HEIGHT }}
                     >
                         {value}
@@ -1100,7 +1146,7 @@ function CodeEditor({ value, onChange, readOnly }) {
                     <textarea
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className="flex-1 p-4 font-mono text-xs bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0 overflow-hidden"
+                        className="flex-1 p-4 font-mono text-[var(--font-size-sm)] bg-transparent text-[var(--text-editor-code)] outline-none resize-none focus:ring-0 overflow-hidden"
                         spellCheck="false"
                         rows={lineCount}
                         style={{ lineHeight: LINE_HEIGHT, display: 'block' }}

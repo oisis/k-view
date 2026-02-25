@@ -141,7 +141,12 @@ export default {
                 '--text-info': '#60A5FA',
                 '--text-purple': '#A78BFA',
                 '--text-orange': '#FB923C',
-                '--text-cyan': '#22D3EE'
+                '--text-cyan': '#22D3EE',
+                '--font-size-xs': '10px',
+                '--font-size-sm': '13px',
+                '--font-size-base': '14px',
+                '--font-size-lg': '16px',
+                '--font-size-xl': '20px'
             }
         }
     },

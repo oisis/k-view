@@ -35,6 +35,13 @@
   --wallpaper-grayscale: 100%;
   --wallpaper-brightness: 0.5;
 
+  /* Font Sizes */
+  --font-size-xs: 10px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+
   /* Constants */
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
