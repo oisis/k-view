@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import NetworkTrace from './NetworkTrace';
 import PodTerminal from './PodTerminal';
 import { useSettings, useTranslation } from '../SettingsContext';
@@ -151,19 +151,45 @@ export default function ResourceDetails({ user }) {
         }
     }, [loading, data, searchParams, canEdit, kind]);
 
-    if (loading) return <div className="p-8 text-[var(--text-secondary)]">{t('loading')}</div>;
-    if (error) return <div className="p-8 text-red-400">{t('error')}: {error}</div>;
-    if (!data) return <div className="p-8 text-[var(--text-muted)]">{t('resource_not_found')}</div>;
+    if (loading) return (
+        <div className="flex-1 flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-3">
+                <icons.refresh className="animate-spin text-info" size={32} />
+                <p className="text-[var(--text-muted)] font-medium">{t('loading')}</p>
+            </div>
+        </div>
+    );
 
-    // Safety check: Ensure we have at least metadata
-    if (!data.metadata) return <div className="p-8 text-red-400">Error: Invalid resource data received from API</div>;
+    if (error) return (
+        <div className="p-8">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-red-400">
+                <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                    <icons.alert size={20} /> {t('error') || 'Error'}
+                </h3>
+                <p className="text-sm opacity-90">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-xl text-xs font-black transition-all"
+                >
+                    {t('retry') || 'Retry'}
+                </button>
+            </div>
+        </div>
+    );
+
+    if (!data || !data.metadata) return (
+        <div className="p-8 text-center text-[var(--text-muted)] italic">
+            {t('resource_not_found') || 'Resource not found.'}
+        </div>
+    );
 
     const { metadata } = data;
     const spec = data.spec || {};
     const status = data.status || {};
-    const isPod = kind.toLowerCase().startsWith('pod');
-    const isDeployment = kind.toLowerCase().startsWith('deploy');
-    const isService = kind.toLowerCase().startsWith('serv');
+    const kindLower = kind?.toLowerCase() || '';
+    const isPod = kindLower.startsWith('pod');
+    const isDeployment = kindLower.startsWith('deploy');
+    const isService = kindLower.startsWith('serv');
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -218,7 +244,7 @@ export default function ResourceDetails({ user }) {
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
-                            {t(kind.toLowerCase().replace(/s$/, '')) || (kind.replace(/s$/, ''))}
+                            {t(kindLower.replace(/s$/, '')) || (kindLower.replace(/s$/, ''))}
                         </span>
                         <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">
                             {name}
@@ -226,7 +252,13 @@ export default function ResourceDetails({ user }) {
                     </div>
                     <p className="text-[var(--text-secondary)] text-xs mt-2 font-medium flex items-center gap-2">
                         {t('label_namespace')} <icons.chevron_right size={12} className="text-[var(--text-muted)]" />
-                        <span className="text-[var(--accent)] font-bold">{namespace === '-' ? t('cluster_scoped') : namespace}</span>
+                        {namespace === '-' ? (
+                            <span className="text-[var(--accent)] font-bold">{t('cluster_scoped')}</span>
+                        ) : (
+                            <Link to={`/namespaces/-/${namespace}`} className="text-[var(--accent)] font-bold hover:underline">
+                                {namespace}
+                            </Link>
+                        )}
                     </p>
                 </div>
             </div>
@@ -331,7 +363,9 @@ export default function ResourceDetails({ user }) {
 
                                 {isPod && spec.nodeName && (
                                     <StatusItem label={t('label_node')}>
-                                        <span className="text-[var(--text-primary)] font-mono text-sm">{spec.nodeName}</span>
+                                        <Link to={`/nodes/-/${spec.nodeName}`} className="text-[var(--text-primary)] font-mono text-sm hover:text-[var(--accent)] transition-colors">
+                                            {spec.nodeName}
+                                        </Link>
                                     </StatusItem>
                                 )}
                             </div>
@@ -408,11 +442,12 @@ export default function ResourceDetails({ user }) {
                                                         <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Rev. History</span>
                                                         <span className="font-mono text-info">{spec.revisionHistoryLimit ?? '—'}</span>
                                                     </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
-                                                        <span className="font-mono text-info truncate w-full">{spec.nodeName || '—'}</span>
-                                                    </div>
-                                                </div>
+                                                                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
+                                                                                                        <Link to={`/nodes/-/${spec.nodeName}`} className="font-mono text-info truncate w-full hover:underline">
+                                                                                                            {spec.nodeName || '—'}
+                                                                                                        </Link>
+                                                                                                    </div>                                                </div>
                                             </td>
                                         </tr>
                                     )}
@@ -425,9 +460,9 @@ export default function ResourceDetails({ user }) {
                                                         <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">ConfigMaps</p>
                                                         <div className="flex flex-wrap gap-2">
                                                             {mountedConfigMaps.map(cm => (
-                                                                <span key={cm} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono">
+                                                                <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="px-2 py-0.5 bg-warning/10 border border-warning/20 rounded text-sm text-warning font-mono hover:bg-warning/20 transition-colors">
                                                                     {cm}
-                                                                </span>
+                                                                </Link>
                                                             ))}
                                                         </div>
                                                     </div>
@@ -437,9 +472,9 @@ export default function ResourceDetails({ user }) {
                                                         <p className="text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Secrets</p>
                                                         <div className="flex flex-wrap gap-2">
                                                             {mountedSecrets.map(s => (
-                                                                <span key={s} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono">
+                                                                <Link key={s} to={`/secrets/${namespace}/${s}`} className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-sm text-purple-400 font-mono hover:bg-purple-500/20 transition-colors">
                                                                     {s}
-                                                                </span>
+                                                                </Link>
                                                             ))}
                                                         </div>
                                                     </div>
@@ -618,7 +653,7 @@ export default function ResourceDetails({ user }) {
                             <DetailSection title={t('mounted_pvcs')} className="mt-4">
                                 <div className="p-4 flex flex-wrap gap-3">
                                     {mountedPvcs.map(pvc => (
-                                        <div key={pvc} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
+                                        <Link key={pvc} to={`/pvcs/${namespace}/${pvc}`} className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-muted)]/30 border border-[var(--border-color)]/50 rounded-xl hover:border-info/50 transition-all group">
                                             <div className="p-2 rounded-lg bg-info/10 text-info group-hover:scale-110 transition-transform">
                                                 <icons.clipboard size={16} />
                                             </div>
@@ -626,7 +661,7 @@ export default function ResourceDetails({ user }) {
                                                 <span className="text-xs uppercase font-black text-[var(--text-muted)] tracking-wider">{t('mounted_pvc')}</span>
                                                 <span className="text-sm font-mono text-[var(--text-primary)]">{pvc}</span>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </DetailSection>

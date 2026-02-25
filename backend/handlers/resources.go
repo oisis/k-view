@@ -629,7 +629,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
 			},
 			"spec": gin.H{
-				"nodeName":             "mock-node-1",
+				"nodeName":             "worker-01",
 				"replicas":             3,
 				"minReadySeconds":      0,
 				"revisionHistoryLimit": 10,
@@ -670,8 +670,8 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 						},
 						"volumes": []gin.H{
 							{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
-							{"name": "secret-volume", "secret": gin.H{"secretName": "app-secret"}},
-							{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "pvc-data"}},
+							{"name": "secret-volume", "secret": gin.H{"secretName": "oidc-credentials"}},
+							{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "postgres-data-pvc"}},
 						},
 					},
 				},
@@ -700,8 +700,8 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				},
 				"volumes": []gin.H{
 					{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
-					{"name": "secret-volume", "secret": gin.H{"secretName": "app-secret"}},
-					{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "pvc-data"}},
+					{"name": "secret-volume", "secret": gin.H{"secretName": "oidc-credentials"}},
+					{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "postgres-data-pvc"}},
 				},
 			},
 			"status": gin.H{

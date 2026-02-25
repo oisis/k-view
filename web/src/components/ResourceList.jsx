@@ -571,7 +571,16 @@ export default function ResourceList({ kind }) {
                                                                 {val}
                                                             </Link>
                                                         )
-                                                        : <span className="text-[var(--text-secondary)] font-medium">{val}</span>
+                                                        : col.key === 'namespace' && val !== '-'
+                                                            ? (
+                                                                <Link
+                                                                    to={`/namespaces/-/${val}`}
+                                                                    className="text-info hover:underline"
+                                                                >
+                                                                    {val}
+                                                                </Link>
+                                                            )
+                                                            : <span className="text-[var(--text-secondary)] font-medium">{val}</span>
                                                 }
                                             </td>
                                         );
