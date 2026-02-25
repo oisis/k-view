@@ -781,7 +781,6 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'events', label: t('events'), icon: icons.list },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
-                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: !['pods', 'jobs'].includes(kind.toLowerCase()) },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
@@ -840,7 +839,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'overview' && (
                     <>
                         <DetailSection title={t('metadata')}>
-                            {(isDeployment || isJob) ? (
+                            {(isDeployment || isJob || isCronJob) ? (
                                 <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                                     <div className="px-6 py-4 flex flex-col items-center text-center">
                                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
