@@ -1194,7 +1194,7 @@ export default function ResourceDetails({ user }) {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
+                                    <div className={`grid grid-cols-1 ${(kindLower.includes('configmap') || kindLower.includes('pvc')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                                         <div className="px-6 py-4 flex flex-col items-center text-center">
                                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                                             <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
@@ -1213,10 +1213,16 @@ export default function ResourceDetails({ user }) {
                                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
                                             <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
                                         </div>
+                                        {(kindLower.includes('configmap') || kindLower.includes('pvc')) && (
+                                            <div className="px-6 py-4 flex flex-col items-center text-center border-l border-slate-600">
+                                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                                <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
-                                        {!kindLower.includes('configmap') && (
+                                    {!kindLower.includes('configmap') && !kindLower.includes('pvc') && (
+                                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
                                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                                 <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
                                                     {isDaemonSet ? 'Pods Running' : t('label_status')}
@@ -1230,8 +1236,6 @@ export default function ResourceDetails({ user }) {
                                                     </div>
                                                 )}
                                             </div>
-                                        )}
-                                        {!kindLower.includes('configmap') && (
                                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                                 <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
                                                     {isDaemonSet ? 'Pods Desired' : t('label_node')}
@@ -1246,12 +1250,12 @@ export default function ResourceDetails({ user }) {
                                                     <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
                                                 )}
                                             </div>
-                                        )}
-                                        <div className={`px-6 py-4 flex flex-col items-center text-center ${kindLower.includes('configmap') ? 'md:col-span-3' : ''}`}>
-                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
-                                            <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                            <div className="px-6 py-4 flex flex-col items-center text-center">
+                                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                                <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </>
                             )}
 
@@ -1440,7 +1444,35 @@ export default function ResourceDetails({ user }) {
                                                 </td>
                                             </tr>
                                         )}
-                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isIngress && !isService && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                                        {(kindLower.includes('pvc')) && (
+                                            <tr className="border-b border-slate-600">
+                                                <td colSpan="2" className="p-0">
+                                                    <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_status')}</span>
+                                                            <span className={`font-bold ${status?.phase === 'Bound' ? 'text-success' : 'text-warning'}`}>{status?.phase || '—'}</span>
+                                                        </div>
+                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Storage Class</span>
+                                                            <span className="text-[var(--text-primary)] font-mono">{spec.storageClassName || '—'}</span>
+                                                        </div>
+                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Volume Name</span>
+                                                            <span className="text-info font-mono truncate w-full">{spec.volumeName || '—'}</span>
+                                                        </div>
+                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Capacity</span>
+                                                            <span className="text-[var(--text-primary)] font-bold">{status?.capacity?.storage || '—'}</span>
+                                                        </div>
+                                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                            <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Access Modes</span>
+                                                            <span className="text-[var(--text-secondary)] font-mono text-xs">{spec.accessModes?.join(', ') || '—'}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isIngress && !isService && !kindLower.includes('pvc') && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
                                             <tr className="border-b border-slate-600">
                                                 <td colSpan="2" className="p-0">
                                                     <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
@@ -1500,7 +1532,7 @@ export default function ResourceDetails({ user }) {
 
                                         {spec.clusterIP && !isService && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
-                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isService && (
+                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
                                             <DetailRow label={t('label_selector')}>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     <div>
@@ -1546,7 +1578,7 @@ export default function ResourceDetails({ user }) {
                                         {status?.podIP && !isDeployment && !isPod && !isService && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
                                         {spec.qosClass && !isDeployment && !isPod && !isService && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
-                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isService && (
+                                        {!isCronJob && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
                                             <DetailRow label={t('containers')}>
                                                 <div className="space-y-4">
                                                     {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
@@ -1756,7 +1788,7 @@ export default function ResourceDetails({ user }) {
                             </>
                         )}
 
-                        {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && (status?.conditions || []).length > 0 && (
+                        {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && (status?.conditions || []).length > 0 && (
                             <ConditionsTable conditions={status.conditions} t={t} />
                         )}
 
