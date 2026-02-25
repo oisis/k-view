@@ -18,6 +18,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
+    const isDaemonSet = kind.toLowerCase() === 'daemonsets' || kind.toLowerCase() === 'daemonset';
     const isCronJob = kind.toLowerCase() === 'cronjobs' || kind.toLowerCase() === 'cronjob';
     const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
     const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
@@ -243,15 +244,15 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 {icons.activity && <icons.activity size={14} />} {t('scale_replicas')}
                             </button>
                         )}
+                        {(isPod || isDaemonSet) && (
+                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                {icons.terminal && <icons.terminal size={14} />} {t('view_logs')}
+                            </button>
+                        )}
                         {isPod && (
-                            <>
-                                <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    {icons.manifest && <icons.manifest size={14} />} {t('view_logs')}
-                                </button>
-                                <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
-                                    {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
-                                </button>
-                            </>
+                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                                {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
+                            </button>
                         )}
                         <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                             {icons.download && <icons.download size={14} />} {t('export_yaml')}

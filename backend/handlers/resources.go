@@ -479,6 +479,30 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			extra["desired"] = fmt.Sprintf("%d", desired)
 			extra["ready"] = fmt.Sprintf("%d", ready)
 			extra["available"] = fmt.Sprintf("%d", avail)
+			extra["pods"] = fmt.Sprintf("%d/%d", ready, desired)
+
+			// Images
+			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers"); ok {
+				var images []string
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if img, ok := container["image"].(string); ok {
+							images = append(images, img)
+						}
+					}
+				}
+				extra["images"] = strings.Join(images, ", ")
+			}
+			// Labels
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					if vs, ok := v.(string); ok {
+						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
+					}
+				}
+				extra["labels"] = strings.Join(ls, ", ")
+			}
 		case "replicasets", "replicationcontrollers":
 			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
@@ -1664,10 +1688,10 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "daemonsets":
 		items = []ResourceItem{
-			{Name: "fluentbit", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
-			{Name: "kube-proxy", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
-			{Name: "node-exporter", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
-			{Name: "calico-node", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7")},
+			{Name: "fluentbit", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "fluent/fluent-bit:2.1.0", "labels", "app=fluentbit,tier=logging")},
+			{Name: "kube-proxy", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "registry.k8s.io/kube-proxy:v1.28.2", "labels", "app=kube-proxy,tier=node")},
+			{Name: "node-exporter", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "prom/node-exporter:v1.6.1", "labels", "app=node-exporter,tier=monitoring")},
+			{Name: "calico-node", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "docker.io/calico/node:v3.26.1", "labels", "app=calico-node,tier=node")},
 		}
 
 	case "replicasets":

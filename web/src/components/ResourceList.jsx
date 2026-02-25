@@ -44,15 +44,14 @@ const SCHEMAS = {
         ],
     },
     daemonsets: {
-        title: 'DaemonSets',
+        title: 'Daemon Sets',
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.desired', label: 'Desired' },
-            { key: 'extra.ready', label: 'Ready' },
-            { key: 'extra.available', label: 'Available' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.images', label: 'Images' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'extra.pods', label: 'Pods' },
+            { key: 'age', label: 'Created' },
         ],
     },
     jobs: {

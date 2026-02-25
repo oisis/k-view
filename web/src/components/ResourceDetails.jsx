@@ -606,7 +606,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'events', label: t('events'), icon: icons.list },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
-                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: kind !== 'pods' },
+                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: kind !== 'pods' && kind !== 'daemonsets' },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: kind !== 'pods' },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kind.toLowerCase()) }
                 ].filter(t => !t.hidden).map(tab => (
