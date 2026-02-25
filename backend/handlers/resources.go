@@ -702,83 +702,147 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			revision = r
 		}
 
-		                isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
-		                isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
-		                isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
-		
-		                statusObj := gin.H{
-		                        "phase":               "Running",
-		                        "observedGeneration": 4,
-		                        "conditions": []gin.H{
-		                                {
-		                                        "type":               "Ready",
-		                                        "status":             "True",
-		                                        "lastTransitionTime": "2024-02-18T10:00:00Z",
-		                                        "reason":             "PodReady",
-		                                        "message":            "Resource is healthy",
-		                                },
-		                        },
-		                }
-		
-		                specObj := gin.H{
-		                        "nodeName":             "worker-01",
-		                        "replicas":             3,
-		                        "minReadySeconds":      0,
-		                        "revisionHistoryLimit": 10,
-		                        "strategy": gin.H{
-		                                "type": "RollingUpdate",
-		                                "rollingUpdate": gin.H{
-		                                        "maxSurge":       "25%",
-		                                        "maxUnavailable": "25%",
-		                                },
-		                        },
-		                        "selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
-		                        "template": gin.H{
-		                                "spec": gin.H{
-		                                        "containers": []gin.H{
-		                                                {
-		                                                        "name":  "main",
-		                                                        "image": "nginx:1.21",
-		                                                        "ports": []gin.H{{"containerPort": 80}},
-		                                                },
-		                                        },
-		                                },
-		                        },
-		                }
-		
-		                if isDeployment {
-		                        statusObj["replicas"] = 3
-		                        statusObj["readyReplicas"] = 3
-		                        statusObj["updatedReplicas"] = 3
-		                        statusObj["availableReplicas"] = 3
-		                }
-		
-		                if isDaemonSet {
-		                        statusObj["numberReady"] = 7
-		                        statusObj["desiredNumberScheduled"] = 7
-		                        statusObj["numberAvailable"] = 7
-		                        statusObj["currentNumberScheduled"] = 7
-		                }
-		
-		                                                if isJob {
-		                                                        statusObj["succeeded"] = 1
-		                                                        statusObj["active"] = 0
-		                                                        specObj["completions"] = 1
-		                                                        specObj["parallelism"] = 1
-		                                                }		
-		                details := gin.H{
-		                        "resource": found,
-		                        "metadata": gin.H{
-		                                "name":              found.Name,
-		                                "namespace":         found.Namespace,
-		                                "uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-		                                "creationTimestamp": "2024-02-18T10:00:00Z",
-		                                "labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
-		                                "annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
-		                        },
-		                        "spec":   specObj,
-		                        "status": statusObj,
-		                        "metrics": gin.H{				"containers": []gin.H{
+		                		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
+		                		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
+		                		isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
+		                		isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
+		                
+		                		statusObj := gin.H{
+		                			"phase":              "Running",
+		                			"observedGeneration": 4,
+		                			"conditions": []gin.H{
+		                				{
+		                					"type":               "Ready",
+		                					"status":             "True",
+		                					"lastTransitionTime": "2024-02-18T10:00:00Z",
+		                					"reason":             "PodReady",
+		                					"message":            "Resource is healthy",
+		                				},
+		                			},
+		                		}
+		                
+		                		specObj := gin.H{
+		                			"nodeName":             "worker-01",
+		                			"replicas":             3,
+		                			"minReadySeconds":      0,
+		                			"revisionHistoryLimit": 10,
+		                			"strategy": gin.H{
+		                				"type": "RollingUpdate",
+		                				"rollingUpdate": gin.H{
+		                					"maxSurge":       "25%",
+		                					"maxUnavailable": "25%",
+		                				},
+		                			},
+		                			"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
+		                			"template": gin.H{
+		                				"spec": gin.H{
+		                					"containers": []gin.H{
+		                						{
+		                							"name":  "main",
+		                							"image": "nginx:1.21",
+		                							"ports": []gin.H{{"containerPort": 80}},
+		                						},
+		                					},
+		                				},
+		                			},
+		                		}
+		                
+		                		metadataObj := gin.H{
+		                			"name":              found.Name,
+		                			"namespace":         found.Namespace,
+		                			"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+		                			"creationTimestamp": "2024-02-18T10:00:00Z",
+		                			"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
+		                			"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
+		                		}
+		                
+		                		if isDeployment {
+		                			statusObj["replicas"] = 3
+		                			statusObj["readyReplicas"] = 3
+		                			statusObj["updatedReplicas"] = 3
+		                			statusObj["availableReplicas"] = 3
+		                		}
+		                
+		                		if isDaemonSet {
+		                			statusObj["numberReady"] = 7
+		                			statusObj["desiredNumberScheduled"] = 7
+		                			statusObj["numberAvailable"] = 7
+		                			statusObj["currentNumberScheduled"] = 7
+		                		}
+		                
+		                		if isJob {
+		                			statusObj["succeeded"] = 1
+		                			statusObj["active"] = 0
+		                			specObj["completions"] = 1
+		                			specObj["parallelism"] = 1
+		                		}
+		                
+		                		if isPod {
+		                			metadataObj["ownerReferences"] = []gin.H{
+		                				{
+		                					"apiVersion": "apps/v1",
+		                					"kind":       "ReplicaSet",
+		                					"name":       found.Name + "-hash123",
+		                					"uid":        "rs-uid-456",
+		                				},
+		                			}
+		                			specObj["volumes"] = []gin.H{
+		                				{
+		                					"name": "data-storage",
+		                					"persistentVolumeClaim": gin.H{
+		                						"claimName": "postgres-data-pvc",
+		                					},
+		                				},
+		                			}
+		                			specObj["containers"] = []gin.H{
+		                				{
+		                					"name":  "main",
+		                					"image": "nginx:1.21",
+		                					"ports": []gin.H{{"containerPort": 80}},
+		                					"env": []gin.H{
+		                						{"name": "DB_HOST", "value": "postgres-svc"},
+		                						{"name": "API_KEY", "valueFrom": gin.H{"secretKeyRef": gin.H{"name": "api-secret", "key": "key"}}},
+		                					},
+		                					"volumeMounts": []gin.H{
+		                						{"name": "data-storage", "mountPath": "/var/lib/data", "readOnly": false},
+		                					},
+		                					"livenessProbe": gin.H{
+		                						"httpGet":             gin.H{"path": "/healthz", "port": 80},
+		                						"initialDelaySeconds": 15,
+		                						"timeoutSeconds":      1,
+		                						"periodSeconds":       10,
+		                						"successThreshold":    1,
+		                						"failureThreshold":    3,
+		                					},
+		                					"readinessProbe": gin.H{
+		                						"httpGet":             gin.H{"path": "/ready", "port": 80},
+		                						"initialDelaySeconds": 5,
+		                						"timeoutSeconds":      1,
+		                						"periodSeconds":       10,
+		                						"successThreshold":    1,
+		                						"failureThreshold":    3,
+		                					},
+		                				},
+		                			}
+		                			statusObj["containerStatuses"] = []gin.H{
+		                				{
+		                					"name":         "main",
+		                					"ready":        true,
+		                					"started":      true,
+		                					"restartCount": 0,
+		                					"state": gin.H{
+		                						"running": gin.H{"startedAt": "2024-02-18T10:00:05Z"},
+		                					},
+		                				},
+		                			}
+		                		}
+		                
+		                		details := gin.H{
+		                			"resource": found,
+		                			"metadata": metadataObj,
+		                			"spec":     specObj,
+		                			"status":   statusObj,
+		                			"metrics": gin.H{				"containers": []gin.H{
 					{
 						"name": "main",
 						"usage": gin.H{
@@ -1616,19 +1680,19 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 	switch kind {
 	case "pods":
 		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi")},
-			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "0m", "ram", "8Mi")},
-			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "5m", "ram", "256Mi")},
-			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "8m", "ram", "64Mi")},
-			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "2m", "ram", "16Mi")},
-			{Name: "pgbouncer-main", Namespace: "database", Age: "5h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "4m", "ram", "32Mi")},
-			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "15m", "ram", "512Mi")},
-			{Name: "postgres-replica-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "10m", "ram", "512Mi")},
-			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "50m", "ram", "2Gi")},
-			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "100m", "ram", "1Gi")},
-			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "0m", "ram", "16Mi")},
-			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "master-01", "cpu", "5m", "ram", "32Mi")},
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi", "images", "nginx:1.21", "labels", "app=frontend, tier=web")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi", "images", "node:18-alpine", "labels", "app=backend, tier=api")},
+			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "0m", "ram", "8Mi", "images", "busybox:latest", "labels", "job-name=worker-job")},
+			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "5m", "ram", "256Mi", "images", "redis:7-alpine", "labels", "app=cache")},
+			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "8m", "ram", "64Mi", "images", "kview/auth:v1.2", "labels", "app=auth")},
+			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "2m", "ram", "16Mi", "images", "bitnami/oauth2-proxy:7.4.0", "labels", "app=oauth-proxy")},
+			{Name: "pgbouncer-main", Namespace: "database", Age: "5h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "4m", "ram", "32Mi", "images", "edoburu/pgbouncer:latest", "labels", "app=pgbouncer")},
+			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "15m", "ram", "512Mi", "images", "postgres:15-alpine", "labels", "app=postgres, role=primary")},
+			{Name: "postgres-replica-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "10m", "ram", "512Mi", "images", "postgres:15-alpine", "labels", "app=postgres, role=replica")},
+			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "50m", "ram", "2Gi", "images", "bitnami/kafka:3.4.0", "labels", "app=kafka, kafka-broker-id=0")},
+			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "100m", "ram", "1Gi", "images", "prom/prometheus:v2.45.0", "labels", "app=prometheus")},
+			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "0m", "ram", "16Mi", "images", "prom/alertmanager:v0.25.0", "labels", "app=alertmanager")},
+			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "master-01", "cpu", "5m", "ram", "32Mi", "images", "coredns/coredns:1.10.1", "labels", "k8s-app=kube-dns")},
 		}
 
 	case "deployments":

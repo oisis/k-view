@@ -243,10 +243,13 @@ export const translations = {
         label_image: 'Image',
         label_port: 'Port',
         label_protocol: 'Protocol',
-        label_endpoints: 'Endpoints',
-        label_version: 'Version',
-        label_reclaim_policy: 'Reclaim Policy',
-        loading: 'Loading...',
+                label_endpoints: 'Endpoints',
+                label_version: 'Version',
+                label_reclaim_policy: 'Reclaim Policy',
+                label_cpu_usage: 'CPU usage',
+                label_ram_usage: 'RAM usage',
+        
+                loading: 'Loading...',
 
         // Resource Details & Logs
         resource_info: 'Resource Info',
@@ -1846,6 +1849,8 @@ export const translations = {
         label_endpoints: 'Endpoints',
         label_version: 'Wersja',
         label_reclaim_policy: 'Polityka odzyskiwania',
+        label_cpu_usage: 'Użycie CPU',
+        label_ram_usage: 'Użycie RAM',
 
         loading: 'Ładowanie...',
 
