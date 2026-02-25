@@ -125,6 +125,7 @@ func main() {
 			protected.PUT("/resources/:kind/:namespace/:name/yaml", resourceHandler.UpdateYAML)
 			protected.PUT("/resources/:kind/:namespace/:name/restart", resourceHandler.Restart)
 			protected.PUT("/resources/:kind/:namespace/:name/scale", resourceHandler.Scale)
+			protected.POST("/resources/:kind/:namespace/:name/trigger", resourceHandler.Trigger)
 			protected.DELETE("/resources/:kind/:namespace/:name", resourceHandler.Delete)
 			protected.GET("/pods/:namespace/:name/logs", podHandler.GetLogs)
 			protected.GET("/resources/:kind/:namespace/:name/events", resourceHandler.GetEvents)

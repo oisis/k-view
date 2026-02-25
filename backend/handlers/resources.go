@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -558,6 +559,52 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			if claimRef, ok, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "name"); ok {
 				claimNs, _, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "namespace")
 				extra["claim"] = fmt.Sprintf("%s/%s", claimNs, claimRef)
+			}
+		case "cronjobs":
+			if schedule, ok, _ := unstructured.NestedString(item.Object, "spec", "schedule"); ok {
+				extra["schedule"] = schedule
+				// Calculate next run
+				parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)
+				if sched, err := parser.Parse(schedule); err == nil {
+					next := sched.Next(time.Now())
+					extra["next-run"] = next.Format("15:04:05 (02.01)")
+				}
+			}
+			if suspend, ok, _ := unstructured.NestedBool(item.Object, "spec", "suspend"); ok {
+				extra["suspend"] = fmt.Sprintf("%v", suspend)
+				if suspend {
+					status = "Suspended"
+				}
+			}
+			if lastSchedule, ok, _ := unstructured.NestedString(item.Object, "status", "lastScheduleTime"); ok && lastSchedule != "" {
+				if t, err := time.Parse(time.RFC3339, lastSchedule); err == nil {
+					extra["last-schedule"] = getAge(t) + " ago"
+				}
+			}
+			if active, ok, _ := unstructured.NestedSlice(item.Object, "status", "active"); ok {
+				extra["active"] = fmt.Sprintf("%d", len(active))
+			} else {
+				extra["active"] = "0"
+			}
+			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "jobTemplate", "spec", "template", "spec", "containers"); ok {
+				var images []string
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if img, ok := container["image"].(string); ok {
+							images = append(images, img)
+						}
+					}
+				}
+				extra["images"] = strings.Join(images, ", ")
+			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					if vs, ok := v.(string); ok {
+						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
+					}
+				}
+				extra["labels"] = strings.Join(ls, ", ")
 			}
 		}
 
@@ -1324,6 +1371,107 @@ func (h *ResourceHandler) Scale(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Scale updated"})
 }
 
+func (h *ResourceHandler) Trigger(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	// Trigger only supported for CronJobs
+	if kind != "cronjobs" && kind != "cronjob" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Trigger only supported for CronJobs"})
+		return
+	}
+
+	// Verify Edit Permissions
+	role, _ := c.Get("role")
+	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
+		return
+	}
+
+	if h.devMode {
+		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("CronJob %s triggered (mocked)", name)})
+		return
+	}
+
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
+		return
+	}
+
+	// Get CronJob
+	gvr := getGVR("cronjobs")
+	var dc dynamic.ResourceInterface
+	if ns != "" {
+		dc = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		dc = dynClient.Resource(gvr)
+	}
+
+	cronJob, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch CronJob failed: " + err.Error()})
+		return
+	}
+
+	// Extract jobTemplate
+	jobTemplate, ok, _ := unstructured.NestedMap(cronJob.Object, "spec", "jobTemplate")
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid CronJob: missing jobTemplate"})
+		return
+	}
+
+	// Create Job object
+	jobName := fmt.Sprintf("%s-manual-%d", name, time.Now().Unix())
+	if len(jobName) > 63 {
+		jobName = jobName[0:50] + "-" + fmt.Sprintf("%d", time.Now().Unix())
+	}
+
+	job := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "batch/v1",
+			"kind":       "Job",
+			"metadata": map[string]interface{}{
+				"name":      jobName,
+				"namespace": ns,
+				"annotations": map[string]string{
+					"cronjob.kubernetes.io/instantiate": "manual",
+				},
+				"ownerReferences": []map[string]interface{}{
+					{
+						"apiVersion": cronJob.GetAPIVersion(),
+						"kind":       cronJob.GetKind(),
+						"name":       cronJob.GetName(),
+						"uid":        cronJob.GetUID(),
+					},
+				},
+			},
+			"spec": jobTemplate["spec"],
+		},
+	}
+
+	// Submit Job
+	jobGVR := getGVR("jobs")
+	var jobInterface dynamic.ResourceInterface
+	if ns != "" {
+		jobInterface = dynClient.Resource(jobGVR).Namespace(ns)
+	} else {
+		jobInterface = dynClient.Resource(jobGVR)
+	}
+
+	_, err = jobInterface.Create(c.Request.Context(), job, metav1.CreateOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create Job: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "CronJob triggered successfully", "jobName": jobName})
+}
+
 func (h *ResourceHandler) GetEvents(c *gin.Context) {
 	name := c.Param("name")
 	_ = c.Param("kind") // kind not used since events are filtered by name
@@ -1482,10 +1630,10 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "cronjobs":
 		items = []ResourceItem{
-			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "last-schedule", "4h ago", "images", "postgres:15-alpine", "labels", "app=db,env=prod", "suspend", "False", "active", "1")},
-			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "last-schedule", "1h ago", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "suspend", "False", "active", "0")},
-			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "last-schedule", "7d ago", "images", "reports-worker:latest", "labels", "tier=frontend", "suspend", "True", "active", "0")},
-			{Name: "log-rotate", Namespace: "logging", Age: "28d", Status: "Active", Extra: ex("schedule", "0 0 * * *", "last-schedule", "8h ago", "images", "fluentd:v1.16", "labels", "role=logging", "suspend", "False", "active", "1")},
+			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "next-run", "02:00:00 (26.02)", "last-schedule", "4h ago", "images", "postgres:15-alpine", "labels", "app=db,env=prod", "suspend", "False", "active", "1")},
+			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "next-run", "06:00:00 (26.02)", "last-schedule", "1h ago", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "suspend", "False", "active", "0")},
+			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "next-run", "08:00:00 (02.03)", "last-schedule", "7d ago", "images", "reports-worker:latest", "labels", "tier=frontend", "suspend", "True", "active", "0")},
+			{Name: "log-rotate", Namespace: "logging", Age: "28d", Status: "Active", Extra: ex("schedule", "0 0 * * *", "next-run", "00:00:00 (26.02)", "last-schedule", "8h ago", "images", "fluentd:v1.16", "labels", "role=logging", "suspend", "False", "active", "1")},
 		}
 
 	case "services":

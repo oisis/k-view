@@ -18,6 +18,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
     const nsPath = namespace && namespace !== '-' ? namespace : '';
     const isPod = kind.toLowerCase().includes('pod');
+    const isCronJob = kind.toLowerCase() === 'cronjobs' || kind.toLowerCase() === 'cronjob';
     const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
     const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
 
@@ -124,6 +125,27 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         }
     };
 
+    const executeTrigger = async (e) => {
+        e.stopPropagation();
+        setIsProcessing(true);
+        try {
+            const url = nsPath
+                ? `/api/resources/${kind}/${nsPath}/${name}/trigger`
+                : `/api/resources/${kind}/-/${name}/trigger`;
+            const res = await fetch(url, { method: 'POST' });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to trigger');
+            }
+            if (onRefresh) onRefresh();
+            setIsOpen(false);
+        } catch (err) {
+            alert('Trigger failed: ' + err.message);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     const executeScale = async (e) => {
         e.stopPropagation();
         setIsProcessing(true);
@@ -199,6 +221,11 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                         {(isPod || isWorkload) && (
                             <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-[var(--text-white)] hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
                                 {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
+                            </button>
+                        )}
+                        {isCronJob && (
+                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-[var(--text-white)] hover:bg-emerald-500 transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                                {icons.zap && <icons.zap size={14} className="group-hover:scale-125 transition-transform" />} {t('run_now')}
                             </button>
                         )}
                         <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
