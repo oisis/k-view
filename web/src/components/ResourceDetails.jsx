@@ -266,6 +266,141 @@ function ProbeDetail({ label, probe, t }) {
     );
 }
 
+function ConditionsTable({ conditions, t }) {
+    return (
+        <DetailSection title={t('status_conditions')} className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('type')}</th>
+                            <th className="px-4 py-3">{t('label_status')}</th>
+                            <th className="px-4 py-3">{t('last_probe')}</th>
+                            <th className="px-4 py-3">{t('last_transition')}</th>
+                            <th className="px-4 py-3 text-left">{t('reason')}</th>
+                            <th className="px-4 py-3 text-left">{t('message')}</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)] text-left">
+                        {(conditions || []).length === 0 ? (
+                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No conditions found.</td></tr>
+                        ) : (
+                            conditions.map((c, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-3 font-medium text-[var(--text-primary)]">{c.type}</td>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`px-2 py-0.5 rounded text-[var(--font-size-sm)] font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                            {c.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center text-[var(--text-muted)] text-xs">
+                                        {c.lastProbeTime ? new Date(c.lastProbeTime).toLocaleString() : '—'}
+                                    </td>
+                                    <td className="px-4 py-3 text-center text-[var(--text-secondary)] text-xs">
+                                        {c.lastTransitionTime ? new Date(c.lastTransitionTime).toLocaleString() : '—'}
+                                    </td>
+                                    <td className="px-4 py-3 text-[var(--text-secondary)]">{c.reason || '—'}</td>
+                                    <td className="px-4 py-3 text-[var(--text-muted)] text-xs max-w-xs break-words">{c.message || '—'}</td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
+    );
+}
+
+function ReplicaSetsTable({ title, replicaSets, t }) {
+    return (
+        <DetailSection title={title} className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left">Age</th>
+                            <th className="px-4 py-3 text-center">Pods</th>
+                            <th className="px-4 py-3 text-left">Labels</th>
+                            <th className="px-4 py-3 text-left">Images</th>
+                            <th className="px-4 py-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)]">
+                        {replicaSets.length === 0 ? (
+                            <tr><td colSpan="7" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No replica sets found.</td></tr>
+                        ) : (
+                            replicaSets.map((rs, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                        <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="hover:underline">{rs.name}</Link>
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{rs.namespace}</td>
+                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{rs.age}</td>
+                                    <td className="px-4 py-2 text-center font-bold">
+                                        {rs.extra?.ready || '0'}/{rs.extra?.desired || '0'}
+                                    </td>
+                                    <td className="px-4 py-2"><ExpandableCell value={rs.extra?.labels} type="labels" /></td>
+                                    <td className="px-4 py-2"><ExpandableCell value={rs.extra?.images} type="images" /></td>
+                                    <td className="px-4 py-2 text-right">
+                                        <ResourceActionMenu kind="replicasets" namespace={rs.namespace} name={rs.name} onRefresh={() => window.location.reload()} />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
+    );
+}
+
+function HpaTable({ hpas, t }) {
+    return (
+        <DetailSection title="Horizontal Pod Autoscalers" className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-center">Min</th>
+                            <th className="px-4 py-3 text-center">Max</th>
+                            <th className="px-4 py-3 text-center">Current</th>
+                            <th className="px-4 py-3 text-left">Target</th>
+                            <th className="px-4 py-3 text-left">Age</th>
+                            <th className="px-4 py-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)]">
+                        {hpas.length === 0 ? (
+                            <tr><td colSpan="8" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No HPAs found.</td></tr>
+                        ) : (
+                            hpas.map((hpa, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                        <Link to={`/hpas/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{hpa.namespace}</td>
+                                    <td className="px-4 py-2 text-center">{hpa.extra?.min || '—'}</td>
+                                    <td className="px-4 py-2 text-center">{hpa.extra?.max || '—'}</td>
+                                    <td className="px-4 py-2 text-center font-bold text-info">{hpa.extra?.current || '—'}</td>
+                                    <td className="px-4 py-2 text-xs font-mono">{hpa.extra?.target || '—'}</td>
+                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{hpa.age}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        <ResourceActionMenu kind="hpas" namespace={hpa.namespace} name={hpa.name} onRefresh={() => window.location.reload()} />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
+    );
+}
+
 export default function ResourceDetails({ user }) {
     const { settings } = useSettings();
     const { kind, namespace, name } = useParams();
@@ -298,6 +433,8 @@ export default function ResourceDetails({ user }) {
     const [relatedJobs, setRelatedJobs] = useState([]);
     const [relatedPods, setRelatedPods] = useState([]);
     const [relatedServices, setRelatedServices] = useState([]);
+    const [relatedReplicaSets, setRelatedReplicaSets] = useState([]);
+    const [relatedHpas, setRelatedHpas] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -413,6 +550,27 @@ export default function ResourceDetails({ user }) {
                     if (svcsRes && svcsRes.ok) {
                         const svcsData = await svcsRes.json();
                         setRelatedServices(Array.isArray(svcsData) ? svcsData : []);
+                    }
+                }
+
+                if (kindLower.includes('deploy')) {
+                    const [rsRes, hpaRes] = await Promise.all([
+                        fetch(`/api/resources/replicasets?namespace=${nsQuery}`),
+                        fetch(`/api/resources/hpas?namespace=${nsQuery}`)
+                    ]);
+                    if (rsRes && rsRes.ok) {
+                        const rsData = await rsRes.json();
+                        if (Array.isArray(rsData)) {
+                            setRelatedReplicaSets(rsData.filter(rs => rs.extra?.['owner-uid'] === detailsData.metadata?.uid));
+                        }
+                    }
+                    if (hpaRes && hpaRes.ok) {
+                        const hpaData = await hpaRes.json();
+                        if (Array.isArray(hpaData)) {
+                            // HPA selector is usually by name/kind in spec.scaleTargetRef
+                            // Since we don't have the full spec easily here for filtering by scaleTargetRef, we'll try to find matching HPAs
+                            setRelatedHpas(hpaData.filter(hpa => hpa.extra?.['target-name'] === name || hpa.name === name));
+                        }
                     }
                 }
 
@@ -624,60 +782,89 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'overview' && (
                     <>
                         <DetailSection title={t('metadata')}>
-                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
-                                    <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
+                            {isDeployment ? (
+                                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
+                                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
+                                        <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
+                                    </div>
+                                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
+                                        {namespace === '-' ? (
+                                            <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                        ) : (
+                                            <Link to={`/namespaces/-/${namespace}`} className="text-sm text-[var(--accent)] font-bold hover:underline">
+                                                {namespace}
+                                            </Link>
+                                        )}
+                                    </div>
+                                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                                        <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                                    </div>
+                                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                                        <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                        <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                    </div>
                                 </div>
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
-                                    {namespace === '-' ? (
-                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
-                                    ) : (
-                                        <Link to={`/namespaces/-/${namespace}`} className="text-sm text-[var(--accent)] font-bold hover:underline">
-                                            {namespace}
-                                        </Link>
-                                    )}
-                                </div>
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                                    <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
-                                        {isDaemonSet ? 'Pods Running' : t('label_status')}
-                                    </span>
-                                    {isDaemonSet ? (
-                                        <span className="text-sm font-bold text-success">{status?.numberReady || 0}</span>
-                                    ) : (
-                                        <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
-                                            <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                            <span className="text-sm font-bold uppercase tracking-wide">{t(status?.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status?.phase || data.resource?.status || t('unknown')}</span>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
+                                            <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
                                         </div>
-                                    )}
-                                </div>
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
-                                        {isDaemonSet ? 'Pods Desired' : t('label_node')}
-                                    </span>
-                                    {isDaemonSet ? (
-                                        <span className="text-sm font-bold text-[var(--text-primary)]">{status?.desiredNumberScheduled || 0}</span>
-                                    ) : spec.nodeName ? (
-                                        <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
-                                            {spec.nodeName}
-                                        </Link>
-                                    ) : (
-                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
-                                    )}
-                                </div>
-                                <div className="px-6 py-4 flex flex-col items-center text-center">
-                                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
-                                    <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
-                                </div>
-                            </div>
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
+                                            {namespace === '-' ? (
+                                                <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                            ) : (
+                                                <Link to={`/namespaces/-/${namespace}`} className="text-sm text-[var(--accent)] font-bold hover:underline">
+                                                    {namespace}
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                                            <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                                {isDaemonSet ? 'Pods Running' : t('label_status')}
+                                            </span>
+                                            {isDaemonSet ? (
+                                                <span className="text-sm font-bold text-success">{status?.numberReady || 0}</span>
+                                            ) : (
+                                                <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
+                                                    <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
+                                                    <span className="text-sm font-bold uppercase tracking-wide">{t(status?.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status?.phase || data.resource?.status || t('unknown')}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                                {isDaemonSet ? 'Pods Desired' : t('label_node')}
+                                            </span>
+                                            {isDaemonSet ? (
+                                                <span className="text-sm font-bold text-[var(--text-primary)]">{status?.desiredNumberScheduled || 0}</span>
+                                            ) : spec.nodeName ? (
+                                                <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
+                                                    {spec.nodeName}
+                                                </Link>
+                                            ) : (
+                                                <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                            )}
+                                        </div>
+                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                            <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600">
                                 <div className="overflow-hidden">
@@ -852,7 +1039,7 @@ export default function ResourceDetails({ user }) {
 
                                         {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
-                                        {!isCronJob && (
+                                        {!isCronJob && !isDeployment && (
                                             <DetailRow label={t('label_selector')}>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     <div>
@@ -895,24 +1082,10 @@ export default function ResourceDetails({ user }) {
                                             </DetailRow>
                                         )}
 
-                                        {status?.podIP && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
-                                        {spec.qosClass && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
+                                        {status?.podIP && !isDeployment && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
+                                        {spec.qosClass && !isDeployment && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
-                                        {isDeployment && data.newReplicaSet && (
-                                            <DetailRow label={t('new_replica_set')}>
-                                                <div className="space-y-1 py-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-info font-bold">{data.newReplicaSet.metadata.name}</span>
-                                                        <span className="text-xs text-[var(--text-muted)] bg-black/20 px-1.5 py-0.5 rounded">{data.newReplicaSet.metadata.namespace}</span>
-                                                    </div>
-                                                    <div className="text-[11px] text-[var(--text-secondary)]">
-                                                        UID: <span className="font-mono">{data.newReplicaSet.metadata.uid}</span>
-                                                    </div>
-                                                </div>
-                                            </DetailRow>
-                                        )}
-
-                                        {!isCronJob && (
+                                        {!isCronJob && !isDeployment && (
                                             <DetailRow label={t('containers')}>
                                                 <div className="space-y-4">
                                                     {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
@@ -997,7 +1170,7 @@ export default function ResourceDetails({ user }) {
                             </DetailSection>
                         )}
 
-                        {!isCronJob && !isDaemonSet && (status?.conditions || []).length > 0 && (
+                        {!isCronJob && !isDaemonSet && !isDeployment && (status?.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
                                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
                                     <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
@@ -1028,6 +1201,26 @@ export default function ResourceDetails({ user }) {
                                     </tbody>
                                 </table>
                             </DetailSection>
+                        )}
+
+                        {isDeployment && (
+                            <>
+                                <ConditionsTable 
+                                    conditions={status.conditions} 
+                                    t={t} 
+                                />
+                                <ReplicaSetsTable 
+                                    title="New Replica Set"
+                                    replicaSets={relatedReplicaSets.filter(rs => rs.extra?.revision === status.observedGeneration?.toString())}
+                                    t={t}
+                                />
+                                <ReplicaSetsTable 
+                                    title="Old Replica Sets"
+                                    replicaSets={relatedReplicaSets.filter(rs => rs.extra?.revision !== status.observedGeneration?.toString())}
+                                    t={t}
+                                />
+                                <HpaTable hpas={relatedHpas} t={t} />
+                            </>
                         )}
 
                         {isCronJob && (

@@ -1625,14 +1625,14 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "deployments":
 		items = []ResourceItem{
-			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3")},
-			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2")},
-			{Name: "cache-redis", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1")},
-			{Name: "auth-service", Namespace: "auth", Age: "20d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2")},
-			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1")},
-			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1")},
-			{Name: "loki", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1")},
-			{Name: "ingress-nginx-controller", Namespace: "ingress-nginx", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2")},
+			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3", "images", "nginx:1.21, busybox:latest", "labels", "app=frontend, tier=web")},
+			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "node:18-alpine", "labels", "app=backend, tier=api")},
+			{Name: "cache-redis", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "redis:7-alpine", "labels", "app=cache, tier=data")},
+			{Name: "auth-service", Namespace: "auth", Age: "20d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "kview/auth:v1.2", "labels", "app=auth")},
+			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "prom/prometheus:v2.45.0", "labels", "app=prometheus")},
+			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "grafana/grafana:10.0.3", "labels", "app=grafana")},
+			{Name: "loki", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "grafana/loki:2.8.2", "labels", "app=loki")},
+			{Name: "ingress-nginx-controller", Namespace: "ingress-nginx", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "k8s.gcr.io/ingress-nginx/controller:v1.8.1", "labels", "app=ingress-nginx")},
 		}
 
 	case "statefulsets":
@@ -1654,8 +1654,15 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "replicasets":
 		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2")},
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "4", "images", "nginx:1.21", "labels", "app=frontend,pod-template-hash=5d8f7b")},
+			{Name: "frontend-web-old", Namespace: "default", Age: "2d", Status: "Inactive", Extra: ex("desired", "0", "current", "0", "ready", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "3", "images", "nginx:1.20", "labels", "app=frontend,pod-template-hash=old")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "2", "images", "node:18-alpine", "labels", "app=backend,pod-template-hash=6c9f8c")},
+		}
+
+	case "hpas":
+		items = []ResourceItem{
+			{Name: "frontend-hpa", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("min", "3", "max", "10", "current", "3", "target", "cpu: 80%", "target-name", "frontend-web")},
+			{Name: "backend-hpa", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("min", "2", "max", "5", "current", "2", "target", "memory: 1Gi", "target-name", "backend-api")},
 		}
 
 	case "replicationcontrollers":
