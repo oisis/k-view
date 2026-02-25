@@ -760,12 +760,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                        statusObj["currentNumberScheduled"] = 7
 		                }
 		
-		                if isJob {
-		                        statusObj["succeeded"] = 1
-		                        specObj["completions"] = 1
-		                        specObj["parallelism"] = 1
-		                }
-		
+		                                                if isJob {
+		                                                        statusObj["succeeded"] = 1
+		                                                        statusObj["active"] = 0
+		                                                        specObj["completions"] = 1
+		                                                        specObj["parallelism"] = 1
+		                                                }		
 		                details := gin.H{
 		                        "resource": found,
 		                        "metadata": gin.H{

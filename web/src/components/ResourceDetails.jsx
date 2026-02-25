@@ -1050,8 +1050,8 @@ export default function ResourceDetails({ user }) {
                                                         <span className="font-mono text-info font-bold">{spec.parallelism ?? '1'}</span>
                                                     </div>
                                                     <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Succeeded</span>
-                                                        <span className="font-bold text-success">{status.succeeded || 0}</span>
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Running</span>
+                                                        <span className="font-bold text-success">{status.active || 0}</span>
                                                     </div>
                                                     <div className="px-4 py-3 flex flex-col items-center text-center">
                                                         <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Desired</span>
@@ -1183,7 +1183,7 @@ export default function ResourceDetails({ user }) {
                                         {status?.podIP && !isDeployment && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
                                         {spec.qosClass && !isDeployment && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
-                                        {!isCronJob && !isDeployment && (
+                                        {!isCronJob && !isDeployment && !isJob && (
                                             <DetailRow label={t('containers')}>
                                                 <div className="space-y-4">
                                                     {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
@@ -1268,7 +1268,7 @@ export default function ResourceDetails({ user }) {
                             </DetailSection>
                         )}
 
-                        {!isCronJob && !isDaemonSet && !isDeployment && (status?.conditions || []).length > 0 && (
+                        {!isCronJob && !isDaemonSet && !isDeployment && !isJob && (status?.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
                                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
                                     <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
