@@ -703,6 +703,35 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 
 		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
+		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
+
+		statusObj := gin.H{
+			"phase":               "Running",
+			"observedGeneration": 4,
+			"conditions": []gin.H{
+				{
+					"type":               "Ready",
+					"status":             "True",
+					"lastTransitionTime": "2024-02-18T10:00:00Z",
+					"reason":             "PodReady",
+					"message":            "Resource is healthy",
+				},
+			},
+		}
+
+		if isDeployment {
+			statusObj["replicas"] = 3
+			statusObj["readyReplicas"] = 3
+			statusObj["updatedReplicas"] = 3
+			statusObj["availableReplicas"] = 3
+		}
+
+		if isDaemonSet {
+			statusObj["numberReady"] = 7
+			statusObj["desiredNumberScheduled"] = 7
+			statusObj["numberAvailable"] = 7
+			statusObj["currentNumberScheduled"] = 7
+		}
 
 		details := gin.H{
 			"resource": found,
@@ -734,96 +763,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 								"name":  "main",
 								"image": "nginx:1.21",
 								"ports": []gin.H{{"containerPort": 80}},
-								"livenessProbe": gin.H{
-									"httpGet": gin.H{"path": "/healthz", "port": 80},
-									"initialDelaySeconds": 15,
-									"timeoutSeconds": 1,
-									"periodSeconds": 10,
-								},
-								"readinessProbe": gin.H{
-									"httpGet": gin.H{"path": "/ready", "port": 80},
-									"initialDelaySeconds": 5,
-									"timeoutSeconds": 1,
-									"periodSeconds": 10,
-								},
-								"startupProbe": gin.H{
-									"httpGet": gin.H{"path": "/healthz", "port": 80},
-									"initialDelaySeconds": 30,
-									"timeoutSeconds": 1,
-									"periodSeconds": 5,
-								},
 							},
 						},
-						"volumes": []gin.H{
-							{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
-							{"name": "secret-volume", "secret": gin.H{"secretName": "oidc-credentials"}},
-							{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "postgres-data-pvc"}},
-						},
-					},
-				},
-				// For direct pods
-				"containers": []gin.H{
-					{
-						"name":  "main",
-						"image": "nginx:1.21",
-						"ports": []gin.H{{"containerPort": 80}},
-						"livenessProbe": gin.H{
-							"httpGet": gin.H{"path": "/healthz", "port": 80},
-							"initialDelaySeconds": 15,
-							"periodSeconds": 10,
-						},
-						"readinessProbe": gin.H{
-							"httpGet": gin.H{"path": "/ready", "port": 80},
-							"initialDelaySeconds": 5,
-							"periodSeconds": 10,
-						},
-						"startupProbe": gin.H{
-							"httpGet": gin.H{"path": "/healthz", "port": 80},
-							"initialDelaySeconds": 30,
-							"periodSeconds": 5,
-						},
-					},
-				},
-				"volumes": []gin.H{
-					{"name": "config-volume", "configMap": gin.H{"name": "app-config"}},
-					{"name": "secret-volume", "secret": gin.H{"secretName": "oidc-credentials"}},
-					{"name": "data-volume", "persistentVolumeClaim": gin.H{"claimName": "postgres-data-pvc"}},
-				},
-			},
-			"status": gin.H{
-				"phase":               "Running",
-				"replicas":            3,
-				"readyReplicas":       3,
-				"updatedReplicas":     3,
-				"availableReplicas":   3,
-				"observedGeneration": 4,
-				"containerStatuses": []gin.H{
-					{
-						"name":         "main",
-						"ready":        true,
-						"restartCount": 0,
-						"state": gin.H{
-							"running": gin.H{"startedAt": "2024-02-18T10:00:00Z"},
-						},
-					},
-				},
-				"conditions": []gin.H{
-					{
-						"type":               "Ready",
-						"status":             "True",
-						"lastTransitionTime": "2024-02-18T10:00:00Z",
-						"reason":             "PodReady",
-						"message":            "Pod is ready",
-					},
-					{
-						"type":               "Initialized",
-						"status":             "True",
-						"lastTransitionTime": "2024-02-18T09:59:50Z",
-						"reason":             "PodInitialized",
-						"message":            "Pod has been initialized",
 					},
 				},
 			},
+			"status": statusObj,
 			"metrics": gin.H{
 				"containers": []gin.H{
 					{
@@ -835,17 +780,16 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					},
 				},
 			},
-			"newReplicaSet": gin.H{
+		}
+
+		if isDeployment {
+			details["newReplicaSet"] = gin.H{
 				"metadata": gin.H{
 					"name":      found.Name + "-hash123",
 					"namespace": found.Namespace,
 					"uid":       "rs-uid-456",
 				},
-			},
-		}
-
-		if !isDeployment {
-			delete(details, "newReplicaSet")
+			}
 		}
 
 		c.JSON(http.StatusOK, details)
