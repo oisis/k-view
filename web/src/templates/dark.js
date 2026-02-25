@@ -119,6 +119,7 @@ export default {
                 '--border-muted': '#09090B',
                 '--text-primary': '#FAFAFA',
                 '--text-white': '#FFFFFF',
+                '--text-button': '#FFFFFF',
                 '--text-secondary': '#A1A1AA',
                 '--text-muted': '#52525B',
                 '--sidebar-hover': '#111111',
