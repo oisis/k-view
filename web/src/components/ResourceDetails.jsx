@@ -115,7 +115,7 @@ export default function ResourceDetails({ user }) {
                     }
                 }
 
-                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || kindLower.includes('service')) {
+                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || kindLower.includes('service') || kindLower === 'nodes' || kindLower === 'node') {
                     const [podsRes, svcsRes] = await Promise.all([
                         fetch(`/api/resources/pods?namespace=${nsQuery}`),
                         kindLower.includes('daemonset') ? fetch(`/api/resources/services?namespace=${nsQuery}`) : Promise.resolve(null)
@@ -129,6 +129,8 @@ export default function ResourceDetails({ user }) {
                                     return Object.entries(selector).every(([k, v]) => p.extra?.labels?.includes(`${k}=${v}`));
                                 }));
                                 setRelatedEndpoints(detailsData.metadata?.endpoints || []);
+                            } else if (kindLower === 'nodes' || kindLower === 'node') {
+                                setRelatedPods(podsData.filter(p => p.extra?.node === name));
                             } else {
                                 setRelatedPods(podsData.filter(p => p.extra?.['owner-uid'] === detailsData.metadata?.uid));
                             }

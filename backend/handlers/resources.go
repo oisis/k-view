@@ -736,14 +736,18 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			revision = r
 		}
 
-		                		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
-		                		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
-		                		isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
-		                		isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
-		                		isIngress := strings.ToLower(kind) == "ingresses" || strings.ToLower(kind) == "ingress"
-		                		isService := strings.ToLower(kind) == "services" || strings.ToLower(kind) == "service"
-		                		isNamespace := strings.ToLower(kind) == "namespaces" || strings.ToLower(kind) == "namespace"
-		                		isNetworkPolicy := strings.ToLower(kind) == "networkpolicies" || strings.ToLower(kind) == "networkpolicy" || strings.ToLower(kind) == "network-policies"
+		                		kindLower := strings.ToLower(kind)
+		                		isNamespace := kindLower == "namespaces" || kindLower == "namespace"
+		                		isNode := kindLower == "nodes" || kindLower == "node"
+		                		isNetworkPolicy := kindLower == "networkpolicies" || kindLower == "networkpolicy" || kindLower == "network-policies"
+		                		isDeployment := kindLower == "deployments" || kindLower == "deployment"
+		                		isDaemonSet := kindLower == "daemonsets" || kindLower == "daemonset"
+		                		isJob := kindLower == "jobs" || kindLower == "job"
+		                		isIngress := kindLower == "ingresses" || kindLower == "ingress"
+		                		isService := kindLower == "services" || kindLower == "service"
+		                		isPod := kindLower == "pods" || kindLower == "pod"
+		                		isClusterRoleBinding := kindLower == "clusterrolebindings" || kindLower == "cluster-role-bindings"
+		                		isClusterRole := kindLower == "clusterroles" || kindLower == "cluster-roles"
 		                				
 		                						statusObj := gin.H{
 		                							"phase":              "Running",
@@ -751,14 +755,42 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                						if isNamespace {
 		                							statusObj["phase"] = "Active"
 		                						}
+		                						if isNode {
+		                							statusObj["phase"] = "Ready"
+		                						}
 		                						statusObj["observedGeneration"] = 4
 		                						statusObj["conditions"] = []gin.H{
 		                							{
 		                								"type":               "Ready",
 		                								"status":             "True",
+		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
 		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                								"reason":             "Healthy",
-		                								"message":            "Resource is healthy",
+		                								"reason":             "KubeletReady",
+		                								"message":            "kubelet is posting ready status",
+		                							},
+		                							{
+		                								"type":               "MemoryPressure",
+		                								"status":             "False",
+		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
+		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
+		                								"reason":             "KubeletHasSufficientMemory",
+		                								"message":            "kubelet has sufficient memory available",
+		                							},
+		                							{
+		                								"type":               "DiskPressure",
+		                								"status":             "False",
+		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
+		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
+		                								"reason":             "KubeletHasNoDiskPressure",
+		                								"message":            "kubelet has no disk pressure",
+		                							},
+		                							{
+		                								"type":               "PIDPressure",
+		                								"status":             "False",
+		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
+		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
+		                								"reason":             "KubeletHasSufficientPID",
+		                								"message":            "kubelet has sufficient PID available",
 		                							},
 		                						}
 		                
@@ -786,6 +818,24 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                					},
 		                				},
 		                			},
+		                		}
+		                
+		                		if isNode {
+		                			specObj = gin.H{
+		                				"podCIDR": "10.244.0.0/24",
+		                				"nodeInfo": gin.H{
+		                					"machineID":               "9eb8c3a2f8b54e7d9b2c3a1b4e5d6f7a",
+		                					"systemUUID":              "A1B2C3D4-E5F6-7G8H-9I0J-K1L2M3N4O5P6",
+		                					"bootID":                 "f7e6d5c4-b3a2-9102-8374-65d4c3b2a1f0",
+		                					"kernelVersion":          "6.5.0-v8-29.el9.x86_64",
+		                					"osImage":                "Alpine Linux v3.19",
+		                					"containerRuntimeVersion": "containerd://1.7.11",
+		                					"kubeletVersion":         "v1.29.1",
+		                					"kubeProxyVersion":       "v1.29.1",
+		                					"operatingSystem":        "linux",
+		                					"architecture":           "arm64",
+		                				},
+		                			}
 		                		}
 		                
 		                		if isNetworkPolicy {
@@ -998,14 +1048,34 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                					"metrics": gin.H{
 		                						"containers": []gin.H{
 					{
-						"name": "main",
-						"usage": gin.H{
-							"cpu":    "125m",
-							"memory": "256Mi",
-						},
+						"name":   "main",
+						"usage":  gin.H{"cpu": "125m", "memory": "256Mi"},
 					},
 				},
 			},
+		}
+
+		if isNode {
+			details["addresses"] = []gin.H{
+				{"type": "InternalIP", "address": "192.168.1.10"},
+				{"type": "Hostname", "address": found.Name},
+			}
+			details["allocation"] = gin.H{
+				"cpu": gin.H{
+					"requests": "850m",
+					"limits":   "1200m",
+					"capacity": "8",
+				},
+				"memory": gin.H{
+					"requests": "2400Mi",
+					"limits":   "4000Mi",
+					"capacity": "16Gi",
+				},
+				"pods": gin.H{
+					"allocation": 24,
+					"capacity":   110,
+				},
+			}
 		}
 
 		if isDeployment {
@@ -1018,7 +1088,6 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 		}
 
-		isClusterRoleBinding := kind == "cluster-role-bindings" || kind == "clusterrolebindings"
 		if isClusterRoleBinding {
 			details["roleRef"] = gin.H{
 				"kind":     "ClusterRole",
@@ -1044,7 +1113,6 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 		}
 
-		isClusterRole := kind == "cluster-roles" || kind == "clusterroles"
 		if isClusterRole {
 			details["rules"] = []gin.H{
 				{
@@ -1071,7 +1139,6 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			}
 		}
 
-		isNamespace = kind == "namespaces" || kind == "namespace"
 		if isNamespace {
 			if name == "messaging" {
 				details["quotas"] = []gin.H{

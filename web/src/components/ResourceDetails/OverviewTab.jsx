@@ -25,6 +25,7 @@ import RulesTable from './RulesTable';
 import ResourceQuotasTable from './ResourceQuotasTable';
 import LimitRangesTable from './LimitRangesTable';
 import PolicyRulesTable from './PolicyRulesTable';
+import PieChart from './PieChart';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -50,6 +51,7 @@ export default function OverviewTab({
     const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
     const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
     const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
+    const isNode = kindLower === 'nodes' || kindLower === 'node';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -93,40 +95,15 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isNetworkPolicy || isNode) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
-                            <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
+                            <span className="text-sm font-mono font-bold break-all">{name}</span>
                         </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <div className="px-6 py-4 flex flex-col items-center text-center text-[var(--text-primary)]">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                            <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
-                        </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
-                            <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
-                        </div>
-                    </div>
-                ) : (isDeployment || isJob || isCronJob || isIngress || isService) ? (
-                    <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
-                            <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
-                        </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
-                            {namespace === '-' ? (
-                                <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
-                            ) : (
-                                <Link to={`/namespaces/-/${namespace}`} className="text-sm text-[var(--accent)] font-bold hover:underline">
-                                    {namespace}
-                                </Link>
-                            )}
-                        </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                            <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                            <span className="text-sm font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
@@ -135,7 +112,7 @@ export default function OverviewTab({
                     </div>
                 ) : (
                     <>
-                        <div className={`grid grid-cols-1 ${(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
+                        <div className={`grid grid-cols-1 ${isNode ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                                 <span className="text-sm font-mono text-info font-bold break-all">{name}</span>
@@ -162,7 +139,7 @@ export default function OverviewTab({
                             )}
                         </div>
 
-                        {!kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (
+                        {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
                                 <div className="px-6 py-4 flex flex-col items-center text-center">
                                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
@@ -360,7 +337,20 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {!isDaemonSet && !isNamespace && !isNetworkPolicy && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isNode && (
+                <DetailSection title="Addresses">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {(data.addresses || []).map((addr, idx) => (
+                            <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-slate-600/50 flex flex-col">
+                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider mb-1">{addr.type}</span>
+                                <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
+                            </div>
+                        ))}
+                    </div>
+                </DetailSection>
+            )}
+
+            {!isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !kindLower.includes('role') && !isNamespace && !isNetworkPolicy && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -827,7 +817,128 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {isNode && (
+                <>
+                    <DetailSection title="System Information">
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
+                            <div className="overflow-hidden">
+                                <table className="w-full text-sm text-left border-collapse">
+                                    <tbody className="divide-y divide-slate-600">
+                                        <DetailRow label="Machine ID">
+                                            <span className="font-mono text-xs">{spec.nodeInfo?.machineID || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="System UUID">
+                                            <span className="font-mono text-xs">{spec.nodeInfo?.systemUUID || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Boot ID">
+                                            <span className="font-mono text-xs">{spec.nodeInfo?.bootID || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Kernel Version">
+                                            <span className="font-bold">{spec.nodeInfo?.kernelVersion || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="OS Image">
+                                            <span className="font-bold">{spec.nodeInfo?.osImage || '—'}</span>
+                                        </DetailRow>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="overflow-hidden">
+                                <table className="w-full text-sm text-left border-collapse">
+                                    <tbody className="divide-y divide-slate-600">
+                                        <DetailRow label="Container Runtime Version">
+                                            <span className="font-bold text-info">{spec.nodeInfo?.containerRuntimeVersion || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Kubelet Version">
+                                            <span className="font-bold text-info">{spec.nodeInfo?.kubeletVersion || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Kube-Proxy Version">
+                                            <span className="font-bold text-info">{spec.nodeInfo?.kubeProxyVersion || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Operating System">
+                                            <span className="font-bold capitalize">{spec.nodeInfo?.operatingSystem || '—'}</span>
+                                        </DetailRow>
+                                        <DetailRow label="Architecture">
+                                            <span className="font-bold uppercase">{spec.nodeInfo?.architecture || '—'}</span>
+                                        </DetailRow>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </DetailSection>
+
+                    <DetailSection title="Allocation">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 rounded border border-slate-600/30">
+                            <PieChart
+                                percent={(parseFloat(data.allocation?.cpu?.requests) / (parseFloat(data.allocation?.cpu?.capacity) * 1000)) * 100 || 0}
+                                label="CPU Requests"
+                                subLabel={`Cores: ${data.allocation?.cpu?.requests || '0'}`}
+                                color="var(--accent)"
+                            />
+                            <PieChart
+                                percent={(parseFloat(data.allocation?.cpu?.limits) / (parseFloat(data.allocation?.cpu?.capacity) * 1000)) * 100 || 0}
+                                label="CPU Limits"
+                                subLabel={`Cores: ${data.allocation?.cpu?.limits || '0'}`}
+                                color="var(--info)"
+                            />
+                            <PieChart
+                                percent={(parseInt(data.allocation?.memory?.requests) / (parseInt(data.allocation?.memory?.capacity) * 1024)) * 100 || 0}
+                                label="Memory Requests"
+                                subLabel={`MiB: ${data.allocation?.memory?.requests || '0'}`}
+                                color="var(--accent)"
+                            />
+                            <PieChart
+                                percent={(parseInt(data.allocation?.memory?.limits) / (parseInt(data.allocation?.memory?.capacity) * 1024)) * 100 || 0}
+                                label="Memory Limits"
+                                subLabel={`MiB: ${data.allocation?.memory?.limits || '0'}`}
+                                color="var(--info)"
+                            />
+                            <PieChart
+                                percent={(data.allocation?.pods?.allocation / data.allocation?.pods?.capacity) * 100 || 0}
+                                label="Pods"
+                                subLabel={`Pods: ${data.allocation?.pods?.allocation || '0'}`}
+                                color="var(--success)"
+                            />
+                        </div>
+                    </DetailSection>
+
+                    <DetailSection title="Conditions">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-[var(--bg-sidebar)]/20 uppercase text-[10px] font-black tracking-widest text-[var(--text-muted)] border-b border-slate-600">
+                                        <th className="px-4 py-3">Type</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">Last probe time</th>
+                                        <th className="px-4 py-3">Last transition time</th>
+                                        <th className="px-4 py-3">Reason</th>
+                                        <th className="px-4 py-3">Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-600/50">
+                                    {(status.conditions || []).map((cond, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-700/10 transition-colors">
+                                            <td className="px-4 py-3 font-bold text-info">{cond.type}</td>
+                                            <td className="px-4 py-3">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${cond.status === 'True' ? (cond.type === 'Ready' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning') : (cond.type === 'Ready' ? 'bg-danger/20 text-danger' : 'bg-success/20 text-success')}`}>
+                                                    {cond.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-xs text-[var(--text-muted)] font-mono">{cond.lastProbeTime ? new Date(cond.lastProbeTime).toLocaleString() : '—'}</td>
+                                            <td className="px-4 py-3 text-xs text-[var(--text-muted)] font-mono">{cond.lastTransitionTime ? new Date(cond.lastTransitionTime).toLocaleString() : '—'}</td>
+                                            <td className="px-4 py-3 font-medium">{cond.reason}</td>
+                                            <td className="px-4 py-3 text-xs text-[var(--text-secondary)] italic max-w-xs truncate" title={cond.message}>{cond.message}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </DetailSection>
+
+                    <PodsTable pods={relatedPods} t={t} />
+                </>
+            )}
+
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !isNetworkPolicy && !isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 
