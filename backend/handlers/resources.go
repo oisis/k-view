@@ -1664,17 +1664,19 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 	switch kind {
 	case "pods":
 		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8")},
-			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
-			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3")},
-			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0")},
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi")},
+			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "0m", "ram", "8Mi")},
+			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "5m", "ram", "256Mi")},
+			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "8m", "ram", "64Mi")},
+			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "2m", "ram", "16Mi")},
+			{Name: "pgbouncer-main", Namespace: "database", Age: "5h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "4m", "ram", "32Mi")},
+			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "15m", "ram", "512Mi")},
+			{Name: "postgres-replica-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "10m", "ram", "512Mi")},
+			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "50m", "ram", "2Gi")},
+			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "100m", "ram", "1Gi")},
+			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "0m", "ram", "16Mi")},
+			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "master-01", "cpu", "5m", "ram", "32Mi")},
 		}
 
 	case "deployments":
@@ -1734,13 +1736,13 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "services":
 		items = []ResourceItem{
-			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP")},
-			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP")},
-			{Name: "backend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.56.78", "ports", "8080/TCP")},
-			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.100.1", "ports", "5432/TCP")},
-			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.200.1", "ports", "9092/TCP")},
-			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.150.1", "ports", "9090/TCP")},
-			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "LoadBalancer", Extra: ex("cluster-ip", "10.96.150.2", "ports", "80:3000/TCP")},
+			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP", "labels", "component=apiserver,provider=kubernetes", "endpoints", "10.0.0.1:443")},
+			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP", "labels", "app=frontend", "endpoints", "10.244.1.5:80, 10.244.2.3:80")},
+			{Name: "backend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.56.78", "ports", "8080/TCP", "labels", "app=backend", "endpoints", "10.244.1.6:8080")},
+			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.100.1", "ports", "5432/TCP", "labels", "app=postgres,role=primary", "endpoints", "10.244.1.10:5432")},
+			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.200.1", "ports", "9092/TCP", "labels", "app=kafka", "endpoints", "10.244.3.4:9092")},
+			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.150.1", "ports", "9090/TCP", "labels", "app=prometheus", "endpoints", "10.244.1.20:9090")},
+			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "LoadBalancer", Extra: ex("cluster-ip", "10.96.150.2", "ports", "80:3000/TCP", "labels", "app=grafana", "endpoints", "10.244.1.21:3000", "external", "35.190.20.10")},
 		}
 
 	case "ingresses":
