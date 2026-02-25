@@ -142,8 +142,8 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.data', label: 'Data Count' },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.labels', label: 'Labels' },
+            { key: 'age', label: 'Created' },
         ],
     },
     secrets: {
@@ -151,9 +151,9 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.labels', label: 'Labels' },
             { key: 'extra.type', label: 'Type' },
-            { key: 'extra.data', label: 'Data Count' },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     pvcs: {
@@ -161,11 +161,13 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
+            { key: 'extra.labels', label: 'Labels' },
             { key: 'status', label: 'Status', badge: true },
+            { key: 'extra.volume', label: 'Volume' },
             { key: 'extra.capacity', label: 'Capacity' },
-            { key: 'extra.access-mode', label: 'Access Mode' },
+            { key: 'extra.access-modes', label: 'Access Modes' },
             { key: 'extra.storage-class', label: 'Storage Class' },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     pvs: {
@@ -185,11 +187,9 @@ const SCHEMAS = {
         title: 'Storage Classes',
         cols: [
             { key: 'name', label: 'Name' },
-            { key: 'status', label: 'Is Default', badge: true },
             { key: 'extra.provisioner', label: 'Provisioner' },
-            { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
-            { key: 'extra.volume-binding-mode', label: 'Binding Mode' },
-            { key: 'age', label: 'Age' },
+            { key: 'extra.parameters', label: 'Parameters' },
+            { key: 'age', label: 'Created' },
         ],
     },
     'cluster-role-bindings': {
@@ -694,7 +694,7 @@ export default function ResourceList({ kind }) {
                                             let content;
                                             let cellClass = "px-3 py-1.5 whitespace-nowrap";
 
-                                            const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external'];
+                                            const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                             if (expandableKeys.includes(col.key)) {
                                                 content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                                             } else if (col.key === 'extra.schedule') {

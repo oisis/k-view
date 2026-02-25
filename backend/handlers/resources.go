@@ -386,6 +386,13 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			} else {
 				extra["data"] = "0"
 			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
+				}
+				extra["labels"] = strings.Join(ls, ", ")
+			}
 		case "secrets":
 			if sType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
 				extra["type"] = sType
@@ -394,6 +401,13 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				extra["data"] = fmt.Sprintf("%d", len(data))
 			} else {
 				extra["data"] = "0"
+			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
+				}
+				extra["labels"] = strings.Join(ls, ", ")
 			}
 		case "ingress-classes":
 			if controller, ok, _ := unstructured.NestedString(item.Object, "spec", "controller"); ok {
@@ -411,6 +425,13 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			if bindingMode, ok, _ := unstructured.NestedString(item.Object, "volumeBindingMode"); ok {
 				extra["volume-binding-mode"] = bindingMode
+			}
+			if params, ok, _ := unstructured.NestedMap(item.Object, "parameters"); ok {
+				var ps []string
+				for k, v := range params {
+					ps = append(ps, fmt.Sprintf("%s=%s", k, v))
+				}
+				extra["parameters"] = strings.Join(ps, ", ")
 			}
 			if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "storageclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
 				status = "Default"
@@ -581,6 +602,25 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			if sc, ok, _ := unstructured.NestedString(item.Object, "spec", "storageClassName"); ok {
 				extra["storage-class"] = sc
+			}
+			if vol, ok, _ := unstructured.NestedString(item.Object, "spec", "volumeName"); ok {
+				extra["volume"] = vol
+			}
+			if accModes, ok, _ := unstructured.NestedSlice(item.Object, "spec", "accessModes"); ok {
+				var ms []string
+				for _, m := range accModes {
+					if msStr, ok := m.(string); ok {
+						ms = append(ms, msStr)
+					}
+				}
+				extra["access-modes"] = strings.Join(ms, ", ")
+			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
+				}
+				extra["labels"] = strings.Join(ls, ", ")
 			}
 		case "persistentvolumes", "pvs":
 			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
@@ -1854,38 +1894,38 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "storage-classes":
 		items = []ResourceItem{
-			{Name: "standard", Age: "30d", Status: "Default", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Delete", "volume-binding-mode", "Immediate")},
-			{Name: "premium-rwo", Age: "30d", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Retain", "volume-binding-mode", "WaitForFirstConsumer")},
+			{Name: "standard", Age: "30d", Status: "Default", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Delete", "volume-binding-mode", "Immediate", "parameters", "type=pd-standard")},
+			{Name: "premium-rwo", Age: "30d", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Retain", "volume-binding-mode", "WaitForFirstConsumer", "parameters", "type=pd-ssd")},
 		}
 
 	case "configmaps":
 		items = []ResourceItem{
-			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1")},
-			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5")},
-			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3")},
-			{Name: "prometheus-config", Namespace: "monitoring", Age: "28d", Extra: ex("data", "8")},
-			{Name: "loki-config", Namespace: "logging", Age: "28d", Extra: ex("data", "4")},
-			{Name: "kafka-config", Namespace: "messaging", Age: "20d", Extra: ex("data", "12")},
-			{Name: "postgres-config", Namespace: "database", Age: "25d", Extra: ex("data", "6")},
+			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true")},
+			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web")},
+			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3", "labels", "app.kubernetes.io/name=ingress-nginx")},
+			{Name: "prometheus-config", Namespace: "monitoring", Age: "28d", Extra: ex("data", "8", "labels", "app=prometheus")},
+			{Name: "loki-config", Namespace: "logging", Age: "28d", Extra: ex("data", "4", "labels", "app=loki")},
+			{Name: "kafka-config", Namespace: "messaging", Age: "20d", Extra: ex("data", "12", "labels", "app=kafka")},
+			{Name: "postgres-config", Namespace: "database", Age: "25d", Extra: ex("data", "6", "labels", "app=postgres")},
 		}
 
 	case "secrets":
 		items = []ResourceItem{
-			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3")},
-			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2")},
-			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2")},
-			{Name: "postgres-credentials", Namespace: "database", Age: "25d", Extra: ex("type", "Opaque", "data", "3")},
-			{Name: "kafka-sasl-secret", Namespace: "messaging", Age: "20d", Extra: ex("type", "Opaque", "data", "2")},
+			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3", "labels", "kubernetes.io/service-account.name=default")},
+			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2", "labels", "app=frontend")},
+			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2", "labels", "auth=oidc")},
+			{Name: "postgres-credentials", Namespace: "database", Age: "25d", Extra: ex("type", "Opaque", "data", "3", "labels", "app=postgres")},
+			{Name: "kafka-sasl-secret", Namespace: "messaging", Age: "20d", Extra: ex("type", "Opaque", "data", "2", "labels", "app=kafka")},
 		}
 
 	case "pvcs":
 		items = []ResourceItem{
-			{Name: "postgres-data-pvc", Namespace: "database", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
-			{Name: "kafka-data-pvc-0", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
-			{Name: "kafka-data-pvc-1", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
-			{Name: "prometheus-data-pvc", Namespace: "monitoring", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
-			{Name: "loki-data-pvc", Namespace: "logging", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
-			{Name: "orphan-pvc", Namespace: "default", Age: "5d", Status: "Pending", Extra: ex("capacity", "5Gi", "access-mode", "ReadWriteOnce", "storage-class", "standard")},
+			{Name: "postgres-data-pvc", Namespace: "database", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-5d8f7b", "labels", "app=postgres")},
+			{Name: "kafka-data-pvc-0", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-6c9f8c", "labels", "app=kafka")},
+			{Name: "kafka-data-pvc-1", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-abc12", "labels", "app=kafka")},
+			{Name: "prometheus-data-pvc", Namespace: "monitoring", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-redis-001", "labels", "app=prometheus")},
+			{Name: "loki-data-pvc", Namespace: "logging", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-auth-service", "labels", "app=loki")},
+			{Name: "orphan-pvc", Namespace: "default", Age: "5d", Status: "Pending", Extra: ex("capacity", "5Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "", "labels", "app=orphan")},
 		}
 
 	case "crds":
