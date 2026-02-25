@@ -409,6 +409,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
 				extra["data"] = fmt.Sprintf("%d", len(data))
+				resItem.Data = data
 			} else {
 				extra["data"] = "0"
 			}
@@ -1918,11 +1919,11 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "secrets":
 		items = []ResourceItem{
-			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3", "labels", "kubernetes.io/service-account.name=default")},
-			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2", "labels", "app=frontend")},
-			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2", "labels", "auth=oidc")},
-			{Name: "postgres-credentials", Namespace: "database", Age: "25d", Extra: ex("type", "Opaque", "data", "3", "labels", "app=postgres")},
-			{Name: "kafka-sasl-secret", Namespace: "messaging", Age: "20d", Extra: ex("type", "Opaque", "data", "2", "labels", "app=kafka")},
+			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3", "labels", "kubernetes.io/service-account.name=default"), Data: map[string]interface{}{"token": "ZXlKaGJHY2lPaUpTVXpJMU5pSjkuLg==", "ca.crt": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...", "namespace": "ZGVmYXVsdA=="}},
+			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2", "labels", "app=frontend"), Data: map[string]interface{}{"tls.crt": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...", "tls.key": "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLS..."}},
+			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2", "labels", "auth=oidc"), Data: map[string]interface{}{"client-id": "az12LXY5LXp4", "client-secret": "U2VjcmV0S2V5MTIzNDU2"}},
+			{Name: "postgres-credentials", Namespace: "database", Age: "25d", Extra: ex("type", "Opaque", "data", "3", "labels", "app=postgres"), Data: map[string]interface{}{"username": "cG9zdGdyZXM=", "password": "UGFzc3dvcmQxMjM=", "database": "YXBwX2Ri"}},
+			{Name: "kafka-sasl-secret", Namespace: "messaging", Age: "20d", Extra: ex("type", "Opaque", "data", "2", "labels", "app=kafka"), Data: map[string]interface{}{"username": "dXNlcg==", "password": "cGFzc3dvcmQ="}},
 		}
 
 	case "pvcs":
