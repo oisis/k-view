@@ -894,7 +894,8 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                							}
 		                						}
 		                				
-		                						if isPod {		                			metadataObj["ownerReferences"] = []gin.H{
+		                						if isPod {
+		                			metadataObj["ownerReferences"] = []gin.H{
 		                				{
 		                					"apiVersion": "apps/v1",
 		                					"kind":       "ReplicaSet",
@@ -902,6 +903,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                					"uid":        "rs-uid-456",
 		                				},
 		                			}
+
 		                			specObj["volumes"] = []gin.H{
 		                				{
 		                					"name": "data-storage",
@@ -978,6 +980,32 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					"name":      found.Name + "-hash123",
 					"namespace": found.Namespace,
 					"uid":       "rs-uid-456",
+				},
+			}
+		}
+
+		isClusterRoleBinding := kind == "cluster-role-bindings" || kind == "clusterrolebindings"
+		if isClusterRoleBinding {
+			details["roleRef"] = gin.H{
+				"kind":     "ClusterRole",
+				"name":     "admin",
+				"apiGroup": "rbac.authorization.k8s.io",
+			}
+			details["subjects"] = []gin.H{
+				{
+					"kind":      "ServiceAccount",
+					"name":      "default",
+					"namespace": "kube-system",
+				},
+				{
+					"kind":     "User",
+					"name":     "admin@kview.local",
+					"apiGroup": "rbac.authorization.k8s.io",
+				},
+				{
+					"kind":      "Group",
+					"name":      "system:masters",
+					"namespace": "",
 				},
 			}
 		}

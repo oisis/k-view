@@ -20,6 +20,7 @@ import IngressRulesTable from './IngressRulesTable';
 import CodeEditor from './CodeEditor';
 import ResourceActionMenu from '../ResourceActionMenu.jsx';
 import PersistentVolumesTable from './PersistentVolumesTable';
+import SubjectsTable from './SubjectsTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -40,6 +41,8 @@ export default function OverviewTab({
     const isIngressClass = kindLower.includes('ingress') && kindLower.includes('class');
     const isIngress = kindLower.includes('ingress') && !isIngressClass;
     const isService = kindLower.includes('service') && !isIngressClass;
+    const isPvc = kindLower.includes('persistentvolumeclaim') || kindLower.includes('pvc');
+    const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -83,7 +86,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -282,7 +285,28 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isClusterRoleBinding && (
+                <>
+                    <DetailSection title={t('resource_info')} className="mt-4">
+                        <table className="w-full text-sm text-left border-collapse">
+                            <tbody className="divide-y divide-slate-600">
+                                <DetailRow label="Role Reference">
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-wider">
+                                            {data.roleRef?.kind || 'ClusterRole'}
+                                        </span>
+                                        <span className="font-mono text-info font-bold">{data.roleRef?.name || '—'}</span>
+                                    </div>
+                                </DetailRow>
+                            </tbody>
+                        </table>
+                    </DetailSection>
+
+                    <SubjectsTable subjects={data.subjects} t={t} />
+                </>
+            )}
+
+            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -742,7 +766,7 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 
