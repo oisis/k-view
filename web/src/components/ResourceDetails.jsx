@@ -814,6 +814,7 @@ export default function ResourceDetails({ user }) {
     const [logFontSize, setLogFontSize] = useState(14);
 
     const canEdit = user && (user.role === 'kview-cluster-admin' || user.role === 'admin' || user.role === 'edit');
+    const kindLower = kind?.toLowerCase() || '';
 
     const executeTrigger = async () => {
         setIsTriggering(true);
@@ -878,14 +879,12 @@ export default function ResourceDetails({ user }) {
                         fetch(`/api/resources/resourcequotas?namespace=${name}`),
                         fetch(`/api/resources/limitranges?namespace=${name}`)
                     ]);
-                    if (qRes.ok) setQuotas(await qRes.json());
-                    if (lRes.ok) setLimits(await lRes.json());
-                }
-
-                const kindLower = kind?.toLowerCase() || '';
-                const nsQuery = namespace === '-' ? '' : namespace;
-                
-                if (kindLower.includes('cronjob')) {
+                                    if (qRes.ok) setQuotas(await qRes.json());
+                                    if (lRes.ok) setLimits(await lRes.json());
+                                }
+                    
+                                const nsQuery = namespace === '-' ? '' : namespace;
+                                    if (kindLower.includes('cronjob')) {
                     const jobsRes = await fetch(`/api/resources/jobs?namespace=${nsQuery}`);
                     if (jobsRes.ok) {
                         const jobsData = await jobsRes.json();
@@ -1017,7 +1016,6 @@ export default function ResourceDetails({ user }) {
     const { metadata } = data;
     const spec = data.spec || {};
     const status = data.status || {};
-    const kindLower = kind?.toLowerCase() || '';
     const isPod = kindLower.includes('pod');
     const isJob = (kindLower === 'job' || kindLower === 'jobs') && !kindLower.includes('cron');
     const isCronJob = kindLower.includes('cronjob');
@@ -1218,34 +1216,38 @@ export default function ResourceDetails({ user }) {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
-                                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
-                                                {isDaemonSet ? 'Pods Running' : t('label_status')}
-                                            </span>
-                                            {isDaemonSet ? (
-                                                <span className="text-sm font-bold text-success">{status?.numberReady || 0}</span>
-                                            ) : (
-                                                <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
-                                                    <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                                    <span className="text-sm font-bold uppercase tracking-wide">{t(status?.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status?.phase || data.resource?.status || t('unknown')}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
-                                                {isDaemonSet ? 'Pods Desired' : t('label_node')}
-                                            </span>
-                                            {isDaemonSet ? (
-                                                <span className="text-sm font-bold text-[var(--text-primary)]">{status?.desiredNumberScheduled || 0}</span>
-                                            ) : spec.nodeName ? (
-                                                <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
-                                                    {spec.nodeName}
-                                                </Link>
-                                            ) : (
-                                                <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
-                                            )}
-                                        </div>
-                                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                                        {!kindLower.includes('configmap') && (
+                                            <div className="px-6 py-4 flex flex-col items-center text-center">
+                                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                                    {isDaemonSet ? 'Pods Running' : t('label_status')}
+                                                </span>
+                                                {isDaemonSet ? (
+                                                    <span className="text-sm font-bold text-success">{status?.numberReady || 0}</span>
+                                                ) : (
+                                                    <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
+                                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
+                                                        <span className="text-sm font-bold uppercase tracking-wide">{t(status?.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status?.phase || data.resource?.status || t('unknown')}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {!kindLower.includes('configmap') && (
+                                            <div className="px-6 py-4 flex flex-col items-center text-center">
+                                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                                                    {isDaemonSet ? 'Pods Desired' : t('label_node')}
+                                                </span>
+                                                {isDaemonSet ? (
+                                                    <span className="text-sm font-bold text-[var(--text-primary)]">{status?.desiredNumberScheduled || 0}</span>
+                                                ) : spec.nodeName ? (
+                                                    <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
+                                                        {spec.nodeName}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                                )}
+                                            </div>
+                                        )}
+                                        <div className={`px-6 py-4 flex flex-col items-center text-center ${kindLower.includes('configmap') ? 'md:col-span-3' : ''}`}>
                                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
                                             <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
                                         </div>
@@ -1323,7 +1325,17 @@ export default function ResourceDetails({ user }) {
                             </div>
                         </DetailSection>
 
-                        {!isDaemonSet && !isPod && !isIngressClass && !isIngress && !isService && (
+                        {kindLower.includes('configmap') && data.data && (
+                            <DetailSection title="Data" className="mt-4">
+                                <CodeEditor 
+                                    value={JSON.stringify(data.data, null, 2)} 
+                                    readOnly={true} 
+                                    fontSize={13} 
+                                />
+                            </DetailSection>
+                        )}
+
+                        {!isDaemonSet && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && (
                             <DetailSection title={t('resource_info')}>
                                 <table className="w-full text-sm text-left border-collapse">
                                     <tbody className="divide-y divide-slate-600">
@@ -1744,7 +1756,7 @@ export default function ResourceDetails({ user }) {
                             </>
                         )}
 
-                        {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngressClass && !isIngress && !isService && (status?.conditions || []).length > 0 && (
+                        {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngressClass && !isIngress && !isService && !kindLower.includes('configmap') && (status?.conditions || []).length > 0 && (
                             <ConditionsTable conditions={status.conditions} t={t} />
                         )}
 

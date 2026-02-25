@@ -147,11 +147,12 @@ func getAge(t time.Time) string {
 }
 
 type ResourceItem struct {
-	Name      string            `json:"name"`
-	Namespace string            `json:"namespace,omitempty"`
-	Age       string            `json:"age"`
-	Status    string            `json:"status,omitempty"`
-	Extra     map[string]string `json:"extra,omitempty"`
+	Name      string                 `json:"name"`
+	Namespace string                 `json:"namespace,omitempty"`
+	Age       string                 `json:"age"`
+	Status    string                 `json:"status,omitempty"`
+	Extra     map[string]string      `json:"extra,omitempty"`
+	Data      map[string]interface{} `json:"data,omitempty"`
 }
 
 type MetricHistory struct {
@@ -378,11 +379,20 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		if len(item.GetOwnerReferences()) > 0 {
 			extra["owner-uid"] = string(item.GetOwnerReferences()[0].UID)
 		}
+
+		resItem := ResourceItem{
+			Name:      name,
+			Namespace: namespace,
+			Age:       age,
+			Status:    status,
+			Extra:     extra,
+		}
 		
 		switch kind {
 		case "configmaps":
 			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
 				extra["data"] = fmt.Sprintf("%d", len(data))
+				resItem.Data = data
 			} else {
 				extra["data"] = "0"
 			}
@@ -687,13 +697,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 		}
 
-		items = append(items, ResourceItem{
-			Name:      name,
-			Namespace: namespace,
-			Age:       age,
-			Status:    status,
-			Extra:     extra,
-		})
+		items = append(items, resItem)
 	}
 
 	c.JSON(http.StatusOK, items)
@@ -948,12 +952,14 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                			}
 		                		}
 		                
-		                		details := gin.H{
-		                			"resource": found,
-		                			"metadata": metadataObj,
-		                			"spec":     specObj,
-		                			"status":   statusObj,
-		                			"metrics": gin.H{				"containers": []gin.H{
+		                				details := gin.H{
+		                					"resource": found,
+		                					"metadata": metadataObj,
+		                					"spec":     specObj,
+		                					"status":   statusObj,
+		                					"data":     found.Data,
+		                					"metrics": gin.H{
+		                						"containers": []gin.H{
 					{
 						"name": "main",
 						"usage": gin.H{
@@ -1010,6 +1016,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"metadata": item.Object["metadata"],
 		"spec":     item.Object["spec"],
 		"status":   item.Object["status"],
+		"data":     item.Object["data"],
 	}
 
 	if strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod" {
@@ -1900,9 +1907,9 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "configmaps":
 		items = []ResourceItem{
-			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true")},
-			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web")},
-			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3", "labels", "app.kubernetes.io/name=ingress-nginx")},
+			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true"), Data: map[string]interface{}{"ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIQ..."}},
+			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web"), Data: map[string]interface{}{"api-url": "https://api.example.com", "debug": "true", "timeout": "30s", "max-retries": "3"}},
+			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3", "labels", "app.kubernetes.io/name=ingress-nginx"), Data: map[string]interface{}{"nginx.conf": "user nginx;\nworker_processes auto;\n...", "proxy-body-size": "100m"}},
 			{Name: "prometheus-config", Namespace: "monitoring", Age: "28d", Extra: ex("data", "8", "labels", "app=prometheus")},
 			{Name: "loki-config", Namespace: "logging", Age: "28d", Extra: ex("data", "4", "labels", "app=loki")},
 			{Name: "kafka-config", Namespace: "messaging", Age: "20d", Extra: ex("data", "12", "labels", "app=kafka")},
