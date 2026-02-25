@@ -240,9 +240,7 @@ const SCHEMAS = {
         cols: [
             { key: 'name', label: 'Name' },
             { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.role', label: 'Role' },
-            { key: 'extra.subjects', label: 'Subjects' },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     roles: {

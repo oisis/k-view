@@ -26,7 +26,6 @@ import ResourceQuotasTable from './ResourceQuotasTable';
 import LimitRangesTable from './LimitRangesTable';
 import PolicyRulesTable from './PolicyRulesTable';
 import PieChart from './PieChart';
-import CapacityTable from './CapacityTable';
 import SourceTable from './SourceTable';
 
 export default function OverviewTab({
@@ -992,7 +991,6 @@ export default function OverviewTab({
             {isPv && (
                 <>
                     <SourceTable source={data.source} t={t} />
-                    <CapacityTable capacity={data.capacity} t={t} />
                 </>
             )}
 
