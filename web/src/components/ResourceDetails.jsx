@@ -83,7 +83,6 @@ function ExpandableCell({ value, type }) {
 }
 
 function DetailSection({ title, children, className = "" }) {
-    const { icons } = useTheme();
     return (
         <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
             <div className="px-6 py-2.5 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
@@ -184,7 +183,7 @@ function StatusItem({ label, value, children }) {
     );
 }
 
-function CodeEditor({ value, onChange, readOnly, fontSize = 13 }) {
+function CodeEditor({ value, onChange, readOnly, fontSize = 12 }) {
     const lines = value.split('\n');
     const lineCount = lines.length;
     const LINE_HEIGHT = '1.6rem';
@@ -299,6 +298,8 @@ export default function ResourceDetails({ user }) {
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
     const [relatedJobs, setRelatedJobs] = useState([]);
+    const [relatedPods, setRelatedPods] = useState([]);
+    const [relatedServices, setRelatedServices] = useState([]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -333,21 +334,8 @@ export default function ResourceDetails({ user }) {
                 throw new Error(data.error || 'Failed to trigger resource');
             }
             setConfirmTrigger(false);
-            // Refresh data to show new active jobs
-            const nsPathFetch = namespace ? `/${namespace}` : '/-';
-            fetch(`/api/resources/${kind}${nsPathFetch}/${name}`)
-                .then(r => r.json())
-                .then(data => {
-                    setData(data);
-                    if (kind.toLowerCase().startsWith('cronjob')) {
-                        fetch(`/api/resources/jobs?namespace=${namespace === '-' ? '' : namespace}`)
-                            .then(r => r.json())
-                            .then(jobsData => {
-                                const filtered = jobsData.filter(j => j.extra?.['owner-uid'] === data.metadata.uid);
-                                setRelatedJobs(filtered);
-                            });
-                    }
-                });
+            // Refresh data
+            window.location.reload();
         } catch (err) {
             alert('Trigger failed: ' + err.message);
         } finally {
@@ -407,20 +395,27 @@ export default function ResourceDetails({ user }) {
                 }
 
                 const kindLower = kind?.toLowerCase() || '';
-                // Fetch Jobs for CronJob
+                // Fetch Related Data
+                const nsQuery = namespace === '-' ? '' : namespace;
                 if (kindLower.startsWith('cronjob')) {
-                    const jobsRes = await fetch(`/api/resources/jobs?namespace=${namespace === '-' ? '' : namespace}`);
+                    const jobsRes = await fetch(`/api/resources/jobs?namespace=${nsQuery}`);
                     if (jobsRes.ok) {
                         const jobsData = await jobsRes.json();
-                        console.log('CronJob Details UID:', detailsData.metadata.uid);
-                        console.log('Fetched Jobs Data:', jobsData);
-                        // Filter jobs owned by this CronJob using owner-uid from backend
-                        const filtered = jobsData.filter(j => {
-                            const ownerUid = j.extra?.['owner-uid'];
-                            return ownerUid === detailsData.metadata.uid;
-                        });
-                        console.log('Filtered Related Jobs:', filtered);
-                        setRelatedJobs(filtered);
+                        setRelatedJobs(jobsData.filter(j => j.extra?.['owner-uid'] === detailsData.metadata.uid));
+                    }
+                }
+
+                if (kindLower.startsWith('daemonset')) {
+                    const [podsRes, svcsRes] = await Promise.all([
+                        fetch(`/api/resources/pods?namespace=${nsQuery}`),
+                        fetch(`/api/resources/services?namespace=${nsQuery}`)
+                    ]);
+                    if (podsRes.ok) {
+                        const podsData = await podsRes.json();
+                        setRelatedPods(podsData.filter(p => p.extra?.['owner-uid'] === detailsData.metadata.uid));
+                    }
+                    if (svcsRes.ok) {
+                        setRelatedServices(await svcsRes.json());
                     }
                 }
 
@@ -468,7 +463,7 @@ export default function ResourceDetails({ user }) {
     if (loading) return (
         <div className="flex-1 flex items-center justify-center min-h-[400px]">
             <div className="flex flex-col items-center gap-3">
-                <icons.refresh className="animate-spin text-info" size={32} />
+                <icons.refresh size={32} className="animate-spin text-info" />
                 <p className="text-[var(--text-muted)] font-medium">{t('loading')}</p>
             </div>
         </div>
@@ -503,6 +498,7 @@ export default function ResourceDetails({ user }) {
     const kindLower = kind?.toLowerCase() || '';
     const isPod = kindLower.startsWith('pod');
     const isCronJob = kindLower.startsWith('cronjob');
+    const isDaemonSet = kindLower.startsWith('daemonset');
     const isDeployment = kindLower.startsWith('deploy');
     const isService = kindLower.startsWith('serv');
 
@@ -571,35 +567,6 @@ export default function ResourceDetails({ user }) {
                 </div>
             </div>
 
-            {/* Confirmation Modal for Trigger */}
-            {confirmTrigger && createPortal(
-                <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTrigger(false)} />
-                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6">
-                            <div className="flex items-center gap-3 text-emerald-400 mb-6">
-                                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                                    <icons.zap size={24} />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_trigger')}</h3>
-                                    <p className="text-sm text-[var(--text-secondary)]">{name}</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <button onClick={() => setConfirmTrigger(false)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
-                                    {t('cancel')}
-                                </button>
-                                <button onClick={executeTrigger} disabled={isTriggering} className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
-                                    {isTriggering ? '...' : t('trigger_now')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
-
             {/* Tabs */}
             <div className="flex items-center justify-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--accent)] mx-auto backdrop-blur-md shadow-lg shadow-indigo-500/10">
                 {[
@@ -636,6 +603,35 @@ export default function ResourceDetails({ user }) {
                 )}
             </div>
 
+            {/* Confirmation Modal for Trigger */}
+            {confirmTrigger && createPortal(
+                <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTrigger(false)} />
+                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 text-emerald-400 mb-6">
+                                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <icons.zap size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_trigger')}</h3>
+                                    <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <button onClick={() => setConfirmTrigger(false)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                    {t('cancel')}
+                                </button>
+                                <button onClick={executeTrigger} disabled={isTriggering} className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                                    {isTriggering ? '...' : t('trigger_now')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
             {/* Tab Content */}
             <div className="space-y-2 flex-1 flex flex-col pb-8">
                 {activeTab === 'overview' && (
@@ -668,14 +664,18 @@ export default function ResourceDetails({ user }) {
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
                                 <div className="px-6 py-4 flex flex-col items-center text-center">
                                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_status')}</span>
-                                    <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
-                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                        <span className="text-sm font-bold uppercase tracking-wide">{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
-                                    </div>
+                                    {!isDaemonSet ? (
+                                        <div className={`flex items-center gap-1.5 ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
+                                            <div className={`w-2 h-2 rounded-full animate-pulse ${(status.phase === 'Running' || status.phase === 'Active' || status.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
+                                            <span className="text-sm font-bold uppercase tracking-wide">{t(status.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status.phase || data.resource?.status || t('unknown')}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-[var(--text-muted)] font-bold italic">—</span>
+                                    )}
                                 </div>
                                 <div className="px-6 py-4 flex flex-col items-center text-center">
                                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_node')}</span>
-                                    {spec.nodeName ? (
+                                    {spec.nodeName && !isDaemonSet ? (
                                         <Link to={`/nodes/-/${spec.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
                                             {spec.nodeName}
                                         </Link>
@@ -769,7 +769,55 @@ export default function ResourceDetails({ user }) {
                         <DetailSection title={t('resource_info')}>
                             <table className="w-full text-sm text-left border-collapse">
                                 <tbody className="divide-y divide-slate-600">
-                                    {!isCronJob && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                                    {isCronJob && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Schedule</span>
+                                                        <span className="font-mono text-info font-bold truncate w-full">{spec.schedule}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Active Jobs</span>
+                                                        <span className="font-bold text-[var(--text-primary)]">{status.active ? status.active.length : 0}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Suspend</span>
+                                                        <span className={`font-bold ${spec.suspend ? 'text-warning' : 'text-success'}`}>{spec.suspend ? 'True' : 'False'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Last Schedule</span>
+                                                        <span className="text-[var(--text-secondary)] text-xs truncate w-full">{status.lastScheduleTime ? new Date(status.lastScheduleTime).toLocaleString() : '—'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Concurrency Policy</span>
+                                                        <span className="font-mono text-[var(--text-primary)] truncate w-full">{spec.concurrencyPolicy || 'Allow'}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Starting Deadline</span>
+                                                        <span className="font-mono text-[var(--text-primary)]">{spec.startingDeadlineSeconds ?? '—'}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {isDaemonSet && (
+                                        <tr className="border-b border-slate-600">
+                                            <td colSpan="2" className="p-0">
+                                                <div className="grid grid-cols-2 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Pods Running</span>
+                                                        <span className="text-sm font-bold text-success">{status.numberReady || 0}</span>
+                                                    </div>
+                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Pods Desired</span>
+                                                        <span className="text-sm font-bold text-[var(--text-primary)]">{status.desiredNumberScheduled || 0}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {!isCronJob && !isDaemonSet && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
                                         <tr className="border-b border-slate-600">
                                             <td colSpan="2" className="p-0">
                                                 <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
@@ -795,7 +843,7 @@ export default function ResourceDetails({ user }) {
                                         </tr>
                                     )}
 
-                                    {!isCronJob && (mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
+                                    {!isCronJob && !isDaemonSet && (mountedConfigMaps.length > 0 || mountedSecrets.length > 0) && (
                                         <DetailRow label="">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {mountedConfigMaps.length > 0 && (
@@ -828,7 +876,7 @@ export default function ResourceDetails({ user }) {
 
                                     {spec.clusterIP && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
-                                    {!isCronJob && (
+                                    {!isCronJob && !isDaemonSet && (
                                         <DetailRow label={t('label_selector')}>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <div>
@@ -850,39 +898,6 @@ export default function ResourceDetails({ user }) {
                                                 </div>
                                             </div>
                                         </DetailRow>
-                                    )}
-
-                                    {isCronJob && (
-                                        <tr className="border-b border-slate-600">
-                                            <td colSpan="2" className="p-0">
-                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Schedule</span>
-                                                        <span className="font-mono text-info font-bold truncate w-full">{spec.schedule}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Active Jobs</span>
-                                                        <span className="font-bold text-[var(--text-primary)]">{status.active ? status.active.length : 0}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Suspend</span>
-                                                        <span className={`font-bold ${spec.suspend ? 'text-warning' : 'text-success'}`}>{spec.suspend ? 'True' : 'False'}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Last Schedule</span>
-                                                        <span className="text-[var(--text-secondary)] text-xs truncate w-full">{status.lastScheduleTime ? new Date(status.lastScheduleTime).toLocaleString() : '—'}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Concurrency Policy</span>
-                                                        <span className="font-mono text-[var(--text-primary)] truncate w-full">{spec.concurrencyPolicy || 'Allow'}</span>
-                                                    </div>
-                                                    <div className="px-4 py-3 flex flex-col items-center text-center">
-                                                        <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">Starting Deadline</span>
-                                                        <span className="font-mono text-[var(--text-primary)]">{spec.startingDeadlineSeconds ?? '—'}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
                                     )}
 
                                     {isDeployment && spec.strategy?.rollingUpdate && (
@@ -921,7 +936,7 @@ export default function ResourceDetails({ user }) {
                                         </DetailRow>
                                     )}
 
-                                    {!isCronJob && (
+                                    {!isCronJob && !isDaemonSet && (
                                         <DetailRow label={t('containers')}>
                                             <div className="space-y-4">
                                                 {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
@@ -1006,10 +1021,10 @@ export default function ResourceDetails({ user }) {
                         </DetailSection>
 
                         {/* Section: Conditions or Jobs */}
-                        {!isCronJob && (status.conditions || []).length > 0 && (
+                        {!isCronJob && !isDaemonSet && (status.conditions || []).length > 0 && (
                             <DetailSection title={t('status_conditions')}>
                                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                                    <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
+                                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-center">
                                         <tr>
                                             <th className="px-6 py-3">{t('type')}</th>
                                             <th className="px-6 py-3">{t('label_status')}</th>
@@ -1066,7 +1081,107 @@ export default function ResourceDetails({ user }) {
                             </>
                         )}
 
-                        {!isCronJob && mountedPvcs.length > 0 && (
+                        {isDaemonSet && (
+                            <>
+                                <DetailSection title="Pods" className="mt-4">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                                            <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                                <tr>
+                                                    <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                                                    <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                                                    <th className="px-4 py-3 text-left">Images</th>
+                                                    <th className="px-4 py-3 text-left">Labels</th>
+                                                    <th className="px-4 py-3 text-left">Node</th>
+                                                    <th className="px-4 py-3 text-left">Status</th>
+                                                    <th className="px-4 py-3 text-center">Restarts</th>
+                                                    <th className="px-4 py-3 text-left">CPU</th>
+                                                    <th className="px-4 py-3 text-left">RAM</th>
+                                                    <th className="px-4 py-3 text-left">Created</th>
+                                                    <th className="px-4 py-3 text-right"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-[var(--border-color)]">
+                                                {relatedPods.length === 0 ? (
+                                                    <tr><td colSpan="11" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No pods found.</td></tr>
+                                                ) : (
+                                                    relatedPods.map((pod, i) => (
+                                                        <tr key={i} className="hover:bg-white/5 transition-colors">
+                                                            <td className="px-4 py-2">
+                                                                <Link to={`/pods/${pod.namespace}/${pod.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
+                                                                    {pod.name}
+                                                                </Link>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-[var(--text-secondary)]">{pod.namespace}</td>
+                                                            <td className="px-4 py-2"><ExpandableCell value={pod.extra?.images} type="images" /></td>
+                                                            <td className="px-4 py-2"><ExpandableCell value={pod.extra?.labels} type="labels" /></td>
+                                                            <td className="px-4 py-2 text-xs font-mono text-info truncate max-w-[120px]">{pod.extra?.node || '—'}</td>
+                                                            <td className="px-4 py-2">
+                                                                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${pod.status === 'Running' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                                                                    {pod.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-center font-bold">{pod.extra?.restarts || 0}</td>
+                                                            <td className="px-4 py-2 font-mono text-xs text-info">{pod.extra?.cpu || '—'}</td>
+                                                            <td className="px-4 py-2 font-mono text-xs text-teal-400">{pod.extra?.ram || '—'}</td>
+                                                            <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{pod.age}</td>
+                                                            <td className="px-4 py-2 text-right">
+                                                                <ResourceActionMenu kind="pods" namespace={pod.namespace} name={pod.name} onRefresh={() => window.location.reload()} />
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </DetailSection>
+
+                                <DetailSection title="Services" className="mt-4">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                                            <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                                                <tr>
+                                                    <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                                                    <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                                                    <th className="px-4 py-3 text-left">Labels</th>
+                                                    <th className="px-4 py-3 text-left">Type</th>
+                                                    <th className="px-4 py-3 text-left">Cluster IP</th>
+                                                    <th className="px-4 py-3 text-left">Endpoints</th>
+                                                    <th className="px-4 py-3 text-left">External</th>
+                                                    <th className="px-4 py-3 text-left">Created</th>
+                                                    <th className="px-4 py-3 text-right"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-[var(--border-color)]">
+                                                {relatedServices.length === 0 ? (
+                                                    <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No services found.</td></tr>
+                                                ) : (
+                                                    relatedServices.map((svc, i) => (
+                                                        <tr key={i} className="hover:bg-white/5 transition-colors">
+                                                            <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                                                <Link to={`/services/${svc.namespace}/${svc.name}`} className="hover:underline">{svc.name}</Link>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-[var(--text-secondary)]">{svc.namespace}</td>
+                                                            <td className="px-4 py-2"><ExpandableCell value={svc.extra?.labels} type="labels" /></td>
+                                                            <td className="px-4 py-2"><span className="px-2 py-0.5 rounded bg-slate-500/10 text-[10px] font-bold uppercase border border-slate-500/20">{svc.status || 'ClusterIP'}</span></td>
+                                                            <td className="px-4 py-2 font-mono text-xs text-[var(--text-secondary)]">{svc.extra?.['cluster-ip'] || '—'}</td>
+                                                            <td className="px-4 py-2 text-xs text-info">{svc.extra?.endpoints || '—'}</td>
+                                                            <td className="px-4 py-2 text-xs text-purple-400">{svc.extra?.external || '—'}</td>
+                                                            <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{svc.age}</td>
+                                                            <td className="px-4 py-2 text-right">
+                                                                <ResourceActionMenu kind="services" namespace={svc.namespace} name={svc.name} onRefresh={() => window.location.reload()} />
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </DetailSection>
+                            </>
+                        )}
+
+                        {!isCronJob && !isDaemonSet && mountedPvcs.length > 0 && (
                             <DetailSection title={t('mounted_pvcs')} className="mt-4">
                                 <div className="p-4 flex flex-wrap gap-3">
                                     {mountedPvcs.map(pvc => (
@@ -1127,7 +1242,7 @@ export default function ResourceDetails({ user }) {
                                                     <icons.about size={14} /> {l.metadata.name}
                                                 </h4>
                                                 <table className="w-full text-[var(--font-size-xs)]">
-                                                    <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
+                                                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
                                                         <tr>
                                                             <th className="px-3 py-2">{t('type')}</th>
                                                             <th className="px-3 py-2">{t('usage_metrics')}</th>
@@ -1275,7 +1390,7 @@ export default function ResourceDetails({ user }) {
                 {activeTab === 'events' && (
                     <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
                         <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                            <thead className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-left">
+                            <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-left">
                                 <tr>
                                     <th className="px-6 py-3">{t('label_name')}</th>
                                     <th className="px-6 py-3">{t('reason')}</th>
@@ -1537,5 +1652,106 @@ export default function ResourceDetails({ user }) {
                 )}
             </div>
         </div >
+    );
+}
+
+function StatusItem({ label, value, children }) {
+    return (
+        <div className="flex flex-col gap-1 min-w-[100px]">
+            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-[0.2em]">{label}</span>
+            <div className="text-base font-bold text-[var(--text-[var(--text-white)])] flex items-center min-h-[1.5rem] tracking-tight">
+                {children || (value ?? '—')}
+            </div>
+        </div>
+    );
+}
+
+function DetailSection({ title, children, className = "" }) {
+    return (
+        <div className={`bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl flex flex-col ${className}`}>
+            <div className="px-6 py-2.5 border-b-2 border-slate-600 bg-black/20 flex-shrink-0 text-center">
+                <h3 className="text-[13px] font-bold text-[var(--accent)] uppercase tracking-widest">{title}</h3>
+            </div>
+            <div className="overflow-auto flex-1">
+                {children}
+            </div>
+        </div>
+    );
+}
+
+function DetailRow({ label, value, children }) {
+    return (
+        <tr className="group">
+            <td className="px-4 py-3 w-48 text-[var(--font-size-xs)] font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
+                {label}
+            </td>
+            <td className="px-4 py-3 text-[var(--font-size-sm)] text-[var(--text-primary)]">
+                {children || (
+                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-[var(--text-white)])]'}>
+                        {value ?? '—'}
+                    </span>
+                )}
+            </td>
+        </tr>
+    );
+}
+
+function JobsTable({ title, jobs, t, kind, namespace }) {
+    return (
+        <DetailSection title={title} className="mt-4">
+            <div className="overflow-x-auto">
+                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left">Images</th>
+                            <th className="px-4 py-3 text-left">Labels</th>
+                            <th className="px-4 py-3 text-center">Pods</th>
+                            <th className="px-4 py-3 text-left">Created</th>
+                            <th className="px-4 py-3 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-color)]">
+                        {jobs.length === 0 ? (
+                            <tr>
+                                <td colSpan="7" className="px-4 py-8 text-center text-[var(--text-muted)] italic">
+                                    No jobs found.
+                                </td>
+                            </tr>
+                        ) : (
+                            jobs.map((job, i) => (
+                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-4 py-2">
+                                        <Link to={`/jobs/${job.namespace}/${job.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
+                                            {job.name}
+                                        </Link>
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{job.namespace}</td>
+                                    <td className="px-4 py-2">
+                                        <ExpandableCell value={job.extra?.images} type="images" />
+                                    </td>
+                                    <td className="px-4 py-2">
+                                        <ExpandableCell value={job.extra?.labels} type="labels" />
+                                    </td>
+                                    <td className="px-4 py-2 text-center font-bold text-[var(--text-primary)]">
+                                        {job.extra?.ready || '1/1'}
+                                    </td>
+                                    <td className="px-4 py-2 text-[var(--text-muted)]">{job.age}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        <ResourceActionMenu
+                                            kind="jobs"
+                                            namespace={job.namespace}
+                                            name={job.name}
+                                            onRefresh={() => window.location.reload()}
+                                        />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </DetailSection>
     );
 }
