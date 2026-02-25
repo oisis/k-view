@@ -574,6 +574,13 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
 				status = phase
 			}
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
+				}
+				extra["labels"] = strings.Join(ls, ", ")
+			}
 		case "persistentvolumeclaims", "pvcs":
 			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
 				status = phase
@@ -710,6 +717,9 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				Age:       "1h",
 				Status:    "Active",
 			}
+			if kind == "namespaces" || kind == "namespace" {
+				found.Namespace = "" 
+			}
 		}
 
 		revision := "4"
@@ -719,23 +729,28 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 
 		                		isDeployment := strings.ToLower(kind) == "deployments" || strings.ToLower(kind) == "deployment"
 		                		isDaemonSet := strings.ToLower(kind) == "daemonsets" || strings.ToLower(kind) == "daemonset"
-		                						isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
-		                						isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
-		                						isIngress := strings.ToLower(kind) == "ingresses" || strings.ToLower(kind) == "ingress"
-		                						isService := strings.ToLower(kind) == "services" || strings.ToLower(kind) == "service"
+		                		isJob := strings.ToLower(kind) == "jobs" || strings.ToLower(kind) == "job"
+		                		isPod := strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod"
+		                		isIngress := strings.ToLower(kind) == "ingresses" || strings.ToLower(kind) == "ingress"
+		                		isService := strings.ToLower(kind) == "services" || strings.ToLower(kind) == "service"
+		                		isNamespace := strings.ToLower(kind) == "namespaces" || strings.ToLower(kind) == "namespace"
 		                				
-		                						statusObj := gin.H{		                			"phase":              "Running",
-		                			"observedGeneration": 4,
-		                			"conditions": []gin.H{
-		                				{
-		                					"type":               "Ready",
-		                					"status":             "True",
-		                					"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                					"reason":             "PodReady",
-		                					"message":            "Resource is healthy",
-		                				},
-		                			},
-		                		}
+		                						statusObj := gin.H{
+		                							"phase":              "Running",
+		                						}
+		                						if isNamespace {
+		                							statusObj["phase"] = "Active"
+		                						}
+		                						statusObj["observedGeneration"] = 4
+		                						statusObj["conditions"] = []gin.H{
+		                							{
+		                								"type":               "Ready",
+		                								"status":             "True",
+		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
+		                								"reason":             "Healthy",
+		                								"message":            "Resource is healthy",
+		                							},
+		                						}
 		                
 		                		specObj := gin.H{
 		                			"nodeName":             "worker-01",
@@ -1004,6 +1019,61 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 					"verbs":           []string{"get"},
 					"apiGroups":       []string{""},
 				},
+			}
+		}
+
+		isNamespace = kind == "namespaces" || kind == "namespace"
+		if isNamespace {
+			if name == "messaging" {
+				details["quotas"] = []gin.H{
+					{
+						"metadata": gin.H{"name": "messaging-quota"},
+						"status": gin.H{
+							"hard": gin.H{"requests.cpu": "16", "requests.memory": "32Gi", "pods": "50"},
+							"used": gin.H{"requests.cpu": "2", "requests.memory": "4Gi", "pods": "10"},
+						},
+					},
+				}
+				details["limits"] = []gin.H{
+					{
+						"metadata": gin.H{"name": "messaging-limits"},
+						"spec": gin.H{
+							"limits": []gin.H{
+								{
+									"type":    "Container",
+									"max":     gin.H{"memory": "2Gi", "cpu": "2"},
+									"min":     gin.H{"memory": "128Mi", "cpu": "100m"},
+									"default": gin.H{"memory": "512Mi", "cpu": "500m"},
+								},
+							},
+						},
+					},
+				}
+			} else {
+				details["quotas"] = []gin.H{
+					{
+						"metadata": gin.H{"name": "default-quota"},
+						"status": gin.H{
+							"hard": gin.H{"requests.cpu": "4", "requests.memory": "8Gi", "pods": "20"},
+							"used": gin.H{"requests.cpu": "1.2", "requests.memory": "2Gi", "pods": "12"},
+						},
+					},
+				}
+				details["limits"] = []gin.H{
+					{
+						"metadata": gin.H{"name": "default-limits"},
+						"spec": gin.H{
+							"limits": []gin.H{
+								{
+									"type":    "Container",
+									"max":     gin.H{"memory": "1Gi", "cpu": "1"},
+									"min":     gin.H{"memory": "256Mi", "cpu": "100m"},
+									"default": gin.H{"memory": "512Mi", "cpu": "500m"},
+								},
+							},
+						},
+					},
+				}
 			}
 		}
 
@@ -2110,7 +2180,7 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "namespaces":
 		items = []ResourceItem{
-			{Name: "default", Age: "30d", Status: "Active"},
+			{Name: "default", Age: "30d", Status: "Active", Extra: ex("labels", "kubernetes.io/metadata.name=default")},
 			{Name: "auth", Age: "30d", Status: "Active"},
 			{Name: "database", Age: "25d", Status: "Active"},
 			{Name: "messaging", Age: "20d", Status: "Active"},
@@ -2118,8 +2188,6 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 			{Name: "logging", Age: "28d", Status: "Active"},
 			{Name: "ingress-nginx", Age: "30d", Status: "Active"},
 			{Name: "cert-manager", Age: "30d", Status: "Active"},
-			{Name: "kube-system", Age: "30d", Status: "Active"},
-			{Name: "kube-public", Age: "30d", Status: "Active"},
 			{Name: "kube-node-lease", Age: "30d", Status: "Active"},
 		}
 

@@ -22,6 +22,8 @@ import ResourceActionMenu from '../ResourceActionMenu.jsx';
 import PersistentVolumesTable from './PersistentVolumesTable';
 import SubjectsTable from './SubjectsTable';
 import RulesTable from './RulesTable';
+import ResourceQuotasTable from './ResourceQuotasTable';
+import LimitRangesTable from './LimitRangesTable';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -45,6 +47,7 @@ export default function OverviewTab({
     const isPvc = kindLower.includes('persistentvolumeclaim') || kindLower.includes('pvc');
     const isClusterRoleBinding = kindLower.includes('cluster') && kindLower.includes('role') && kindLower.includes('binding');
     const isClusterRole = (kindLower.includes('cluster') && kindLower.includes('role') && !kindLower.includes('binding')) || kindLower === 'clusterroles';
+    const isNamespace = kindLower === 'namespaces' || kindLower === 'namespace';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -88,7 +91,7 @@ export default function OverviewTab({
     return (
         <div className="space-y-4">
             <DetailSection title={t('metadata')}>
-                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole) ? (
+                {(isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace) ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10">
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
@@ -312,7 +315,22 @@ export default function OverviewTab({
                 <RulesTable rules={data.rules} t={t} />
             )}
 
-            {!isDaemonSet && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
+            {isNamespace && (
+                <DetailSection title={t('resource_info')} className="mt-4">
+                    <table className="w-full text-sm text-left border-collapse">
+                        <tbody className="divide-y divide-slate-600">
+                            <DetailRow label={t('label_status')}>
+                                <div className={`flex items-center gap-1.5 ${status?.phase === 'Active' ? 'text-success' : 'text-warning'}`}>
+                                    <div className={`w-2 h-2 rounded-full animate-pulse ${status?.phase === 'Active' ? 'bg-success' : 'bg-warning'}`} />
+                                    <span className="text-sm font-bold uppercase tracking-wide">{status?.phase || '—'}</span>
+                                </div>
+                            </DetailRow>
+                        </tbody>
+                    </table>
+                </DetailSection>
+            )}
+
+            {!isDaemonSet && !isNamespace && !isPod && !isIngressClass && !isStorageClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('secret') && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -772,7 +790,7 @@ export default function OverviewTab({
                 />
             )}
 
-            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
+            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isStorageClass && !isIngressClass && !isClusterRoleBinding && !isClusterRole && !isIngress && !isService && !isNamespace && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (status?.conditions || []).length > 0 && (
                 <ConditionsTable conditions={status.conditions} t={t} />
             )}
 
@@ -798,76 +816,10 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {kind === 'namespaces' && (
+            {isNamespace && (
                 <>
-                    <DetailSection title={t('resource_quotas')} className="mt-4">
-                        <div className="p-4 space-y-4">
-                            {quotas && quotas.length > 0 ? quotas.map(q => (
-                                <div key={q.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4">
-                                    <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
-                                        <icons.activity size={14} /> {q.metadata.name}
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                        {Object.entries(q.status?.hard || {}).map(([res, hard]) => {
-                                            const used = q.status?.used?.[res] || '0';
-                                            return (
-                                                <div key={res} className="flex flex-col gap-1">
-                                                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                                                        <span>{res}</span>
-                                                        <span>{used} / {hard}</span>
-                                                    </div>
-                                                    <div className="h-1.5 w-full bg-black/30 rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-indigo-500 rounded-full"
-                                                            style={{ width: `${Math.min(100, (parseFloat(used) / parseFloat(hard)) * 100 || 0)}%` }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )) : (
-                                <p className="text-[var(--text-muted)] italic text-sm">{t('no_resource_quotas_found') || 'No resource quotas defined.'}</p>
-                            )}
-                        </div>
-                    </DetailSection>
-
-                    <DetailSection title={t('limit_ranges')} className="mt-4">
-                        <div className="p-4 space-y-4">
-                            {limits && limits.length > 0 ? limits.map(l => (
-                                <div key={l.metadata.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4 overflow-x-auto">
-                                    <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
-                                        <icons.about size={14} /> {l.metadata.name}
-                                    </h4>
-                                    <table className="w-full text-[var(--font-size-xs)]">
-                                        <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-black/20 border-b-2 border-slate-600 text-center">
-                                            <tr>
-                                                <th className="px-3 py-2">{t('type')}</th>
-                                                <th className="px-3 py-2">{t('usage_metrics')}</th>
-                                                <th className="px-3 py-2">Min</th>
-                                                <th className="px-3 py-2">Max</th>
-                                                <th className="px-3 py-2">Default</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-[var(--border-color)]/20 text-left">
-                                            {l.spec?.limits?.map((lim, idx) => (
-                                                <tr key={idx}>
-                                                    <td className="px-3 py-2 font-bold text-[var(--text-primary)]">{lim.type}</td>
-                                                    <td className="px-3 py-2 text-[var(--text-secondary)]">CPU/Memory</td>
-                                                    <td className="px-3 py-2 text-info font-mono">{lim.min?.cpu || lim.min?.memory || '-'}</td>
-                                                    <td className="px-3 py-2 text-error font-mono">{lim.max?.cpu || lim.max?.memory || '-'}</td>
-                                                    <td className="px-3 py-2 text-[var(--text-muted)] font-mono">{lim.default?.cpu || lim.default?.memory || '-'}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )) : (
-                                <p className="text-[var(--text-muted)] italic text-sm">{t('no_limit_ranges_found') || 'No limit ranges defined.'}</p>
-                            )}
-                        </div>
-                    </DetailSection>
+                    <ResourceQuotasTable quotas={quotas} t={t} icons={icons} />
+                    <LimitRangesTable limits={limits} t={t} icons={icons} />
                 </>
             )}
         </div>

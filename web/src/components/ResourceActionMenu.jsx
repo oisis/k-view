@@ -28,6 +28,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const isCronJob = kind.toLowerCase() === 'cronjobs' || kind.toLowerCase() === 'cronjob';
     const isClusterRoleBinding = kind.toLowerCase() === 'cluster-role-bindings' || kind.toLowerCase() === 'clusterrolebindings';
     const isClusterRole = kind.toLowerCase() === 'cluster-roles' || kind.toLowerCase() === 'clusterroles';
+    const isNamespace = kind.toLowerCase() === 'namespaces' || kind.toLowerCase() === 'namespace';
     const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
     const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
 
@@ -244,7 +245,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                             {icons.trash && <icons.trash size={14} />} {t('delete')}
                         </button>
 
-                        {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && (
+                        {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && (
                             <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
                             </button>
@@ -264,7 +265,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                             </button>
                         )}
-                        {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && (
+                        {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && (
                             <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.download && <icons.download size={14} />} {t('export_yaml')}
                             </button>

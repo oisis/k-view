@@ -85,13 +85,23 @@ export default function ResourceDetails({ user }) {
                 const detailsData = await detailsRes.json();
                 setData(detailsData);
 
+                // Extract quotas/limits if provided in details (e.g. from GetDetails mock)
+                if (detailsData.quotas) setQuotas(detailsData.quotas);
+                if (detailsData.limits) setLimits(detailsData.limits);
+
                 if (kind === 'namespaces') {
                     const [qRes, lRes] = await Promise.all([
-                        fetch(`/api/resources/resourcequotas?namespace=${name}`),
-                        fetch(`/api/resources/limitranges?namespace=${name}`)
+                        quotas.length === 0 ? fetch(`/api/resources/resourcequotas?namespace=${name}`) : Promise.resolve(null),
+                        limits.length === 0 ? fetch(`/api/resources/limitranges?namespace=${name}`) : Promise.resolve(null)
                     ]);
-                    if (qRes && qRes.ok) setQuotas(await qRes.json());
-                    if (lRes && lRes.ok) setLimits(await lRes.json());
+                    if (qRes && qRes.ok) {
+                        const qData = await qRes.json();
+                        if (qData && qData.length > 0) setQuotas(qData);
+                    }
+                    if (lRes && lRes.ok) {
+                        const lData = await lRes.json();
+                        if (lData && lData.length > 0) setLimits(lData);
+                    }
                 }
 
                 const nsQuery = namespace === '-' ? '' : namespace;
