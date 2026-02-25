@@ -196,9 +196,7 @@ const SCHEMAS = {
         title: 'Cluster Role Bindings',
         cols: [
             { key: 'name', label: 'Name' },
-            { key: 'extra.role', label: 'Role' },
-            { key: 'extra.subjects', label: 'Subjects' },
-            { key: 'age', label: 'Age' },
+            { key: 'age', label: 'Created' },
         ],
     },
     'cluster-roles': {
@@ -368,8 +366,8 @@ function ExpandableCell({ value, type }) {
             )}
 
             {isHovered && !expanded && createPortal(
-                <div 
-                    style={{ 
+                <div
+                    style={{
                         position: 'fixed',
                         top: coords.top,
                         left: coords.left,
@@ -535,13 +533,13 @@ export default function ResourceList({ kind }) {
             .finally(() => setLoading(false));
     }, [kind, namespace]);
 
-        useEffect(() => {
-            load();
-            const interval = setInterval(load, 5000);
-            return () => clearInterval(interval);
-        }, [load]);
-    
-        const handleCreated = () => {
+    useEffect(() => {
+        load();
+        const interval = setInterval(load, 5000);
+        return () => clearInterval(interval);
+    }, [load]);
+
+    const handleCreated = () => {
         load();
         setIsCreateModalOpen(false);
     };
@@ -624,19 +622,19 @@ export default function ResourceList({ kind }) {
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
                     </p>
                 </div>
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="text"
-                                        placeholder={t('search_placeholder')}
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
-                                    />
-                                    {isNamespaced && (                        <NamespaceSelect
-                            namespaces={namespaces}
-                            selected={namespace}
-                            onChange={setNamespace}
-                        />
+                <div className="flex items-center gap-3">
+                    <input
+                        type="text"
+                        placeholder={t('search_placeholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                    />
+                    {isNamespaced && (<NamespaceSelect
+                        namespaces={namespaces}
+                        selected={namespace}
+                        onChange={setNamespace}
+                    />
                     )}
                 </div>
             </div>
@@ -687,51 +685,51 @@ export default function ResourceList({ kind }) {
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
-                                        {schema.cols.map(col => {
-                                            const val = getVal(item, col.key);
-                                            
-                                            // Conditional rendering based on column key
-                                            let content;
-                                            let cellClass = "px-3 py-1.5 whitespace-nowrap";
+                                    {schema.cols.map(col => {
+                                        const val = getVal(item, col.key);
 
-                                            const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
-                                            if (expandableKeys.includes(col.key)) {
-                                                content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
-                                            } else if (col.key === 'extra.schedule') {
-                                                content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
-                                            } else if (col.key === 'extra.active') {
-                                                cellClass = "px-3 py-1.5 whitespace-nowrap w-20 text-center";
-                                                content = <span className="text-[var(--text-primary)] font-bold">{val}</span>;
-                                            } else if (col.badge) {
-                                                content = <StatusBadge value={val} />;
-                                            } else if (col.key === 'name') {
-                                                content = (
-                                                    <Link
-                                                        to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                        className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
-                                                    >
-                                                        {val}
-                                                    </Link>
-                                                );
-                                            } else if (col.key === 'namespace' && val !== '-') {
-                                                content = (
-                                                    <Link
-                                                        to={`/namespaces/-/${val}`}
-                                                        className="text-info hover:underline"
-                                                    >
-                                                        {val}
-                                                    </Link>
-                                                );
-                                            } else {
-                                                content = <span className="text-[var(--text-secondary)] font-medium">{val}</span>;
-                                            }
+                                        // Conditional rendering based on column key
+                                        let content;
+                                        let cellClass = "px-3 py-1.5 whitespace-nowrap";
 
-                                            return (
-                                                <td key={col.key} className={cellClass}>
-                                                    {content}
-                                                </td>
+                                        const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
+                                        if (expandableKeys.includes(col.key)) {
+                                            content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
+                                        } else if (col.key === 'extra.schedule') {
+                                            content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
+                                        } else if (col.key === 'extra.active') {
+                                            cellClass = "px-3 py-1.5 whitespace-nowrap w-20 text-center";
+                                            content = <span className="text-[var(--text-primary)] font-bold">{val}</span>;
+                                        } else if (col.badge) {
+                                            content = <StatusBadge value={val} />;
+                                        } else if (col.key === 'name') {
+                                            content = (
+                                                <Link
+                                                    to={`/${kind}/${item.namespace || '-'}/${val}`}
+                                                    className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+                                                >
+                                                    {val}
+                                                </Link>
                                             );
-                                        })}
+                                        } else if (col.key === 'namespace' && val !== '-') {
+                                            content = (
+                                                <Link
+                                                    to={`/namespaces/-/${val}`}
+                                                    className="text-info hover:underline"
+                                                >
+                                                    {val}
+                                                </Link>
+                                            );
+                                        } else {
+                                            content = <span className="text-[var(--text-secondary)] font-medium">{val}</span>;
+                                        }
+
+                                        return (
+                                            <td key={col.key} className={cellClass}>
+                                                {content}
+                                            </td>
+                                        );
+                                    })}
                                     {supportsTrace && (
                                         <td className="px-4 py-2 whitespace-nowrap text-right">
                                             <button

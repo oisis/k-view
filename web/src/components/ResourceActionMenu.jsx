@@ -26,6 +26,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const isService = kind.toLowerCase() === 'services' || kind.toLowerCase() === 'service';
     const isReplicationController = kind.toLowerCase() === 'replicationcontrollers' || kind.toLowerCase() === 'replicationcontroller';
     const isCronJob = kind.toLowerCase() === 'cronjobs' || kind.toLowerCase() === 'cronjob';
+    const isClusterRoleBinding = kind.toLowerCase() === 'cluster-role-bindings' || kind.toLowerCase() === 'clusterrolebindings';
     const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
     const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
 
@@ -242,7 +243,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                             {icons.trash && <icons.trash size={14} />} {t('delete')}
                         </button>
 
-                        {!isIngress && !isService && (
+                        {!isIngress && !isService && !isClusterRoleBinding && (
                             <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
                             </button>
@@ -262,7 +263,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                 {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                             </button>
                         )}
-                        {!isIngress && !isService && (
+                        {!isIngress && !isService && !isClusterRoleBinding && (
                             <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.download && <icons.download size={14} />} {t('export_yaml')}
                             </button>
@@ -289,7 +290,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             <p className="text-sm text-[var(--text-secondary)]">{name}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <label className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--bg-muted)]/50 border border-[var(--border-color)] cursor-pointer group transition-colors hover:border-rose-500/30">
                                         <input
                                             type="checkbox"
@@ -346,7 +347,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             <p className="text-sm text-[var(--text-secondary)]">{name}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-4 mb-6 bg-[var(--bg-muted)]/50 p-4 rounded-2xl border border-[var(--border-color)]">
                                         <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-2 bg-[var(--bg-card)] rounded-lg hover:text-[var(--accent)] border border-[var(--border-color)] transition-colors shadow-sm">
                                             {icons.chevron_down && <icons.chevron_down size={20} />}
