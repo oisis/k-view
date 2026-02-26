@@ -139,6 +139,7 @@ export default function Nodes() {
     const [nodes, setNodes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const loadNodes = useCallback(() => {
         setLoading(true);
@@ -155,6 +156,24 @@ export default function Nodes() {
         return () => clearInterval(interval);
     }, [loadNodes]);
 
+    const filteredNodes = React.useMemo(() => {
+        if (!searchTerm) return nodes;
+        const lowercasedTerm = searchTerm.toLowerCase();
+
+        const searchInObj = (obj) => {
+            if (!obj) return false;
+            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
+            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
+            if (Array.isArray(obj)) return obj.some(searchInObj);
+            if (typeof obj === 'object') {
+                return Object.values(obj).some(searchInObj);
+            }
+            return false;
+        };
+
+        return nodes.filter(node => searchInObj(node));
+    }, [nodes, searchTerm]);
+
     const ready = nodes.filter(n => n.status === 'Ready').length;
     const notReady = nodes.length - ready;
     const controlPlane = nodes.filter(n => n.role === 'control-plane').length;
@@ -162,11 +181,23 @@ export default function Nodes() {
 
     return (
         <div className="p-8">
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Nodes</h2>
-                <p className="text-[var(--text-secondary)] text-sm">
-                    {loading ? 'Loading...' : `${nodes.length} node${nodes.length !== 1 ? 's' : ''} in cluster`}
-                </p>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Nodes</h2>
+                    <p className="text-[var(--text-secondary)] text-sm">
+                        {loading ? 'Loading...' : `${filteredNodes.length} node${filteredNodes.length !== 1 ? 's' : ''} shown`}
+                        {searchTerm && ` (filtered from ${nodes.length})`}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <input
+                        type="text"
+                        placeholder="Search nodes..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                    />
+                </div>
             </div>
 
             {error && (
@@ -207,12 +238,12 @@ export default function Nodes() {
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
-                                <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)] italic">Loading nodes...</td></tr>
-                            ) : nodes.length === 0 ? (
-                                <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)]">No nodes found.</td></tr>
+                            {loading && filteredNodes.length === 0 ? (
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-[var(--text-muted)] italic">Loading nodes...</td></tr>
+                            ) : filteredNodes.length === 0 ? (
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-[var(--text-muted)]">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
                             ) : (
-                                nodes.map((node, i) => (
+                                filteredNodes.map((node, i) => (
                                     <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-primary)]">

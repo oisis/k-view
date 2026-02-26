@@ -589,13 +589,20 @@ export default function ResourceList({ kind }) {
     const filteredItems = useMemo(() => {
         if (!searchTerm) return sortedItems;
         const lowercasedTerm = searchTerm.toLowerCase();
-        return sortedItems.filter(item => {
-            return schema.cols.some(col => {
-                const val = getVal(item, col.key);
-                return String(val).toLowerCase().includes(lowercasedTerm);
-            });
-        });
-    }, [sortedItems, searchTerm, schema.cols]);
+
+        const searchInObj = (obj) => {
+            if (!obj) return false;
+            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
+            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
+            if (Array.isArray(obj)) return obj.some(searchInObj);
+            if (typeof obj === 'object') {
+                return Object.values(obj).some(searchInObj);
+            }
+            return false;
+        };
+
+        return sortedItems.filter(item => searchInObj(item));
+    }, [sortedItems, searchTerm]);
 
     const totalPages = Math.ceil(filteredItems.length / settings.itemsPerPage);
     const paginatedItems = useMemo(() => {
