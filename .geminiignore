@@ -1,0 +1,28 @@
+# Gemini CLI ignore file
+# Ignores files and directories to speed up searches and indexing
+
+# Build artifacts
+dist/
+build/
+bin/
+k-view-server
+
+# Dependencies
+node_modules/
+vendor/
+
+# Temporary files
+tmp/
+*.log
+.DS_Store
+
+# Git
+.git/
+
+# Environment
+.env
+.env.local
+
+# Kubernetes/Helm
+charts/*/charts/
+charts/*/tmp/
