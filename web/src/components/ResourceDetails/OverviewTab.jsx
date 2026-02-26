@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../../ThemeContext';
 import DetailSection from './DetailSection';
 import ContainerDetails from './ContainerDetails';
@@ -83,14 +84,14 @@ export default function OverviewTab({
     const mountedSecrets = Array.from(new Set(volumes.filter(v => v.secret).map(v => v.secret.secretName)));
     const mountedPvcs = Array.from(new Set(volumes.filter(v => v.persistentVolumeClaim).map(v => v.persistentVolumeClaim.claimName)));
     
-    const restarts = isPod && status?.containerStatuses
-        ? status.containerStatuses.reduce((acc, c) => acc + (c.restartCount || 0), 0)
+    const restarts = (isPod && Array.isArray(status?.containerStatuses))
+        ? status.containerStatuses.reduce((acc, c) => acc + (c?.restartCount || 0), 0)
         : 0;
 
-    const readyCount = isPod && status?.containerStatuses
-        ? status.containerStatuses.filter(c => c.ready).length
+    const readyCount = (isPod && Array.isArray(status?.containerStatuses))
+        ? status.containerStatuses.filter(c => c?.ready).length
         : 0;
-    const totalContainers = isPod && status?.containerStatuses
+    const totalContainers = (isPod && Array.isArray(status?.containerStatuses))
         ? status.containerStatuses.length
         : 0;
 

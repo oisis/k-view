@@ -6,21 +6,27 @@ import DetailRow from '../DetailRow';
 export default function MetadataSection({ metadata, namespace, t, settings, data, kindLower, status, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec }) {
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv;
 
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return isNaN(d.getTime()) ? dateStr : d.toLocaleString();
+    };
+
     return (
-        <DetailSection title={t('metadata')}>
+        <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
                 <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
-                        <span className="text-sm font-mono font-bold break-all">{metadata.name}</span>
+                        <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_uid')}</span>
-                        <span className="text-[var(--font-size-xs)] font-mono text-[var(--text-secondary)] truncate w-full">{metadata.uid}</span>
+                        <span className="text-[var(--font-size-xs)] font-mono text-[var(--text-secondary)] truncate w-full">{metadata?.uid || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                        <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                        <span className="text-sm text-[var(--text-primary)] font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                     </div>
                 </div>
             ) : (
@@ -28,7 +34,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                     <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
-                            <span className="text-sm font-mono text-info font-bold break-all">{metadata.name}</span>
+                            <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
@@ -42,12 +48,12 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
-                            <span className="text-sm text-[var(--text-primary)] font-bold">{new Date(metadata.creationTimestamp).toLocaleString()}</span>
+                            <span className="text-sm text-[var(--text-primary)] font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                         </div>
                         {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) && (
                             <div className="px-6 py-4 flex flex-col items-center text-center border-l border-slate-600">
                                 <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
-                                <span className="text-sm text-[var(--text-primary)] font-bold">{data.resource?.age || '—'}</span>
+                                <span className="text-sm text-[var(--text-primary)] font-bold">{data?.resource?.age || '—'}</span>
                             </div>
                         )}
                     </div>
