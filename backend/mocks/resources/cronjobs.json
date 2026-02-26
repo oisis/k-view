@@ -1,49 +1,181 @@
 {
   "apiVersion": "v1",
-  "kind": "List",
-  "metadata": {
-    "resourceVersion": "1000"
-  },
+  "kind": "CronJobList",
   "items": [
     {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
       "metadata": {
-        "name": "anon-cronjobs-1",
-        "namespace": "monitoring"
+        "name": "anon-cronjob-1",
+        "namespace": "default",
+        "uid": "uid-cronjob-1",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-cronjob-1",
+          "env": "default"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": "busybox",
+                    "name": "worker"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "lastScheduleTime": "2024-02-26T20:00:00Z",
+        "active": []
+      }
     },
     {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
       "metadata": {
-        "name": "anon-cronjobs-2",
-        "namespace": "app-prod"
+        "name": "anon-cronjob-2",
+        "namespace": "kube-system",
+        "uid": "uid-cronjob-2",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-cronjob-2",
+          "env": "system"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": "busybox",
+                    "name": "worker"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "lastScheduleTime": "2024-02-26T20:00:00Z",
+        "active": []
+      }
     },
     {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
       "metadata": {
-        "name": "anon-cronjobs-3",
-        "namespace": "app-dev"
+        "name": "anon-cronjob-3",
+        "namespace": "monitoring",
+        "uid": "uid-cronjob-3",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-cronjob-3",
+          "env": "monitoring"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": "busybox",
+                    "name": "worker"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "lastScheduleTime": "2024-02-26T20:00:00Z",
+        "active": []
+      }
     },
     {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
       "metadata": {
-        "name": "anon-cronjobs-4",
-        "namespace": "kube-system"
+        "name": "anon-cronjob-4",
+        "namespace": "app-prod",
+        "uid": "uid-cronjob-4",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-cronjob-4",
+          "env": "prod"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": "busybox",
+                    "name": "worker"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "lastScheduleTime": "2024-02-26T20:00:00Z",
+        "active": []
+      }
     },
     {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
       "metadata": {
-        "name": "anon-cronjobs-5",
-        "namespace": "kube-system"
+        "name": "anon-cronjob-5",
+        "namespace": "app-dev",
+        "uid": "uid-cronjob-5",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-cronjob-5",
+          "env": "dev"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "jobTemplate": {
+          "spec": {
+            "template": {
+              "spec": {
+                "containers": [
+                  {
+                    "image": "busybox",
+                    "name": "worker"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "lastScheduleTime": "2024-02-26T20:00:00Z",
+        "active": []
+      }
     }
   ]
 }

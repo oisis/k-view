@@ -39,6 +39,10 @@ import SecretOverview from './templates/SecretOverview';
 import IngressOverview from './templates/IngressOverview';
 import PvcOverview from './templates/PvcOverview';
 import RbacOverview from './templates/RbacOverview';
+import NamespaceOverview from './templates/NamespaceOverview';
+import EventOverview from './templates/EventOverview';
+import DaemonSetOverview from './templates/DaemonSetOverview';
+import StatefulSetOverview from './templates/StatefulSetOverview';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -94,7 +98,9 @@ export default function OverviewTab({
 
     const renderResourceSpecific = () => {
         if (isPod) return <PodOverview {...sectionProps} />;
-        if (isDeployment || isStatefulSet || isDaemonSet || isJob) return <DeploymentOverview {...sectionProps} />;
+        if (isDeployment || isJob) return <DeploymentOverview {...sectionProps} />;
+        if (isStatefulSet) return <StatefulSetOverview {...sectionProps} />;
+        if (isDaemonSet) return <DaemonSetOverview {...sectionProps} />;
         if (isCronJob) return <CronJobOverview {...sectionProps} />;
         if (isService) return <ServiceOverview {...sectionProps} />;
         if (isNode) return <NodeOverview {...sectionProps} />;
@@ -103,6 +109,8 @@ export default function OverviewTab({
         if (isIngress) return <IngressOverview {...sectionProps} />;
         if (isPvc) return <PvcOverview {...sectionProps} />;
         if (isRole || isClusterRole || isRoleBinding || isClusterRoleBinding) return <RbacOverview {...sectionProps} isBinding={isRoleBinding || isClusterRoleBinding} />;
+        if (isNamespace) return <NamespaceOverview {...sectionProps} />;
+        if (kindLower.includes('event')) return <EventOverview {...sectionProps} />;
         
         return <ResourceInfoSection {...sectionProps} />;
     };

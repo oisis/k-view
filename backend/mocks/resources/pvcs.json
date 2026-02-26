@@ -1,65 +1,166 @@
 {
   "apiVersion": "v1",
-  "kind": "List",
-  "metadata": {
-    "resourceVersion": "1000"
-  },
+  "kind": "PersistentVolumeClaimList",
   "items": [
     {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "anon-persistentvolumeclaims-1",
-        "namespace": "app-prod"
+        "name": "anon-persistentvolumeclaim-1",
+        "namespace": "default",
+        "uid": "uid-persistentvolumeclaim-1",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-persistentvolumeclaim-1",
+          "env": "default"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "10Gi"
+          }
+        },
+        "storageClassName": "standard",
+        "volumeName": "pv-001"
+      },
+      "status": {
+        "phase": "Bound",
+        "capacity": {
+          "storage": "10Gi"
+        }
+      }
     },
     {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "anon-persistentvolumeclaims-2",
-        "namespace": "kube-system"
+        "name": "anon-persistentvolumeclaim-2",
+        "namespace": "kube-system",
+        "uid": "uid-persistentvolumeclaim-2",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-persistentvolumeclaim-2",
+          "env": "system"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "10Gi"
+          }
+        },
+        "storageClassName": "standard",
+        "volumeName": "pv-001"
+      },
+      "status": {
+        "phase": "Bound",
+        "capacity": {
+          "storage": "10Gi"
+        }
+      }
     },
     {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "anon-persistentvolumeclaims-3",
-        "namespace": "default"
+        "name": "anon-persistentvolumeclaim-3",
+        "namespace": "monitoring",
+        "uid": "uid-persistentvolumeclaim-3",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-persistentvolumeclaim-3",
+          "env": "monitoring"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "10Gi"
+          }
+        },
+        "storageClassName": "standard",
+        "volumeName": "pv-001"
+      },
+      "status": {
+        "phase": "Bound",
+        "capacity": {
+          "storage": "10Gi"
+        }
+      }
     },
     {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "anon-persistentvolumeclaims-4",
-        "namespace": "monitoring"
+        "name": "anon-persistentvolumeclaim-4",
+        "namespace": "app-prod",
+        "uid": "uid-persistentvolumeclaim-4",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-persistentvolumeclaim-4",
+          "env": "prod"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "10Gi"
+          }
+        },
+        "storageClassName": "standard",
+        "volumeName": "pv-001"
+      },
+      "status": {
+        "phase": "Bound",
+        "capacity": {
+          "storage": "10Gi"
+        }
+      }
     },
     {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
       "metadata": {
-        "name": "anon-persistentvolumeclaims-5",
-        "namespace": "app-dev"
+        "name": "anon-persistentvolumeclaim-5",
+        "namespace": "app-dev",
+        "uid": "uid-persistentvolumeclaim-5",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-persistentvolumeclaim-5",
+          "env": "dev"
+        }
       },
-      "spec": {},
-      "status": {}
-    },
-    {
-      "metadata": {
-        "name": "anon-persistentvolumeclaims-6",
-        "namespace": "app-dev"
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "10Gi"
+          }
+        },
+        "storageClassName": "standard",
+        "volumeName": "pv-001"
       },
-      "spec": {},
-      "status": {}
-    },
-    {
-      "metadata": {
-        "name": "anon-persistentvolumeclaims-7",
-        "namespace": "app-prod"
-      },
-      "spec": {},
-      "status": {}
+      "status": {
+        "phase": "Bound",
+        "capacity": {
+          "storage": "10Gi"
+        }
+      }
     }
   ]
 }

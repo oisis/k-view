@@ -1,65 +1,236 @@
 {
   "apiVersion": "v1",
-  "kind": "List",
-  "metadata": {
-    "resourceVersion": "1000"
-  },
+  "kind": "IngressList",
   "items": [
     {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
       "metadata": {
-        "name": "anon-ingresses-1",
-        "namespace": "app-prod"
+        "name": "anon-ingress-1",
+        "namespace": "default",
+        "uid": "uid-ingress-1",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-ingress-1",
+          "env": "default"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "rules": [
+          {
+            "host": "example.com",
+            "http": {
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "Prefix",
+                  "backend": {
+                    "service": {
+                      "name": "svc-1",
+                      "port": {
+                        "number": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "ip": "192.168.1.1"
+            }
+          ]
+        }
+      }
     },
     {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
       "metadata": {
-        "name": "anon-ingresses-2",
-        "namespace": "app-prod"
+        "name": "anon-ingress-2",
+        "namespace": "kube-system",
+        "uid": "uid-ingress-2",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-ingress-2",
+          "env": "system"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "rules": [
+          {
+            "host": "example.com",
+            "http": {
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "Prefix",
+                  "backend": {
+                    "service": {
+                      "name": "svc-1",
+                      "port": {
+                        "number": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "ip": "192.168.1.1"
+            }
+          ]
+        }
+      }
     },
     {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
       "metadata": {
-        "name": "anon-ingresses-3",
-        "namespace": "monitoring"
+        "name": "anon-ingress-3",
+        "namespace": "monitoring",
+        "uid": "uid-ingress-3",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-ingress-3",
+          "env": "monitoring"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "rules": [
+          {
+            "host": "example.com",
+            "http": {
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "Prefix",
+                  "backend": {
+                    "service": {
+                      "name": "svc-1",
+                      "port": {
+                        "number": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "ip": "192.168.1.1"
+            }
+          ]
+        }
+      }
     },
     {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
       "metadata": {
-        "name": "anon-ingresses-4",
-        "namespace": "default"
+        "name": "anon-ingress-4",
+        "namespace": "app-prod",
+        "uid": "uid-ingress-4",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-ingress-4",
+          "env": "prod"
+        }
       },
-      "spec": {},
-      "status": {}
+      "spec": {
+        "rules": [
+          {
+            "host": "example.com",
+            "http": {
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "Prefix",
+                  "backend": {
+                    "service": {
+                      "name": "svc-1",
+                      "port": {
+                        "number": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "ip": "192.168.1.1"
+            }
+          ]
+        }
+      }
     },
     {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "Ingress",
       "metadata": {
-        "name": "anon-ingresses-5",
-        "namespace": "default"
+        "name": "anon-ingress-5",
+        "namespace": "app-dev",
+        "uid": "uid-ingress-5",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-ingress-5",
+          "env": "dev"
+        }
       },
-      "spec": {},
-      "status": {}
-    },
-    {
-      "metadata": {
-        "name": "anon-ingresses-6",
-        "namespace": "kube-system"
+      "spec": {
+        "rules": [
+          {
+            "host": "example.com",
+            "http": {
+              "paths": [
+                {
+                  "path": "/",
+                  "pathType": "Prefix",
+                  "backend": {
+                    "service": {
+                      "name": "svc-1",
+                      "port": {
+                        "number": 80
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
       },
-      "spec": {},
-      "status": {}
-    },
-    {
-      "metadata": {
-        "name": "anon-ingresses-7",
-        "namespace": "app-dev"
-      },
-      "spec": {},
-      "status": {}
+      "status": {
+        "loadBalancer": {
+          "ingress": [
+            {
+              "ip": "192.168.1.1"
+            }
+          ]
+        }
+      }
     }
   ]
 }

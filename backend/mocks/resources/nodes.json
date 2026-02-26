@@ -1,1085 +1,210 @@
 {
   "apiVersion": "v1",
-  "kind": "List",
-  "metadata": {
-    "resourceVersion": "1000"
-  },
+  "kind": "NodeList",
   "items": [
     {
       "apiVersion": "v1",
       "kind": "Node",
       "metadata": {
-        "annotations": {
-          "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
-          "node.alpha.kubernetes.io/ttl": "0",
-          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
-        },
+        "name": "anon-node-1",
+        "namespace": "default",
+        "uid": "uid-node-1",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
         "labels": {
-          "beta.kubernetes.io/arch": "arm64",
-          "beta.kubernetes.io/os": "linux",
-          "kubernetes.io/arch": "arm64",
-          "kubernetes.io/hostname": "docker-desktop",
-          "kubernetes.io/os": "linux",
-          "node-role.kubernetes.io/control-plane": "",
-          "node.kubernetes.io/exclude-from-external-load-balancers": ""
-        },
-        "name": "anon-nodes-1"
+          "app": "anon-node-1",
+          "env": "default"
+        }
       },
-      "spec": {},
+      "spec": {
+        "podCIDR": "10.244.0.0/24"
+      },
       "status": {
-        "addresses": [
-          {
-            "address": "192.168.65.3",
-            "type": "InternalIP"
-          },
-          {
-            "address": "docker-desktop",
-            "type": "Hostname"
-          }
-        ],
-        "allocatable": {
-          "cpu": "8",
-          "ephemeral-storage": "56524975625",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16253372Ki",
-          "pods": "110"
-        },
         "capacity": {
           "cpu": "8",
-          "ephemeral-storage": "61333524Ki",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16355772Ki",
+          "memory": "16Gi",
           "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "7.5",
+          "memory": "15Gi",
+          "pods": "110"
+        },
+        "nodeInfo": {
+          "osImage": "Ubuntu 22.04.3 LTS",
+          "kernelVersion": "5.15.0-generic",
+          "kubeletVersion": "v1.28.2"
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient memory available",
-            "reason": "KubeletHasSufficientMemory",
-            "status": "False",
-            "type": "MemoryPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2026-02-17T12:46:06Z",
-            "message": "kubelet has no disk pressure",
-            "reason": "KubeletHasNoDiskPressure",
-            "status": "False",
-            "type": "DiskPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient PID available",
-            "reason": "KubeletHasSufficientPID",
-            "status": "False",
-            "type": "PIDPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:09Z",
-            "message": "kubelet is posting ready status",
-            "reason": "KubeletReady",
+            "type": "Ready",
             "status": "True",
-            "type": "Ready"
+            "lastTransitionTime": "2024-01-01T00:00:00Z"
           }
-        ],
-        "daemonEndpoints": {
-          "kubeletEndpoint": {
-            "Port": 10250
-          }
-        },
-        "images": [
-          {
-            "names": [
-              "graceless-backend:0.18.0"
-            ],
-            "sizeBytes": 456092553
-          },
-          {
-            "names": [
-              "graceless-backend:0.17.0"
-            ],
-            "sizeBytes": 456087957
-          },
-          {
-            "names": [
-              "graceless-backend:0.16.0"
-            ],
-            "sizeBytes": 456069123
-          },
-          {
-            "names": [
-              "graceless-backend:latest"
-            ],
-            "sizeBytes": 443466571
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:fdd1722efdccb82bdc2d86109a9790f606bfc1a51149d8e1af225aa55265cefb",
-              "docker/desktop-kubernetes:kubernetes-v1.32.2-cni-v1.6.0-critools-v1.31.1-cri-dockerd-v0.3.16-1-debian"
-            ],
-            "sizeBytes": 399521987
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:12d6673564e0fe61061b27445d41c457f45495fd98e0e5366b7701ffd8ba68ed",
-              "docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-critools-v1.33.0-cri-dockerd-v0.3.20-1-debian"
-            ],
-            "sizeBytes": 383154677
-          },
-          {
-            "names": [
-              "golang@sha256:8bee1901f1e530bfb4a7850aa7a479d17ae3a18beb6e09064ed54cfd245b7191",
-              "golang:1.24-alpine"
-            ],
-            "sizeBytes": 259138855
-          },
-          {
-            "names": [
-              "kubernetesui/dashboard@sha256:2e500d29e9d5f4a086b908eb8dfe7ecac57d2ab09d65b24f588b1d449841ef93",
-              "kubernetesui/dashboard:v2.7.0"
-            ],
-            "sizeBytes": 244042622
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.6.4-0"
-            ],
-            "sizeBytes": 204919616
-          },
-          {
-            "names": [
-              "graceless-frontend:0.17.0"
-            ],
-            "sizeBytes": 153968588
-          },
-          {
-            "names": [
-              "graceless-frontend:0.18.0"
-            ],
-            "sizeBytes": 153967223
-          },
-          {
-            "names": [
-              "graceless-frontend:0.16.0"
-            ],
-            "sizeBytes": 153966287
-          },
-          {
-            "names": [
-              "graceless-frontend:latest"
-            ],
-            "sizeBytes": 153343766
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.5.16-0"
-            ],
-            "sizeBytes": 142164164
-          },
-          {
-            "names": null,
-            "sizeBytes": 130548631
-          },
-          {
-            "names": null,
-            "sizeBytes": 130542120
-          },
-          {
-            "names": null,
-            "sizeBytes": 130540280
-          },
-          {
-            "names": null,
-            "sizeBytes": 130539630
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538386
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538300
-          },
-          {
-            "names": null,
-            "sizeBytes": 130309208
-          },
-          {
-            "names": null,
-            "sizeBytes": 130232362
-          },
-          {
-            "names": null,
-            "sizeBytes": 130225627
-          },
-          {
-            "names": null,
-            "sizeBytes": 130221663
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211782
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211774
-          },
-          {
-            "names": null,
-            "sizeBytes": 130204090
-          },
-          {
-            "names": null,
-            "sizeBytes": 130194573
-          },
-          {
-            "names": null,
-            "sizeBytes": 130177522
-          },
-          {
-            "names": null,
-            "sizeBytes": 130173907
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169517
-          },
-          {
-            "names": [
-              "k-view-dev:latest"
-            ],
-            "sizeBytes": 130169437
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169329
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168766
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168403
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168118
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168116
-          },
-          {
-            "names": null,
-            "sizeBytes": 130167363
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.32.2"
-            ],
-            "sizeBytes": 97052955
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.32.2"
-            ],
-            "sizeBytes": 93932810
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.32.2"
-            ],
-            "sizeBytes": 87183043
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.34.1"
-            ],
-            "sizeBytes": 83671978
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.34.1"
-            ],
-            "sizeBytes": 74669274
-          },
-          {
-            "names": [
-              "registry.k8s.io/coredns/coredns:v1.12.1"
-            ],
-            "sizeBytes": 72135236
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.34.1"
-            ],
-            "sizeBytes": 71548196
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-scheduler:v1.32.2"
-            ],
-            "sizeBytes": 67915368
-          },
-          {
-            "names": [
-              "k-view-local-build:latest"
-            ],
-            "sizeBytes": 63331499
-          }
-        ],
-        "nodeInfo": {
-          "architecture": "arm64",
-          "bootID": "a9a38278-c3f0-45e6-8042-37cce88ba8e3",
-          "containerRuntimeVersion": "docker://29.2.1",
-          "kernelVersion": "6.12.69-linuxkit",
-          "kubeProxyVersion": "v1.32.2",
-          "kubeletVersion": "v1.32.2",
-          "machineID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3",
-          "operatingSystem": "linux",
-          "osImage": "Docker Desktop",
-          "systemUUID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3"
-        }
+        ]
       }
     },
     {
       "apiVersion": "v1",
       "kind": "Node",
       "metadata": {
-        "annotations": {
-          "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
-          "node.alpha.kubernetes.io/ttl": "0",
-          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
-        },
+        "name": "anon-node-2",
+        "namespace": "kube-system",
+        "uid": "uid-node-2",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
         "labels": {
-          "beta.kubernetes.io/arch": "arm64",
-          "beta.kubernetes.io/os": "linux",
-          "kubernetes.io/arch": "arm64",
-          "kubernetes.io/hostname": "docker-desktop",
-          "kubernetes.io/os": "linux",
-          "node-role.kubernetes.io/control-plane": "",
-          "node.kubernetes.io/exclude-from-external-load-balancers": ""
-        },
-        "name": "anon-nodes-2"
+          "app": "anon-node-2",
+          "env": "system"
+        }
       },
-      "spec": {},
+      "spec": {
+        "podCIDR": "10.244.0.0/24"
+      },
       "status": {
-        "addresses": [
-          {
-            "address": "192.168.65.3",
-            "type": "InternalIP"
-          },
-          {
-            "address": "docker-desktop",
-            "type": "Hostname"
-          }
-        ],
-        "allocatable": {
-          "cpu": "8",
-          "ephemeral-storage": "56524975625",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16253372Ki",
-          "pods": "110"
-        },
         "capacity": {
           "cpu": "8",
-          "ephemeral-storage": "61333524Ki",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16355772Ki",
+          "memory": "16Gi",
           "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "7.5",
+          "memory": "15Gi",
+          "pods": "110"
+        },
+        "nodeInfo": {
+          "osImage": "Ubuntu 22.04.3 LTS",
+          "kernelVersion": "5.15.0-generic",
+          "kubeletVersion": "v1.28.2"
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient memory available",
-            "reason": "KubeletHasSufficientMemory",
-            "status": "False",
-            "type": "MemoryPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2026-02-17T12:46:06Z",
-            "message": "kubelet has no disk pressure",
-            "reason": "KubeletHasNoDiskPressure",
-            "status": "False",
-            "type": "DiskPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient PID available",
-            "reason": "KubeletHasSufficientPID",
-            "status": "False",
-            "type": "PIDPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:09Z",
-            "message": "kubelet is posting ready status",
-            "reason": "KubeletReady",
+            "type": "Ready",
             "status": "True",
-            "type": "Ready"
+            "lastTransitionTime": "2024-01-01T00:00:00Z"
           }
-        ],
-        "daemonEndpoints": {
-          "kubeletEndpoint": {
-            "Port": 10250
-          }
-        },
-        "images": [
-          {
-            "names": [
-              "graceless-backend:0.18.0"
-            ],
-            "sizeBytes": 456092553
-          },
-          {
-            "names": [
-              "graceless-backend:0.17.0"
-            ],
-            "sizeBytes": 456087957
-          },
-          {
-            "names": [
-              "graceless-backend:0.16.0"
-            ],
-            "sizeBytes": 456069123
-          },
-          {
-            "names": [
-              "graceless-backend:latest"
-            ],
-            "sizeBytes": 443466571
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:fdd1722efdccb82bdc2d86109a9790f606bfc1a51149d8e1af225aa55265cefb",
-              "docker/desktop-kubernetes:kubernetes-v1.32.2-cni-v1.6.0-critools-v1.31.1-cri-dockerd-v0.3.16-1-debian"
-            ],
-            "sizeBytes": 399521987
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:12d6673564e0fe61061b27445d41c457f45495fd98e0e5366b7701ffd8ba68ed",
-              "docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-critools-v1.33.0-cri-dockerd-v0.3.20-1-debian"
-            ],
-            "sizeBytes": 383154677
-          },
-          {
-            "names": [
-              "golang@sha256:8bee1901f1e530bfb4a7850aa7a479d17ae3a18beb6e09064ed54cfd245b7191",
-              "golang:1.24-alpine"
-            ],
-            "sizeBytes": 259138855
-          },
-          {
-            "names": [
-              "kubernetesui/dashboard@sha256:2e500d29e9d5f4a086b908eb8dfe7ecac57d2ab09d65b24f588b1d449841ef93",
-              "kubernetesui/dashboard:v2.7.0"
-            ],
-            "sizeBytes": 244042622
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.6.4-0"
-            ],
-            "sizeBytes": 204919616
-          },
-          {
-            "names": [
-              "graceless-frontend:0.17.0"
-            ],
-            "sizeBytes": 153968588
-          },
-          {
-            "names": [
-              "graceless-frontend:0.18.0"
-            ],
-            "sizeBytes": 153967223
-          },
-          {
-            "names": [
-              "graceless-frontend:0.16.0"
-            ],
-            "sizeBytes": 153966287
-          },
-          {
-            "names": [
-              "graceless-frontend:latest"
-            ],
-            "sizeBytes": 153343766
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.5.16-0"
-            ],
-            "sizeBytes": 142164164
-          },
-          {
-            "names": null,
-            "sizeBytes": 130548631
-          },
-          {
-            "names": null,
-            "sizeBytes": 130542120
-          },
-          {
-            "names": null,
-            "sizeBytes": 130540280
-          },
-          {
-            "names": null,
-            "sizeBytes": 130539630
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538386
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538300
-          },
-          {
-            "names": null,
-            "sizeBytes": 130309208
-          },
-          {
-            "names": null,
-            "sizeBytes": 130232362
-          },
-          {
-            "names": null,
-            "sizeBytes": 130225627
-          },
-          {
-            "names": null,
-            "sizeBytes": 130221663
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211782
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211774
-          },
-          {
-            "names": null,
-            "sizeBytes": 130204090
-          },
-          {
-            "names": null,
-            "sizeBytes": 130194573
-          },
-          {
-            "names": null,
-            "sizeBytes": 130177522
-          },
-          {
-            "names": null,
-            "sizeBytes": 130173907
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169517
-          },
-          {
-            "names": [
-              "k-view-dev:latest"
-            ],
-            "sizeBytes": 130169437
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169329
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168766
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168403
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168118
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168116
-          },
-          {
-            "names": null,
-            "sizeBytes": 130167363
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.32.2"
-            ],
-            "sizeBytes": 97052955
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.32.2"
-            ],
-            "sizeBytes": 93932810
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.32.2"
-            ],
-            "sizeBytes": 87183043
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.34.1"
-            ],
-            "sizeBytes": 83671978
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.34.1"
-            ],
-            "sizeBytes": 74669274
-          },
-          {
-            "names": [
-              "registry.k8s.io/coredns/coredns:v1.12.1"
-            ],
-            "sizeBytes": 72135236
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.34.1"
-            ],
-            "sizeBytes": 71548196
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-scheduler:v1.32.2"
-            ],
-            "sizeBytes": 67915368
-          },
-          {
-            "names": [
-              "k-view-local-build:latest"
-            ],
-            "sizeBytes": 63331499
-          }
-        ],
-        "nodeInfo": {
-          "architecture": "arm64",
-          "bootID": "a9a38278-c3f0-45e6-8042-37cce88ba8e3",
-          "containerRuntimeVersion": "docker://29.2.1",
-          "kernelVersion": "6.12.69-linuxkit",
-          "kubeProxyVersion": "v1.32.2",
-          "kubeletVersion": "v1.32.2",
-          "machineID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3",
-          "operatingSystem": "linux",
-          "osImage": "Docker Desktop",
-          "systemUUID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3"
-        }
+        ]
       }
     },
     {
       "apiVersion": "v1",
       "kind": "Node",
       "metadata": {
-        "annotations": {
-          "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
-          "node.alpha.kubernetes.io/ttl": "0",
-          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
-        },
+        "name": "anon-node-3",
+        "namespace": "monitoring",
+        "uid": "uid-node-3",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
         "labels": {
-          "beta.kubernetes.io/arch": "arm64",
-          "beta.kubernetes.io/os": "linux",
-          "kubernetes.io/arch": "arm64",
-          "kubernetes.io/hostname": "docker-desktop",
-          "kubernetes.io/os": "linux",
-          "node-role.kubernetes.io/control-plane": "",
-          "node.kubernetes.io/exclude-from-external-load-balancers": ""
-        },
-        "name": "anon-nodes-3"
+          "app": "anon-node-3",
+          "env": "monitoring"
+        }
       },
-      "spec": {},
+      "spec": {
+        "podCIDR": "10.244.0.0/24"
+      },
       "status": {
-        "addresses": [
-          {
-            "address": "192.168.65.3",
-            "type": "InternalIP"
-          },
-          {
-            "address": "docker-desktop",
-            "type": "Hostname"
-          }
-        ],
-        "allocatable": {
-          "cpu": "8",
-          "ephemeral-storage": "56524975625",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16253372Ki",
-          "pods": "110"
-        },
         "capacity": {
           "cpu": "8",
-          "ephemeral-storage": "61333524Ki",
-          "hugepages-1Gi": "0",
-          "hugepages-2Mi": "0",
-          "hugepages-32Mi": "0",
-          "hugepages-64Ki": "0",
-          "memory": "16355772Ki",
+          "memory": "16Gi",
           "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "7.5",
+          "memory": "15Gi",
+          "pods": "110"
+        },
+        "nodeInfo": {
+          "osImage": "Ubuntu 22.04.3 LTS",
+          "kernelVersion": "5.15.0-generic",
+          "kubeletVersion": "v1.28.2"
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient memory available",
-            "reason": "KubeletHasSufficientMemory",
-            "status": "False",
-            "type": "MemoryPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2026-02-17T12:46:06Z",
-            "message": "kubelet has no disk pressure",
-            "reason": "KubeletHasNoDiskPressure",
-            "status": "False",
-            "type": "DiskPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:07Z",
-            "message": "kubelet has sufficient PID available",
-            "reason": "KubeletHasSufficientPID",
-            "status": "False",
-            "type": "PIDPressure"
-          },
-          {
-            "lastHeartbeatTime": "2026-02-26T21:41:02Z",
-            "lastTransitionTime": "2025-09-28T17:08:09Z",
-            "message": "kubelet is posting ready status",
-            "reason": "KubeletReady",
+            "type": "Ready",
             "status": "True",
-            "type": "Ready"
+            "lastTransitionTime": "2024-01-01T00:00:00Z"
           }
-        ],
-        "daemonEndpoints": {
-          "kubeletEndpoint": {
-            "Port": 10250
-          }
-        },
-        "images": [
-          {
-            "names": [
-              "graceless-backend:0.18.0"
-            ],
-            "sizeBytes": 456092553
-          },
-          {
-            "names": [
-              "graceless-backend:0.17.0"
-            ],
-            "sizeBytes": 456087957
-          },
-          {
-            "names": [
-              "graceless-backend:0.16.0"
-            ],
-            "sizeBytes": 456069123
-          },
-          {
-            "names": [
-              "graceless-backend:latest"
-            ],
-            "sizeBytes": 443466571
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:fdd1722efdccb82bdc2d86109a9790f606bfc1a51149d8e1af225aa55265cefb",
-              "docker/desktop-kubernetes:kubernetes-v1.32.2-cni-v1.6.0-critools-v1.31.1-cri-dockerd-v0.3.16-1-debian"
-            ],
-            "sizeBytes": 399521987
-          },
-          {
-            "names": [
-              "docker/desktop-kubernetes@sha256:12d6673564e0fe61061b27445d41c457f45495fd98e0e5366b7701ffd8ba68ed",
-              "docker/desktop-kubernetes:kubernetes-v1.34.1-cni-v1.7.1-critools-v1.33.0-cri-dockerd-v0.3.20-1-debian"
-            ],
-            "sizeBytes": 383154677
-          },
-          {
-            "names": [
-              "golang@sha256:8bee1901f1e530bfb4a7850aa7a479d17ae3a18beb6e09064ed54cfd245b7191",
-              "golang:1.24-alpine"
-            ],
-            "sizeBytes": 259138855
-          },
-          {
-            "names": [
-              "kubernetesui/dashboard@sha256:2e500d29e9d5f4a086b908eb8dfe7ecac57d2ab09d65b24f588b1d449841ef93",
-              "kubernetesui/dashboard:v2.7.0"
-            ],
-            "sizeBytes": 244042622
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.6.4-0"
-            ],
-            "sizeBytes": 204919616
-          },
-          {
-            "names": [
-              "graceless-frontend:0.17.0"
-            ],
-            "sizeBytes": 153968588
-          },
-          {
-            "names": [
-              "graceless-frontend:0.18.0"
-            ],
-            "sizeBytes": 153967223
-          },
-          {
-            "names": [
-              "graceless-frontend:0.16.0"
-            ],
-            "sizeBytes": 153966287
-          },
-          {
-            "names": [
-              "graceless-frontend:latest"
-            ],
-            "sizeBytes": 153343766
-          },
-          {
-            "names": [
-              "registry.k8s.io/etcd:3.5.16-0"
-            ],
-            "sizeBytes": 142164164
-          },
-          {
-            "names": null,
-            "sizeBytes": 130548631
-          },
-          {
-            "names": null,
-            "sizeBytes": 130542120
-          },
-          {
-            "names": null,
-            "sizeBytes": 130540280
-          },
-          {
-            "names": null,
-            "sizeBytes": 130539630
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538386
-          },
-          {
-            "names": null,
-            "sizeBytes": 130538300
-          },
-          {
-            "names": null,
-            "sizeBytes": 130309208
-          },
-          {
-            "names": null,
-            "sizeBytes": 130232362
-          },
-          {
-            "names": null,
-            "sizeBytes": 130225627
-          },
-          {
-            "names": null,
-            "sizeBytes": 130221663
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211782
-          },
-          {
-            "names": null,
-            "sizeBytes": 130211774
-          },
-          {
-            "names": null,
-            "sizeBytes": 130204090
-          },
-          {
-            "names": null,
-            "sizeBytes": 130194573
-          },
-          {
-            "names": null,
-            "sizeBytes": 130177522
-          },
-          {
-            "names": null,
-            "sizeBytes": 130173907
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169571
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169517
-          },
-          {
-            "names": [
-              "k-view-dev:latest"
-            ],
-            "sizeBytes": 130169437
-          },
-          {
-            "names": null,
-            "sizeBytes": 130169329
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168766
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168403
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168118
-          },
-          {
-            "names": null,
-            "sizeBytes": 130168116
-          },
-          {
-            "names": null,
-            "sizeBytes": 130167363
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.32.2"
-            ],
-            "sizeBytes": 97052955
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.32.2"
-            ],
-            "sizeBytes": 93932810
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.32.2"
-            ],
-            "sizeBytes": 87183043
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-apiserver:v1.34.1"
-            ],
-            "sizeBytes": 83671978
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-proxy:v1.34.1"
-            ],
-            "sizeBytes": 74669274
-          },
-          {
-            "names": [
-              "registry.k8s.io/coredns/coredns:v1.12.1"
-            ],
-            "sizeBytes": 72135236
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-controller-manager:v1.34.1"
-            ],
-            "sizeBytes": 71548196
-          },
-          {
-            "names": [
-              "registry.k8s.io/kube-scheduler:v1.32.2"
-            ],
-            "sizeBytes": 67915368
-          },
-          {
-            "names": [
-              "k-view-local-build:latest"
-            ],
-            "sizeBytes": 63331499
-          }
-        ],
-        "nodeInfo": {
-          "architecture": "arm64",
-          "bootID": "a9a38278-c3f0-45e6-8042-37cce88ba8e3",
-          "containerRuntimeVersion": "docker://29.2.1",
-          "kernelVersion": "6.12.69-linuxkit",
-          "kubeProxyVersion": "v1.32.2",
-          "kubeletVersion": "v1.32.2",
-          "machineID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3",
-          "operatingSystem": "linux",
-          "osImage": "Docker Desktop",
-          "systemUUID": "cdac192c-c48f-4a2b-9fbe-928c6f962bb3"
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Node",
+      "metadata": {
+        "name": "anon-node-4",
+        "namespace": "app-prod",
+        "uid": "uid-node-4",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-node-4",
+          "env": "prod"
         }
+      },
+      "spec": {
+        "podCIDR": "10.244.0.0/24"
+      },
+      "status": {
+        "capacity": {
+          "cpu": "8",
+          "memory": "16Gi",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "7.5",
+          "memory": "15Gi",
+          "pods": "110"
+        },
+        "nodeInfo": {
+          "osImage": "Ubuntu 22.04.3 LTS",
+          "kernelVersion": "5.15.0-generic",
+          "kubeletVersion": "v1.28.2"
+        },
+        "conditions": [
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastTransitionTime": "2024-01-01T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Node",
+      "metadata": {
+        "name": "anon-node-5",
+        "namespace": "app-dev",
+        "uid": "uid-node-5",
+        "creationTimestamp": "2024-01-01T12:00:00Z",
+        "labels": {
+          "app": "anon-node-5",
+          "env": "dev"
+        }
+      },
+      "spec": {
+        "podCIDR": "10.244.0.0/24"
+      },
+      "status": {
+        "capacity": {
+          "cpu": "8",
+          "memory": "16Gi",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "7.5",
+          "memory": "15Gi",
+          "pods": "110"
+        },
+        "nodeInfo": {
+          "osImage": "Ubuntu 22.04.3 LTS",
+          "kernelVersion": "5.15.0-generic",
+          "kubeletVersion": "v1.28.2"
+        },
+        "conditions": [
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastTransitionTime": "2024-01-01T00:00:00Z"
+          }
+        ]
       }
     }
   ]

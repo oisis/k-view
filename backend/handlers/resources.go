@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"sigs.k8s.io/yaml"
 
 	"k-view/pkg/k8sutils"
 	"k-view/pkg/utils"
@@ -443,7 +444,66 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 }
 
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	var item *unstructured.Unstructured
+
+	if h.devMode {
+		unstructuredItems := h.mockRawResourceList(kind, ns)
+		for _, it := range unstructuredItems {
+			if it.GetName() == name {
+				item = &it
+				break
+			}
+		}
+	} else {
+		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+			return
+		}
+		gvr := getGVR(kind)
+		var resInterface dynamic.ResourceInterface
+		if ns != "" && !isClusterScoped(kind) {
+			resInterface = dynClient.Resource(gvr).Namespace(ns)
+		} else {
+			resInterface = dynClient.Resource(gvr)
+		}
+
+		raw, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+		if err == nil {
+			item = raw
+		}
+	}
+
+	if item == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
+		return
+	}
+
+	// Clean up metadata before showing YAML/JSON
+	if meta, ok := item.Object["metadata"].(map[string]interface{}); ok {
+		delete(meta, "managedFields")
+	}
+
+	format := strings.ToLower(c.Query("format"))
+	if format == "json" {
+		c.JSON(http.StatusOK, item.Object)
+		return
+	}
+
+	y, err := yaml.Marshal(item.Object)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate YAML"})
+		return
+	}
+
+	c.String(http.StatusOK, string(y))
 }
 
 func ex(kv ...string) map[string]string {

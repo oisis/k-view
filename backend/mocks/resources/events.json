@@ -1,0 +1,57 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-events-1",
+        "namespace": "default",
+        "uid": "uid-event-1",
+        "creationTimestamp": "2024-02-26T21:00:00Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "default",
+        "name": "anon-pods-1"
+      },
+      "reason": "Scheduled",
+      "message": "Successfully assigned default/anon-pods-1 to node-1",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "firstTimestamp": "2024-02-26T21:00:00Z",
+      "lastTimestamp": "2024-02-26T21:00:00Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-events-2",
+        "namespace": "kube-system",
+        "uid": "uid-event-2",
+        "creationTimestamp": "2024-02-26T21:05:00Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "coredns-abc"
+      },
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2024-02-26T21:05:00Z",
+      "lastTimestamp": "2024-02-26T21:10:00Z",
+      "count": 5,
+      "type": "Warning"
+    }
+  ]
+}
