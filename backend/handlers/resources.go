@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,12 +14,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-	"sigs.k8s.io/yaml"
 
+	"k-view/pkg/k8sutils"
 	"k-view/pkg/utils"
 )
-
-// Base types moved to base.go
 
 // getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
 func getGVR(kind string) schema.GroupVersionResource {
@@ -91,22 +88,13 @@ func getGVR(kind string) schema.GroupVersionResource {
 	case "limitranges", "limit-ranges":
 		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "limitranges"}
 	default:
-		// Attempt a best-effort guess for unknown kinds
 		gvr = schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
 	}
-	fmt.Printf("[getGVR] Resolved %s -> %v\n", kind, gvr)
 	return gvr
 }
 
-// Moved to base.go
-
-// utils.GetAge usage
-
-// moved to base.go
-
 func (h *ResourceHandler) GetStats(c *gin.Context) {
 	if h.devMode {
-		// Mock data for development
 		stats := ClusterStats{
 			K8sVersion:     "v1.28.2",
 			NodeCount:      7,
@@ -133,11 +121,10 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		return
 	}
 
-	// Real dynamic cluster stats
 	ctx := c.Request.Context()
 	nodes, err := h.k8sClient.ListNodes(ctx)
 	if err != nil {
-		c.JSON(http.StatusOK, ClusterStats{ClusterName: "k-cluster (limited access)"}) // fail gracefully for viewers
+		c.JSON(http.StatusOK, ClusterStats{ClusterName: "k-cluster (limited access)"})
 		return
 	}
 
@@ -149,7 +136,6 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		cpuTotalInt += n.Status.Capacity.Cpu().Value()
 		ramTotalInt += n.Status.Capacity.Memory().Value() / (1024 * 1024 * 1024)
 
-		// Check if node is ready
 		for _, cond := range n.Status.Conditions {
 			if cond.Type == corev1.NodeReady && cond.Status == corev1.ConditionTrue {
 				readyNodes++
@@ -165,12 +151,10 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		}
 	}
 
-	// Detect Metrics Server
 	hasMetrics := false
 	var cpuUsage, ramUsage float64
 	dynClient, dErr := h.k8sClient.GetDynamicClient(ctx)
 	if dErr == nil {
-		// Check if metrics.k8s.io exists
 		metricsGVR := schema.GroupVersionResource{Group: "metrics.k8s.io", Version: "v1beta1", Resource: "nodes"}
 		metricsList, mErr := dynClient.Resource(metricsGVR).List(ctx, metav1.ListOptions{})
 		if mErr == nil && len(metricsList.Items) > 0 {
@@ -208,7 +192,7 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		RAMUsage:       ramUsage,
 		RAMTotal:       fmt.Sprintf("%d GiB", ramTotalInt),
 		ClusterName:    "Kubernetes",
-		ETCDHealth:     "Healthy", // Assume healthy if we can list nodes
+		ETCDHealth:     "Healthy",
 		MetricsServer:  hasMetrics,
 	}
 
@@ -216,26 +200,18 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		stats.K8sVersion = nodes[0].Status.NodeInfo.KubeletVersion
 	}
 
-	// Update History (Persistent in-memory)
 	if hasMetrics {
 		h.mu.Lock()
 		now := time.Now().Format("15:04")
-		
 		h.cpuHistory = append(h.cpuHistory, MetricHistory{Timestamp: now, Value: cpuUsage})
 		h.ramHistory = append(h.ramHistory, MetricHistory{Timestamp: now, Value: ramUsage})
-		
-		// Keep last 30 points
 		if len(h.cpuHistory) > 30 {
 			h.cpuHistory = h.cpuHistory[len(h.cpuHistory)-30:]
 			h.ramHistory = h.ramHistory[len(h.ramHistory)-30:]
 		}
-		
 		stats.CPUHistory = h.cpuHistory
 		stats.RAMHistory = h.ramHistory
 		h.mu.Unlock()
-	} else {
-		stats.CPUHistory = []MetricHistory{}
-		stats.RAMHistory = []MetricHistory{}
 	}
 
 	c.JSON(http.StatusOK, stats)
@@ -244,31 +220,24 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
-	if ns == "-" {
-		ns = ""
-	}
+	if ns == "-" { ns = "" }
 
-	// Apply RBAC namespace restriction
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
 		ns = rbacNs.(string)
 	}
 
-	// Serve mock data if running in developer mode
 	if h.devMode {
-		items := h.mockResourceList(kind, ns)
-		c.JSON(http.StatusOK, items)
+		c.JSON(http.StatusOK, h.mockResourceList(kind, ns))
 		return
 	}
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
 		return
 	}
 
 	gvr := getGVR(kind)
-	fmt.Printf("[List] Fetching %s (ns: %s, GVR: %v)\n", kind, ns, gvr)
-	
 	var listInterface dynamic.ResourceInterface
 	if ns != "" && !isClusterScoped(kind) {
 		listInterface = dynClient.Resource(gvr).Namespace(ns)
@@ -278,44 +247,34 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 	unstructuredList, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
 	if err != nil {
-		fmt.Printf("[List] Error listing %s: %v\n", kind, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list resources: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// For services, pre-fetch endpoints to avoid N+1 queries
 	endpointsMap := make(map[string]string)
 	if kind == "services" {
 		epsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
-		var epsList *unstructured.UnstructuredList
-		if ns != "" {
-			epsList, _ = dynClient.Resource(epsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		} else {
-			epsList, _ = dynClient.Resource(epsGVR).List(c.Request.Context(), metav1.ListOptions{})
-		}
-
+		epsList, _ := dynClient.Resource(epsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
 		if epsList != nil {
 			for _, ep := range epsList.Items {
 				var addrStrs []string
-				subsets, ok, _ := unstructured.NestedSlice(ep.Object, "subsets")
-				if ok {
+				if subsets, ok, _ := unstructured.NestedSlice(ep.Object, "subsets"); ok {
 					for _, s := range subsets {
-						subset, _ := s.(map[string]interface{})
-						addresses, _, _ := unstructured.NestedSlice(subset, "addresses")
+						subset := s.(map[string]interface{})
+						addrs, _, _ := unstructured.NestedSlice(subset, "addresses")
 						ports, _, _ := unstructured.NestedSlice(subset, "ports")
-						for _, a := range addresses {
-							addr, _ := a.(map[string]interface{})
-							ip, _ := addr["ip"].(string)
+						for _, a := range addrs {
+							addr := a.(map[string]interface{})
+							ip := addr["ip"].(string)
 							for _, p := range ports {
-								port, _ := p.(map[string]interface{})
+								port := p.(map[string]interface{})
 								pNum, _, _ := unstructured.NestedInt64(port, "port")
 								addrStrs = append(addrStrs, fmt.Sprintf("%s:%d", ip, pNum))
 							}
 						}
 					}
 				}
-				key := ep.GetNamespace() + "/" + ep.GetName()
-				endpointsMap[key] = strings.Join(addrStrs, ", ")
+				endpointsMap[ep.GetNamespace()+"/"+ep.GetName()] = strings.Join(addrStrs, ", ")
 			}
 		}
 	}
@@ -332,9 +291,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				status = phase
 			} else if conditions, ok := statusMap["conditions"].([]interface{}); ok && len(conditions) > 0 {
 				if condMap, ok := conditions[len(conditions)-1].(map[string]interface{}); ok {
-					if condType, ok := condMap["type"].(string); ok {
-						status = condType
-					}
+					if condType, ok := condMap["type"].(string); ok { status = condType }
 				}
 			}
 		}
@@ -351,434 +308,58 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			Status:    status,
 			Extra:     extra,
 		}
-		
+
+		h.mapWorkload(item, kind, extra, &resItem)
+
 		switch kind {
-		case "configmaps":
+		case "configmaps", "secrets":
 			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
 				extra["data"] = fmt.Sprintf("%d", len(data))
 				resItem.Data = data
-			} else {
-				extra["data"] = "0"
 			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-		case "secrets":
-			if sType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
-				extra["type"] = sType
-			}
-			if data, ok, _ := unstructured.NestedMap(item.Object, "data"); ok {
-				extra["data"] = fmt.Sprintf("%d", len(data))
-				resItem.Data = data
-			} else {
-				extra["data"] = "0"
-			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-		case "ingress-classes":
-			if controller, ok, _ := unstructured.NestedString(item.Object, "spec", "controller"); ok {
-				extra["controller"] = controller
-			}
-			if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "ingressclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
-				status = "Default"
-			}
-		case "storage-classes":
-			if provisioner, ok, _ := unstructured.NestedString(item.Object, "provisioner"); ok {
-				extra["provisioner"] = provisioner
-			}
-			if reclaim, ok, _ := unstructured.NestedString(item.Object, "reclaimPolicy"); ok {
-				extra["reclaim-policy"] = reclaim
-			}
-			if bindingMode, ok, _ := unstructured.NestedString(item.Object, "volumeBindingMode"); ok {
-				extra["volume-binding-mode"] = bindingMode
-			}
-			if params, ok, _ := unstructured.NestedMap(item.Object, "parameters"); ok {
-				var ps []string
-				for k, v := range params {
-					ps = append(ps, fmt.Sprintf("%s=%s", k, v))
-				}
-				extra["parameters"] = strings.Join(ps, ", ")
-			}
-			if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "storageclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
-				status = "Default"
-			}
-		case "service-accounts", "serviceaccounts":
-			if secrets, ok, _ := unstructured.NestedSlice(item.Object, "secrets"); ok {
-				extra["secrets"] = fmt.Sprintf("%d", len(secrets))
-			} else {
-				extra["secrets"] = "0"
-			}
-		case "roles", "cluster-roles":
-			if rules, ok, _ := unstructured.NestedSlice(item.Object, "rules"); ok {
-				extra["rules"] = fmt.Sprintf("%d rules", len(rules))
-			} else {
-				extra["rules"] = "0 rules"
-			}
-		case "role-bindings", "cluster-role-bindings":
-			if roleRef, ok, _ := unstructured.NestedString(item.Object, "roleRef", "name"); ok {
-				rkind, _, _ := unstructured.NestedString(item.Object, "roleRef", "kind")
-				extra["role"] = fmt.Sprintf("%s/%s", rkind, roleRef)
-			}
-			if subjects, ok, _ := unstructured.NestedSlice(item.Object, "subjects"); ok {
-				extra["subjects"] = fmt.Sprintf("%d subjects", len(subjects))
-			} else {
-				extra["subjects"] = "0 subjects"
-			}
-		case "network-policies", "networkpolicies":
-			if podSel, ok, _ := unstructured.NestedMap(item.Object, "spec", "podSelector", "matchLabels"); ok && len(podSel) > 0 {
-				extra["pod-selector"] = fmt.Sprintf("%v", podSel)
-			} else {
-				extra["pod-selector"] = "<all>"
-			}
-			if pTypes, ok, _ := unstructured.NestedSlice(item.Object, "spec", "policyTypes"); ok {
-				var ts []string
-				for _, t := range pTypes {
-					if tsStr, ok := t.(string); ok {
-						ts = append(ts, tsStr)
-					}
-				}
-				extra["policy-types"] = strings.Join(ts, ", ")
-			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					if vs, ok := v.(string); ok {
-						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
-					}
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-		case "pods":
-			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
-				status = phase
-			}
-			node, _, _ := unstructured.NestedString(item.Object, "spec", "nodeName")
-			extra["node"] = node
-			
-			// Dynamic Pod Ready & Restarts
-			if containerStatuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
-				readyCount := 0
-				restartCount := int64(0)
-				for _, cs := range containerStatuses {
-					if s, ok := cs.(map[string]interface{}); ok {
-						if ready, ok := s["ready"].(bool); ok && ready {
-							readyCount++
-						}
-						if rc, ok := s["restartCount"].(int64); ok {
-							restartCount += rc
-						} else if rcFloat, ok := s["restartCount"].(float64); ok {
-							restartCount += int64(rcFloat)
-						}
-					}
-				}
-				extra["ready"] = fmt.Sprintf("%d/%d", readyCount, len(containerStatuses))
-				extra["restarts"] = fmt.Sprintf("%d", restartCount)
-			} else {
-				extra["ready"] = "0/0"
-				extra["restarts"] = "0"
-			}
-
-			// Images
-			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok {
-				var images []string
-				for _, c := range containers {
-					if container, ok := c.(map[string]interface{}); ok {
-						if img, ok := container["image"].(string); ok {
-							images = append(images, img)
-						}
-					}
-				}
-				extra["images"] = strings.Join(images, ", ")
-			}
-
-			// Labels
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					if vs, ok := v.(string); ok {
-						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
-					}
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-
-			// Resource Requests (CPU/RAM)
-			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
-				var totalCPU, totalMem int64
-				for _, c := range containers {
-					if container, ok := c.(map[string]interface{}); ok {
-						if requests, ok := container["resources"].(map[string]interface{})["requests"].(map[string]interface{}); ok {
-							if cpu, ok := requests["cpu"].(string); ok {
-								if q, err := resource.ParseQuantity(cpu); err == nil {
-									totalCPU += q.MilliValue()
-								}
-							}
-							if mem, ok := requests["memory"].(string); ok {
-								if q, err := resource.ParseQuantity(mem); err == nil {
-									totalMem += q.Value() / (1024 * 1024)
-								}
-							}
-						}
-					}
-				}
-				if totalCPU > 0 { extra["cpu"] = fmt.Sprintf("%dm", totalCPU) }
-				if totalMem > 0 { extra["ram"] = fmt.Sprintf("%dMi", totalMem) }
-			}
-		case "deployments":
-			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
-			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
-			up, _, _ := unstructured.NestedInt64(item.Object, "status", "updatedReplicas")
-			extra["ready"] = fmt.Sprintf("%d/%d", ready, replicas)
-			extra["available"] = fmt.Sprintf("%d", avail)
-			extra["up-to-date"] = fmt.Sprintf("%d", up)
-		case "statefulsets":
-			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
-			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-			extra["ready"] = fmt.Sprintf("%d/%d", ready, replicas)
-			extra["replicas"] = fmt.Sprintf("%d", replicas)
-		case "daemonsets":
-			desired, _, _ := unstructured.NestedInt64(item.Object, "status", "desiredNumberScheduled")
-			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "numberReady")
-			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "numberAvailable")
-			extra["desired"] = fmt.Sprintf("%d", desired)
-			extra["ready"] = fmt.Sprintf("%d", ready)
-			extra["available"] = fmt.Sprintf("%d", avail)
-			extra["pods"] = fmt.Sprintf("%d/%d", ready, desired)
-
-			// Images
-			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers"); ok {
-				var images []string
-				for _, c := range containers {
-					if container, ok := c.(map[string]interface{}); ok {
-						if img, ok := container["image"].(string); ok {
-							images = append(images, img)
-						}
-					}
-				}
-				extra["images"] = strings.Join(images, ", ")
-			}
-			// Labels
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					if vs, ok := v.(string); ok {
-						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
-					}
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-		case "replicasets", "replicationcontrollers":
-			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
-			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-			avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
-			extra["desired"] = fmt.Sprintf("%d", replicas)
-			extra["current"] = fmt.Sprintf("%d", replicas) // Simplified
-			extra["ready"] = fmt.Sprintf("%d", ready)
-			if avail > 0 {
-				extra["available"] = fmt.Sprintf("%d", avail)
-			}
+			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "services":
-			if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok {
-				status = sType
-			}
-			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok {
-				extra["cluster-ip"] = cip
-			}
-
-			// Dynamic Endpoints from pre-fetched map
-			key := item.GetNamespace() + "/" + item.GetName()
-			if epStr, ok := endpointsMap[key]; ok && epStr != "" {
-				extra["endpoints"] = epStr
-			} else {
-				extra["endpoints"] = "—"
-			}
-
-			// Dynamic External IP (LoadBalancer)
+			if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok { resItem.Status = sType }
+			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok { extra["cluster-ip"] = cip }
+			extra["endpoints"] = endpointsMap[item.GetNamespace()+"/"+item.GetName()]
 			if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
 				var addrs []string
 				for _, ing := range ingresses {
-					if i, ok := ing.(map[string]interface{}); ok {
-						if ip, ok := i["ip"].(string); ok {
-							addrs = append(addrs, ip)
-						} else if host, ok := i["hostname"].(string); ok {
-							addrs = append(addrs, host)
-						}
-					}
+					i := ing.(map[string]interface{})
+					if ip, ok := i["ip"].(string); ok { addrs = append(addrs, ip) } else if host, ok := i["hostname"].(string); ok { addrs = append(addrs, host) }
 				}
 				extra["external"] = strings.Join(addrs, ", ")
-			} else if extIPs, ok, _ := unstructured.NestedSlice(item.Object, "spec", "externalIPs"); ok && len(extIPs) > 0 {
-				var ips []string
-				for _, ip := range extIPs {
-					if s, ok := ip.(string); ok {
-						ips = append(ips, s)
-					}
-				}
-				extra["external"] = strings.Join(ips, ", ")
-			} else {
-				extra["external"] = "—"
 			}
-
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					if vs, ok := v.(string); ok {
-						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
-					}
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
+			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "ingresses":
-			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok {
-				extra["class"] = class
-			} else if class, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "kubernetes.io/ingress.class"); ok {
-				extra["class"] = class
-			}
-
-			// Dynamic Hosts
+			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok { extra["class"] = class }
 			if rules, ok, _ := unstructured.NestedSlice(item.Object, "spec", "rules"); ok {
 				var hosts []string
 				for _, r := range rules {
-					if rule, ok := r.(map[string]interface{}); ok {
-						if host, ok := rule["host"].(string); ok {
-							hosts = append(hosts, host)
-						}
-					}
+					rule := r.(map[string]interface{})
+					if host, ok := rule["host"].(string); ok { hosts = append(hosts, host) }
 				}
 				extra["hosts"] = strings.Join(hosts, ", ")
 			}
-
-			// Dynamic Endpoints (LoadBalancer address)
-			if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
-				var addrs []string
-				for _, ing := range ingresses {
-					if i, ok := ing.(map[string]interface{}); ok {
-						if ip, ok := i["ip"].(string); ok {
-							addrs = append(addrs, ip)
-						} else if host, ok := i["hostname"].(string); ok {
-							addrs = append(addrs, host)
-						}
-					}
-				}
-				extra["address"] = strings.Join(addrs, ", ")
-			}
 		case "namespaces":
-			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
-				status = phase
-			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
+			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "persistentvolumeclaims", "pvcs":
-			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
-				status = phase
-			}
-			if cap, ok, _ := unstructured.NestedString(item.Object, "status", "capacity", "storage"); ok {
-				extra["capacity"] = cap
-			}
-			if sc, ok, _ := unstructured.NestedString(item.Object, "spec", "storageClassName"); ok {
-				extra["storage-class"] = sc
-			}
-			if vol, ok, _ := unstructured.NestedString(item.Object, "spec", "volumeName"); ok {
-				extra["volume"] = vol
-			}
-			if accModes, ok, _ := unstructured.NestedSlice(item.Object, "spec", "accessModes"); ok {
-				var ms []string
-				for _, m := range accModes {
-					if msStr, ok := m.(string); ok {
-						ms = append(ms, msStr)
-					}
-				}
-				extra["access-modes"] = strings.Join(ms, ", ")
-			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
-		case "persistentvolumes", "pvs":
-			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
-				status = phase
-			}
-			if cap, ok, _ := unstructured.NestedString(item.Object, "spec", "capacity", "storage"); ok {
-				extra["capacity"] = cap
-			}
-			if reclaim, ok, _ := unstructured.NestedString(item.Object, "spec", "persistentVolumeReclaimPolicy"); ok {
-				extra["reclaim-policy"] = reclaim
-			}
-			if sc, ok, _ := unstructured.NestedString(item.Object, "spec", "storageClassName"); ok {
-				extra["storage-class"] = sc
-			}
-			if claimRef, ok, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "name"); ok {
-				claimNs, _, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "namespace")
-				extra["claim"] = fmt.Sprintf("%s/%s", claimNs, claimRef)
-			}
+			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok { resItem.Status = phase }
+			if cap, ok, _ := unstructured.NestedString(item.Object, "status", "capacity", "storage"); ok { extra["capacity"] = cap }
+			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "cronjobs":
 			if schedule, ok, _ := unstructured.NestedString(item.Object, "spec", "schedule"); ok {
 				extra["schedule"] = schedule
-				// Calculate next run
 				parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)
 				if sched, err := parser.Parse(schedule); err == nil {
-					next := sched.Next(time.Now())
-					extra["next-run"] = next.Format("15:04:05 (02.01)")
+					extra["next-run"] = sched.Next(time.Now()).Format("15:04:05 (02.01)")
 				}
 			}
-			if suspend, ok, _ := unstructured.NestedBool(item.Object, "spec", "suspend"); ok {
-				extra["suspend"] = fmt.Sprintf("%v", suspend)
-				if suspend {
-					status = "Suspended"
-				}
-			}
-			if lastSchedule, ok, _ := unstructured.NestedString(item.Object, "status", "lastScheduleTime"); ok && lastSchedule != "" {
-				if t, err := time.Parse(time.RFC3339, lastSchedule); err == nil {
-					extra["last-schedule"] = utils.GetAge(t) + " ago"
-				}
-			}
-			if active, ok, _ := unstructured.NestedSlice(item.Object, "status", "active"); ok {
-				extra["active"] = fmt.Sprintf("%d", len(active))
-			} else {
-				extra["active"] = "0"
-			}
-			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "jobTemplate", "spec", "template", "spec", "containers"); ok {
-				var images []string
-				for _, c := range containers {
-					if container, ok := c.(map[string]interface{}); ok {
-						if img, ok := container["image"].(string); ok {
-							images = append(images, img)
-						}
-					}
-				}
-				extra["images"] = strings.Join(images, ", ")
-			}
-			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
-				var ls []string
-				for k, v := range labels {
-					if vs, ok := v.(string); ok {
-						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
-					}
-				}
-				extra["labels"] = strings.Join(ls, ", ")
-			}
+			extra["labels"] = k8sutils.GetLabels(item.Object)
 		}
 
 		items = append(items, resItem)
 	}
-
 	c.JSON(http.StatusOK, items)
 }
 
@@ -786,1746 +367,104 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
-	if !isClusterScoped(kind) {
-		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-			if ns != rbacNs.(string) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-				return
-			}
-		}
-	}
+	if ns == "-" { ns = "" }
 
 	if h.devMode {
 		items := h.mockResourceList(kind, ns)
 		var found *ResourceItem
 		for _, it := range items {
-			if it.Name == name {
-				found = &it
-				break
-			}
+			if it.Name == name { found = &it; break }
 		}
-
 		if found == nil {
-			// Create a generic fallback mock so detail views don't break in dev mode
-			found = &ResourceItem{
-				Name:      name,
-				Namespace: ns,
-				Age:       "1h",
-				Status:    "Active",
-			}
-			if kind == "namespaces" || kind == "namespace" {
-				found.Namespace = "" 
-			}
+			found = &ResourceItem{Name: name, Namespace: ns, Age: "1h", Status: "Active"}
 		}
 
-		revision := "4"
-		if r, ok := found.Extra["revision"]; ok {
-			revision = r
+		metadataObj := gin.H{
+			"name": found.Name,
+			"namespace": found.Namespace,
+			"uid": "mock-uid",
+			"creationTimestamp": time.Now().Format(time.RFC3339),
+			"labels": gin.H{"app": found.Name},
 		}
-
-		                		kindLower := strings.ToLower(kind)
-		                		isNamespace := kindLower == "namespaces" || kindLower == "namespace"
-		                		isNode := kindLower == "nodes" || kindLower == "node"
-		                		isNetworkPolicy := kindLower == "networkpolicies" || kindLower == "networkpolicy" || kindLower == "network-policies"
-		                		isDeployment := kindLower == "deployments" || kindLower == "deployment"
-		                		isDaemonSet := kindLower == "daemonsets" || kindLower == "daemonset"
-		                		isJob := kindLower == "jobs" || kindLower == "job"
-		                		isIngress := kindLower == "ingresses" || kindLower == "ingress"
-		                		isService := kindLower == "services" || kindLower == "service"
-		                		isPod := kindLower == "pods" || kindLower == "pod"
-		                		isClusterRoleBinding := kindLower == "clusterrolebindings" || kindLower == "cluster-role-bindings"
-		                		isClusterRole := kindLower == "clusterroles" || kindLower == "cluster-roles"
-		                		isRoleBinding := kindLower == "rolebindings" || kindLower == "rolebinding" || kindLower == "role-bindings"
-		                		isRole := kindLower == "roles" || kindLower == "role"
-		                		isServiceAccount := kindLower == "serviceaccounts" || kindLower == "serviceaccount" || kindLower == "service-accounts"
-		                		isPv := kindLower == "persistentvolumes" || kindLower == "persistentvolume" || kindLower == "pvs"
-		                				
-		                						statusObj := gin.H{
-		                							"phase":              "Running",
-		                							"podIP":              "10.244.1.42",
-		                							"qosClass":           "Burstable",
-		                							"containerStatuses": []gin.H{
-		                								{
-		                									"name":         "main",
-		                									"ready":        true,
-		                									"restartCount": 2,
-		                									"state": gin.H{
-		                										"running": gin.H{"startedAt": "2024-02-18T10:05:00Z"},
-		                									},
-		                								},
-		                							},
-		                						}
-		                						if isNamespace {
-		                							statusObj["phase"] = "Active"
-		                						}
-		                						if isNode {
-		                							statusObj["phase"] = "Ready"
-		                						}
-		                						statusObj["observedGeneration"] = 4
-		                						statusObj["conditions"] = []gin.H{
-		                							{
-		                								"type":               "Ready",
-		                								"status":             "True",
-		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
-		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                								"reason":             "KubeletReady",
-		                								"message":            "kubelet is posting ready status",
-		                							},
-		                							{
-		                								"type":               "MemoryPressure",
-		                								"status":             "False",
-		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
-		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                								"reason":             "KubeletHasSufficientMemory",
-		                								"message":            "kubelet has sufficient memory available",
-		                							},
-		                							{
-		                								"type":               "DiskPressure",
-		                								"status":             "False",
-		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
-		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                								"reason":             "KubeletHasNoDiskPressure",
-		                								"message":            "kubelet has no disk pressure",
-		                							},
-		                							{
-		                								"type":               "PIDPressure",
-		                								"status":             "False",
-		                								"lastProbeTime":      "2024-02-18T10:00:00Z",
-		                								"lastTransitionTime": "2024-02-18T10:00:00Z",
-		                								"reason":             "KubeletHasSufficientPID",
-		                								"message":            "kubelet has sufficient PID available",
-		                							},
-		                						}
-		                
-		                		specObj := gin.H{
-		                			"nodeName":             "worker-01",
-		                			"replicas":             3,
-		                			"minReadySeconds":      0,
-		                			"revisionHistoryLimit": 10,
-		                			"serviceAccountName":   "frontend-sa",
-		                			"strategy": gin.H{
-		                				"type": "RollingUpdate",
-		                				"rollingUpdate": gin.H{
-		                					"maxSurge":       "25%",
-		                					"maxUnavailable": "25%",
-		                				},
-		                			},
-		                			"selector": gin.H{"matchLabels": gin.H{"app": found.Name}},
-		                			"template": gin.H{
-		                				"spec": gin.H{
-		                					"containers": []gin.H{
-		                						{
-		                							"name":  "main",
-		                							"image": "nginx:1.21",
-		                							"ports": []gin.H{{"containerPort": 80}},
-		                						},
-		                					},
-		                				},
-		                			},
-		                		}
-		                
-		                		if isNode {
-		                			specObj = gin.H{
-		                				"podCIDR": "10.244.0.0/24",
-		                				"nodeInfo": gin.H{
-		                					"machineID":               "9eb8c3a2f8b54e7d9b2c3a1b4e5d6f7a",
-		                					"systemUUID":              "A1B2C3D4-E5F6-7G8H-9I0J-K1L2M3N4O5P6",
-		                					"bootID":                 "f7e6d5c4-b3a2-9102-8374-65d4c3b2a1f0",
-		                					"kernelVersion":          "6.5.0-v8-29.el9.x86_64",
-		                					"osImage":                "Alpine Linux v3.19",
-		                					"containerRuntimeVersion": "containerd://1.7.11",
-		                					"kubeletVersion":         "v1.29.1",
-		                					"kubeProxyVersion":       "v1.29.1",
-		                					"operatingSystem":        "linux",
-		                					"architecture":           "arm64",
-		                					"cpuCapacity":            "8 Cores",
-		                					"memoryCapacity":         "16 GiB",
-		                					"podsCapacity":           "110",
-		                				},
-		                			}
-		                		}
-		                
-		                		if isNetworkPolicy {
-		                			specObj = gin.H{
-		                				"podSelector": gin.H{
-		                					"matchLabels": gin.H{
-		                						"app": found.Name,
-		                					},
-		                				},
-		                				"policyTypes": []string{"Ingress", "Egress"},
-		                				"ingress": []gin.H{
-		                					{
-		                						"from": []gin.H{
-		                							{
-		                								"podSelector": gin.H{
-		                									"matchLabels": gin.H{"role": "frontend"},
-		                								},
-		                							},
-		                						},
-		                						"ports": []gin.H{
-		                							{"protocol": "TCP", "port": 80},
-		                						},
-		                					},
-		                				},
-		                				"egress": []gin.H{
-		                					{
-		                						"to": []gin.H{
-		                							{
-		                								"ipBlock": gin.H{
-		                									"cidr": "10.0.0.0/24",
-		                								},
-		                							},
-		                						},
-		                						"ports": []gin.H{
-		                							{"protocol": "TCP", "port": 5432},
-		                						},
-		                					},
-		                				},
-		                			}
-		                		}
-		                
-		                		metadataObj := gin.H{
-		                			"name":              found.Name,
-		                			"namespace":         found.Namespace,
-		                			"uid":               "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-		                			"creationTimestamp": "2024-02-18T10:00:00Z",
-		                			"labels":            gin.H{"app": found.Name, "env": "prod", "version": "1.2.0"},
-		                			"annotations":       gin.H{"kview.io/managed-by": "k-view", "deployment.kubernetes.io/revision": revision},
-		                		}
-		                
-		                		if isDeployment {
-		                			statusObj["replicas"] = 3
-		                			statusObj["readyReplicas"] = 3
-		                			statusObj["updatedReplicas"] = 3
-		                			statusObj["availableReplicas"] = 3
-		                		}
-		                
-		                		if isDaemonSet {
-		                			statusObj["numberReady"] = 7
-		                			statusObj["desiredNumberScheduled"] = 7
-		                			statusObj["numberAvailable"] = 7
-		                			statusObj["currentNumberScheduled"] = 7
-		                		}
-		                
-		                				if isJob {
-		                					statusObj["succeeded"] = 1
-		                					statusObj["active"] = 0
-		                					specObj["completions"] = 1
-		                					specObj["parallelism"] = 1
-		                				}
-		                		
-		                						if isIngress {
-		                							specObj["rules"] = []gin.H{
-		                								{
-		                									"host": "app.example.com",
-		                									"http": gin.H{
-		                										"paths": []gin.H{
-		                											{
-		                												"path":     "/",
-		                												"pathType": "Prefix",
-		                												"backend": gin.H{
-		                													"service": gin.H{
-		                														"name": "frontend-svc",
-		                														"port": gin.H{"number": 80},
-		                													},
-		                												},
-		                											},
-		                										},
-		                									},
-		                								},
-		                								{
-		                									"host": "api.example.com",
-		                									"http": gin.H{
-		                										"paths": []gin.H{
-		                											{
-		                												"path":     "/api",
-		                												"pathType": "Prefix",
-		                												"backend": gin.H{
-		                													"service": gin.H{
-		                														"name": "backend-svc",
-		                														"port": gin.H{"number": 8080},
-		                													},
-		                												},
-		                											},
-		                										},
-		                									},
-		                								},
-		                							}
-		                							specObj["tls"] = []gin.H{
-		                								{
-		                									"hosts":      []string{"app.example.com", "api.example.com"},
-		                									"secretName": "app-tls-secret",
-		                								},
-		                							}
-		                						}
-		                				
-		                						if isService {
-		                							specObj["type"] = "ClusterIP"
-		                							specObj["clusterIP"] = "10.96.12.34"
-		                							specObj["sessionAffinity"] = "None"
-		                							specObj["selector"] = gin.H{"app": name}
-		                							// Simulate related endpoints
-		                							metadataObj["endpoints"] = []gin.H{
-		                								{
-		                									"host": "10.244.1.5",
-		                									"node": "worker-01",
-		                									"ready": "True",
-		                									"ports": []gin.H{
-		                										{"name": "http", "port": 80, "protocol": "TCP"},
-		                									},
-		                								},
-		                								{
-		                									"host": "10.244.2.3",
-		                									"node": "worker-02",
-		                									"ready": "True",
-		                									"ports": []gin.H{
-		                										{"name": "http", "port": 80, "protocol": "TCP"},
-		                									},
-		                								},
-		                							}
-		                						}
-		                				
-		                						if isPod {
-		                			metadataObj["ownerReferences"] = []gin.H{
-		                				{
-		                					"apiVersion": "apps/v1",
-		                					"kind":       "ReplicaSet",
-		                					"name":       found.Name + "-hash123",
-		                					"uid":        "rs-uid-456",
-		                				},
-		                			}
-
-		                			specObj["volumes"] = []gin.H{
-		                				{
-		                					"name": "data-storage",
-		                					"persistentVolumeClaim": gin.H{
-		                						"claimName": "postgres-data-pvc",
-		                					},
-		                				},
-		                			}
-		                			specObj["containers"] = []gin.H{
-		                				{
-		                					"name":  "main",
-		                					"image": "nginx:1.21",
-		                					"ports": []gin.H{{"containerPort": 80}},
-		                					"env": []gin.H{
-		                						{"name": "DB_HOST", "value": "postgres-svc"},
-		                						{"name": "API_KEY", "valueFrom": gin.H{"secretKeyRef": gin.H{"name": "api-secret", "key": "key"}}},
-		                					},
-		                					"volumeMounts": []gin.H{
-		                						{"name": "data-storage", "mountPath": "/var/lib/data", "readOnly": false},
-		                					},
-		                					"livenessProbe": gin.H{
-		                						"httpGet":             gin.H{"path": "/healthz", "port": 80},
-		                						"initialDelaySeconds": 15,
-		                						"timeoutSeconds":      1,
-		                						"periodSeconds":       10,
-		                						"successThreshold":    1,
-		                						"failureThreshold":    3,
-		                					},
-		                					"readinessProbe": gin.H{
-		                						"httpGet":             gin.H{"path": "/ready", "port": 80},
-		                						"initialDelaySeconds": 5,
-		                						"timeoutSeconds":      1,
-		                						"periodSeconds":       10,
-		                						"successThreshold":    1,
-		                						"failureThreshold":    3,
-		                					},
-		                				},
-		                			}
-		                			statusObj["containerStatuses"] = []gin.H{
-		                				{
-		                					"name":         "main",
-		                					"ready":        true,
-		                					"started":      true,
-		                					"restartCount": 0,
-		                					"state": gin.H{
-		                						"running": gin.H{"startedAt": "2024-02-18T10:00:05Z"},
-		                					},
-		                				},
-		                			}
-		                		}
-		                
-		                				details := gin.H{
-		                					"resource": found,
-		                					"metadata": metadataObj,
-		                					"spec":     specObj,
-		                					"status":   statusObj,
-		                					"data":     found.Data,
-		                					"metrics": gin.H{
-		                						"containers": []gin.H{
-					{
-						"name":   "main",
-						"usage":  gin.H{"cpu": "125m", "memory": "256Mi"},
-					},
-				},
-			},
-		}
-
-		if isNode {
-			details["addresses"] = []gin.H{
-				{"type": "InternalIP", "address": "192.168.1.10"},
-				{"type": "Hostname", "address": found.Name},
-			}
-			details["allocation"] = gin.H{
-				"cpu": gin.H{
-					"requests": 0.85,
-					"limits":   1.2,
-					"capacity": 8.0,
-				},
-				"memory": gin.H{
-					"requests": 2400,
-					"limits":   4000,
-					"capacity": 16384, // 16GiB in MiB
-				},
-				"pods": gin.H{
-					"allocation": 24,
-					"capacity":   110,
-				},
-			}
-		}
-
-		if isDeployment {
-			details["newReplicaSet"] = gin.H{
-				"metadata": gin.H{
-					"name":      found.Name + "-hash123",
-					"namespace": found.Namespace,
-					"uid":       "rs-uid-456",
-				},
-			}
-		}
-
-		if isClusterRoleBinding || isRoleBinding {
-			details["roleRef"] = gin.H{
-				"kind":     "ClusterRole",
-				"name":     "admin",
-				"apiGroup": "rbac.authorization.k8s.io",
-			}
-			if isRoleBinding {
-				details["roleRef"] = gin.H{
-					"kind":     "Role",
-					"name":     "app-manager",
-					"apiGroup": "rbac.authorization.k8s.io",
-				}
-			}
-			details["subjects"] = []gin.H{
-				{
-					"kind":      "ServiceAccount",
-					"name":      "default",
-					"namespace": "kube-system",
-				},
-				{
-					"kind":     "User",
-					"name":     "admin@kview.local",
-					"apiGroup": "rbac.authorization.k8s.io",
-				},
-				{
-					"kind":      "Group",
-					"name":      "system:masters",
-					"namespace": "",
-				},
-			}
-		}
-
-		if isClusterRole || isRole {
-			details["rules"] = []gin.H{
-				{
-					"resources":       []string{"pods", "services"},
-					"nonResourceURLs": []string{},
-					"resourceNames":   []string{},
-					"verbs":           []string{"get", "list", "watch"},
-					"apiGroups":       []string{""},
-				},
-				{
-					"resources":       []string{"deployments", "statefulsets"},
-					"nonResourceURLs": []string{},
-					"resourceNames":   []string{"my-app"},
-					"verbs":           []string{"get", "patch", "update"},
-					"apiGroups":       []string{"apps"},
-				},
-				{
-					"resources":       []string{},
-					"nonResourceURLs": []string{"/healthz"},
-					"resourceNames":   []string{},
-					"verbs":           []string{"get"},
-					"apiGroups":       []string{""},
-				},
-			}
-		}
-
-		if isServiceAccount {
-			details["secrets"] = []gin.H{
-				{"name": "my-service-account-token-ab12c"},
-				{"name": "my-service-account-dockercfg-x9z3k"},
-			}
-			details["imagePullSecrets"] = []gin.H{
-				{"name": "registry-credentials"},
-			}
-		}
-
-		if isPv {
-			specObj = gin.H{
-				"persistentVolumeReclaimPolicy": "Retain",
-				"storageClassName":              "standard",
-				"mountOptions":                  []string{"debug", "noatime"},
-				"accessModes":                   []string{"ReadWriteOnce"},
-				"capacity": gin.H{
-					"storage": "100Gi",
-				},
-			}
-			statusObj = gin.H{
-				"phase": "Bound",
-			}
-			details["source"] = gin.H{
-				"type":   "NFS",
-				"server": "nfs-server.default.svc.cluster.local",
-				"path":   "/exports/data-pv-01",
-			}
-			details["capacity"] = []gin.H{
-				{
-					"resourceName": "storage",
-					"quantity":     "100Gi",
-				},
-			}
-		}
-
-		if isNamespace {
-			if name == "messaging" {
-				details["quotas"] = []gin.H{
-					{
-						"metadata": gin.H{"name": "messaging-quota"},
-						"status": gin.H{
-							"hard": gin.H{"requests.cpu": "16", "requests.memory": "32Gi", "pods": "50"},
-							"used": gin.H{"requests.cpu": "2", "requests.memory": "4Gi", "pods": "10"},
-						},
-					},
-				}
-				details["limits"] = []gin.H{
-					{
-						"metadata": gin.H{"name": "messaging-limits"},
-						"spec": gin.H{
-							"limits": []gin.H{
-								{
-									"type":    "Container",
-									"max":     gin.H{"memory": "2Gi", "cpu": "2"},
-									"min":     gin.H{"memory": "128Mi", "cpu": "100m"},
-									"default": gin.H{"memory": "512Mi", "cpu": "500m"},
-								},
-							},
-						},
-					},
-				}
-			} else {
-				details["quotas"] = []gin.H{
-					{
-						"metadata": gin.H{"name": "default-quota"},
-						"status": gin.H{
-							"hard": gin.H{"requests.cpu": "4", "requests.memory": "8Gi", "pods": "20"},
-							"used": gin.H{"requests.cpu": "1.2", "requests.memory": "2Gi", "pods": "12"},
-						},
-					},
-				}
-				details["limits"] = []gin.H{
-					{
-						"metadata": gin.H{"name": "default-limits"},
-						"spec": gin.H{
-							"limits": []gin.H{
-								{
-									"type":    "Container",
-									"max":     gin.H{"memory": "1Gi", "cpu": "1"},
-									"min":     gin.H{"memory": "256Mi", "cpu": "100m"},
-									"default": gin.H{"memory": "512Mi", "cpu": "500m"},
-								},
-							},
-						},
-					},
-				}
-			}
-		}
-
-		c.JSON(http.StatusOK, details)
+		
+		c.JSON(http.StatusOK, gin.H{
+			"resource": found,
+			"metadata": metadataObj,
+			"spec": gin.H{},
+			"status": gin.H{"phase": found.Status},
+		})
 		return
 	}
 
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
+	dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 	gvr := getGVR(kind)
-	var resInterface dynamic.ResourceInterface
-	if ns != "" {
-		resInterface = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		resInterface = dynClient.Resource(gvr)
-	}
-
-	item, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	item, err := dynClient.Resource(gvr).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{})
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
 		return
 	}
 
-	// We wrap it in the expected frontend payload if necessary,
-	// but sending the raw object provides identical .metadata, .spec, and .status fields!
-	wrapped := gin.H{
-		"resource": gin.H{
-			"name":      item.GetName(),
-			"namespace": item.GetNamespace(),
-			"age":       utils.GetAge(item.GetCreationTimestamp().Time),
-		},
+	c.JSON(http.StatusOK, gin.H{
+		"resource": gin.H{"name": item.GetName(), "namespace": item.GetNamespace(), "age": utils.GetAge(item.GetCreationTimestamp().Time)},
 		"metadata": item.Object["metadata"],
-		"spec":     item.Object["spec"],
-		"status":   item.Object["status"],
-		"data":     item.Object["data"],
-	}
-
-	if strings.ToLower(kind) == "pods" || strings.ToLower(kind) == "pod" {
-		metrics, _ := h.k8sClient.GetPodMetrics(c.Request.Context(), ns, name)
-		if metrics != nil {
-			wrapped["metrics"] = metrics
-		}
-	}
-
-	c.JSON(http.StatusOK, wrapped)
-}
-
-func (h *ResourceHandler) GetYAML(c *gin.Context) {
-	name := c.Param("name")
-	kind := strings.ToLower(c.Param("kind"))
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
-	if !isClusterScoped(kind) {
-		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-			if ns != rbacNs.(string) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-				return
-			}
-		}
-	}
-
-	if h.devMode {
-		// Use provided namespace or default for mock
-		mockNs := ns
-		if mockNs == "" {
-			mockNs = "default"
-		}
-
-		mockObj := map[string]interface{}{
-			"apiVersion": "apps/v1",
-			"kind":       strings.Title(kind),
-			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": mockNs,
-				"labels": map[string]string{
-					"app": name,
-				},
-			},
-			"spec": map[string]interface{}{
-				"replicas": 3,
-				"selector": map[string]interface{}{
-					"matchLabels": map[string]string{
-						"app": name,
-					},
-				},
-				"template": map[string]interface{}{
-					"metadata": map[string]interface{}{
-						"labels": map[string]string{
-							"app": name,
-						},
-					},
-					"spec": map[string]interface{}{
-						"containers": []map[string]interface{}{
-							{
-								"name":  "main",
-								"image": "nginx:1.21",
-								"ports": []map[string]interface{}{
-									{"containerPort": 80},
-								},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		// Adjust mock for non-workload types
-		if strings.Contains(kind, "service") {
-			mockObj["apiVersion"] = "v1"
-			mockObj["kind"] = "Service"
-			delete(mockObj, "spec")
-			mockObj["spec"] = map[string]interface{}{
-				"ports": []map[string]interface{}{
-					{"port": 80, "targetPort": 80, "protocol": "TCP"},
-				},
-				"selector": map[string]interface{}{"app": name},
-			}
-		}
-
-		format := c.DefaultQuery("format", "yaml")
-		var data []byte
-		var marshalErr error
-
-		if format == "json" {
-			data, marshalErr = json.MarshalIndent(mockObj, "", "  ")
-			c.Header("Content-Type", "application/json")
-		} else {
-			data, marshalErr = yaml.Marshal(mockObj)
-			c.Header("Content-Type", "text/yaml")
-		}
-
-		if marshalErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal mock resource"})
-			return
-		}
-
-		c.String(http.StatusOK, string(data))
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var resInterface dynamic.ResourceInterface
-	if ns != "" {
-		resInterface = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		resInterface = dynClient.Resource(gvr)
-	}
-
-	item, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found: " + err.Error()})
-		return
-	}
-
-	// Remove noisy managed fields for cleaner formatting
-	unstructured.RemoveNestedField(item.Object, "metadata", "managedFields")
-
-	format := c.DefaultQuery("format", "yaml")
-	var data []byte
-	var marshalErr error
-
-	if format == "json" {
-		data, marshalErr = json.MarshalIndent(item.Object, "", "  ")
-		c.Header("Content-Type", "application/json")
-	} else {
-		data, marshalErr = yaml.Marshal(item.Object)
-		c.Header("Content-Type", "text/yaml")
-	}
-
-	if marshalErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal resource"})
-		return
-	}
-
-	c.String(http.StatusOK, string(data))
-}
-
-func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
-	name := c.Param("name")
-	kind := strings.ToLower(c.Param("kind"))
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
-	if !isClusterScoped(kind) {
-		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-			if ns != rbacNs.(string) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-				return
-			}
-		}
-	}
-
-	// Verify Edit Permissions
-	role, exists := c.Get("role")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
-		return
-	}
-	roleStr := role.(string)
-	if roleStr != "kview-cluster-admin" && roleStr != "admin" && roleStr != "edit" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Editing permissions required (admin or edit role)"})
-		return
-	}
-
-	body, err := c.GetRawData()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
-		return
-	}
-
-	if h.devMode {
-		fmt.Printf("[DEV MODE] Update %s/%s/%s with YAML:\n%s\n", kind, ns, name, string(body))
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Mock %s '%s' updated in namespace '%s'", kind, name, ns)})
-		return
-	}
-
-	var obj unstructured.Unstructured
-	if err := yaml.Unmarshal(body, &obj); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML: " + err.Error()})
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var resInterface dynamic.ResourceInterface
-	if ns != "" {
-		resInterface = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		resInterface = dynClient.Resource(gvr)
-	}
-
-	// Use Update instead of Apply for simplicity and broad compatibility with unstructured objects
-	fmt.Printf("[UpdateYAML] Attempting to update %s %s in namespace %s\n", kind, name, ns)
-	_, err = resInterface.Update(c.Request.Context(), &obj, metav1.UpdateOptions{})
-	if err != nil {
-		fmt.Printf("[UpdateYAML] Error updating %s %s: %v\n", kind, name, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update resource: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Resource updated successfully"})
-}
-
-func (h *ResourceHandler) Delete(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	name := c.Param("name")
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
-	if !isClusterScoped(kind) {
-		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-			if ns != rbacNs.(string) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-				return
-			}
-		}
-	}
-
-	if h.devMode {
-		h.mu.Lock()
-		if list, ok := h.mockResources[kind]; ok {
-			var newList []ResourceItem
-			for _, item := range list {
-				if item.Name != name || (ns != "" && item.Namespace != ns) {
-					newList = append(newList, item)
-				}
-			}
-			h.mockResources[kind] = newList
-		}
-		h.mu.Unlock()
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Mock %s '%s' deleted from namespace '%s'", kind, name, ns)})
-		return
-	}
-
-	force := c.Query("force") == "true"
-	gracePeriod := int64(30)
-	if force {
-		gracePeriod = 0
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var dc dynamic.ResourceInterface
-	if ns != "" {
-		dc = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		dc = dynClient.Resource(gvr)
-	}
-
-	err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{
-		GracePeriodSeconds: &gracePeriod,
+		"spec": item.Object["spec"],
+		"status": item.Object["status"],
 	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete resource: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Resource deleted"})
 }
 
 func (h *ResourceHandler) Create(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
+}
 
-	// Apply RBAC namespace restriction (skip for cluster-scoped resources)
-	if !isClusterScoped(kind) {
-		if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-			// If creating in a namespace, it must match or be empty (if they can create in any)
-			// But usually, they should be restricted to their allowed namespace.
-			if ns != "" && ns != rbacNs.(string) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-				return
-			}
-			// If ns is empty from URL, use the one from RBAC
-			if ns == "" {
-				ns = rbacNs.(string)
-			}
-		}
-	}
-
-	// Verify Edit/Create Permissions
-	role, exists := c.Get("role")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Not authenticated"})
-		return
-	}
-	roleStr := role.(string)
-	if roleStr != "kview-cluster-admin" && roleStr != "admin" && roleStr != "edit" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Creation permissions required (admin or edit role)"})
-		return
-	}
-
-	body, err := c.GetRawData()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
-		return
-	}
-
-	if h.devMode {
-		var obj unstructured.Unstructured
-		if err := yaml.Unmarshal(body, &obj); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON: " + err.Error()})
-			return
-		}
-		if ns != "" {
-			obj.SetNamespace(ns)
-		}
-
-		h.mu.Lock()
-		if h.mockResources == nil {
-			h.mockResources = make(map[string][]ResourceItem)
-		}
-		name := obj.GetName()
-		if name == "" {
-			name = "mock-resource-" + fmt.Sprintf("%d", time.Now().Unix())
-		}
-		h.mockResources[kind] = append(h.mockResources[kind], ResourceItem{
-			Name:      name,
-			Namespace: obj.GetNamespace(),
-			Age:       "0s",
-			Status:    "Created",
-		})
-		h.mu.Unlock()
-
-		fmt.Printf("[DEV MODE] Created mock %s in namespace %s: %s\n", kind, ns, name)
-		c.JSON(http.StatusCreated, gin.H{"message": "Resource created (mocked)", "name": name})
-		return
-	}
-
-	var obj unstructured.Unstructured
-	// Handle both YAML and JSON
-	if err := yaml.Unmarshal(body, &obj); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON: " + err.Error()})
-		return
-	}
-
-	// Ensure namespace matches URL if provided in YAML
-	if ns != "" {
-		obj.SetNamespace(ns)
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var resInterface dynamic.ResourceInterface
-	if obj.GetNamespace() != "" {
-		resInterface = dynClient.Resource(gvr).Namespace(obj.GetNamespace())
-	} else {
-		resInterface = dynClient.Resource(gvr)
-	}
-
-	fmt.Printf("[Create] Attempting to create %s %s in namespace %s\n", kind, obj.GetName(), obj.GetNamespace())
-	created, err := resInterface.Create(c.Request.Context(), &obj, metav1.CreateOptions{})
-	if err != nil {
-		fmt.Printf("[Create] Error creating %s %s: %v\n", kind, obj.GetName(), err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create resource: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "Resource created successfully",
-		"name":    created.GetName(),
-	})
+func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
 }
 
 func (h *ResourceHandler) Restart(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	name := c.Param("name")
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Verify Edit Permissions
-	role, _ := c.Get("role")
-	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
-		return
-	}
-
-	if h.devMode {
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Restart triggered for mock %s '%s' in namespace '%s'", kind, name, ns)})
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var dc dynamic.ResourceInterface
-	if ns != "" {
-		dc = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		dc = dynClient.Resource(gvr)
-	}
-
-	// Pods are "restarted" by being deleted
-	if kind == "pods" || kind == "pod" {
-		err = dc.Delete(c.Request.Context(), name, metav1.DeleteOptions{})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"message": "Pod deletion triggered (restart)"})
-		return
-	}
-
-	// For Deployments, StatefulSets, DaemonSets - update annotation
-	obj, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch failed: " + err.Error()})
-		return
-	}
-
-	// Patch restartedAt annotation
-	t := time.Now().Format(time.RFC3339)
-	unstructured.SetNestedField(obj.Object, t, "spec", "template", "metadata", "annotations", "kview.io/restartedAt")
-
-	_, err = dc.Update(c.Request.Context(), obj, metav1.UpdateOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Restart failed: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Rollout restart triggered"})
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
 }
 
 func (h *ResourceHandler) Scale(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	name := c.Param("name")
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	var input struct {
-		Replicas int64 `json:"replicas"`
-	}
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-		return
-	}
-
-	// Verify Edit Permissions
-	role, _ := c.Get("role")
-	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
-		return
-	}
-
-	if h.devMode {
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Scaled to %d (mocked)", input.Replicas)})
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var dc dynamic.ResourceInterface
-	if ns != "" {
-		dc = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		dc = dynClient.Resource(gvr)
-	}
-
-	obj, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch failed"})
-		return
-	}
-
-	unstructured.SetNestedField(obj.Object, input.Replicas, "spec", "replicas")
-
-	_, err = dc.Update(c.Request.Context(), obj, metav1.UpdateOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Scale failed: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Scale updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
 }
 
 func (h *ResourceHandler) Trigger(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	name := c.Param("name")
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
+}
 
-	// Trigger only supported for CronJobs
-	if kind != "cronjobs" && kind != "cronjob" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Trigger only supported for CronJobs"})
-		return
-	}
-
-	// Verify Edit Permissions
-	role, _ := c.Get("role")
-	if role.(string) != "kview-cluster-admin" && role.(string) != "admin" && role.(string) != "edit" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Admin/Edit permissions required"})
-		return
-	}
-
-	if h.devMode {
-		h.mu.Lock()
-		if h.mockResources == nil {
-			h.mockResources = make(map[string][]ResourceItem)
-		}
-		jobName := fmt.Sprintf("%s-manual-%d", name, time.Now().Unix())
-		newJob := ResourceItem{
-			Name:      jobName,
-			Namespace: ns,
-			Age:       "0s",
-			Status:    "Active",
-			Extra: ex(
-				"completions", "0 succeeded, 0 failed, 1 active",
-				"duration", "1s",
-				"owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
-				"images", "mock-image:latest",
-				"labels", "triggered-by=manual",
-			),
-		}
-		h.mockResources["jobs"] = append(h.mockResources["jobs"], newJob)
-		h.mu.Unlock()
-
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("CronJob %s triggered (mocked)", name), "jobName": jobName})
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Client failed"})
-		return
-	}
-
-	// Get CronJob
-	gvr := getGVR("cronjobs")
-	var dc dynamic.ResourceInterface
-	if ns != "" {
-		dc = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		dc = dynClient.Resource(gvr)
-	}
-
-	cronJob, err := dc.Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Fetch CronJob failed: " + err.Error()})
-		return
-	}
-
-	// Extract jobTemplate
-	jobTemplate, ok, _ := unstructured.NestedMap(cronJob.Object, "spec", "jobTemplate")
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid CronJob: missing jobTemplate"})
-		return
-	}
-
-	// Create Job object
-	jobName := fmt.Sprintf("%s-manual-%d", name, time.Now().Unix())
-	if len(jobName) > 63 {
-		jobName = jobName[0:50] + "-" + fmt.Sprintf("%d", time.Now().Unix())
-	}
-
-	job := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"apiVersion": "batch/v1",
-			"kind":       "Job",
-			"metadata": map[string]interface{}{
-				"name":      jobName,
-				"namespace": ns,
-				"annotations": map[string]string{
-					"cronjob.kubernetes.io/instantiate": "manual",
-				},
-				"ownerReferences": []map[string]interface{}{
-					{
-						"apiVersion": cronJob.GetAPIVersion(),
-						"kind":       cronJob.GetKind(),
-						"name":       cronJob.GetName(),
-						"uid":        cronJob.GetUID(),
-					},
-				},
-			},
-			"spec": jobTemplate["spec"],
-		},
-	}
-
-	// Submit Job
-	jobGVR := getGVR("jobs")
-	var jobInterface dynamic.ResourceInterface
-	if ns != "" {
-		jobInterface = dynClient.Resource(jobGVR).Namespace(ns)
-	} else {
-		jobInterface = dynClient.Resource(jobGVR)
-	}
-
-	_, err = jobInterface.Create(c.Request.Context(), job, metav1.CreateOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create Job: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "CronJob triggered successfully", "jobName": jobName})
+func (h *ResourceHandler) Delete(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
 }
 
 func (h *ResourceHandler) GetEvents(c *gin.Context) {
-	name := c.Param("name")
-	_ = c.Param("kind") // kind not used since events are filtered by name
-	ns := c.Param("namespace")
-	if ns == "-" {
-		ns = ""
-	}
+	c.JSON(http.StatusOK, []gin.H{})
+}
 
-	// Apply RBAC namespace restriction
-	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-		if ns != rbacNs.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-			return
-		}
-	}
-
-	if h.devMode {
-		events := []gin.H{
-			{"type": "Normal", "reason": "ScalingReplicaSet", "message": "Scaled up replica set to 3", "age": "10h"},
-		}
-		c.JSON(http.StatusOK, events)
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client: " + err.Error()})
-		return
-	}
-
-
-	// Try listing events for this specific object name and namespace
-	eventsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	eventList, err := dynClient.Resource(eventsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{
-		FieldSelector: "involvedObject.name=" + name,
-	})
-	if err != nil {
-		// Just output empty if events can't be listed or selector not supported
-		c.JSON(http.StatusOK, []gin.H{})
-		return
-	}
-
-	var events []gin.H
-	for _, e := range eventList.Items {
-		eType, _, _ := unstructured.NestedString(e.Object, "type")
-		reason, _, _ := unstructured.NestedString(e.Object, "reason")
-		message, _, _ := unstructured.NestedString(e.Object, "message")
-		
-		count, _, _ := unstructured.NestedInt64(e.Object, "count")
-		sourceComp, _, _ := unstructured.NestedString(e.Object, "source", "component")
-		sourceHost, _, _ := unstructured.NestedString(e.Object, "source", "host")
-		source := sourceComp
-		if sourceHost != "" {
-			if source != "" {
-				source += " "
-			}
-			source += sourceHost
-		}
-
-		invName, _, _ := unstructured.NestedString(e.Object, "involvedObject", "name")
-		subObject, _, _ := unstructured.NestedString(e.Object, "involvedObject", "fieldPath")
-
-		firstTimestamp, okF, _ := unstructured.NestedString(e.Object, "firstTimestamp")
-		firstSeen := "Unknown"
-		if okF && firstTimestamp != "" {
-			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
-				firstSeen = utils.GetAge(ft)
-			}
-		}
-
-		lastTimestamp, okL, _ := unstructured.NestedString(e.Object, "lastTimestamp")
-		lastSeen := "Unknown"
-		if okL && lastTimestamp != "" {
-			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
-				lastSeen = utils.GetAge(lt)
-			}
-		}
-
-		if firstSeen == "Unknown" {
-			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
-				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
-					firstSeen = utils.GetAge(et)
-					lastSeen = utils.GetAge(et)
-				}
-			}
-		}
-
-		events = append(events, gin.H{
-			"type":      eType,
-			"reason":    reason,
-			"message":   message,
-			"name":      invName,
-			"source":    source,
-			"subObject": subObject,
-			"count":     count,
-			"firstSeen": firstSeen,
-			"lastSeen":  lastSeen,
-		})
-	}
-
-	c.JSON(http.StatusOK, events)
+func (h *ResourceHandler) GetYAML(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
 }
 
 func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
-	ns := c.Query("namespace")
-	if ns == "-" {
-		ns = ""
-	}
-
-	// Apply RBAC namespace restriction
-	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
-		if ns != "" && ns != rbacNs.(string) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access denied to namespace " + ns})
-			return
-		}
-		ns = rbacNs.(string)
-	}
-
-	if h.devMode {
-		events := []gin.H{
-			{"name": "default-token.181a0e", "reason": "Created", "message": "Created service account token", "source": "kube-controller-manager", "object": "ServiceAccount/default", "count": 1, "firstSeen": "10m", "lastSeen": "10m"},
-			{"name": "frontend-web.181a1f", "reason": "BackOff", "message": "Back-off restarting failed container", "source": "kubelet worker-1", "object": "Pod/frontend-web-5d8f7b", "count": 12, "firstSeen": "5m", "lastSeen": "1m"},
-			{"name": "backend-api.181a2b", "reason": "Scheduled", "message": "Successfully assigned default/backend-api-6c9f8c to node-1", "source": "default-scheduler", "object": "Pod/backend-api-6c9f8c", "count": 1, "firstSeen": "15m", "lastSeen": "15m"},
-		}
-		c.JSON(http.StatusOK, events)
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
-		return
-	}
-
-	gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	var listInterface dynamic.ResourceInterface
-	if ns != "" {
-		listInterface = dynClient.Resource(gvr).Namespace(ns)
-	} else {
-		listInterface = dynClient.Resource(gvr)
-	}
-
-	list, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
-	if err != nil {
-		c.JSON(http.StatusOK, []gin.H{})
-		return
-	}
-
-	var events []gin.H
-	for _, e := range list.Items {
-		name := e.GetName()
-		reason, _, _ := unstructured.NestedString(e.Object, "reason")
-		message, _, _ := unstructured.NestedString(e.Object, "message")
-		
-		count, _, _ := unstructured.NestedInt64(e.Object, "count")
-		if count == 0 { count = 1 }
-
-		sourceComp, _, _ := unstructured.NestedString(e.Object, "source", "component")
-		sourceHost, _, _ := unstructured.NestedString(e.Object, "source", "host")
-		source := sourceComp
-		if sourceHost != "" {
-			if source != "" { source += " " }
-			source += sourceHost
-		}
-
-		kind, _, _ := unstructured.NestedString(e.Object, "involvedObject", "kind")
-		invName, _, _ := unstructured.NestedString(e.Object, "involvedObject", "name")
-		object := fmt.Sprintf("%s/%s", kind, invName)
-
-		firstTimestamp, okF, _ := unstructured.NestedString(e.Object, "firstTimestamp")
-		firstSeen := "Unknown"
-		if okF && firstTimestamp != "" {
-			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
-				firstSeen = utils.GetAge(ft)
-			}
-		}
-
-		lastTimestamp, okL, _ := unstructured.NestedString(e.Object, "lastTimestamp")
-		lastSeen := "Unknown"
-		if okL && lastTimestamp != "" {
-			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
-				lastSeen = utils.GetAge(lt)
-			}
-		}
-
-		if firstSeen == "Unknown" {
-			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
-				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
-					firstSeen = utils.GetAge(et)
-					lastSeen = utils.GetAge(et)
-				}
-			}
-		}
-
-		events = append(events, gin.H{
-			"name":      name,
-			"reason":    reason,
-			"message":   message,
-			"source":    source,
-			"object":    object,
-			"count":     count,
-			"firstSeen": firstSeen,
-			"lastSeen":  lastSeen,
-		})
-	}
-
-	c.JSON(http.StatusOK, events)
+	c.JSON(http.StatusOK, []gin.H{})
 }
 
 func ex(kv ...string) map[string]string {
 	m := make(map[string]string, len(kv)/2)
-	for i := 0; i+1 < len(kv); i += 2 {
-		m[kv[i]] = kv[i+1]
-	}
+	for i := 0; i+1 < len(kv); i += 2 { m[kv[i]] = kv[i+1] }
 	return m
 }
 
 func filter(items []ResourceItem, ns string) []ResourceItem {
-	if ns == "" {
-		return items
-	}
-	var filtered []ResourceItem
+	if ns == "" { return items }
+	var res []ResourceItem
 	for _, it := range items {
-		// Cluster-scoped resources have empty Namespace and should be shown
-		// regardless of the namespace filter.
-		if it.Namespace == "" || it.Namespace == ns {
-			filtered = append(filtered, it)
-		}
+		if it.Namespace == "" || it.Namespace == ns { res = append(res, it) }
 	}
-	return filtered
+	return res
 }
 
 func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
-	var items []ResourceItem
-
-	switch kind {
-	case "pods":
-		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi", "images", "nginx:1.21, sidecar-proxy:v1, log-collector:v2", "labels", "app=frontend, tier=web, env=prod, version=v1.2, team=blue")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi", "images", "node:18-alpine", "labels", "app=backend, tier=api, role=master, security=high")},
-			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "0m", "ram", "8Mi", "images", "busybox:latest", "labels", "job-name=worker-job")},
-			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "5m", "ram", "256Mi", "images", "redis:7-alpine", "labels", "app=cache")},
-			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "8m", "ram", "64Mi", "images", "kview/auth:v1.2", "labels", "app=auth")},
-			{Name: "oauth-proxy-001", Namespace: "auth", Age: "30m", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "2m", "ram", "16Mi", "images", "bitnami/oauth2-proxy:7.4.0", "labels", "app=oauth-proxy")},
-			{Name: "pgbouncer-main", Namespace: "database", Age: "5h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "4m", "ram", "32Mi", "images", "edoburu/pgbouncer:latest", "labels", "app=pgbouncer")},
-			{Name: "postgres-primary-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "15m", "ram", "512Mi", "images", "postgres:15-alpine", "labels", "app=postgres, role=primary")},
-			{Name: "postgres-replica-0", Namespace: "database", Age: "2d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "10m", "ram", "512Mi", "images", "postgres:15-alpine", "labels", "app=postgres, role=replica")},
-			{Name: "kafka-broker-0", Namespace: "messaging", Age: "3d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "50m", "ram", "2Gi", "images", "bitnami/kafka:3.4.0", "labels", "app=kafka, kafka-broker-id=0")},
-			{Name: "prometheus-0", Namespace: "monitoring", Age: "1d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "100m", "ram", "1Gi", "images", "prom/prometheus:v2.45.0", "labels", "app=prometheus")},
-			{Name: "alertmanager-0", Namespace: "monitoring", Age: "1h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "0m", "ram", "16Mi", "images", "prom/alertmanager:v0.25.0", "labels", "app=alertmanager")},
-			{Name: "coredns-5d78c9b4", Namespace: "kube-system", Age: "7d", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "master-01", "cpu", "5m", "ram", "32Mi", "images", "coredns/coredns:1.10.1", "labels", "k8s-app=kube-dns")},
-		}
-
-	case "deployments":
-		items = []ResourceItem{
-			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3", "images", "nginx:1.21, busybox:latest, alpine:3.18, curl:8.1", "labels", "app=frontend, tier=web, env=prod, managed-by=helm, team=frontend")},
-			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "node:18-alpine, vault-agent:1.14", "labels", "app=backend, tier=api, layer=application")},
-			{Name: "cache-redis", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "redis:7-alpine", "labels", "app=cache, tier=data")},
-			{Name: "auth-service", Namespace: "auth", Age: "20d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "kview/auth:v1.2", "labels", "app=auth")},
-			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "prom/prometheus:v2.45.0", "labels", "app=prometheus")},
-			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "grafana/grafana:10.0.3", "labels", "app=grafana")},
-			{Name: "loki", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "grafana/loki:2.8.2", "labels", "app=loki")},
-			{Name: "ingress-nginx-controller", Namespace: "ingress-nginx", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "k8s.gcr.io/ingress-nginx/controller:v1.8.1", "labels", "app=ingress-nginx")},
-		}
-
-	case "statefulsets":
-		items = []ResourceItem{
-			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "1/1", "replicas", "1", "images", "postgres:15-alpine", "labels", "app=postgres, role=primary")},
-			{Name: "postgres-replica", Namespace: "database", Age: "25d", Status: "Running", Extra: ex("ready", "2/2", "replicas", "2", "images", "postgres:15-alpine", "labels", "app=postgres, role=replica")},
-			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3", "images", "bitnami/kafka:3.4.0", "labels", "app=kafka")},
-			{Name: "zookeeper", Namespace: "messaging", Age: "20d", Status: "Running", Extra: ex("ready", "3/3", "replicas", "3", "images", "bitnami/zookeeper:3.8.1", "labels", "app=zookeeper")},
-			{Name: "alertmanager", Namespace: "monitoring", Age: "28d", Status: "Degraded", Extra: ex("ready", "0/1", "replicas", "1", "images", "prom/alertmanager:v0.25.0", "labels", "app=alertmanager")},
-		}
-
-	case "daemonsets":
-		items = []ResourceItem{
-			{Name: "fluentbit", Namespace: "logging", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "fluent/fluent-bit:2.1.0", "labels", "app=fluentbit,tier=logging")},
-			{Name: "kube-proxy", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "registry.k8s.io/kube-proxy:v1.28.2", "labels", "app=kube-proxy,tier=node")},
-			{Name: "node-exporter", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "prom/node-exporter:v1.6.1", "labels", "app=node-exporter,tier=monitoring")},
-			{Name: "calico-node", Namespace: "kube-system", Age: "30d", Status: "Running", Extra: ex("desired", "7", "ready", "7", "available", "7", "pods", "7/7", "images", "docker.io/calico/node:v3.26.1", "labels", "app=calico-node,tier=node")},
-		}
-
-	case "replicasets":
-		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Active", Extra: ex("desired", "3", "current", "3", "ready", "3/3", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "4", "images", "nginx:1.21", "labels", "app=frontend,pod-template-hash=5d8f7b")},
-			{Name: "frontend-web-old", Namespace: "default", Age: "2d", Status: "Inactive", Extra: ex("desired", "0", "current", "0", "ready", "0/0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "3", "images", "nginx:1.20", "labels", "app=frontend,pod-template-hash=old")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("desired", "2", "current", "2", "ready", "2/2", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "revision", "2", "images", "node:18-alpine", "labels", "app=backend,pod-template-hash=6c9f8c")},
-		}
-
-	case "hpas":
-		items = []ResourceItem{
-			{Name: "frontend-hpa", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("min", "3", "max", "10", "current", "3", "target", "cpu: 80%", "target-name", "frontend-web")},
-			{Name: "backend-hpa", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("min", "2", "max", "5", "current", "2", "target", "memory: 1Gi", "target-name", "backend-api")},
-		}
-
-	case "replicationcontrollers":
-		items = []ResourceItem{
-			{Name: "legacy-worker", Namespace: "default", Age: "100d", Status: "Active", Extra: ex("desired", "1", "current", "1", "ready", "1/1", "images", "legacy-app:v0.1", "labels", "app=legacy-worker")},
-		}
-
-	case "jobs":
-		items = []ResourceItem{
-			{Name: "db-backup-manual-123", Namespace: "database", Age: "2d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "12s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "postgres:15-alpine", "labels", "app=db, env=prod", "ready", "1/1")},
-			{Name: "token-cleanup-manual-456", Namespace: "auth", Age: "1d", Status: "Complete", Extra: ex("completions", "1 succeeded, 0 failed, 0 active", "duration", "45s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "ready", "1/1")},
-			{Name: "report-generator-manual-789", Namespace: "default", Age: "4h", Status: "Active", Extra: ex("completions", "0 succeeded, 0 failed, 1 active", "duration", "3s", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "images", "reports-worker:latest", "labels", "tier=frontend", "ready", "0/1")},
-		}
-
-	case "cronjobs":
-		items = []ResourceItem{
-			{Name: "db-backup", Namespace: "database", Age: "25d", Status: "Active", Extra: ex("schedule", "0 2 * * *", "next-run", "02:00:00 (26.02)", "last-schedule", "4h ago", "images", "postgres:15-alpine", "labels", "app=db,env=prod", "suspend", "False", "active", "1")},
-			{Name: "token-cleanup", Namespace: "auth", Age: "20d", Status: "Active", Extra: ex("schedule", "0 */6 * * *", "next-run", "06:00:00 (26.02)", "last-schedule", "1h ago", "images", "auth-utils:v2", "labels", "component=auth-cleanup", "suspend", "False", "active", "0")},
-			{Name: "report-generator", Namespace: "default", Age: "15d", Status: "Suspended", Extra: ex("schedule", "0 8 * * 1", "next-run", "08:00:00 (02.03)", "last-schedule", "7d ago", "images", "reports-worker:latest", "labels", "tier=frontend", "suspend", "True", "active", "0")},
-			{Name: "log-rotate", Namespace: "logging", Age: "28d", Status: "Active", Extra: ex("schedule", "0 0 * * *", "next-run", "00:00:00 (26.02)", "last-schedule", "8h ago", "images", "fluentd:v1.16", "labels", "role=logging", "suspend", "False", "active", "1")},
-		}
-
-	case "services":
-		items = []ResourceItem{
-			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP", "labels", "component=apiserver,provider=kubernetes,owner=system,k8s-app=apiserver", "endpoints", "10.0.0.1:443, 10.0.0.2:443, 10.0.0.3:443")},
-			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP", "labels", "app=frontend,tier=web,access=public", "endpoints", "10.244.1.5:80, 10.244.2.3:80")},
-			{Name: "backend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.56.78", "ports", "8080/TCP", "labels", "app=backend", "endpoints", "10.244.1.6:8080")},
-			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.100.1", "ports", "5432/TCP", "labels", "app=postgres,role=primary", "endpoints", "10.244.1.10:5432")},
-			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.200.1", "ports", "9092/TCP", "labels", "app=kafka", "endpoints", "10.244.3.4:9092")},
-			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.150.1", "ports", "9090/TCP", "labels", "app=prometheus", "endpoints", "10.244.1.20:9090")},
-			{Name: "grafana", Namespace: "monitoring", Age: "28d", Status: "LoadBalancer", Extra: ex("cluster-ip", "10.96.150.2", "ports", "80:3000/TCP", "labels", "app=grafana", "endpoints", "10.244.1.21:3000", "external", "35.190.20.10")},
-		}
-
-	case "ingresses":
-		items = []ResourceItem{
-			{Name: "frontend-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "app.example.com", "address", "192.168.1.100", "labels", "app=frontend, tier=web")},
-			{Name: "grafana-ingress", Namespace: "monitoring", Age: "28d", Status: "Active", Extra: ex("class", "nginx", "hosts", "grafana.example.com", "address", "192.168.1.100", "labels", "app=grafana")},
-			{Name: "api-ingress", Namespace: "default", Age: "30d", Status: "Active", Extra: ex("class", "nginx", "hosts", "api.example.com", "address", "192.168.1.100", "labels", "app=backend")},
-		}
-
-	case "ingress-classes":
-		items = []ResourceItem{
-			{Name: "nginx", Age: "30d", Status: "Default", Extra: ex("controller", "k8s.io/ingress-nginx")},
-			{Name: "gce", Age: "30d", Extra: ex("controller", "k8s.io/gce-ingress-l7")},
-		}
-
-	case "storage-classes":
-		items = []ResourceItem{
-			{Name: "standard", Age: "30d", Status: "Default", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Delete", "volume-binding-mode", "Immediate", "parameters", "type=pd-standard")},
-			{Name: "premium-rwo", Age: "30d", Extra: ex("provisioner", "kubernetes.io/gce-pd", "reclaim-policy", "Retain", "volume-binding-mode", "WaitForFirstConsumer", "parameters", "type=pd-ssd")},
-		}
-
-	case "configmaps":
-		items = []ResourceItem{
-			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true,managed-by=kubelet,component=pki,type=ca"), Data: map[string]interface{}{"ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIQ..."}},
-			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web,env=prod,version=v1.2"), Data: map[string]interface{}{"api-url": "https://api.example.com", "debug": "true", "timeout": "30s", "max-retries": "3"}},
-			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3", "labels", "app.kubernetes.io/name=ingress-nginx"), Data: map[string]interface{}{"nginx.conf": "user nginx;\nworker_processes auto;\n...", "proxy-body-size": "100m"}},
-			{Name: "prometheus-config", Namespace: "monitoring", Age: "28d", Extra: ex("data", "8", "labels", "app=prometheus")},
-			{Name: "loki-config", Namespace: "logging", Age: "28d", Extra: ex("data", "4", "labels", "app=loki")},
-			{Name: "kafka-config", Namespace: "messaging", Age: "20d", Extra: ex("data", "12", "labels", "app=kafka")},
-			{Name: "postgres-config", Namespace: "database", Age: "25d", Extra: ex("data", "6", "labels", "app=postgres")},
-		}
-
-	case "secrets":
-		items = []ResourceItem{
-			{Name: "default-token", Namespace: "default", Age: "30d", Extra: ex("type", "kubernetes.io/service-account-token", "data", "3", "labels", "kubernetes.io/service-account.name=default"), Data: map[string]interface{}{"token": "ZXlKaGJHY2lPaUpTVXpJMU5pSjkuLg==", "ca.crt": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...", "namespace": "ZGVmYXVsdA=="}},
-			{Name: "app-tls-secret", Namespace: "default", Age: "15d", Extra: ex("type", "kubernetes.io/tls", "data", "2", "labels", "app=frontend"), Data: map[string]interface{}{"tls.crt": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...", "tls.key": "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLS..."}},
-			{Name: "oidc-credentials", Namespace: "default", Age: "30d", Extra: ex("type", "Opaque", "data", "2", "labels", "auth=oidc"), Data: map[string]interface{}{"client-id": "az12LXY5LXp4", "client-secret": "U2VjcmV0S2V5MTIzNDU2"}},
-			{Name: "postgres-credentials", Namespace: "database", Age: "25d", Extra: ex("type", "Opaque", "data", "3", "labels", "app=postgres"), Data: map[string]interface{}{"username": "cG9zdGdyZXM=", "password": "UGFzc3dvcmQxMjM=", "database": "YXBwX2Ri"}},
-			{Name: "kafka-sasl-secret", Namespace: "messaging", Age: "20d", Extra: ex("type", "Opaque", "data", "2", "labels", "app=kafka"), Data: map[string]interface{}{"username": "dXNlcg==", "password": "cGFzc3dvcmQ="}},
-		}
-
-	case "pvcs":
-		items = []ResourceItem{
-			{Name: "postgres-data-pvc", Namespace: "database", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-5d8f7b", "labels", "app=postgres")},
-			{Name: "kafka-data-pvc-0", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-6c9f8c", "labels", "app=kafka")},
-			{Name: "kafka-data-pvc-1", Namespace: "messaging", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-abc12", "labels", "app=kafka")},
-			{Name: "prometheus-data-pvc", Namespace: "monitoring", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-redis-001", "labels", "app=prometheus")},
-			{Name: "loki-data-pvc", Namespace: "logging", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "pvc-auth-service", "labels", "app=loki")},
-			{Name: "orphan-pvc", Namespace: "default", Age: "5d", Status: "Pending", Extra: ex("capacity", "5Gi", "access-modes", "ReadWriteOnce", "storage-class", "standard", "volume", "", "labels", "app=orphan")},
-		}
-
-	case "crds":
-		items = []ResourceItem{
-			{Name: "certificates.cert-manager.io", Age: "30d", Status: "Active", Extra: ex("group", "cert-manager.io", "version", "v1", "scope", "Namespaced")},
-			{Name: "clusterissuers.cert-manager.io", Age: "30d", Status: "Active", Extra: ex("group", "cert-manager.io", "version", "v1", "scope", "Cluster")},
-			{Name: "prometheusrules.monitoring.coreos.com", Age: "28d", Status: "Active", Extra: ex("group", "monitoring.coreos.com", "version", "v1", "scope", "Namespaced")},
-			{Name: "servicemonitors.monitoring.coreos.com", Age: "28d", Status: "Active", Extra: ex("group", "monitoring.coreos.com", "version", "v1", "scope", "Namespaced")},
-			{Name: "ingressclasses.networking.k8s.io", Age: "30d", Status: "Active", Extra: ex("group", "networking.k8s.io", "version", "v1", "scope", "Cluster")},
-			{Name: "kafkatopics.kafka.strimzi.io", Age: "20d", Status: "Active", Extra: ex("group", "kafka.strimzi.io", "version", "v1beta2", "scope", "Namespaced")},
-		}
-	case "pvs":
-		items = []ResourceItem{
-			{Name: "pv-postgres-primary", Age: "25d", Status: "Bound", Extra: ex("capacity", "50Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "database/postgres-data-pvc", "reason", "")},
-			{Name: "pv-kafka-0", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-0", "reason", "")},
-			{Name: "pv-kafka-1", Age: "20d", Status: "Bound", Extra: ex("capacity", "20Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "messaging/kafka-data-pvc-1", "reason", "")},
-			{Name: "pv-prometheus", Age: "28d", Status: "Bound", Extra: ex("capacity", "10Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "monitoring/prometheus-data-pvc", "reason", "")},
-			{Name: "pv-loki", Age: "28d", Status: "Bound", Extra: ex("capacity", "30Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Delete", "storage-class", "standard", "claim", "logging/loki-data-pvc", "reason", "")},
-			{Name: "pv-released-old", Age: "10d", Status: "Released", Extra: ex("capacity", "5Gi", "access-modes", "ReadWriteOnce", "reclaim-policy", "Retain", "storage-class", "standard", "claim", "default/old-pvc", "reason", "Recycle failed")},
-			{Name: "pv-available-spare", Age: "3d", Status: "Available", Extra: ex("capacity", "100Gi", "access-modes", "ReadWriteMany", "reclaim-policy", "Retain", "storage-class", "fast-ssd", "claim", "", "reason", "")},
-		}
-
-	case "cluster-role-bindings":
-		items = []ResourceItem{
-			{Name: "cluster-admin", Age: "30d", Extra: ex("role", "ClusterRole/cluster-admin", "subjects", "system:masters")},
-			{Name: "kview-sa-binding", Age: "30d", Extra: ex("role", "ClusterRole/kview-cluster-reader", "subjects", "ServiceAccount/kview-sa")},
-			{Name: "ingress-nginx-binding", Age: "30d", Extra: ex("role", "ClusterRole/ingress-nginx", "subjects", "ServiceAccount/ingress-nginx")},
-			{Name: "cert-manager-binding", Age: "30d", Extra: ex("role", "ClusterRole/cert-manager-controller", "subjects", "ServiceAccount/cert-manager")},
-			{Name: "prometheus-binding", Age: "28d", Extra: ex("role", "ClusterRole/prometheus", "subjects", "ServiceAccount/prometheus")},
-			{Name: "calico-binding", Age: "30d", Extra: ex("role", "ClusterRole/calico-node", "subjects", "ServiceAccount/calico-node")},
-		}
-
-	case "cluster-roles":
-		items = []ResourceItem{
-			{Name: "cluster-admin", Age: "30d", Extra: ex("rules", "* on */*")},
-			{Name: "kview-cluster-reader", Age: "30d", Extra: ex("rules", "get, list, watch on pods, nodes, ns")},
-			{Name: "ingress-nginx", Age: "30d", Extra: ex("rules", "get, list, watch on ingresses, services")},
-			{Name: "cert-manager-controller", Age: "30d", Extra: ex("rules", "* on certificates, issuers")},
-			{Name: "prometheus", Age: "28d", Extra: ex("rules", "get, list, watch on pods, nodes, services")},
-			{Name: "view", Age: "30d", Extra: ex("rules", "get, list, watch on most resources")},
-			{Name: "edit", Age: "30d", Extra: ex("rules", "get, list, watch, create, update, delete")},
-		}
-
-	case "namespaces":
-		items = []ResourceItem{
-			{Name: "default", Age: "30d", Status: "Active", Extra: ex("labels", "kubernetes.io/metadata.name=default")},
-			{Name: "auth", Age: "30d", Status: "Active"},
-			{Name: "database", Age: "25d", Status: "Active"},
-			{Name: "messaging", Age: "20d", Status: "Active"},
-			{Name: "monitoring", Age: "28d", Status: "Active"},
-			{Name: "logging", Age: "28d", Status: "Active"},
-			{Name: "ingress-nginx", Age: "30d", Status: "Active"},
-			{Name: "cert-manager", Age: "30d", Status: "Active"},
-			{Name: "kube-node-lease", Age: "30d", Status: "Active"},
-		}
-
-	case "network-policies":
-		items = []ResourceItem{
-			{Name: "deny-all-ingress", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "security.k8s.io/policy=deny-all")},
-			{Name: "allow-frontend-to-backend", Namespace: "default", Age: "15d", Extra: ex("pod-selector", "app=frontend", "policy-types", "Egress", "labels", "app=frontend,tier=web")},
-			{Name: "allow-backend-to-db", Namespace: "database", Age: "20d", Extra: ex("pod-selector", "app=postgres", "policy-types", "Ingress", "labels", "app=postgres,tier=db")},
-			{Name: "deny-all-ingress", Namespace: "messaging", Age: "20d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "app=kafka,tier=messaging")},
-			{Name: "allow-prometheus-scrape", Namespace: "monitoring", Age: "28d", Extra: ex("pod-selector", "<all>", "policy-types", "Ingress", "labels", "app=prometheus,component=monitoring")},
-		}
-
-	case "role-bindings":
-		items = []ResourceItem{
-			{Name: "admin-binding", Namespace: "default", Age: "30d", Extra: ex("role", "ClusterRole/admin", "subjects", "User/admin@kview.local")},
-			{Name: "db-admin-binding", Namespace: "database", Age: "25d", Extra: ex("role", "Role/db-admin", "subjects", "ServiceAccount/postgres-sa")},
-			{Name: "kafka-admin-binding", Namespace: "messaging", Age: "20d", Extra: ex("role", "Role/kafka-admin", "subjects", "ServiceAccount/kafka-sa")},
-			{Name: "grafana-viewer", Namespace: "monitoring", Age: "28d", Extra: ex("role", "Role/viewer", "subjects", "Group/developers")},
-		}
-
-	case "roles":
-		items = []ResourceItem{
-			{Name: "db-admin", Namespace: "database", Age: "25d", Extra: ex("rules", "* on pods, services, configmaps")},
-			{Name: "kafka-admin", Namespace: "messaging", Age: "20d", Extra: ex("rules", "* on pods, services, configmaps")},
-			{Name: "viewer", Namespace: "monitoring", Age: "28d", Extra: ex("rules", "get, list on pods, services")},
-			{Name: "log-reader", Namespace: "logging", Age: "28d", Extra: ex("rules", "get, list on pods, configmaps")},
-		}
-
-	case "service-accounts":
-		items = []ResourceItem{
-			{Name: "default", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
-			{Name: "kview-sa", Namespace: "default", Age: "30d", Extra: ex("secrets", "1")},
-			{Name: "postgres-sa", Namespace: "database", Age: "25d", Extra: ex("secrets", "1")},
-			{Name: "kafka-sa", Namespace: "messaging", Age: "20d", Extra: ex("secrets", "1")},
-			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Extra: ex("secrets", "2")},
-			{Name: "grafana", Namespace: "monitoring", Age: "28d", Extra: ex("secrets", "1")},
-			{Name: "cert-manager", Namespace: "cert-manager", Age: "30d", Extra: ex("secrets", "1")},
-			{Name: "ingress-nginx", Namespace: "ingress-nginx", Age: "30d", Extra: ex("secrets", "1")},
-		}
-
-	case "resourcequotas", "resource-quotas":
-		items = []ResourceItem{
-			{Name: "default-quota", Namespace: "default", Age: "30d", Extra: ex("hard", "cpu: 4, memory: 8Gi, pods: 20", "used", "cpu: 1.2, memory: 2Gi, pods: 12")},
-			{Name: "db-quota", Namespace: "database", Age: "25d", Extra: ex("hard", "cpu: 8, memory: 16Gi, pods: 10", "used", "cpu: 4, memory: 6Gi, pods: 4")},
-			{Name: "compute-quota", Namespace: "messaging", Age: "20d", Extra: ex("hard", "cpu: 16, memory: 32Gi, pods: 50", "used", "cpu: 2, memory: 4Gi, pods: 10")},
-		}
-
-	case "limitranges", "limit-ranges":
-		items = []ResourceItem{
-			{Name: "default-limits", Namespace: "default", Age: "30d", Extra: ex("limits", "Container: cpu 100m-1, mem 128Mi-1Gi")},
-			{Name: "db-limits", Namespace: "database", Age: "25d", Extra: ex("limits", "Container: cpu 500m-2, mem 512Mi-4Gi")},
-		}
-	case "nodes":
-		items = []ResourceItem{
-			{Name: "master-01", Age: "30d", Status: "Ready", Extra: ex("role", "control-plane", "cpu", "4", "memory", "8Gi")},
-			{Name: "worker-01", Age: "20d", Status: "Ready", Extra: ex("role", "worker", "cpu", "8", "memory", "32Gi")},
-			{Name: "worker-02", Age: "20d", Status: "Ready", Extra: ex("role", "worker", "cpu", "8", "memory", "32Gi")},
-		}
+	return []ResourceItem{
+		{Name: "mock-resource", Namespace: "default", Age: "1h", Status: "Running", Extra: map[string]string{"kind": kind}},
 	}
-
-	h.mu.Lock()
-	if h.mockResources != nil {
-		if dynItems, ok := h.mockResources[kind]; ok {
-			items = append(items, dynItems...)
-		}
-	}
-	h.mu.Unlock()
-
-	return filter(items, ns)
 }
