@@ -311,6 +311,8 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 		h.mapWorkload(item, kind, extra, &resItem)
 		h.mapNetwork(item, kind, extra, &resItem, endpointsMap)
+		h.mapStorage(item, kind, extra, &resItem)
+		h.mapRBAC(item, kind, extra, &resItem)
 		status = resItem.Status
 
 		switch kind {
@@ -321,10 +323,6 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "namespaces":
-			extra["labels"] = k8sutils.GetLabels(item.Object)
-		case "persistentvolumeclaims", "pvcs":
-			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok { resItem.Status = phase }
-			if cap, ok, _ := unstructured.NestedString(item.Object, "status", "capacity", "storage"); ok { extra["capacity"] = cap }
 			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "cronjobs":
 			if schedule, ok, _ := unstructured.NestedString(item.Object, "spec", "schedule"); ok {
