@@ -398,6 +398,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				"metadata": found.Object["metadata"],
 				"spec":     found.Object["spec"],
 				"status":   found.Object["status"],
+				"data":     found.Object["data"],
 			})
 			return
 		}
@@ -440,6 +441,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"metadata": item.Object["metadata"],
 		"spec": item.Object["spec"],
 		"status": item.Object["status"],
+		"data": item.Object["data"],
 	})
 }
 

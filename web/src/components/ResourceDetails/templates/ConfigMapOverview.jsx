@@ -1,17 +1,17 @@
 import React from 'react';
-import DetailSection from '../DetailSection';
-import CodeEditor from '../CodeEditor';
+import ConfigMapDataSection from '../ConfigMapDataSection';
 
-export default function ConfigMapOverview({ data, t }) {
+export default function ConfigMapOverview({ data, kind, namespace, name, t, onRefresh }) {
     if (!data || !data.data) return null;
 
     return (
-        <DetailSection title={t('data') || "Data"} className="mt-4">
-            <CodeEditor
-                value={JSON.stringify(data.data, null, 2)}
-                readOnly={true}
-                fontSize={13}
-            />
-        </DetailSection>
+        <ConfigMapDataSection 
+            data={data.data} 
+            kind={kind} 
+            namespace={namespace} 
+            name={name} 
+            t={t} 
+            onRefresh={onRefresh} 
+        />
     );
 }
