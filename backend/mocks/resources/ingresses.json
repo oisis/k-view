@@ -1,0 +1,14 @@
+[
+  {
+    "name": "frontend-ingress",
+    "namespace": "default",
+    "age": "30d",
+    "status": "Active",
+    "extra": {
+      "class": "nginx",
+      "hosts": "app.example.com",
+      "address": "192.168.1.100",
+      "labels": "app=frontend, tier=web"
+    }
+  }
+]

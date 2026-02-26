@@ -408,7 +408,7 @@ func filter(items []ResourceItem, ns string) []ResourceItem {
 	return res
 }
 
-func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
+func (h *ResourceHandler) internalMockResourceList(kind, ns string) []ResourceItem {
 	return []ResourceItem{
 		{Name: "mock-resource", Namespace: "default", Age: "1h", Status: "Running", Extra: map[string]string{"kind": kind}},
 	}

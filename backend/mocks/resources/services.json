@@ -1,0 +1,14 @@
+[
+  {
+    "name": "kubernetes",
+    "namespace": "default",
+    "age": "30d",
+    "status": "ClusterIP",
+    "extra": {
+      "cluster-ip": "10.96.0.1",
+      "ports": "443/TCP",
+      "labels": "component=apiserver,provider=kubernetes,owner=system,k8s-app=apiserver",
+      "endpoints": "10.0.0.1:443, 10.0.0.2:443, 10.0.0.3:443"
+    }
+  }
+]

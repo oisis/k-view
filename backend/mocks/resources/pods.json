@@ -1,0 +1,47 @@
+[
+  {
+    "name": "frontend-web-5d8f7b",
+    "namespace": "default",
+    "age": "19h",
+    "status": "Running",
+    "extra": {
+      "ready": "1/1",
+      "restarts": "0",
+      "node": "worker-01",
+      "cpu": "12m",
+      "ram": "45Mi",
+      "images": "nginx:1.21",
+      "labels": "app=frontend,tier=web"
+    }
+  },
+  {
+    "name": "backend-api-6c9f8c",
+    "namespace": "default",
+    "age": "4h",
+    "status": "Running",
+    "extra": {
+      "ready": "1/1",
+      "restarts": "0",
+      "node": "worker-02",
+      "cpu": "25m",
+      "ram": "128Mi",
+      "images": "node:18-alpine",
+      "labels": "app=backend,tier=api"
+    }
+  },
+  {
+    "name": "frontend-web-5d8f7b",
+    "namespace": "default",
+    "age": "19h",
+    "status": "Running",
+    "extra": {
+      "ready": "1/1",
+      "restarts": "0",
+      "node": "worker-01",
+      "cpu": "12m",
+      "ram": "45Mi",
+      "images": "nginx:1.21, sidecar-proxy:v1, log-collector:v2",
+      "labels": "app=frontend, tier=web, env=prod, version=v1.2, team=blue"
+    }
+  }
+]

@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -68,4 +71,23 @@ var clusterScopedKinds = map[string]bool{
 
 func isClusterScoped(kind string) bool {
 	return clusterScopedKinds[strings.ToLower(kind)]
+}
+
+func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
+	mockPath := filepath.Join("mocks", "resources", kind+".json")
+	if _, err := os.Stat(mockPath); os.IsNotExist(err) {
+		// Try parent directory if called from a subpackage (like during tests)
+		mockPath = filepath.Join("..", "mocks", "resources", kind+".json")
+	}
+	
+	if _, err := os.Stat(mockPath); err == nil {
+		data, err := os.ReadFile(mockPath)
+		if err == nil {
+			var items []ResourceItem
+			if err := json.Unmarshal(data, &items); err == nil {
+				return filter(items, ns)
+			}
+		}
+	}
+	return h.internalMockResourceList(kind, ns)
 }
