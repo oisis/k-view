@@ -146,6 +146,8 @@ tmp/
 
 # Gemini CLI local settings and state
 .gemini/settings.json
+.gemini/config.json
+.gemini/instructions.txt
 .gemini/state/
 .gemini/cache/
 GEMINI.md
