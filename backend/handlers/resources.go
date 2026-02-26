@@ -310,6 +310,8 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		}
 
 		h.mapWorkload(item, kind, extra, &resItem)
+		h.mapNetwork(item, kind, extra, &resItem, endpointsMap)
+		status = resItem.Status
 
 		switch kind {
 		case "configmaps", "secrets":
@@ -318,29 +320,6 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				resItem.Data = data
 			}
 			extra["labels"] = k8sutils.GetLabels(item.Object)
-		case "services":
-			if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok { resItem.Status = sType }
-			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok { extra["cluster-ip"] = cip }
-			extra["endpoints"] = endpointsMap[item.GetNamespace()+"/"+item.GetName()]
-			if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
-				var addrs []string
-				for _, ing := range ingresses {
-					i := ing.(map[string]interface{})
-					if ip, ok := i["ip"].(string); ok { addrs = append(addrs, ip) } else if host, ok := i["hostname"].(string); ok { addrs = append(addrs, host) }
-				}
-				extra["external"] = strings.Join(addrs, ", ")
-			}
-			extra["labels"] = k8sutils.GetLabels(item.Object)
-		case "ingresses":
-			if class, ok, _ := unstructured.NestedString(item.Object, "spec", "ingressClassName"); ok { extra["class"] = class }
-			if rules, ok, _ := unstructured.NestedSlice(item.Object, "spec", "rules"); ok {
-				var hosts []string
-				for _, r := range rules {
-					rule := r.(map[string]interface{})
-					if host, ok := rule["host"].(string); ok { hosts = append(hosts, host) }
-				}
-				extra["hosts"] = strings.Join(hosts, ", ")
-			}
 		case "namespaces":
 			extra["labels"] = k8sutils.GetLabels(item.Object)
 		case "persistentvolumeclaims", "pvcs":
