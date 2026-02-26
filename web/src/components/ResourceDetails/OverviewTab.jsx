@@ -43,6 +43,9 @@ import NamespaceOverview from './templates/NamespaceOverview';
 import EventOverview from './templates/EventOverview';
 import DaemonSetOverview from './templates/DaemonSetOverview';
 import StatefulSetOverview from './templates/StatefulSetOverview';
+import PvOverview from './templates/PvOverview';
+import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
+import ServiceAccountOverview from './templates/ServiceAccountOverview';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -75,6 +78,10 @@ export default function OverviewTab({
     const isPv = kindLower === 'persistentvolumes' || kindLower === 'persistentvolume' || kindLower === 'pvs';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
+    const volumes = podSpec.volumes || [];
+    const mountedConfigMaps = Array.from(new Set(volumes.filter(v => v.configMap).map(v => v.configMap.name)));
+    const mountedSecrets = Array.from(new Set(volumes.filter(v => v.secret).map(v => v.secret.secretName)));
+    const mountedPvcs = Array.from(new Set(volumes.filter(v => v.persistentVolumeClaim).map(v => v.persistentVolumeClaim.claimName)));
     
     const restarts = isPod && status?.containerStatuses
         ? status.containerStatuses.reduce((acc, c) => acc + (c.restartCount || 0), 0)
@@ -93,7 +100,8 @@ export default function OverviewTab({
         isIngress, isPvc, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount,
         isService, isClusterRole, isNamespace, isNetworkPolicy, isNode, isPv,
         restarts, readyCount, totalContainers, podSpec,
-        relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs
+        relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs,
+        mountedConfigMaps, mountedSecrets, mountedPvcs
     };
 
     const renderResourceSpecific = () => {
@@ -108,6 +116,9 @@ export default function OverviewTab({
         if (kindLower.includes('secret')) return <SecretOverview {...sectionProps} />;
         if (isIngress) return <IngressOverview {...sectionProps} />;
         if (isPvc) return <PvcOverview {...sectionProps} />;
+        if (isPv) return <PvOverview {...sectionProps} />;
+        if (isNetworkPolicy) return <NetworkPolicyOverview {...sectionProps} />;
+        if (isServiceAccount) return <ServiceAccountOverview {...sectionProps} />;
         if (isRole || isClusterRole || isRoleBinding || isClusterRoleBinding) return <RbacOverview {...sectionProps} isBinding={isRoleBinding || isClusterRoleBinding} />;
         if (isNamespace) return <NamespaceOverview {...sectionProps} />;
         if (kindLower.includes('event')) return <EventOverview {...sectionProps} />;
@@ -138,6 +149,45 @@ export default function OverviewTab({
                     {quotas && <ResourceQuotasTable quotas={quotas} t={t} />}
                     {limits && <LimitRangesTable limits={limits} t={t} />}
                 </>
+            )}
+
+            {/* Mounted Resources Links */}
+            {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0 || mountedPvcs.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    {mountedConfigMaps.length > 0 && (
+                        <DetailSection title="Mounted ConfigMaps">
+                            <div className="p-2 space-y-1">
+                                {mountedConfigMaps.map(cm => (
+                                    <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 border border-[var(--border-color)] rounded-lg hover:border-[var(--accent)] text-xs font-mono text-info truncate">
+                                        {cm}
+                                    </Link>
+                                ))}
+                            </div>
+                        </DetailSection>
+                    )}
+                    {mountedSecrets.length > 0 && (
+                        <DetailSection title="Mounted Secrets">
+                            <div className="p-2 space-y-1">
+                                {mountedSecrets.map(s => (
+                                    <Link key={s} to={`/secrets/${namespace}/${s}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 border border-[var(--border-color)] rounded-lg hover:border-[var(--accent)] text-xs font-mono text-info truncate">
+                                        {s}
+                                    </Link>
+                                ))}
+                            </div>
+                        </DetailSection>
+                    )}
+                    {mountedPvcs.length > 0 && (
+                        <DetailSection title="Mounted PVCs">
+                            <div className="p-2 space-y-1">
+                                {mountedPvcs.map(pvc => (
+                                    <Link key={pvc} to={`/pvcs/${namespace}/${pvc}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 border border-[var(--border-color)] rounded-lg hover:border-[var(--accent)] text-xs font-mono text-info truncate">
+                                        {pvc}
+                                    </Link>
+                                ))}
+                            </div>
+                        </DetailSection>
+                    )}
+                </div>
             )}
 
             {metadata.ownerReferences && (
