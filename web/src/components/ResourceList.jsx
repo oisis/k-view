@@ -448,12 +448,16 @@ function ScheduleCell({ value, nextRun }) {
     );
 }
 
+import { useResourceData } from '../hooks/useResourceData';
+
+// ... other imports ...
+
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
     const { t } = useTranslation();
     const { icons } = useTheme();
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
-    const [items, setItems] = useState([]);
+    
     const [namespaces, setNamespaces] = useState([]);
     const [user, setUser] = useState(null);
     useEffect(() => {
@@ -472,7 +476,6 @@ export default function ResourceList({ kind }) {
         return settings.defaultNamespace;
     });
 
-    // Update namespace if scope changes and no previous manual selection
     useEffect(() => {
         const saved = localStorage.getItem(nsKey);
         if (saved === null) {
@@ -483,27 +486,12 @@ export default function ResourceList({ kind }) {
     }, [nsKey, settings.defaultNamespace]);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    const getLabel = useCallback((label) => {
-        const key = `label_${label.toLowerCase().replace(/ /g, '_').replace(/-/g, '_')}`;
-        const translated = t(key);
-        return translated !== key ? translated : label;
-    }, [t]);
-
-    // Persist namespace
-    useEffect(() => {
-        if (namespace !== undefined) {
-            localStorage.setItem(nsKey, namespace);
-        }
-    }, [namespace, nsKey]);
-
-    // Sorting state
-    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
-    const [searchTerm, setSearchTerm] = useState('');
+    const url = `/api/resources/${kind}${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`;
+    const { items, loading, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
 
     // Fetch namespaces on mount
     useEffect(() => {
@@ -513,102 +501,20 @@ export default function ResourceList({ kind }) {
             .catch(() => { });
     }, []);
 
-    const load = useCallback(() => {
-        setLoading(true);
-        setError(null);
-        const qs = namespace ? `?namespace=${encodeURIComponent(namespace)}` : '';
-        fetch(`/api/resources/${kind}${qs}`)
-            .then(async r => {
-                if (r.ok) return r.json();
-                let errorMessage = 'Failed to fetch';
-                try {
-                    const data = await r.json();
-                    errorMessage = data.error || errorMessage;
-                } catch (e) {
-                    try {
-                        const text = await r.text();
-                        if (text) errorMessage = text;
-                    } catch (e2) { }
-                }
-                throw new Error(errorMessage);
-            })
-            .then(data => setItems(data || []))
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
-    }, [kind, namespace]);
-
-    useEffect(() => {
-        load();
-        const interval = setInterval(load, 5000);
-        return () => clearInterval(interval);
-    }, [load]);
-
     const handleCreated = () => {
-        load();
+        refresh();
         setIsCreateModalOpen(false);
     };
-
-    useEffect(() => {
-        const interval = setInterval(load, settings.resourceRefreshInterval * 1000);
-        return () => clearInterval(interval);
-    }, [load, settings.resourceRefreshInterval]);
 
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, namespace, kind]);
 
-    // Sorting logic
-    const sortedItems = useMemo(() => {
-        const result = [...items];
-        if (!sortConfig.key) return result;
-
-        result.sort((a, b) => {
-            let aVal = getVal(a, sortConfig.key);
-            let bVal = getVal(b, sortConfig.key);
-
-            // Special handling for Age or duration (convert to numeric if possible)
-            // For now, simple string/null comparison
-            if (aVal === bVal) return 0;
-            if (aVal === '—') return 1;
-            if (bVal === '—') return -1;
-
-            // Try to compare as numbers if they look like it
-            const aNum = parseFloat(aVal);
-            const bNum = parseFloat(bVal);
-            if (!isNaN(aNum) && !isNaN(bNum) && !aVal.includes(':') && !aVal.includes('-')) {
-                return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
-            }
-
-            return sortConfig.direction === 'asc'
-                ? aVal.toString().localeCompare(bVal.toString())
-                : bVal.toString().localeCompare(aVal.toString());
-        });
-        return result;
-    }, [items, sortConfig]);
-
-    const filteredItems = useMemo(() => {
-        if (!searchTerm) return sortedItems;
-        const lowercasedTerm = searchTerm.toLowerCase();
-
-        const searchInObj = (obj) => {
-            if (!obj) return false;
-            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
-            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
-            if (Array.isArray(obj)) return obj.some(searchInObj);
-            if (typeof obj === 'object') {
-                return Object.values(obj).some(searchInObj);
-            }
-            return false;
-        };
-
-        return sortedItems.filter(item => searchInObj(item));
-    }, [sortedItems, searchTerm]);
-
-    const totalPages = Math.ceil(filteredItems.length / settings.itemsPerPage);
+    const totalPages = Math.ceil(items.length / settings.itemsPerPage);
     const paginatedItems = useMemo(() => {
         const start = (currentPage - 1) * settings.itemsPerPage;
-        return filteredItems.slice(start, start + settings.itemsPerPage);
-    }, [filteredItems, currentPage, settings.itemsPerPage]);
+        return items.slice(start, start + settings.itemsPerPage);
+    }, [items, currentPage, settings.itemsPerPage]);
 
     const requestSort = (key) => {
         let direction = 'asc';

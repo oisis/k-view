@@ -134,45 +134,15 @@ function LabelsCell({ labels }) {
     );
 }
 
+import { useResourceData } from '../hooks/useResourceData';
+
+// ... helper functions remain ...
+
 export default function Nodes() {
     const { icons } = useTheme();
-    const [nodes, setNodes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const loadNodes = useCallback(() => {
-        setLoading(true);
-        fetch('/api/nodes')
-            .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch nodes')))
-            .then(data => setNodes(data || []))
-            .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
-    }, []);
-
-    useEffect(() => {
-        loadNodes();
-        const interval = setInterval(loadNodes, 5000);
-        return () => clearInterval(interval);
-    }, [loadNodes]);
-
-    const filteredNodes = React.useMemo(() => {
-        if (!searchTerm) return nodes;
-        const lowercasedTerm = searchTerm.toLowerCase();
-
-        const searchInObj = (obj) => {
-            if (!obj) return false;
-            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
-            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
-            if (Array.isArray(obj)) return obj.some(searchInObj);
-            if (typeof obj === 'object') {
-                return Object.values(obj).some(searchInObj);
-            }
-            return false;
-        };
-
-        return nodes.filter(node => searchInObj(node));
-    }, [nodes, searchTerm]);
+    const { items: filteredNodes, rawData: nodes, loading, error, refresh } = useResourceData('/api/nodes', searchTerm);
 
     const ready = nodes.filter(n => n.status === 'Ready').length;
     const notReady = nodes.length - ready;
@@ -279,7 +249,7 @@ export default function Nodes() {
                                                 kind="nodes"
                                                 namespace="-"
                                                 name={node.name}
-                                                onRefresh={loadNodes}
+                                                onRefresh={refresh}
                                             />
                                         </td>
                                     </tr>
