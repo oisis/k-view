@@ -10,18 +10,26 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
     const [isUpdating, setIsUpdating] = useState(false);
 
     const decodeBase64 = (str) => {
+        if (!str) return '';
         try {
-            return atob(str);
+            // Support UTF-8 decoding
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
         } catch (e) {
-            return str;
+            try { return atob(str); } catch(e2) { return str; }
         }
     };
 
     const encodeBase64 = (str) => {
         try {
-            return btoa(str);
+            // Support UTF-8 encoding
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+            }));
         } catch (e) {
-            return str;
+            return btoa(str);
         }
     };
 
