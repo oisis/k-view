@@ -8,7 +8,7 @@ export default function ResourceQuotasTable({ quotas, t, icons }) {
                 {quotas && quotas.length > 0 ? quotas.map(q => (
                     <div key={q.metadata?.name || q.name} className="bg-[var(--bg-muted)]/30 rounded-lg border border-[var(--border-color)]/50 p-4">
                         <h4 className="font-bold text-[var(--accent)] mb-3 flex items-center gap-2">
-                            {icons.activity && <icons.activity size={14} />} {q.metadata?.name || q.name}
+                            {icons?.activity && <icons.activity size={14} />} {q.metadata?.name || q.name}
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                             {Object.entries(q.status?.hard || {}).map(([res, hard]) => {
