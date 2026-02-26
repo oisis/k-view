@@ -356,6 +356,43 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		return
 	}
 
+	// For services, pre-fetch endpoints to avoid N+1 queries
+	endpointsMap := make(map[string]string)
+	if kind == "services" {
+		epsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
+		var epsList *unstructured.UnstructuredList
+		if ns != "" {
+			epsList, _ = dynClient.Resource(epsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+		} else {
+			epsList, _ = dynClient.Resource(epsGVR).List(c.Request.Context(), metav1.ListOptions{})
+		}
+
+		if epsList != nil {
+			for _, ep := range epsList.Items {
+				var addrStrs []string
+				subsets, ok, _ := unstructured.NestedSlice(ep.Object, "subsets")
+				if ok {
+					for _, s := range subsets {
+						subset, _ := s.(map[string]interface{})
+						addresses, _, _ := unstructured.NestedSlice(subset, "addresses")
+						ports, _, _ := unstructured.NestedSlice(subset, "ports")
+						for _, a := range addresses {
+							addr, _ := a.(map[string]interface{})
+							ip, _ := addr["ip"].(string)
+							for _, p := range ports {
+								port, _ := p.(map[string]interface{})
+								pNum, _, _ := unstructured.NestedInt64(port, "port")
+								addrStrs = append(addrStrs, fmt.Sprintf("%s:%d", ip, pNum))
+							}
+						}
+					}
+				}
+				key := ep.GetNamespace() + "/" + ep.GetName()
+				endpointsMap[key] = strings.Join(addrStrs, ", ")
+			}
+		}
+	}
+
 	var items []ResourceItem
 	for _, item := range unstructuredList.Items {
 		name := item.GetName()
@@ -499,10 +536,76 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			node, _, _ := unstructured.NestedString(item.Object, "spec", "nodeName")
 			extra["node"] = node
-			extra["ready"] = "1/1"
-			extra["restarts"] = "0"
-			extra["cpu"] = "15m"
-			extra["ram"] = "32Mi"
+			
+			// Dynamic Pod Ready & Restarts
+			if containerStatuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
+				readyCount := 0
+				restartCount := int64(0)
+				for _, cs := range containerStatuses {
+					if s, ok := cs.(map[string]interface{}); ok {
+						if ready, ok := s["ready"].(bool); ok && ready {
+							readyCount++
+						}
+						if rc, ok := s["restartCount"].(int64); ok {
+							restartCount += rc
+						} else if rcFloat, ok := s["restartCount"].(float64); ok {
+							restartCount += int64(rcFloat)
+						}
+					}
+				}
+				extra["ready"] = fmt.Sprintf("%d/%d", readyCount, len(containerStatuses))
+				extra["restarts"] = fmt.Sprintf("%d", restartCount)
+			} else {
+				extra["ready"] = "0/0"
+				extra["restarts"] = "0"
+			}
+
+			// Images
+			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok {
+				var images []string
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if img, ok := container["image"].(string); ok {
+							images = append(images, img)
+						}
+					}
+				}
+				extra["images"] = strings.Join(images, ", ")
+			}
+
+			// Labels
+			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
+				var ls []string
+				for k, v := range labels {
+					if vs, ok := v.(string); ok {
+						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
+					}
+				}
+				extra["labels"] = strings.Join(ls, ", ")
+			}
+
+			// Resource Requests (CPU/RAM)
+			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
+				var totalCPU, totalMem int64
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if requests, ok := container["resources"].(map[string]interface{})["requests"].(map[string]interface{}); ok {
+							if cpu, ok := requests["cpu"].(string); ok {
+								if q, err := resource.ParseQuantity(cpu); err == nil {
+									totalCPU += q.MilliValue()
+								}
+							}
+							if mem, ok := requests["memory"].(string); ok {
+								if q, err := resource.ParseQuantity(mem); err == nil {
+									totalMem += q.Value() / (1024 * 1024)
+								}
+							}
+						}
+					}
+				}
+				if totalCPU > 0 { extra["cpu"] = fmt.Sprintf("%dm", totalCPU) }
+				if totalMem > 0 { extra["ram"] = fmt.Sprintf("%dMi", totalMem) }
+			}
 		case "deployments":
 			replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 			ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
@@ -564,12 +667,46 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			if cip, ok, _ := unstructured.NestedString(item.Object, "spec", "clusterIP"); ok {
 				extra["cluster-ip"] = cip
 			}
-			extra["endpoints"] = "10.244.1.5:8080"
-			extra["external"] = "—"
+
+			// Dynamic Endpoints from pre-fetched map
+			key := item.GetNamespace() + "/" + item.GetName()
+			if epStr, ok := endpointsMap[key]; ok && epStr != "" {
+				extra["endpoints"] = epStr
+			} else {
+				extra["endpoints"] = "—"
+			}
+
+			// Dynamic External IP (LoadBalancer)
+			if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
+				var addrs []string
+				for _, ing := range ingresses {
+					if i, ok := ing.(map[string]interface{}); ok {
+						if ip, ok := i["ip"].(string); ok {
+							addrs = append(addrs, ip)
+						} else if host, ok := i["hostname"].(string); ok {
+							addrs = append(addrs, host)
+						}
+					}
+				}
+				extra["external"] = strings.Join(addrs, ", ")
+			} else if extIPs, ok, _ := unstructured.NestedSlice(item.Object, "spec", "externalIPs"); ok && len(extIPs) > 0 {
+				var ips []string
+				for _, ip := range extIPs {
+					if s, ok := ip.(string); ok {
+						ips = append(ips, s)
+					}
+				}
+				extra["external"] = strings.Join(ips, ", ")
+			} else {
+				extra["external"] = "—"
+			}
+
 			if labels, ok, _ := unstructured.NestedMap(item.Object, "metadata", "labels"); ok {
 				var ls []string
 				for k, v := range labels {
-					ls = append(ls, fmt.Sprintf("%s=%s", k, v))
+					if vs, ok := v.(string); ok {
+						ls = append(ls, fmt.Sprintf("%s=%s", k, vs))
+					}
 				}
 				extra["labels"] = strings.Join(ls, ", ")
 			}
@@ -578,6 +715,34 @@ func (h *ResourceHandler) List(c *gin.Context) {
 				extra["class"] = class
 			} else if class, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "kubernetes.io/ingress.class"); ok {
 				extra["class"] = class
+			}
+
+			// Dynamic Hosts
+			if rules, ok, _ := unstructured.NestedSlice(item.Object, "spec", "rules"); ok {
+				var hosts []string
+				for _, r := range rules {
+					if rule, ok := r.(map[string]interface{}); ok {
+						if host, ok := rule["host"].(string); ok {
+							hosts = append(hosts, host)
+						}
+					}
+				}
+				extra["hosts"] = strings.Join(hosts, ", ")
+			}
+
+			// Dynamic Endpoints (LoadBalancer address)
+			if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
+				var addrs []string
+				for _, ing := range ingresses {
+					if i, ok := ing.(map[string]interface{}); ok {
+						if ip, ok := i["ip"].(string); ok {
+							addrs = append(addrs, ip)
+						} else if host, ok := i["hostname"].(string); ok {
+							addrs = append(addrs, host)
+						}
+					}
+				}
+				extra["address"] = strings.Join(addrs, ", ")
 			}
 		case "namespaces":
 			if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {

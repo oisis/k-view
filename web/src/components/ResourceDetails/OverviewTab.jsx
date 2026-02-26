@@ -396,6 +396,55 @@ export default function OverviewTab({
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
+                            {isDaemonSet && (
+                                <>
+                                    <tr className="border-b border-slate-600">
+                                        <td colSpan="2" className="p-0">
+                                            <div className="px-4 py-3 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold block mb-2">{t('label_selector')}</span>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
+                                                        <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-[var(--border-color)] rounded text-sm text-[var(--text-secondary)] font-mono">
+                                                            {k}: {v}
+                                                        </span>
+                                                    ))}
+                                                    {!(spec.selector?.matchLabels || spec.selector) && <span className="text-[var(--text-muted)] italic">—</span>}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-slate-600">
+                                        <td colSpan="2" className="p-0">
+                                            <div className="px-4 py-3 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold block mb-2">Images</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(spec.template?.spec?.containers || []).map(c => (
+                                                        <span key={c.name} className="px-2 py-0.5 bg-black/30 rounded text-xs font-mono text-white border border-white/10">
+                                                            {c.image}
+                                                        </span>
+                                                    ))}
+                                                    {(!spec.template?.spec?.containers || spec.template.spec.containers.length === 0) && <span className="text-[var(--text-muted)] italic">—</span>}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr className="border-b border-slate-600">
+                                        <td colSpan="2" className="p-0">
+                                            <div className="px-4 py-3 bg-[var(--bg-sidebar)]/5">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold block mb-2">Init Images</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(spec.template?.spec?.initContainers || []).map(c => (
+                                                        <span key={c.name} className="px-2 py-0.5 bg-black/30 rounded text-xs font-mono text-white border border-white/10">
+                                                            {c.image}
+                                                        </span>
+                                                    ))}
+                                                    {(!spec.template?.spec?.initContainers || spec.template.spec.initContainers.length === 0) && <span className="text-[var(--text-muted)] italic">—</span>}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </>
+                            )}
                             {isCronJob && (
                                 <tr className="border-b border-slate-600">
                                     <td colSpan="2" className="p-0">
@@ -525,7 +574,7 @@ export default function OverviewTab({
                                     </td>
                                 </tr>
                             )}
-                            {!isCronJob && !isDeployment && !isJob && !isPod && !isIngress && !isService && !kindLower.includes('pvc') && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
+                            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isIngress && !isService && !kindLower.includes('pvc') && (spec.strategy?.type || spec.minReadySeconds !== undefined || spec.revisionHistoryLimit !== undefined || spec.nodeName) && (
                                 <tr className="border-b border-slate-600">
                                     <td colSpan="2" className="p-0">
                                         <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
@@ -585,7 +634,7 @@ export default function OverviewTab({
 
                             {spec.clusterIP && !isService && <DetailRow label={t('label_ip_cluster')} value={spec.clusterIP} />}
 
-                            {!isCronJob && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
+                            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
                                 <DetailRow label={t('label_selector')}>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div>
@@ -631,7 +680,7 @@ export default function OverviewTab({
                             {status?.podIP && !isDeployment && !isPod && !isService && <DetailRow label={t('label_pod_ip')} value={status.podIP} />}
                             {spec.qosClass && !isDeployment && !isPod && !isService && <DetailRow label={t('label_qos_class')} value={spec.qosClass} />}
 
-                            {!isCronJob && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
+                            {!isCronJob && !isDaemonSet && !isDeployment && !isJob && !isPod && !isService && !kindLower.includes('pvc') && (
                                 <DetailRow label={t('containers')}>
                                     <div className="space-y-4">
                                         {(isPod ? (spec.containers || []) : (spec.template?.spec?.containers || [])).map(c => (
