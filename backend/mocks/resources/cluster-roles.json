@@ -435,9 +435,7 @@
       "apiVersion": "rbac.authorization.k8s.io/v1",
       "kind": "ClusterRole",
       "metadata": {
-        "annotations": {
-          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRole\",\"metadata\":{\"annotations\":{},\"name\":\"vpnkit-controller\"},\"rules\":[{\"apiGroups\":[\"\"],\"resources\":[\"services\",\"services/status\"],\"verbs\":[\"get\",\"watch\",\"list\"]},{\"apiGroups\":[\"\"],\"resources\":[\"services/status\"],\"verbs\":[\"update\"]}]}\n"
-        },
+        "annotations": {},
         "name": "anon-clusterroles-5"
       },
       "rules": [

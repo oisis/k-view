@@ -989,9 +989,7 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "annotations": {
-          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"component\":\"storage-provisioner\"},\"name\":\"storage-provisioner\",\"namespace\":\"kube-system\"},\"spec\":{\"containers\":[{\"args\":[\"/var/lib/k8s-pvs\"],\"image\":\"docker/desktop-storage-provisioner:v3.0\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"storage-provisioner\",\"volumeMounts\":[{\"mountPath\":\"/var/lib/k8s-pvs\",\"name\":\"pvs\"}]}],\"serviceAccountName\":\"storage-provisioner\",\"volumes\":[{\"hostPath\":{\"path\":\"/var/lib/k8s-pvs\",\"type\":\"Directory\"},\"name\":\"pvs\"}]}}\n"
-        },
+        "annotations": {},
         "labels": {
           "component": "storage-provisioner"
         },
@@ -2237,9 +2235,7 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "annotations": {
-          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"component\":\"vpnkit-controller\"},\"name\":\"vpnkit-controller\",\"namespace\":\"kube-system\"},\"spec\":{\"containers\":[{\"command\":[\"/kube-vpnkit-forwarder\",\"-path\",\"/run/host-services/backend.sock\"],\"image\":\"docker/desktop-vpnkit-controller:v4.0\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"vpnkit-controller\",\"volumeMounts\":[{\"mountPath\":\"/run/host-services/backend.sock\",\"name\":\"api\"}]}],\"serviceAccountName\":\"vpnkit-controller\",\"volumes\":[{\"hostPath\":{\"path\":\"/run/host-services/backend.sock\"},\"name\":\"api\"}]}}\n"
-        },
+        "annotations": {},
         "labels": {
           "component": "vpnkit-controller"
         },
