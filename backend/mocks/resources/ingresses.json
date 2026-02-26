@@ -1,86 +1,65 @@
-[
-  {
-    "name": "argocd-server",
-    "namespace": "cicd-tools",
-    "age": "21d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "argocd.example.com",
-      "address": "10.0.0.50",
-      "labels": "app.kubernetes.io/name=argocd-server,environment=dev"
-    }
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
   },
-  {
-    "name": "nginx-ingress",
-    "namespace": "games-platform",
-    "age": "20d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "games.example.com",
-      "address": "10.0.0.50",
-      "labels": "app.kubernetes.io/name=nginx,instance=games"
+  "items": [
+    {
+      "metadata": {
+        "name": "anon-ingresses-1",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-2",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-3",
+        "namespace": "monitoring"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-4",
+        "namespace": "default"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-5",
+        "namespace": "default"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-6",
+        "namespace": "kube-system"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-ingresses-7",
+        "namespace": "app-dev"
+      },
+      "spec": {},
+      "status": {}
     }
-  },
-  {
-    "name": "backend-admin-panel",
-    "namespace": "core-services",
-    "age": "14d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "admin.example.com",
-      "address": "10.0.0.50",
-      "labels": "app=core-backend,component=admin"
-    }
-  },
-  {
-    "name": "backend-api",
-    "namespace": "core-services",
-    "age": "14d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "api.example.com",
-      "address": "10.0.0.50",
-      "labels": "app=core-backend,component=api"
-    }
-  },
-  {
-    "name": "public-frontend",
-    "namespace": "core-services",
-    "age": "14d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "app.example.com",
-      "address": "10.0.0.50",
-      "labels": "app=frontend"
-    }
-  },
-  {
-    "name": "monitoring-grafana",
-    "namespace": "monitoring",
-    "age": "21d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "grafana.example.com",
-      "address": "10.0.0.50",
-      "labels": "app.kubernetes.io/name=grafana"
-    }
-  },
-  {
-    "name": "k-view-access",
-    "namespace": "k-view",
-    "age": "1d",
-    "status": "Active",
-    "extra": {
-      "class": "traefik",
-      "hosts": "dashboard.example.com",
-      "address": "10.0.0.50",
-      "labels": "app.kubernetes.io/name=k-view"
-    }
-  }
-]
+  ]
+}

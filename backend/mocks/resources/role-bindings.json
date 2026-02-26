@@ -1,5 +1,122 @@
-[
-  { "name": "admin-binding", "namespace": "default", "age": "30d", "extra": { "role": "ClusterRole/admin", "subjects": "User/admin@example.com" } },
-  { "name": "db-admin-binding", "namespace": "database", "age": "25d", "extra": { "role": "Role/db-admin", "subjects": "ServiceAccount/postgres-sa" } },
-  { "name": "manager-binding", "namespace": "kube-public", "age": "151d", "extra": { "role": "Role/manager", "subjects": "Group/managers" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "true"
+        },
+        "labels": {
+          "kubernetes.io/bootstrapping": "rbac-defaults"
+        },
+        "name": "anon-rolebindings-1",
+        "namespace": "default"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "system:controller:cloud-provider"
+      },
+      "subjects": [
+        {
+          "kind": "ServiceAccount",
+          "name": "cloud-provider",
+          "namespace": "kube-system"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "anon-rolebindings-2",
+        "namespace": "app-prod"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "kubeadm:kubelet-config"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "system:nodes"
+        },
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "system:bootstrappers:kubeadm:default-node-token"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "true"
+        },
+        "labels": {
+          "kubernetes.io/bootstrapping": "rbac-defaults"
+        },
+        "name": "anon-rolebindings-3",
+        "namespace": "app-dev"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "system::leader-locking-kube-scheduler"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "User",
+          "name": "system:kube-scheduler"
+        },
+        {
+          "kind": "ServiceAccount",
+          "name": "kube-scheduler",
+          "namespace": "kube-system"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "annotations": {
+          "rbac.authorization.kubernetes.io/autoupdate": "true"
+        },
+        "labels": {
+          "kubernetes.io/bootstrapping": "rbac-defaults"
+        },
+        "name": "anon-rolebindings-4",
+        "namespace": "app-dev"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "extension-apiserver-authentication-reader"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "User",
+          "name": "system:kube-controller-manager"
+        },
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "User",
+          "name": "system:kube-scheduler"
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,140 @@
-[
-  { "name": "kube-root-ca.crt", "namespace": "default", "age": "151d", "extra": { "data": "1", "labels": "kubernetes.io/cluster-service=true" } },
-  { "name": "app-config", "namespace": "default", "age": "10d", "extra": { "data": "5", "labels": "app=frontend,env=prod" } },
-  { "name": "nginx-config", "namespace": "ingress-nginx", "age": "30d", "extra": { "data": "3" } },
-  { "name": "prometheus-config", "namespace": "monitoring", "age": "28d", "extra": { "data": "8" } },
-  { "name": "coredns", "namespace": "kube-system", "age": "151d", "extra": { "data": "1" } },
-  { "name": "extension-apiserver-authentication", "namespace": "kube-system", "age": "151d", "extra": { "data": "2" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: 0.0.0.0\nbindAddressHardFail: false\nclientConnection:\n  acceptContentTypes: \"\"\n  burst: 10\n  contentType: application/vnd.kubernetes.protobuf\n  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf\n  qps: 5\nclusterCIDR: \"\"\nconfigSyncPeriod: 15m0s\nconntrack:\n  maxPerCore: 0\n  min: 0\n  tcpBeLiberal: false\n  tcpCloseWaitTimeout: 1h0m0s\n  tcpEstablishedTimeout: 24h0m0s\n  udpStreamTimeout: 0s\n  udpTimeout: 0s\ndetectLocal:\n  bridgeInterface: \"\"\n  interfaceNamePrefix: \"\"\ndetectLocalMode: \"\"\nenableProfiling: false\nhealthzBindAddress: 0.0.0.0:10256\nhostnameOverride: \"\"\niptables:\n  localhostNodePorts: null\n  masqueradeAll: false\n  masqueradeBit: 14\n  minSyncPeriod: 0s\n  syncPeriod: 30s\nipvs:\n  excludeCIDRs: null\n  minSyncPeriod: 0s\n  scheduler: \"\"\n  strictARP: false\n  syncPeriod: 30s\n  tcpFinTimeout: 0s\n  tcpTimeout: 0s\n  udpTimeout: 0s\nkind: KubeProxyConfiguration\nlogging:\n  flushFrequency: 0\n  options:\n    json:\n      infoBufferSize: \"0\"\n    text:\n      infoBufferSize: \"0\"\n  verbosity: 0\nmetricsBindAddress: 127.0.0.1:10249\nmode: \"\"\nnftables:\n  masqueradeAll: false\n  masqueradeBit: null\n  minSyncPeriod: 0s\n  syncPeriod: 0s\nnodePortAddresses: null\noomScoreAdj: -999\nportRange: \"\"\nshowHiddenMetricsForVersion: \"\"\nwinkernel:\n  enableDSR: false\n  forwardHealthCheckVip: false\n  networkName: \"\"\n  rootHnsEndpointName: \"\"\n  sourceVip: \"\"",
+        "kubeconfig.conf": "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    server: https://kubernetes.docker.internal:6443\n  name: default\ncontexts:\n- context:\n    cluster: default\n    namespace: default\n    user: default\n  name: default\ncurrent-context: default\nusers:\n- name: default\n  user:\n    tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "app": "kube-proxy"
+        },
+        "name": "anon-configmaps-1",
+        "namespace": "default"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBzCCAe+gAwIBAgIIKWa2kwBglCEwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAgFw0yNTA5MjgxMzAzNDZaGA8yMTI1MDkwNDEzMDg0Nlow\nFTETMBEGA1UEAxMKa3ViZXJuZXRlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKucBIRRcjq2e7bUJ/0U/omNodALxSnOj2/8/V+GPX9PlPLkBsdLr/fm\nxn8KfjO214Lz+douqS4xGljFvNbYevx7W4VZ++IS3VG2WUfmcgsATvzy8nMKh/sp\nL0a/gyz69nir9PUOWERphBbSa/VcvuaHZpdwZ7rWRL80kmlAJyRP+zYZcHWy7tdP\ngbjedkH/+IBtPnK8IHfGm0US9dcljLRXGbD1blANV2iEaiXTS663av8U1RV/jkDy\nN5iXpa13z4ThLMaNytxwuRdiTdLMSHHaSf7QelHOZFKdLvBITo44ODOmbLlnQhZX\n9Ox0k86Giy9mOVDMYh81kngj5WNI61kCAwEAAaNZMFcwDgYDVR0PAQH/BAQDAgKk\nMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFCnFZ3ryPFtD+us1fffm29ohjMx5\nMBUGA1UdEQQOMAyCCmt1YmVybmV0ZXMwDQYJKoZIhvcNAQELBQADggEBAIUzqqS/\n6ABBOr5kAmjOIk+Dzyqme5hT95hk9makl2dlleizoV48oMxTeoGxFol/fEZwa5a4\n+SxQARLeO0q6knAIbXKnzMNhrsOaHsp6TGrirNQE19IeqEYWlfPbaoJc/JjkJdoN\nwXZQp6f5g6R4u0hP8v76HMCYDwWaMrhBTynDsjG8uqW6fzbBYE3hmdtUaSrnPpAD\nszlryqTTeYu7ee32e3lEY3EkYEFgjyZfPoT1Fw0BZI/te7Wl9L4vgqJTh+1DpBWT\nga/GWybBGFPb7UzHut2DXeQkbEvwl88kfFduuZRhq7dt0davb3q965UY3lZYLHJw\n6ETTq5Z0lx2Cl4Y=\n-----END CERTIFICATE-----\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+        },
+        "name": "anon-configmaps-2",
+        "namespace": "kube-system"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBzCCAe+gAwIBAgIIKWa2kwBglCEwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAgFw0yNTA5MjgxMzAzNDZaGA8yMTI1MDkwNDEzMDg0Nlow\nFTETMBEGA1UEAxMKa3ViZXJuZXRlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKucBIRRcjq2e7bUJ/0U/omNodALxSnOj2/8/V+GPX9PlPLkBsdLr/fm\nxn8KfjO214Lz+douqS4xGljFvNbYevx7W4VZ++IS3VG2WUfmcgsATvzy8nMKh/sp\nL0a/gyz69nir9PUOWERphBbSa/VcvuaHZpdwZ7rWRL80kmlAJyRP+zYZcHWy7tdP\ngbjedkH/+IBtPnK8IHfGm0US9dcljLRXGbD1blANV2iEaiXTS663av8U1RV/jkDy\nN5iXpa13z4ThLMaNytxwuRdiTdLMSHHaSf7QelHOZFKdLvBITo44ODOmbLlnQhZX\n9Ox0k86Giy9mOVDMYh81kngj5WNI61kCAwEAAaNZMFcwDgYDVR0PAQH/BAQDAgKk\nMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFCnFZ3ryPFtD+us1fffm29ohjMx5\nMBUGA1UdEQQOMAyCCmt1YmVybmV0ZXMwDQYJKoZIhvcNAQELBQADggEBAIUzqqS/\n6ABBOr5kAmjOIk+Dzyqme5hT95hk9makl2dlleizoV48oMxTeoGxFol/fEZwa5a4\n+SxQARLeO0q6knAIbXKnzMNhrsOaHsp6TGrirNQE19IeqEYWlfPbaoJc/JjkJdoN\nwXZQp6f5g6R4u0hP8v76HMCYDwWaMrhBTynDsjG8uqW6fzbBYE3hmdtUaSrnPpAD\nszlryqTTeYu7ee32e3lEY3EkYEFgjyZfPoT1Fw0BZI/te7Wl9L4vgqJTh+1DpBWT\nga/GWybBGFPb7UzHut2DXeQkbEvwl88kfFduuZRhq7dt0davb3q965UY3lZYLHJw\n6ETTq5Z0lx2Cl4Y=\n-----END CERTIFICATE-----\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+        },
+        "name": "anon-configmaps-3",
+        "namespace": "default"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: 0.0.0.0\nbindAddressHardFail: false\nclientConnection:\n  acceptContentTypes: \"\"\n  burst: 10\n  contentType: application/vnd.kubernetes.protobuf\n  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf\n  qps: 5\nclusterCIDR: \"\"\nconfigSyncPeriod: 15m0s\nconntrack:\n  maxPerCore: 0\n  min: 0\n  tcpBeLiberal: false\n  tcpCloseWaitTimeout: 1h0m0s\n  tcpEstablishedTimeout: 24h0m0s\n  udpStreamTimeout: 0s\n  udpTimeout: 0s\ndetectLocal:\n  bridgeInterface: \"\"\n  interfaceNamePrefix: \"\"\ndetectLocalMode: \"\"\nenableProfiling: false\nhealthzBindAddress: 0.0.0.0:10256\nhostnameOverride: \"\"\niptables:\n  localhostNodePorts: null\n  masqueradeAll: false\n  masqueradeBit: 14\n  minSyncPeriod: 0s\n  syncPeriod: 30s\nipvs:\n  excludeCIDRs: null\n  minSyncPeriod: 0s\n  scheduler: \"\"\n  strictARP: false\n  syncPeriod: 30s\n  tcpFinTimeout: 0s\n  tcpTimeout: 0s\n  udpTimeout: 0s\nkind: KubeProxyConfiguration\nlogging:\n  flushFrequency: 0\n  options:\n    json:\n      infoBufferSize: \"0\"\n    text:\n      infoBufferSize: \"0\"\n  verbosity: 0\nmetricsBindAddress: 127.0.0.1:10249\nmode: \"\"\nnftables:\n  masqueradeAll: false\n  masqueradeBit: null\n  minSyncPeriod: 0s\n  syncPeriod: 0s\nnodePortAddresses: null\noomScoreAdj: -999\nportRange: \"\"\nshowHiddenMetricsForVersion: \"\"\nwinkernel:\n  enableDSR: false\n  forwardHealthCheckVip: false\n  networkName: \"\"\n  rootHnsEndpointName: \"\"\n  sourceVip: \"\"",
+        "kubeconfig.conf": "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    server: https://kubernetes.docker.internal:6443\n  name: default\ncontexts:\n- context:\n    cluster: default\n    namespace: default\n    user: default\n  name: default\ncurrent-context: default\nusers:\n- name: default\n  user:\n    tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "app": "kube-proxy"
+        },
+        "name": "anon-configmaps-4",
+        "namespace": "app-prod"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBzCCAe+gAwIBAgIIKWa2kwBglCEwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAgFw0yNTA5MjgxMzAzNDZaGA8yMTI1MDkwNDEzMDg0Nlow\nFTETMBEGA1UEAxMKa3ViZXJuZXRlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKucBIRRcjq2e7bUJ/0U/omNodALxSnOj2/8/V+GPX9PlPLkBsdLr/fm\nxn8KfjO214Lz+douqS4xGljFvNbYevx7W4VZ++IS3VG2WUfmcgsATvzy8nMKh/sp\nL0a/gyz69nir9PUOWERphBbSa/VcvuaHZpdwZ7rWRL80kmlAJyRP+zYZcHWy7tdP\ngbjedkH/+IBtPnK8IHfGm0US9dcljLRXGbD1blANV2iEaiXTS663av8U1RV/jkDy\nN5iXpa13z4ThLMaNytxwuRdiTdLMSHHaSf7QelHOZFKdLvBITo44ODOmbLlnQhZX\n9Ox0k86Giy9mOVDMYh81kngj5WNI61kCAwEAAaNZMFcwDgYDVR0PAQH/BAQDAgKk\nMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFCnFZ3ryPFtD+us1fffm29ohjMx5\nMBUGA1UdEQQOMAyCCmt1YmVybmV0ZXMwDQYJKoZIhvcNAQELBQADggEBAIUzqqS/\n6ABBOr5kAmjOIk+Dzyqme5hT95hk9makl2dlleizoV48oMxTeoGxFol/fEZwa5a4\n+SxQARLeO0q6knAIbXKnzMNhrsOaHsp6TGrirNQE19IeqEYWlfPbaoJc/JjkJdoN\nwXZQp6f5g6R4u0hP8v76HMCYDwWaMrhBTynDsjG8uqW6fzbBYE3hmdtUaSrnPpAD\nszlryqTTeYu7ee32e3lEY3EkYEFgjyZfPoT1Fw0BZI/te7Wl9L4vgqJTh+1DpBWT\nga/GWybBGFPb7UzHut2DXeQkbEvwl88kfFduuZRhq7dt0davb3q965UY3lZYLHJw\n6ETTq5Z0lx2Cl4Y=\n-----END CERTIFICATE-----\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+        },
+        "name": "anon-configmaps-5",
+        "namespace": "app-dev"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: 0.0.0.0\nbindAddressHardFail: false\nclientConnection:\n  acceptContentTypes: \"\"\n  burst: 10\n  contentType: application/vnd.kubernetes.protobuf\n  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf\n  qps: 5\nclusterCIDR: \"\"\nconfigSyncPeriod: 15m0s\nconntrack:\n  maxPerCore: 0\n  min: 0\n  tcpBeLiberal: false\n  tcpCloseWaitTimeout: 1h0m0s\n  tcpEstablishedTimeout: 24h0m0s\n  udpStreamTimeout: 0s\n  udpTimeout: 0s\ndetectLocal:\n  bridgeInterface: \"\"\n  interfaceNamePrefix: \"\"\ndetectLocalMode: \"\"\nenableProfiling: false\nhealthzBindAddress: 0.0.0.0:10256\nhostnameOverride: \"\"\niptables:\n  localhostNodePorts: null\n  masqueradeAll: false\n  masqueradeBit: 14\n  minSyncPeriod: 0s\n  syncPeriod: 30s\nipvs:\n  excludeCIDRs: null\n  minSyncPeriod: 0s\n  scheduler: \"\"\n  strictARP: false\n  syncPeriod: 30s\n  tcpFinTimeout: 0s\n  tcpTimeout: 0s\n  udpTimeout: 0s\nkind: KubeProxyConfiguration\nlogging:\n  flushFrequency: 0\n  options:\n    json:\n      infoBufferSize: \"0\"\n    text:\n      infoBufferSize: \"0\"\n  verbosity: 0\nmetricsBindAddress: 127.0.0.1:10249\nmode: \"\"\nnftables:\n  masqueradeAll: false\n  masqueradeBit: null\n  minSyncPeriod: 0s\n  syncPeriod: 0s\nnodePortAddresses: null\noomScoreAdj: -999\nportRange: \"\"\nshowHiddenMetricsForVersion: \"\"\nwinkernel:\n  enableDSR: false\n  forwardHealthCheckVip: false\n  networkName: \"\"\n  rootHnsEndpointName: \"\"\n  sourceVip: \"\"",
+        "kubeconfig.conf": "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    server: https://kubernetes.docker.internal:6443\n  name: default\ncontexts:\n- context:\n    cluster: default\n    namespace: default\n    user: default\n  name: default\ncurrent-context: default\nusers:\n- name: default\n  user:\n    tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "app": "kube-proxy"
+        },
+        "name": "anon-configmaps-6",
+        "namespace": "app-dev"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBzCCAe+gAwIBAgIIKWa2kwBglCEwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAgFw0yNTA5MjgxMzAzNDZaGA8yMTI1MDkwNDEzMDg0Nlow\nFTETMBEGA1UEAxMKa3ViZXJuZXRlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\nAQoCggEBAKucBIRRcjq2e7bUJ/0U/omNodALxSnOj2/8/V+GPX9PlPLkBsdLr/fm\nxn8KfjO214Lz+douqS4xGljFvNbYevx7W4VZ++IS3VG2WUfmcgsATvzy8nMKh/sp\nL0a/gyz69nir9PUOWERphBbSa/VcvuaHZpdwZ7rWRL80kmlAJyRP+zYZcHWy7tdP\ngbjedkH/+IBtPnK8IHfGm0US9dcljLRXGbD1blANV2iEaiXTS663av8U1RV/jkDy\nN5iXpa13z4ThLMaNytxwuRdiTdLMSHHaSf7QelHOZFKdLvBITo44ODOmbLlnQhZX\n9Ox0k86Giy9mOVDMYh81kngj5WNI61kCAwEAAaNZMFcwDgYDVR0PAQH/BAQDAgKk\nMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFCnFZ3ryPFtD+us1fffm29ohjMx5\nMBUGA1UdEQQOMAyCCmt1YmVybmV0ZXMwDQYJKoZIhvcNAQELBQADggEBAIUzqqS/\n6ABBOr5kAmjOIk+Dzyqme5hT95hk9makl2dlleizoV48oMxTeoGxFol/fEZwa5a4\n+SxQARLeO0q6knAIbXKnzMNhrsOaHsp6TGrirNQE19IeqEYWlfPbaoJc/JjkJdoN\nwXZQp6f5g6R4u0hP8v76HMCYDwWaMrhBTynDsjG8uqW6fzbBYE3hmdtUaSrnPpAD\nszlryqTTeYu7ee32e3lEY3EkYEFgjyZfPoT1Fw0BZI/te7Wl9L4vgqJTh+1DpBWT\nga/GWybBGFPb7UzHut2DXeQkbEvwl88kfFduuZRhq7dt0davb3q965UY3lZYLHJw\n6ETTq5Z0lx2Cl4Y=\n-----END CERTIFICATE-----\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+        },
+        "name": "anon-configmaps-7",
+        "namespace": "kube-system"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: 0.0.0.0\nbindAddressHardFail: false\nclientConnection:\n  acceptContentTypes: \"\"\n  burst: 10\n  contentType: application/vnd.kubernetes.protobuf\n  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf\n  qps: 5\nclusterCIDR: \"\"\nconfigSyncPeriod: 15m0s\nconntrack:\n  maxPerCore: 0\n  min: 0\n  tcpBeLiberal: false\n  tcpCloseWaitTimeout: 1h0m0s\n  tcpEstablishedTimeout: 24h0m0s\n  udpStreamTimeout: 0s\n  udpTimeout: 0s\ndetectLocal:\n  bridgeInterface: \"\"\n  interfaceNamePrefix: \"\"\ndetectLocalMode: \"\"\nenableProfiling: false\nhealthzBindAddress: 0.0.0.0:10256\nhostnameOverride: \"\"\niptables:\n  localhostNodePorts: null\n  masqueradeAll: false\n  masqueradeBit: 14\n  minSyncPeriod: 0s\n  syncPeriod: 30s\nipvs:\n  excludeCIDRs: null\n  minSyncPeriod: 0s\n  scheduler: \"\"\n  strictARP: false\n  syncPeriod: 30s\n  tcpFinTimeout: 0s\n  tcpTimeout: 0s\n  udpTimeout: 0s\nkind: KubeProxyConfiguration\nlogging:\n  flushFrequency: 0\n  options:\n    json:\n      infoBufferSize: \"0\"\n    text:\n      infoBufferSize: \"0\"\n  verbosity: 0\nmetricsBindAddress: 127.0.0.1:10249\nmode: \"\"\nnftables:\n  masqueradeAll: false\n  masqueradeBit: null\n  minSyncPeriod: 0s\n  syncPeriod: 0s\nnodePortAddresses: null\noomScoreAdj: -999\nportRange: \"\"\nshowHiddenMetricsForVersion: \"\"\nwinkernel:\n  enableDSR: false\n  forwardHealthCheckVip: false\n  networkName: \"\"\n  rootHnsEndpointName: \"\"\n  sourceVip: \"\"",
+        "kubeconfig.conf": "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    server: https://kubernetes.docker.internal:6443\n  name: default\ncontexts:\n- context:\n    cluster: default\n    namespace: default\n    user: default\n  name: default\ncurrent-context: default\nusers:\n- name: default\n  user:\n    tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "app": "kube-proxy"
+        },
+        "name": "anon-configmaps-8",
+        "namespace": "app-dev"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.conf": "apiVersion: kubeproxy.config.k8s.io/v1alpha1\nbindAddress: 0.0.0.0\nbindAddressHardFail: false\nclientConnection:\n  acceptContentTypes: \"\"\n  burst: 10\n  contentType: application/vnd.kubernetes.protobuf\n  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf\n  qps: 5\nclusterCIDR: \"\"\nconfigSyncPeriod: 15m0s\nconntrack:\n  maxPerCore: 0\n  min: 0\n  tcpBeLiberal: false\n  tcpCloseWaitTimeout: 1h0m0s\n  tcpEstablishedTimeout: 24h0m0s\n  udpStreamTimeout: 0s\n  udpTimeout: 0s\ndetectLocal:\n  bridgeInterface: \"\"\n  interfaceNamePrefix: \"\"\ndetectLocalMode: \"\"\nenableProfiling: false\nhealthzBindAddress: 0.0.0.0:10256\nhostnameOverride: \"\"\niptables:\n  localhostNodePorts: null\n  masqueradeAll: false\n  masqueradeBit: 14\n  minSyncPeriod: 0s\n  syncPeriod: 30s\nipvs:\n  excludeCIDRs: null\n  minSyncPeriod: 0s\n  scheduler: \"\"\n  strictARP: false\n  syncPeriod: 30s\n  tcpFinTimeout: 0s\n  tcpTimeout: 0s\n  udpTimeout: 0s\nkind: KubeProxyConfiguration\nlogging:\n  flushFrequency: 0\n  options:\n    json:\n      infoBufferSize: \"0\"\n    text:\n      infoBufferSize: \"0\"\n  verbosity: 0\nmetricsBindAddress: 127.0.0.1:10249\nmode: \"\"\nnftables:\n  masqueradeAll: false\n  masqueradeBit: null\n  minSyncPeriod: 0s\n  syncPeriod: 0s\nnodePortAddresses: null\noomScoreAdj: -999\nportRange: \"\"\nshowHiddenMetricsForVersion: \"\"\nwinkernel:\n  enableDSR: false\n  forwardHealthCheckVip: false\n  networkName: \"\"\n  rootHnsEndpointName: \"\"\n  sourceVip: \"\"",
+        "kubeconfig.conf": "apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    server: https://kubernetes.docker.internal:6443\n  name: default\ncontexts:\n- context:\n    cluster: default\n    namespace: default\n    user: default\n  name: default\ncurrent-context: default\nusers:\n- name: default\n  user:\n    tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "labels": {
+          "app": "kube-proxy"
+        },
+        "name": "anon-configmaps-9",
+        "namespace": "app-dev"
+      }
+    }
+  ]
+}

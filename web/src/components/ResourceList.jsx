@@ -534,7 +534,7 @@ export default function ResourceList({ kind }) {
                 <div>
                     <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">{t(kind) || schema.title}</h2>
                     <p className="text-[var(--text-secondary)] text-sm">
-                        {loading ? t('loading') : `${filteredItems.length} ${filteredItems.length === 1 ? t('item') : t('items')}`}
+                        {loading ? t('loading') : `${items.length} ${items.length === 1 ? t('item') : t('items')}`}
                         {namespace && ` ${t('in_ns')} "${namespace}"`}
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
                     </p>
@@ -580,7 +580,7 @@ export default function ResourceList({ kind }) {
                                         className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
                                     >
                                         <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
-                                            {getLabel(col.label)}
+                                            {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
                                             <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
                                                 {sortConfig.key === col.key ? (
                                                     sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
@@ -666,7 +666,7 @@ export default function ResourceList({ kind }) {
                                             kind={kind}
                                             namespace={item.namespace}
                                             name={item.name}
-                                            onRefresh={load}
+                                            onRefresh={refresh}
                                         />
                                     </td>
                                 </tr>
@@ -680,7 +680,7 @@ export default function ResourceList({ kind }) {
             {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between bg-[var(--bg-glass)] glass rounded-xl border border-[var(--border-color)] px-6 py-4">
                     <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                        {t('showing')} {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} {t('of')} {filteredItems.length}
+                        {t('showing')} {Math.min(items.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(items.length, currentPage * settings.itemsPerPage)} {t('of')} {items.length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button

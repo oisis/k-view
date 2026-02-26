@@ -63,7 +63,11 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                                 ) : (
                                     <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'text-success' : 'text-warning'}`}>
                                         <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || data.resource?.status === 'Running') ? 'bg-success' : 'bg-warning'}`} />
-                                        <span className="text-sm font-bold uppercase tracking-wide">{t(status?.phase?.toLowerCase()) || t(data.resource?.status?.toLowerCase()) || status?.phase || data.resource?.status || t('unknown')}</span>
+                                        <span className="text-sm font-bold uppercase tracking-wide">
+                                            {typeof status?.phase === 'string' ? (t(status.phase.toLowerCase()) || status.phase) : 
+                                             typeof data.resource?.status === 'string' ? (t(data.resource.status.toLowerCase()) || data.resource.status) : 
+                                             status?.phase || (typeof data.resource?.status === 'string' ? data.resource.status : '') || t('unknown')}
+                                        </span>
                                     </div>
                                 )}
                             </div>

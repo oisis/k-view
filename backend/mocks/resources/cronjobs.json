@@ -1,5 +1,49 @@
-[
-  { "name": "db-backup", "namespace": "database", "age": "25d", "status": "Active", "extra": { "schedule": "0 2 * * *", "next-run": "02:00:00 (27.02)", "last-schedule": "4h ago", "images": "postgres:15-alpine", "labels": "app=db,env=prod", "suspend": "False", "active": "1" } },
-  { "name": "log-cleanup", "namespace": "logging", "age": "45d", "status": "Active", "extra": { "schedule": "0 0 * * *", "next-run": "00:00:00 (27.02)", "last-schedule": "8h ago", "images": "busybox:latest", "labels": "app=cleanup", "suspend": "False", "active": "0" } },
-  { "name": "report-gen", "namespace": "default", "age": "15d", "status": "Suspended", "extra": { "schedule": "0 8 * * 1", "next-run": "08:00:00 (02.03)", "last-schedule": "7d ago", "images": "reporter:v1.2", "labels": "tier=frontend", "suspend": "True", "active": "0" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "anon-cronjobs-1",
+        "namespace": "monitoring"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-cronjobs-2",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-cronjobs-3",
+        "namespace": "app-dev"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-cronjobs-4",
+        "namespace": "kube-system"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-cronjobs-5",
+        "namespace": "kube-system"
+      },
+      "spec": {},
+      "status": {}
+    }
+  ]
+}

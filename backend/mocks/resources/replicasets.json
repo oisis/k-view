@@ -1,0 +1,2027 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "1",
+          "meta.helm.sh/release-name": "argocd",
+          "meta.helm.sh/release-namespace": "argocd"
+        },
+        "generation": 2,
+        "labels": {
+          "app.kubernetes.io/component": "redis",
+          "app.kubernetes.io/instance": "argocd",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "argocd-redis",
+          "app.kubernetes.io/part-of": "argocd",
+          "app.kubernetes.io/version": "v3.2.6",
+          "environment": "dev",
+          "helm.sh/chart": "argo-cd-9.3.7",
+          "pod-template-hash": "5f67d8885"
+        },
+        "name": "anon-replicasets-1",
+        "namespace": "app-prod"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "argocd-redis",
+            "pod-template-hash": "5f67d8885"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/component": "redis",
+              "app.kubernetes.io/instance": "argocd",
+              "app.kubernetes.io/managed-by": "Helm",
+              "app.kubernetes.io/name": "argocd-redis",
+              "app.kubernetes.io/part-of": "argocd",
+              "app.kubernetes.io/version": "v3.2.6",
+              "environment": "dev",
+              "helm.sh/chart": "argo-cd-9.3.7",
+              "pod-template-hash": "5f67d8885"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchLabels": {
+                          "app.kubernetes.io/name": "argocd-redis"
+                        }
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "args": [
+                  "--save",
+                  "",
+                  "--appendonly",
+                  "no",
+                  "--requirepass $(REDIS_PASSWORD)"
+                ],
+                "env": [
+                  {
+                    "name": "REDIS_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "auth",
+                        "name": "argocd-redis"
+                      }
+                    }
+                  }
+                ],
+                "image": "ecr-public.aws.com/docker/library/redis:8.2.2-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "redis",
+                "ports": [
+                  {
+                    "containerPort": 6379,
+                    "name": "redis",
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "requests": {
+                    "cpu": "50m",
+                    "memory": "32Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/health",
+                    "name": "health"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {
+              "runAsNonRoot": true,
+              "runAsUser": 999,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "serviceAccount": "default",
+            "serviceAccountName": "default",
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 493,
+                  "name": "argocd-redis-health-configmap"
+                },
+                "name": "health"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "graceless-frontend:apps/Deployment:graceless/graceless-frontend",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "19"
+        },
+        "generation": 2,
+        "labels": {
+          "app": "graceless-frontend",
+          "pod-template-hash": "6bc8d6c98f"
+        },
+        "name": "anon-replicasets-2",
+        "namespace": "app-prod"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app": "graceless-frontend",
+            "pod-template-hash": "6bc8d6c98f"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "graceless-frontend",
+              "pod-template-hash": "6bc8d6c98f"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "VITE_SERVICE_VERSION",
+                    "value": "0.15.0"
+                  },
+                  {
+                    "name": "VITE_LOG_FORMAT",
+                    "value": "text"
+                  },
+                  {
+                    "name": "GITHUB_SSO_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GOOGLE_SSO_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "VITE_BACKEND_HOST",
+                    "value": "gl-api.oisis.pl"
+                  },
+                  {
+                    "name": "VITE_BACKEND_PORT",
+                    "value": "443"
+                  },
+                  {
+                    "name": "VITE_BACKEND_PROTOCOL",
+                    "value": "https"
+                  },
+                  {
+                    "name": "VITE_FRONTEND_URL",
+                    "value": "https://graceless.oisis.pl"
+                  }
+                ],
+                "image": "docker.io/library/graceless-frontend:0.15.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "graceless-frontend",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "name": "http",
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "graceless-backend:apps/Deployment:graceless/graceless-backend",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "23"
+        },
+        "generation": 2,
+        "labels": {
+          "app": "graceless-backend",
+          "pod-template-hash": "54c5f6ffdd"
+        },
+        "name": "anon-replicasets-3",
+        "namespace": "app-prod"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app": "graceless-backend",
+            "pod-template-hash": "54c5f6ffdd"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "graceless-backend",
+              "pod-template-hash": "54c5f6ffdd"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "SERVICE_VERSION",
+                    "value": "0.16.0"
+                  },
+                  {
+                    "name": "ENABLE_METRICS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "LOG_FORMAT",
+                    "value": "text"
+                  },
+                  {
+                    "name": "ADMIN_EMAIL",
+                    "value": "graceless.oisis.pl@gmail.com"
+                  },
+                  {
+                    "name": "ADMIN_PASSWORD",
+                    "value": "ktfolimda"
+                  },
+                  {
+                    "name": "ADMIN_USERNAME",
+                    "value": "gladmin"
+                  },
+                  {
+                    "name": "BACKEND_API_URL",
+                    "value": "https://gl-api.oisis.pl"
+                  },
+                  {
+                    "name": "DB_PATH",
+                    "value": "/data/graceless.db"
+                  },
+                  {
+                    "name": "DEVELOPER_MODE",
+                    "value": "false"
+                  },
+                  {
+                    "name": "FRONTEND_URL",
+                    "value": "https://graceless.oisis.pl"
+                  },
+                  {
+                    "name": "PORT",
+                    "value": "3000"
+                  },
+                  {
+                    "name": "SSL_CERT_PATH",
+                    "value": "/data/certs/cert.pem"
+                  },
+                  {
+                    "name": "SSL_KEY_PATH",
+                    "value": "/data/certs/key.pem"
+                  },
+                  {
+                    "name": "SMTP_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SMTP_HOST",
+                    "value": "smtp.gmail.com"
+                  },
+                  {
+                    "name": "SMTP_PORT",
+                    "value": "465"
+                  },
+                  {
+                    "name": "SMTP_USER",
+                    "value": "graceless.oisis.pl@gmail.com"
+                  },
+                  {
+                    "name": "SMTP_SECURE",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SMTP_PASS",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "smtp-password",
+                        "name": "graceless-backend-smtp"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GOOGLE_SSO_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "GITHUB_SSO_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GOOGLE_CLIENT_ID",
+                    "value": "[REDACTED]"
+                  },
+                  {
+                    "name": "GOOGLE_CLIENT_SECRET",
+                    "value": "[REDACTED]"
+                  },
+                  {
+                    "name": "GITHUB_CLIENT_ID"
+                  },
+                  {
+                    "name": "GITHUB_CLIENT_SECRET"
+                  },
+                  {
+                    "name": "SESSION_SECRET",
+                    "value": "[REDACTED]"
+                  }
+                ],
+                "image": "docker.io/library/graceless-backend:0.16.0",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": "monitoring",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "name": "graceless-backend",
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "name": "http",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9000,
+                    "name": "monitoring",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9080,
+                    "name": "admin",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": "monitoring",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/data",
+                    "name": "data"
+                  },
+                  {
+                    "mountPath": "/usr/src/app/config.yaml",
+                    "name": "config",
+                    "subPath": "config.yaml"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "graceless-backend-data"
+                }
+              },
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "graceless-backend-config"
+                },
+                "name": "config"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "grafana:apps/Deployment:grafana/grafana",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "7"
+        },
+        "generation": 2,
+        "labels": {
+          "app.kubernetes.io/instance": "grafana",
+          "app.kubernetes.io/name": "grafana",
+          "app.kubernetes.io/version": "12.3.2",
+          "helm.sh/chart": "grafana-11.0.1",
+          "pod-template-hash": "799cc75fbb"
+        },
+        "name": "anon-replicasets-4",
+        "namespace": "kube-system"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/instance": "grafana",
+            "app.kubernetes.io/name": "grafana",
+            "pod-template-hash": "799cc75fbb"
+          }
+        },
+        "template": {
+          "metadata": {
+            "annotations": {
+              "checksum/config": "2450324b547f0a20f83142ad2c92572dc29b933af23c5777fa958a447227abcc",
+              "checksum/dashboards-json-config": "8f2be500190ae39e603d0b51961acd6183b4d77b2a64c051e92b5d14941076fe",
+              "checksum/sc-dashboard-provider-config": "e70bf6a851099d385178a76de9757bb0bef8299da6d8443602590e44f05fdf24",
+              "checksum/secret": "d8159336f232aaaf831010e6e9ff09b42e250f58ccc602759c2b2fea681164c2",
+              "kubectl.kubernetes.io/default-container": "grafana"
+            },
+            "labels": {
+              "app.kubernetes.io/instance": "grafana",
+              "app.kubernetes.io/name": "grafana",
+              "app.kubernetes.io/version": "12.3.2",
+              "helm.sh/chart": "grafana-11.0.1",
+              "pod-template-hash": "799cc75fbb"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "POD_IP",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "status.podIP"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_SECURITY_ADMIN_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "admin-user",
+                        "name": "grafana"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_SECURITY_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "admin-password",
+                        "name": "grafana"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_PATHS_DATA",
+                    "value": "/var/lib/grafana/"
+                  },
+                  {
+                    "name": "GF_PATHS_LOGS",
+                    "value": "/var/log/grafana"
+                  },
+                  {
+                    "name": "GF_PATHS_PLUGINS",
+                    "value": "/var/lib/grafana/plugins"
+                  },
+                  {
+                    "name": "GF_PATHS_PROVISIONING",
+                    "value": "/etc/grafana/provisioning"
+                  },
+                  {
+                    "name": "GF_UNIFIED_STORAGE_INDEX_PATH",
+                    "value": "/var/lib/grafana-search/bleve"
+                  },
+                  {
+                    "name": "GOMEMLIMIT",
+                    "valueFrom": {
+                      "resourceFieldRef": {
+                        "divisor": "1",
+                        "resource": "limits.memory"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_AUTH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "client-secret",
+                        "name": "grafana-google-sso"
+                      }
+                    }
+                  }
+                ],
+                "image": "docker.io/grafana/grafana:12.3.2",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 10,
+                  "httpGet": {
+                    "path": "/api/health",
+                    "port": "grafana",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 30
+                },
+                "name": "grafana",
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "name": "grafana",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9094,
+                    "name": "gossip-tcp",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9094,
+                    "name": "gossip-udp",
+                    "protocol": "UDP"
+                  },
+                  {
+                    "containerPort": 6060,
+                    "name": "profiling",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/api/health",
+                    "port": "grafana",
+                    "scheme": "HTTP"
+                  },
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "privileged": false,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/grafana/grafana.ini",
+                    "name": "config",
+                    "subPath": "grafana.ini"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana",
+                    "name": "storage"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana-search",
+                    "name": "search"
+                  },
+                  {
+                    "mountPath": "/etc/grafana/provisioning/datasources/datasources.yaml",
+                    "name": "config",
+                    "subPath": "datasources.yaml"
+                  },
+                  {
+                    "mountPath": "/etc/grafana/provisioning/dashboards/dashboardproviders.yaml",
+                    "name": "config",
+                    "subPath": "dashboardproviders.yaml"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "enableServiceLinks": true,
+            "initContainers": [
+              {
+                "args": [
+                  "-c",
+                  "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"
+                ],
+                "command": [
+                  "/bin/sh"
+                ],
+                "image": "docker.io/curlimages/curl:8.18.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "download-dashboards",
+                "resources": {},
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/grafana/download_dashboards.sh",
+                    "name": "config",
+                    "subPath": "download_dashboards.sh"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana",
+                    "name": "storage"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {
+              "fsGroup": 472,
+              "runAsGroup": 472,
+              "runAsNonRoot": true,
+              "runAsUser": 472
+            },
+            "serviceAccount": "grafana",
+            "serviceAccountName": "grafana",
+            "shareProcessNamespace": false,
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "grafana"
+                },
+                "name": "config"
+              },
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "grafana-dashboards-default"
+                },
+                "name": "dashboards-default"
+              },
+              {
+                "emptyDir": {},
+                "name": "storage"
+              },
+              {
+                "emptyDir": {},
+                "name": "search"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "grafana:apps/Deployment:grafana/grafana",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "8"
+        },
+        "generation": 2,
+        "labels": {
+          "app.kubernetes.io/instance": "grafana",
+          "app.kubernetes.io/name": "grafana",
+          "app.kubernetes.io/version": "12.3.2",
+          "helm.sh/chart": "grafana-11.0.1",
+          "pod-template-hash": "6657444ffb"
+        },
+        "name": "anon-replicasets-5",
+        "namespace": "app-prod"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/instance": "grafana",
+            "app.kubernetes.io/name": "grafana",
+            "pod-template-hash": "6657444ffb"
+          }
+        },
+        "template": {
+          "metadata": {
+            "annotations": {
+              "checksum/config": "764ffe2e9b9d3a9ec571511a71fc4a59c71dc97dcf11e4e6f6f5c9e20321cb1a",
+              "checksum/dashboards-json-config": "8f2be500190ae39e603d0b51961acd6183b4d77b2a64c051e92b5d14941076fe",
+              "checksum/sc-dashboard-provider-config": "e70bf6a851099d385178a76de9757bb0bef8299da6d8443602590e44f05fdf24",
+              "checksum/secret": "d8159336f232aaaf831010e6e9ff09b42e250f58ccc602759c2b2fea681164c2",
+              "kubectl.kubernetes.io/default-container": "grafana"
+            },
+            "labels": {
+              "app.kubernetes.io/instance": "grafana",
+              "app.kubernetes.io/name": "grafana",
+              "app.kubernetes.io/version": "12.3.2",
+              "helm.sh/chart": "grafana-11.0.1",
+              "pod-template-hash": "6657444ffb"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "POD_IP",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "status.podIP"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_SECURITY_ADMIN_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "admin-user",
+                        "name": "grafana"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_SECURITY_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "admin-password",
+                        "name": "grafana"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_PATHS_DATA",
+                    "value": "/var/lib/grafana/"
+                  },
+                  {
+                    "name": "GF_PATHS_LOGS",
+                    "value": "/var/log/grafana"
+                  },
+                  {
+                    "name": "GF_PATHS_PLUGINS",
+                    "value": "/var/lib/grafana/plugins"
+                  },
+                  {
+                    "name": "GF_PATHS_PROVISIONING",
+                    "value": "/etc/grafana/provisioning"
+                  },
+                  {
+                    "name": "GF_UNIFIED_STORAGE_INDEX_PATH",
+                    "value": "/var/lib/grafana-search/bleve"
+                  },
+                  {
+                    "name": "GOMEMLIMIT",
+                    "valueFrom": {
+                      "resourceFieldRef": {
+                        "divisor": "1",
+                        "resource": "limits.memory"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GF_AUTH_GOOGLE_CLIENT_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "client-secret",
+                        "name": "grafana-google-sso"
+                      }
+                    }
+                  }
+                ],
+                "image": "docker.io/grafana/grafana:12.3.2",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 10,
+                  "httpGet": {
+                    "path": "/api/health",
+                    "port": "grafana",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 30
+                },
+                "name": "grafana",
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "name": "grafana",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9094,
+                    "name": "gossip-tcp",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9094,
+                    "name": "gossip-udp",
+                    "protocol": "UDP"
+                  },
+                  {
+                    "containerPort": 6060,
+                    "name": "profiling",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/api/health",
+                    "port": "grafana",
+                    "scheme": "HTTP"
+                  },
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "privileged": false,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/grafana/grafana.ini",
+                    "name": "config",
+                    "subPath": "grafana.ini"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana",
+                    "name": "storage"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana-search",
+                    "name": "search"
+                  },
+                  {
+                    "mountPath": "/etc/grafana/provisioning/datasources/datasources.yaml",
+                    "name": "config",
+                    "subPath": "datasources.yaml"
+                  },
+                  {
+                    "mountPath": "/etc/grafana/provisioning/dashboards/dashboardproviders.yaml",
+                    "name": "config",
+                    "subPath": "dashboardproviders.yaml"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "enableServiceLinks": true,
+            "initContainers": [
+              {
+                "args": [
+                  "-c",
+                  "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"
+                ],
+                "command": [
+                  "/bin/sh"
+                ],
+                "image": "docker.io/curlimages/curl:8.18.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "download-dashboards",
+                "resources": {},
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/grafana/download_dashboards.sh",
+                    "name": "config",
+                    "subPath": "download_dashboards.sh"
+                  },
+                  {
+                    "mountPath": "/var/lib/grafana",
+                    "name": "storage"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {
+              "fsGroup": 472,
+              "runAsGroup": 472,
+              "runAsNonRoot": true,
+              "runAsUser": 472
+            },
+            "serviceAccount": "grafana",
+            "serviceAccountName": "grafana",
+            "shareProcessNamespace": false,
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "grafana"
+                },
+                "name": "config"
+              },
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "grafana-dashboards-default"
+                },
+                "name": "dashboards-default"
+              },
+              {
+                "emptyDir": {},
+                "name": "storage"
+              },
+              {
+                "emptyDir": {},
+                "name": "search"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "1",
+          "meta.helm.sh/release-name": "argocd",
+          "meta.helm.sh/release-namespace": "argocd"
+        },
+        "generation": 2,
+        "labels": {
+          "app.kubernetes.io/component": "redis",
+          "app.kubernetes.io/instance": "argocd",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "argocd-redis",
+          "app.kubernetes.io/part-of": "argocd",
+          "app.kubernetes.io/version": "v3.2.6",
+          "environment": "dev",
+          "helm.sh/chart": "argo-cd-9.3.7",
+          "pod-template-hash": "5f67d8885"
+        },
+        "name": "anon-replicasets-6",
+        "namespace": "app-dev"
+      },
+      "spec": {
+        "replicas": 0,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/name": "argocd-redis",
+            "pod-template-hash": "5f67d8885"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/component": "redis",
+              "app.kubernetes.io/instance": "argocd",
+              "app.kubernetes.io/managed-by": "Helm",
+              "app.kubernetes.io/name": "argocd-redis",
+              "app.kubernetes.io/part-of": "argocd",
+              "app.kubernetes.io/version": "v3.2.6",
+              "environment": "dev",
+              "helm.sh/chart": "argo-cd-9.3.7",
+              "pod-template-hash": "5f67d8885"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchLabels": {
+                          "app.kubernetes.io/name": "argocd-redis"
+                        }
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "args": [
+                  "--save",
+                  "",
+                  "--appendonly",
+                  "no",
+                  "--requirepass $(REDIS_PASSWORD)"
+                ],
+                "env": [
+                  {
+                    "name": "REDIS_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "auth",
+                        "name": "argocd-redis"
+                      }
+                    }
+                  }
+                ],
+                "image": "ecr-public.aws.com/docker/library/redis:8.2.2-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "redis",
+                "ports": [
+                  {
+                    "containerPort": 6379,
+                    "name": "redis",
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "requests": {
+                    "cpu": "50m",
+                    "memory": "32Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/health",
+                    "name": "health"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {
+              "runAsNonRoot": true,
+              "runAsUser": 999,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "serviceAccount": "default",
+            "serviceAccountName": "default",
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 493,
+                  "name": "argocd-redis-health-configmap"
+                },
+                "name": "health"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "observedGeneration": 2,
+        "replicas": 0
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "argocd:apps/Deployment:argocd/argocd-notifications-controller",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "1",
+          "deployment.kubernetes.io/revision": "2",
+          "meta.helm.sh/release-name": "argocd",
+          "meta.helm.sh/release-namespace": "argocd"
+        },
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/component": "notifications-controller",
+          "app.kubernetes.io/instance": "argocd",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "argocd-notifications-controller",
+          "app.kubernetes.io/part-of": "argocd",
+          "app.kubernetes.io/version": "v3.3.0",
+          "environment": "dev",
+          "helm.sh/chart": "argo-cd-9.4.0",
+          "pod-template-hash": "6f95d8bff8"
+        },
+        "name": "anon-replicasets-7",
+        "namespace": "monitoring"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/instance": "argocd",
+            "app.kubernetes.io/name": "argocd-notifications-controller",
+            "pod-template-hash": "6f95d8bff8"
+          }
+        },
+        "template": {
+          "metadata": {
+            "annotations": {
+              "checksum/cmd-params": "9d86824046ddc679b8ca305b4b048a5367bfa8532330d24063e1f79fc7662c2d"
+            },
+            "labels": {
+              "app.kubernetes.io/component": "notifications-controller",
+              "app.kubernetes.io/instance": "argocd",
+              "app.kubernetes.io/managed-by": "Helm",
+              "app.kubernetes.io/name": "argocd-notifications-controller",
+              "app.kubernetes.io/part-of": "argocd",
+              "app.kubernetes.io/version": "v3.3.0",
+              "environment": "dev",
+              "helm.sh/chart": "argo-cd-9.4.0",
+              "pod-template-hash": "6f95d8bff8"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchLabels": {
+                          "app.kubernetes.io/name": "argocd-notifications-controller"
+                        }
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "args": [
+                  "/usr/local/bin/argocd-notifications",
+                  "--metrics-port=9001",
+                  "--namespace=argocd",
+                  "--argocd-repo-server=argocd-repo-server:8081",
+                  "--secret-name=argocd-notifications-secret",
+                  "--loglevel=warn"
+                ],
+                "env": [
+                  {
+                    "name": "ARGOCD_NOTIFICATIONS_CONTROLLER_LOGLEVEL",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "notificationscontroller.log.level",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_NOTIFICATIONS_CONTROLLER_LOGFORMAT",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "notificationscontroller.log.format",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_LOG_FORMAT_TIMESTAMP",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "log.format.timestamp",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_APPLICATION_NAMESPACES",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "application.namespaces",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_NOTIFICATION_CONTROLLER_SELF_SERVICE_NOTIFICATION_ENABLED",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "notificationscontroller.selfservice.enabled",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_NOTIFICATION_CONTROLLER_REPO_SERVER_PLAINTEXT",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "notificationscontroller.repo.server.plaintext",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  }
+                ],
+                "image": "quay.io/argoproj/argocd:v3.3.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "notifications-controller",
+                "ports": [
+                  {
+                    "containerPort": 9001,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "100m",
+                    "memory": "32Mi"
+                  },
+                  "requests": {
+                    "cpu": "10m",
+                    "memory": "16Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/app/config/tls",
+                    "name": "tls-certs"
+                  },
+                  {
+                    "mountPath": "/app/config/reposerver/tls",
+                    "name": "argocd-repo-server-tls"
+                  }
+                ],
+                "workingDir": "/app"
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "argocd-notifications-controller",
+            "serviceAccountName": "argocd-notifications-controller",
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "argocd-tls-certs-cm"
+                },
+                "name": "tls-certs"
+              },
+              {
+                "name": "argocd-repo-server-tls",
+                "secret": {
+                  "defaultMode": 420,
+                  "items": [
+                    {
+                      "key": "tls.crt",
+                      "path": "tls.crt"
+                    },
+                    {
+                      "key": "tls.key",
+                      "path": "tls.key"
+                    },
+                    {
+                      "key": "ca.crt",
+                      "path": "ca.crt"
+                    }
+                  ],
+                  "optional": true,
+                  "secretName": "argocd-repo-server-tls"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 1,
+        "fullyLabeledReplicas": 1,
+        "observedGeneration": 1,
+        "readyReplicas": 1,
+        "replicas": 1
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "argocd:apps/Deployment:argocd/argocd-dex-server",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "2",
+          "meta.helm.sh/release-name": "argocd",
+          "meta.helm.sh/release-namespace": "argocd"
+        },
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/component": "dex-server",
+          "app.kubernetes.io/instance": "argocd",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "argocd-dex-server",
+          "app.kubernetes.io/part-of": "argocd",
+          "app.kubernetes.io/version": "v3.3.0",
+          "environment": "dev",
+          "helm.sh/chart": "argo-cd-9.4.0",
+          "pod-template-hash": "fc6b596bf"
+        },
+        "name": "anon-replicasets-8",
+        "namespace": "app-dev"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app.kubernetes.io/instance": "argocd",
+            "app.kubernetes.io/name": "argocd-dex-server",
+            "pod-template-hash": "fc6b596bf"
+          }
+        },
+        "template": {
+          "metadata": {
+            "annotations": {
+              "checksum/cm": "6e36da9d04ca4a97e1a1a375342d39a5663bfa47f6b4c0931517f354756fcd4a",
+              "checksum/cmd-params": "9d86824046ddc679b8ca305b4b048a5367bfa8532330d24063e1f79fc7662c2d"
+            },
+            "labels": {
+              "app.kubernetes.io/component": "dex-server",
+              "app.kubernetes.io/instance": "argocd",
+              "app.kubernetes.io/managed-by": "Helm",
+              "app.kubernetes.io/name": "argocd-dex-server",
+              "app.kubernetes.io/part-of": "argocd",
+              "app.kubernetes.io/version": "v3.3.0",
+              "environment": "dev",
+              "helm.sh/chart": "argo-cd-9.4.0",
+              "pod-template-hash": "fc6b596bf"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchLabels": {
+                          "app.kubernetes.io/name": "argocd-dex-server"
+                        }
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "automountServiceAccountToken": true,
+            "containers": [
+              {
+                "args": [
+                  "rundex"
+                ],
+                "command": [
+                  "/shared/argocd-dex"
+                ],
+                "env": [
+                  {
+                    "name": "ARGOCD_DEX_SERVER_LOGFORMAT",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "dexserver.log.format",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_DEX_SERVER_LOGLEVEL",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "dexserver.log.level",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_LOG_FORMAT_TIMESTAMP",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "log.format.timestamp",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  },
+                  {
+                    "name": "ARGOCD_DEX_SERVER_DISABLE_TLS",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "dexserver.disable.tls",
+                        "name": "argocd-cmd-params-cm",
+                        "optional": true
+                      }
+                    }
+                  }
+                ],
+                "image": "ghcr.io/dexidp/dex:v2.44.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "dex-server",
+                "ports": [
+                  {
+                    "containerPort": 5556,
+                    "name": "http",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 5557,
+                    "name": "grpc",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 5558,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "50m",
+                    "memory": "64Mi"
+                  },
+                  "requests": {
+                    "cpu": "10m",
+                    "memory": "32Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/shared",
+                    "name": "static-files"
+                  },
+                  {
+                    "mountPath": "/tmp",
+                    "name": "dexconfig"
+                  },
+                  {
+                    "mountPath": "/tls",
+                    "name": "argocd-dex-server-tls"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "initContainers": [
+              {
+                "command": [
+                  "/bin/cp",
+                  "-n",
+                  "/usr/local/bin/argocd",
+                  "/shared/argocd-dex"
+                ],
+                "image": "quay.io/argoproj/argocd:v3.3.0",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "copyutil",
+                "resources": {
+                  "limits": {
+                    "cpu": "10m",
+                    "memory": "96Mi"
+                  },
+                  "requests": {
+                    "cpu": "5m",
+                    "memory": "64Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/shared",
+                    "name": "static-files"
+                  },
+                  {
+                    "mountPath": "/tmp",
+                    "name": "dexconfig"
+                  }
+                ]
+              }
+            ],
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "argocd-dex-server",
+            "serviceAccountName": "argocd-dex-server",
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "emptyDir": {},
+                "name": "static-files"
+              },
+              {
+                "emptyDir": {},
+                "name": "dexconfig"
+              },
+              {
+                "name": "argocd-dex-server-tls",
+                "secret": {
+                  "defaultMode": 420,
+                  "items": [
+                    {
+                      "key": "tls.crt",
+                      "path": "tls.crt"
+                    },
+                    {
+                      "key": "tls.key",
+                      "path": "tls.key"
+                    },
+                    {
+                      "key": "ca.crt",
+                      "path": "ca.crt"
+                    }
+                  ],
+                  "optional": true,
+                  "secretName": "argocd-dex-server-tls"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 1,
+        "fullyLabeledReplicas": 1,
+        "observedGeneration": 1,
+        "readyReplicas": 1,
+        "replicas": 1
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "annotations": {
+          "argocd.argoproj.io/tracking-id": "graceless-backend:apps/Deployment:graceless/graceless-backend",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "deployment.kubernetes.io/revision": "25"
+        },
+        "generation": 1,
+        "labels": {
+          "app": "graceless-backend",
+          "pod-template-hash": "556f6c6b76"
+        },
+        "name": "anon-replicasets-9",
+        "namespace": "kube-system"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "graceless-backend",
+            "pod-template-hash": "556f6c6b76"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "graceless-backend",
+              "pod-template-hash": "556f6c6b76"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "SERVICE_VERSION",
+                    "value": "0.18.0"
+                  },
+                  {
+                    "name": "ENABLE_METRICS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "LOG_FORMAT",
+                    "value": "text"
+                  },
+                  {
+                    "name": "ADMIN_EMAIL",
+                    "value": "graceless.oisis.pl@gmail.com"
+                  },
+                  {
+                    "name": "ADMIN_PASSWORD",
+                    "value": "ktfolimda"
+                  },
+                  {
+                    "name": "ADMIN_USERNAME",
+                    "value": "gladmin"
+                  },
+                  {
+                    "name": "BACKEND_API_URL",
+                    "value": "https://gl-api.oisis.pl"
+                  },
+                  {
+                    "name": "DB_PATH",
+                    "value": "/data/graceless.db"
+                  },
+                  {
+                    "name": "DEVELOPER_MODE",
+                    "value": "false"
+                  },
+                  {
+                    "name": "FRONTEND_URL",
+                    "value": "https://graceless.oisis.pl"
+                  },
+                  {
+                    "name": "PORT",
+                    "value": "3000"
+                  },
+                  {
+                    "name": "SSL_CERT_PATH",
+                    "value": "/data/certs/cert.pem"
+                  },
+                  {
+                    "name": "SSL_KEY_PATH",
+                    "value": "/data/certs/key.pem"
+                  },
+                  {
+                    "name": "SMTP_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SMTP_HOST",
+                    "value": "smtp.gmail.com"
+                  },
+                  {
+                    "name": "SMTP_PORT",
+                    "value": "465"
+                  },
+                  {
+                    "name": "SMTP_USER",
+                    "value": "graceless.oisis.pl@gmail.com"
+                  },
+                  {
+                    "name": "SMTP_SECURE",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SMTP_PASS",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "smtp-password",
+                        "name": "graceless-backend-smtp"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GOOGLE_SSO_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "GITHUB_SSO_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GOOGLE_CLIENT_ID",
+                    "value": "[REDACTED]"
+                  },
+                  {
+                    "name": "GOOGLE_CLIENT_SECRET",
+                    "value": "[REDACTED]"
+                  },
+                  {
+                    "name": "GITHUB_CLIENT_ID"
+                  },
+                  {
+                    "name": "GITHUB_CLIENT_SECRET"
+                  },
+                  {
+                    "name": "SESSION_SECRET",
+                    "value": "[REDACTED]"
+                  }
+                ],
+                "image": "docker.io/library/graceless-backend:0.18.0",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": "monitoring",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "name": "graceless-backend",
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "name": "http",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9000,
+                    "name": "monitoring",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9080,
+                    "name": "admin",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": "monitoring",
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/data",
+                    "name": "data"
+                  },
+                  {
+                    "mountPath": "/usr/src/app/config.yaml",
+                    "name": "config",
+                    "subPath": "config.yaml"
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "graceless-backend-data"
+                }
+              },
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "graceless-backend-config"
+                },
+                "name": "config"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 1,
+        "fullyLabeledReplicas": 1,
+        "observedGeneration": 1,
+        "readyReplicas": 1,
+        "replicas": 1
+      }
+    }
+  ]
+}

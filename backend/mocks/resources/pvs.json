@@ -1,37 +1,240 @@
-[
-  {
-    "name": "pv-nfs-share-01",
-    "age": "1d",
-    "status": "Available",
-    "extra": {
-      "capacity": "5Gi",
-      "access-modes": "ReadWriteOnce",
-      "reclaim-policy": "Recycle",
-      "storage-class": "slow",
-      "reason": ""
-    }
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
   },
-  {
-    "name": "pvc-77d4a1c5-e662-4cb3-a34b-b666ff733b8f",
-    "age": "30d",
-    "status": "Bound",
-    "extra": {
-      "capacity": "20Gi",
-      "access-modes": "ReadWriteOnce",
-      "reclaim-policy": "Retain",
-      "storage-class": "standard",
-      "claim": "database/postgres-data"
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-1"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-2"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-3"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-4"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-5"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-6"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolume",
+      "metadata": {
+        "finalizers": [
+          "kubernetes.io/pv-protection"
+        ],
+        "name": "anon-persistentvolumes-7"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "capacity": {
+          "storage": "5Gi"
+        },
+        "mountOptions": [
+          "hard",
+          "nfsvers=4.1"
+        ],
+        "nfs": {
+          "path": "/tmp",
+          "server": "172.17.0.2"
+        },
+        "persistentVolumeReclaimPolicy": "Recycle",
+        "storageClassName": "slow",
+        "volumeMode": "Filesystem"
+      },
+      "status": {
+        "lastPhaseTransitionTime": "2026-02-25T21:07:12Z",
+        "phase": "Available"
+      }
     }
-  },
-  {
-    "name": "pv-backup-storage",
-    "age": "151d",
-    "status": "Released",
-    "extra": {
-      "capacity": "100Gi",
-      "access-modes": "ReadWriteMany",
-      "reclaim-policy": "Retain",
-      "storage-class": "fast-ssd"
-    }
-  }
-]
+  ]
+}

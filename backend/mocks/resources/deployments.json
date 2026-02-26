@@ -1,8 +1,630 @@
-[
-  { "name": "coredns", "namespace": "kube-system", "age": "151d", "status": "Running", "extra": { "ready": "2/2", "up-to-date": "2", "available": "2", "images": "registry.k8s.io/coredns/coredns:v1.11.3", "labels": "k8s-app=kube-dns" } },
-  { "name": "frontend-web", "namespace": "default", "age": "30d", "status": "Running", "extra": { "ready": "3/3", "up-to-date": "3", "available": "3", "images": "nginx:1.21", "labels": "app=frontend,tier=web" } },
-  { "name": "backend-api", "namespace": "default", "age": "30d", "status": "Running", "extra": { "ready": "2/2", "up-to-date": "2", "available": "2", "images": "node:18-alpine", "labels": "app=backend,tier=api" } },
-  { "name": "cache-redis", "namespace": "default", "age": "30d", "status": "Running", "extra": { "ready": "1/1", "up-to-date": "1", "available": "1", "images": "redis:7-alpine", "labels": "app=cache" } },
-  { "name": "auth-service", "namespace": "auth", "age": "20d", "status": "Running", "extra": { "ready": "2/2", "up-to-date": "2", "available": "2", "images": "kview/auth:v1.2", "labels": "app=auth" } },
-  { "name": "prometheus", "namespace": "monitoring", "age": "28d", "status": "Running", "extra": { "ready": "1/1", "up-to-date": "1", "available": "1", "images": "prom/prometheus:v2.45.0", "labels": "app=prometheus" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/revision": "1"
+        },
+        "generation": 1,
+        "labels": {
+          "k8s-app": "kube-dns"
+        },
+        "name": "anon-deployments-1",
+        "namespace": "default"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 2,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "k8s-app": "kube-dns"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": "25%",
+            "maxUnavailable": 1
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "k8s-app": "kube-dns"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchExpressions": [
+                          {
+                            "key": "k8s-app",
+                            "operator": "In",
+                            "values": [
+                              "kube-dns"
+                            ]
+                          }
+                        ]
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "containers": [
+              {
+                "args": [
+                  "-conf",
+                  "/etc/coredns/Corefile"
+                ],
+                "image": "registry.k8s.io/coredns/coredns:v1.11.3",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 5,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 5
+                },
+                "name": "coredns",
+                "ports": [
+                  {
+                    "containerPort": 53,
+                    "name": "dns",
+                    "protocol": "UDP"
+                  },
+                  {
+                    "containerPort": 53,
+                    "name": "dns-tcp",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9153,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/ready",
+                    "port": 8181,
+                    "scheme": "HTTP"
+                  },
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "170Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "70Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "add": [
+                      "NET_BIND_SERVICE"
+                    ],
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/coredns",
+                    "name": "config-volume",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "Default",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "priorityClassName": "system-cluster-critical",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "coredns",
+            "serviceAccountName": "coredns",
+            "terminationGracePeriodSeconds": 30,
+            "tolerations": [
+              {
+                "key": "CriticalAddonsOnly",
+                "operator": "Exists"
+              },
+              {
+                "effect": "NoSchedule",
+                "key": "node-role.kubernetes.io/control-plane"
+              }
+            ],
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "items": [
+                    {
+                      "key": "Corefile",
+                      "path": "Corefile"
+                    }
+                  ],
+                  "name": "coredns"
+                },
+                "name": "config-volume"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 2,
+        "conditions": [
+          {
+            "lastTransitionTime": "2025-09-28T17:08:15Z",
+            "lastUpdateTime": "2025-09-28T17:08:24Z",
+            "message": "ReplicaSet \"coredns-668d6bf9bc\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-02-26T16:00:49Z",
+            "lastUpdateTime": "2026-02-26T16:00:49Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 1,
+        "readyReplicas": 2,
+        "replicas": 2,
+        "updatedReplicas": 2
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/revision": "1"
+        },
+        "generation": 1,
+        "labels": {
+          "k8s-app": "kube-dns"
+        },
+        "name": "anon-deployments-2",
+        "namespace": "default"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 2,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "k8s-app": "kube-dns"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": "25%",
+            "maxUnavailable": 1
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "k8s-app": "kube-dns"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchExpressions": [
+                          {
+                            "key": "k8s-app",
+                            "operator": "In",
+                            "values": [
+                              "kube-dns"
+                            ]
+                          }
+                        ]
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "containers": [
+              {
+                "args": [
+                  "-conf",
+                  "/etc/coredns/Corefile"
+                ],
+                "image": "registry.k8s.io/coredns/coredns:v1.11.3",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 5,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 5
+                },
+                "name": "coredns",
+                "ports": [
+                  {
+                    "containerPort": 53,
+                    "name": "dns",
+                    "protocol": "UDP"
+                  },
+                  {
+                    "containerPort": 53,
+                    "name": "dns-tcp",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9153,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/ready",
+                    "port": 8181,
+                    "scheme": "HTTP"
+                  },
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "170Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "70Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "add": [
+                      "NET_BIND_SERVICE"
+                    ],
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/coredns",
+                    "name": "config-volume",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "Default",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "priorityClassName": "system-cluster-critical",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "coredns",
+            "serviceAccountName": "coredns",
+            "terminationGracePeriodSeconds": 30,
+            "tolerations": [
+              {
+                "key": "CriticalAddonsOnly",
+                "operator": "Exists"
+              },
+              {
+                "effect": "NoSchedule",
+                "key": "node-role.kubernetes.io/control-plane"
+              }
+            ],
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "items": [
+                    {
+                      "key": "Corefile",
+                      "path": "Corefile"
+                    }
+                  ],
+                  "name": "coredns"
+                },
+                "name": "config-volume"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 2,
+        "conditions": [
+          {
+            "lastTransitionTime": "2025-09-28T17:08:15Z",
+            "lastUpdateTime": "2025-09-28T17:08:24Z",
+            "message": "ReplicaSet \"coredns-668d6bf9bc\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-02-26T16:00:49Z",
+            "lastUpdateTime": "2026-02-26T16:00:49Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 1,
+        "readyReplicas": 2,
+        "replicas": 2,
+        "updatedReplicas": 2
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "deployment.kubernetes.io/revision": "1"
+        },
+        "generation": 1,
+        "labels": {
+          "k8s-app": "kube-dns"
+        },
+        "name": "anon-deployments-3",
+        "namespace": "default"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 2,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "k8s-app": "kube-dns"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": "25%",
+            "maxUnavailable": 1
+          },
+          "type": "RollingUpdate"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "k8s-app": "kube-dns"
+            }
+          },
+          "spec": {
+            "affinity": {
+              "podAntiAffinity": {
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "podAffinityTerm": {
+                      "labelSelector": {
+                        "matchExpressions": [
+                          {
+                            "key": "k8s-app",
+                            "operator": "In",
+                            "values": [
+                              "kube-dns"
+                            ]
+                          }
+                        ]
+                      },
+                      "topologyKey": "kubernetes.io/hostname"
+                    },
+                    "weight": 100
+                  }
+                ]
+              }
+            },
+            "containers": [
+              {
+                "args": [
+                  "-conf",
+                  "/etc/coredns/Corefile"
+                ],
+                "image": "registry.k8s.io/coredns/coredns:v1.11.3",
+                "imagePullPolicy": "IfNotPresent",
+                "livenessProbe": {
+                  "failureThreshold": 5,
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 5
+                },
+                "name": "coredns",
+                "ports": [
+                  {
+                    "containerPort": 53,
+                    "name": "dns",
+                    "protocol": "UDP"
+                  },
+                  {
+                    "containerPort": 53,
+                    "name": "dns-tcp",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9153,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/ready",
+                    "port": 8181,
+                    "scheme": "HTTP"
+                  },
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "resources": {
+                  "limits": {
+                    "memory": "170Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "70Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "add": [
+                      "NET_BIND_SERVICE"
+                    ],
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/coredns",
+                    "name": "config-volume",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "Default",
+            "nodeSelector": {
+              "kubernetes.io/os": "linux"
+            },
+            "priorityClassName": "system-cluster-critical",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "coredns",
+            "serviceAccountName": "coredns",
+            "terminationGracePeriodSeconds": 30,
+            "tolerations": [
+              {
+                "key": "CriticalAddonsOnly",
+                "operator": "Exists"
+              },
+              {
+                "effect": "NoSchedule",
+                "key": "node-role.kubernetes.io/control-plane"
+              }
+            ],
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "items": [
+                    {
+                      "key": "Corefile",
+                      "path": "Corefile"
+                    }
+                  ],
+                  "name": "coredns"
+                },
+                "name": "config-volume"
+              }
+            ]
+          }
+        }
+      },
+      "status": {
+        "availableReplicas": 2,
+        "conditions": [
+          {
+            "lastTransitionTime": "2025-09-28T17:08:15Z",
+            "lastUpdateTime": "2025-09-28T17:08:24Z",
+            "message": "ReplicaSet \"coredns-668d6bf9bc\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-02-26T16:00:49Z",
+            "lastUpdateTime": "2026-02-26T16:00:49Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 1,
+        "readyReplicas": 2,
+        "replicas": 2,
+        "updatedReplicas": 2
+      }
+    }
+  ]
+}

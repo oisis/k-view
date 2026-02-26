@@ -226,61 +226,75 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		ns = rbacNs.(string)
 	}
 
+	var unstructuredItems []unstructured.Unstructured
+	var endpointsMap = make(map[string]string)
+
 	if h.devMode {
-		c.JSON(http.StatusOK, h.mockResourceList(kind, ns))
-		return
-	}
-
-	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
-		return
-	}
-
-	gvr := getGVR(kind)
-	var listInterface dynamic.ResourceInterface
-	if ns != "" && !isClusterScoped(kind) {
-		listInterface = dynClient.Resource(gvr).Namespace(ns)
+		unstructuredItems = h.mockRawResourceList(kind, ns)
+		if unstructuredItems == nil {
+			// Fallback to legacy mock list if new raw format is not found
+			c.JSON(http.StatusOK, h.mockResourceList(kind, ns))
+			return
+		}
+		// In DEV_MODE we can also load endpoints mock if kind is services
+		if kind == "services" {
+			epsRaw := h.mockRawResourceList("endpoints", ns)
+			for _, ep := range epsRaw {
+				endpointsMap[ep.GetNamespace()+"/"+ep.GetName()] = "10.0.0.1:80, 10.0.0.2:80 (mock)"
+			}
+		}
 	} else {
-		listInterface = dynClient.Resource(gvr)
-	}
+		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+			return
+		}
 
-	unstructuredList, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+		gvr := getGVR(kind)
+		var listInterface dynamic.ResourceInterface
+		if ns != "" && !isClusterScoped(kind) {
+			listInterface = dynClient.Resource(gvr).Namespace(ns)
+		} else {
+			listInterface = dynClient.Resource(gvr)
+		}
 
-	endpointsMap := make(map[string]string)
-	if kind == "services" {
-		epsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
-		epsList, _ := dynClient.Resource(epsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		if epsList != nil {
-			for _, ep := range epsList.Items {
-				var addrStrs []string
-				if subsets, ok, _ := unstructured.NestedSlice(ep.Object, "subsets"); ok {
-					for _, s := range subsets {
-						subset := s.(map[string]interface{})
-						addrs, _, _ := unstructured.NestedSlice(subset, "addresses")
-						ports, _, _ := unstructured.NestedSlice(subset, "ports")
-						for _, a := range addrs {
-							addr := a.(map[string]interface{})
-							ip := addr["ip"].(string)
-							for _, p := range ports {
-								port := p.(map[string]interface{})
-								pNum, _, _ := unstructured.NestedInt64(port, "port")
-								addrStrs = append(addrStrs, fmt.Sprintf("%s:%d", ip, pNum))
+		unstructuredList, err := listInterface.List(c.Request.Context(), metav1.ListOptions{})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		unstructuredItems = unstructuredList.Items
+
+		if kind == "services" {
+			epsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
+			epsList, _ := dynClient.Resource(epsGVR).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+			if epsList != nil {
+				for _, ep := range epsList.Items {
+					var addrStrs []string
+					if subsets, ok, _ := unstructured.NestedSlice(ep.Object, "subsets"); ok {
+						for _, s := range subsets {
+							subset := s.(map[string]interface{})
+							addrs, _, _ := unstructured.NestedSlice(subset, "addresses")
+							ports, _, _ := unstructured.NestedSlice(subset, "ports")
+							for _, a := range addrs {
+								addr := a.(map[string]interface{})
+								ip := addr["ip"].(string)
+								for _, p := range ports {
+									port := p.(map[string]interface{})
+									pNum, _, _ := unstructured.NestedInt64(port, "port")
+									addrStrs = append(addrStrs, fmt.Sprintf("%s:%d", ip, pNum))
+								}
 							}
 						}
 					}
+					endpointsMap[ep.GetNamespace()+"/"+ep.GetName()] = strings.Join(addrStrs, ", ")
 				}
-				endpointsMap[ep.GetNamespace()+"/"+ep.GetName()] = strings.Join(addrStrs, ", ")
 			}
 		}
 	}
 
 	var items []ResourceItem
-	for _, item := range unstructuredList.Items {
+	for _, item := range unstructuredItems {
 		name := item.GetName()
 		namespace := item.GetNamespace()
 		age := utils.GetAge(item.GetCreationTimestamp().Time)
@@ -347,28 +361,51 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	if ns == "-" { ns = "" }
 
 	if h.devMode {
-		items := h.mockResourceList(kind, ns)
-		var found *ResourceItem
-		for _, it := range items {
-			if it.Name == name { found = &it; break }
-		}
-		if found == nil {
-			found = &ResourceItem{Name: name, Namespace: ns, Age: "1h", Status: "Active"}
-		}
-
-		metadataObj := gin.H{
-			"name": found.Name,
-			"namespace": found.Namespace,
-			"uid": "mock-uid",
-			"creationTimestamp": time.Now().Format(time.RFC3339),
-			"labels": gin.H{"app": found.Name},
+		unstructuredItems := h.mockRawResourceList(kind, ns)
+		var found *unstructured.Unstructured
+		for _, it := range unstructuredItems {
+			if it.GetName() == name { 
+				found = &it
+				break 
+			}
 		}
 		
+		if found != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"resource": gin.H{
+					"name": found.GetName(), 
+					"namespace": found.GetNamespace(), 
+					"age": utils.GetAge(found.GetCreationTimestamp().Time),
+					"status": found.Object["status"],
+				},
+				"metadata": found.Object["metadata"],
+				"spec":     found.Object["spec"],
+				"status":   found.Object["status"],
+			})
+			return
+		}
+
+		// Fallback if not found in raw mocks
+		items := h.mockResourceList(kind, ns)
+		var legacyFound *ResourceItem
+		for _, it := range items {
+			if it.Name == name { legacyFound = &it; break }
+		}
+		if legacyFound == nil {
+			legacyFound = &ResourceItem{Name: name, Namespace: ns, Age: "1h", Status: "Active"}
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"resource": found,
-			"metadata": metadataObj,
+			"resource": legacyFound,
+			"metadata": gin.H{
+				"name": legacyFound.Name,
+				"namespace": legacyFound.Namespace,
+				"uid": "mock-uid",
+				"creationTimestamp": time.Now().Format(time.RFC3339),
+				"labels": gin.H{"app": legacyFound.Name},
+			},
 			"spec": gin.H{},
-			"status": gin.H{"phase": found.Status},
+			"status": gin.H{"phase": legacyFound.Status},
 		})
 		return
 	}
@@ -397,19 +434,4 @@ func ex(kv ...string) map[string]string {
 	m := make(map[string]string, len(kv)/2)
 	for i := 0; i+1 < len(kv); i += 2 { m[kv[i]] = kv[i+1] }
 	return m
-}
-
-func filter(items []ResourceItem, ns string) []ResourceItem {
-	if ns == "" { return items }
-	var res []ResourceItem
-	for _, it := range items {
-		if it.Namespace == "" || it.Namespace == ns { res = append(res, it) }
-	}
-	return res
-}
-
-func (h *ResourceHandler) internalMockResourceList(kind, ns string) []ResourceItem {
-	return []ResourceItem{
-		{Name: "mock-resource", Namespace: "default", Age: "1h", Status: "Running", Extra: map[string]string{"kind": kind}},
-	}
 }

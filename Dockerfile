@@ -29,6 +29,7 @@ RUN apk add --no-cache ca-certificates tzdata curl && \
 # Copy built artifacts
 COPY --from=backend-builder /app/backend/k-view-server /app/
 COPY --from=frontend-builder /app/web/dist /app/web/dist
+COPY backend/mocks /app/mocks
 
 # Set user
 USER 1000:1000

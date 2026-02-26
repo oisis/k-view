@@ -1,5 +1,41 @@
-[
-  { "name": "frontend-hpa", "namespace": "default", "age": "30d", "status": "Active", "extra": { "min": "3", "max": "10", "current": "3", "target": "cpu: 80%", "target-name": "frontend-web" } },
-  { "name": "backend-hpa", "namespace": "default", "age": "30d", "status": "Active", "extra": { "min": "2", "max": "5", "current": "2", "target": "memory: 1Gi", "target-name": "backend-api" } },
-  { "name": "auth-hpa", "namespace": "auth", "age": "20d", "status": "Active", "extra": { "min": "2", "max": "4", "current": "2", "target": "cpu: 70%", "target-name": "auth-service" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "anon-horizontalpodautoscalers-1",
+        "namespace": "app-dev"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-horizontalpodautoscalers-2",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-horizontalpodautoscalers-3",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-horizontalpodautoscalers-4",
+        "namespace": "default"
+      },
+      "spec": {},
+      "status": {}
+    }
+  ]
+}

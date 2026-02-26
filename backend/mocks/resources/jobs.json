@@ -1,5 +1,49 @@
-[
-  { "name": "backup-manual-123", "namespace": "database", "age": "2d", "status": "Complete", "extra": { "duration": "12s", "images": "postgres:15-alpine", "labels": "app=db,env=prod", "ready": "1/1" } },
-  { "name": "cleanup-manual-456", "namespace": "auth", "age": "1d", "status": "Complete", "extra": { "duration": "45s", "images": "auth-utils:v2", "labels": "component=auth-cleanup", "ready": "1/1" } },
-  { "name": "report-manual-789", "namespace": "default", "age": "4h", "status": "Active", "extra": { "duration": "3s", "images": "reporter:v1.2", "labels": "tier=frontend", "ready": "0/1" } }
-]
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "1000"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "anon-jobs-1",
+        "namespace": "app-dev"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-jobs-2",
+        "namespace": "app-prod"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-jobs-3",
+        "namespace": "default"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-jobs-4",
+        "namespace": "kube-system"
+      },
+      "spec": {},
+      "status": {}
+    },
+    {
+      "metadata": {
+        "name": "anon-jobs-5",
+        "namespace": "default"
+      },
+      "spec": {},
+      "status": {}
+    }
+  ]
+}
