@@ -1,0 +1,5 @@
+[
+  { "name": "cluster-admin-binding", "age": "151d", "extra": { "role": "ClusterRole/cluster-admin", "subjects": "system:masters" } },
+  { "name": "kview-sa-binding", "age": "30d", "extra": { "role": "ClusterRole/kview-reader", "subjects": "ServiceAccount/kview-sa" } },
+  { "name": "system:coredns", "age": "151d", "extra": { "role": "ClusterRole/system:coredns", "subjects": "ServiceAccount/coredns" } }
+]

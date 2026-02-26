@@ -1,0 +1,5 @@
+[
+  { "name": "admin-binding", "namespace": "default", "age": "30d", "extra": { "role": "ClusterRole/admin", "subjects": "User/admin@example.com" } },
+  { "name": "db-admin-binding", "namespace": "database", "age": "25d", "extra": { "role": "Role/db-admin", "subjects": "ServiceAccount/postgres-sa" } },
+  { "name": "manager-binding", "namespace": "kube-public", "age": "151d", "extra": { "role": "Role/manager", "subjects": "Group/managers" } }
+]

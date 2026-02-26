@@ -1,0 +1,37 @@
+[
+  {
+    "name": "pv-nfs-share-01",
+    "age": "1d",
+    "status": "Available",
+    "extra": {
+      "capacity": "5Gi",
+      "access-modes": "ReadWriteOnce",
+      "reclaim-policy": "Recycle",
+      "storage-class": "slow",
+      "reason": ""
+    }
+  },
+  {
+    "name": "pvc-77d4a1c5-e662-4cb3-a34b-b666ff733b8f",
+    "age": "30d",
+    "status": "Bound",
+    "extra": {
+      "capacity": "20Gi",
+      "access-modes": "ReadWriteOnce",
+      "reclaim-policy": "Retain",
+      "storage-class": "standard",
+      "claim": "database/postgres-data"
+    }
+  },
+  {
+    "name": "pv-backup-storage",
+    "age": "151d",
+    "status": "Released",
+    "extra": {
+      "capacity": "100Gi",
+      "access-modes": "ReadWriteMany",
+      "reclaim-policy": "Retain",
+      "storage-class": "fast-ssd"
+    }
+  }
+]

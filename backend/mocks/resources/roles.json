@@ -1,0 +1,5 @@
+[
+  { "name": "db-admin", "namespace": "database", "age": "25d", "extra": { "rules": "* on pods, services" } },
+  { "name": "pod-reader", "namespace": "default", "age": "151d", "extra": { "rules": "get, list on pods" } },
+  { "name": "config-manager", "namespace": "kube-public", "age": "151d", "extra": { "rules": "update on configmaps" } }
+]

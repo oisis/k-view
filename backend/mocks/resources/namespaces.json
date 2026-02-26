@@ -1,0 +1,8 @@
+[
+  { "name": "default", "age": "151d", "status": "Active", "extra": { "labels": "kubernetes.io/metadata.name=default" } },
+  { "name": "kube-system", "age": "151d", "status": "Active", "extra": { "labels": "kubernetes.io/metadata.name=kube-system" } },
+  { "name": "monitoring", "age": "45d", "status": "Active" },
+  { "name": "logging", "age": "45d", "status": "Active" },
+  { "name": "database", "age": "30d", "status": "Active" },
+  { "name": "auth", "age": "30d", "status": "Active" }
+]

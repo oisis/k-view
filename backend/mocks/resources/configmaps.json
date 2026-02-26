@@ -1,0 +1,8 @@
+[
+  { "name": "kube-root-ca.crt", "namespace": "default", "age": "151d", "extra": { "data": "1", "labels": "kubernetes.io/cluster-service=true" } },
+  { "name": "app-config", "namespace": "default", "age": "10d", "extra": { "data": "5", "labels": "app=frontend,env=prod" } },
+  { "name": "nginx-config", "namespace": "ingress-nginx", "age": "30d", "extra": { "data": "3" } },
+  { "name": "prometheus-config", "namespace": "monitoring", "age": "28d", "extra": { "data": "8" } },
+  { "name": "coredns", "namespace": "kube-system", "age": "151d", "extra": { "data": "1" } },
+  { "name": "extension-apiserver-authentication", "namespace": "kube-system", "age": "151d", "extra": { "data": "2" } }
+]

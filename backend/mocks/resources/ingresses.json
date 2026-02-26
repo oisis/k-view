@@ -1,14 +1,86 @@
 [
   {
-    "name": "frontend-ingress",
-    "namespace": "default",
-    "age": "30d",
+    "name": "argocd-server",
+    "namespace": "cicd-tools",
+    "age": "21d",
     "status": "Active",
     "extra": {
-      "class": "nginx",
+      "class": "traefik",
+      "hosts": "argocd.example.com",
+      "address": "10.0.0.50",
+      "labels": "app.kubernetes.io/name=argocd-server,environment=dev"
+    }
+  },
+  {
+    "name": "nginx-ingress",
+    "namespace": "games-platform",
+    "age": "20d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
+      "hosts": "games.example.com",
+      "address": "10.0.0.50",
+      "labels": "app.kubernetes.io/name=nginx,instance=games"
+    }
+  },
+  {
+    "name": "backend-admin-panel",
+    "namespace": "core-services",
+    "age": "14d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
+      "hosts": "admin.example.com",
+      "address": "10.0.0.50",
+      "labels": "app=core-backend,component=admin"
+    }
+  },
+  {
+    "name": "backend-api",
+    "namespace": "core-services",
+    "age": "14d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
+      "hosts": "api.example.com",
+      "address": "10.0.0.50",
+      "labels": "app=core-backend,component=api"
+    }
+  },
+  {
+    "name": "public-frontend",
+    "namespace": "core-services",
+    "age": "14d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
       "hosts": "app.example.com",
-      "address": "192.168.1.100",
-      "labels": "app=frontend, tier=web"
+      "address": "10.0.0.50",
+      "labels": "app=frontend"
+    }
+  },
+  {
+    "name": "monitoring-grafana",
+    "namespace": "monitoring",
+    "age": "21d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
+      "hosts": "grafana.example.com",
+      "address": "10.0.0.50",
+      "labels": "app.kubernetes.io/name=grafana"
+    }
+  },
+  {
+    "name": "k-view-access",
+    "namespace": "k-view",
+    "age": "1d",
+    "status": "Active",
+    "extra": {
+      "class": "traefik",
+      "hosts": "dashboard.example.com",
+      "address": "10.0.0.50",
+      "labels": "app.kubernetes.io/name=k-view"
     }
   }
 ]

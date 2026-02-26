@@ -1,0 +1,72 @@
+[
+  {
+    "name": "ingress-proxy",
+    "namespace": "networking",
+    "age": "21d",
+    "status": "Running",
+    "extra": {
+      "desired": "3",
+      "ready": "3",
+      "available": "3",
+      "pods": "3/3",
+      "images": "proxy-server:v3.6.7",
+      "labels": "app.kubernetes.io/name=proxy,instance=prod,managed-by=Helm"
+    }
+  },
+  {
+    "name": "log-collector",
+    "namespace": "logging",
+    "age": "45d",
+    "status": "Running",
+    "extra": {
+      "desired": "3",
+      "ready": "3",
+      "available": "3",
+      "pods": "3/3",
+      "images": "fluent-agent:v2.1.0",
+      "labels": "app=collector,tier=infra"
+    }
+  },
+  {
+    "name": "node-exporter",
+    "namespace": "monitoring",
+    "age": "151d",
+    "status": "Running",
+    "extra": {
+      "desired": "3",
+      "ready": "3",
+      "available": "3",
+      "pods": "3/3",
+      "images": "prom/node-exporter:v1.6.1",
+      "labels": "app.kubernetes.io/name=node-exporter"
+    }
+  },
+  {
+    "name": "security-scanner",
+    "namespace": "security",
+    "age": "10d",
+    "status": "Running",
+    "extra": {
+      "desired": "3",
+      "ready": "2",
+      "available": "2",
+      "pods": "2/3",
+      "images": "security-agent:latest",
+      "labels": "component=scanner,env=prod"
+    }
+  },
+  {
+    "name": "network-plugin",
+    "namespace": "kube-system",
+    "age": "151d",
+    "status": "Running",
+    "extra": {
+      "desired": "3",
+      "ready": "3",
+      "available": "3",
+      "pods": "3/3",
+      "images": "network-controller:v1.2.0",
+      "labels": "k8s-app=network-manager"
+    }
+  }
+]

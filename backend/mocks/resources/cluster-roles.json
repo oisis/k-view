@@ -1,0 +1,6 @@
+[
+  { "name": "cluster-admin", "age": "151d", "extra": { "rules": "* on */*" } },
+  { "name": "view", "age": "151d", "extra": { "rules": "get, list, watch on most resources" } },
+  { "name": "edit", "age": "151d", "extra": { "rules": "get, list, watch, create, update, delete" } },
+  { "name": "kview-reader", "age": "30d", "extra": { "rules": "get, list on pods, nodes, services" } }
+]

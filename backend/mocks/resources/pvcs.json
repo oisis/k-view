@@ -1,0 +1,7 @@
+[
+  { "name": "postgres-data", "namespace": "database", "age": "30d", "status": "Bound", "extra": { "capacity": "20Gi", "access-modes": "ReadWriteOnce", "storage-class": "standard", "volume": "pvc-77d4a1c5-e662-4cb3-a34b-b666ff733b8f", "labels": "app=postgres" } },
+  { "name": "loki-storage", "namespace": "logging", "age": "45d", "status": "Pending", "extra": { "capacity": "50Gi", "access-modes": "ReadWriteOnce", "storage-class": "standard" } },
+  { "name": "shared-assets", "namespace": "default", "age": "151d", "status": "Bound", "extra": { "capacity": "10Gi", "access-modes": "ReadWriteMany", "storage-class": "nfs-client", "volume": "pv-nfs-share-02" } },
+  { "name": "prometheus-db", "namespace": "monitoring", "age": "45d", "status": "Bound", "extra": { "capacity": "100Gi", "access-modes": "ReadWriteOnce", "storage-class": "premium", "volume": "pvc-prom-01" } },
+  { "name": "grafana-data", "namespace": "monitoring", "age": "45d", "status": "Bound", "extra": { "capacity": "10Gi", "access-modes": "ReadWriteOnce", "storage-class": "standard", "volume": "pvc-graf-01" } }
+]

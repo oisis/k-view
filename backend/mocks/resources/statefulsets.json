@@ -1,0 +1,5 @@
+[
+  { "name": "postgres-db", "namespace": "database", "age": "25d", "status": "Running", "extra": { "ready": "1/1", "replicas": "1", "images": "postgres:15-alpine", "labels": "app=postgres,role=primary" } },
+  { "name": "kafka-broker", "namespace": "messaging", "age": "20d", "status": "Running", "extra": { "ready": "3/3", "replicas": "3", "images": "bitnami/kafka:3.4.0", "labels": "app=kafka" } },
+  { "name": "zookeeper", "namespace": "messaging", "age": "20d", "status": "Running", "extra": { "ready": "3/3", "replicas": "3", "images": "bitnami/zookeeper:3.8.1", "labels": "app=zookeeper" } }
+]

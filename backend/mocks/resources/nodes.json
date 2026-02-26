@@ -1,0 +1,41 @@
+[
+  {
+    "name": "node-master-01",
+    "age": "151d",
+    "status": "Ready",
+    "extra": {
+      "role": "control-plane",
+      "cpu": "8",
+      "memory": "16Gi",
+      "os": "Ubuntu 22.04.3 LTS",
+      "kernel": "5.15.0-generic",
+      "runtime": "containerd://1.7.1"
+    }
+  },
+  {
+    "name": "node-worker-01",
+    "age": "151d",
+    "status": "Ready",
+    "extra": {
+      "role": "worker",
+      "cpu": "16",
+      "memory": "64Gi",
+      "os": "Ubuntu 22.04.3 LTS",
+      "kernel": "5.15.0-generic",
+      "runtime": "containerd://1.7.1"
+    }
+  },
+  {
+    "name": "node-worker-02",
+    "age": "10d",
+    "status": "NotReady",
+    "extra": {
+      "role": "worker",
+      "cpu": "16",
+      "memory": "64Gi",
+      "os": "Ubuntu 22.04.3 LTS",
+      "kernel": "5.15.0-generic",
+      "runtime": "containerd://1.7.1"
+    }
+  }
+]

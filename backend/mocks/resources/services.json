@@ -1,14 +1,9 @@
 [
-  {
-    "name": "kubernetes",
-    "namespace": "default",
-    "age": "30d",
-    "status": "ClusterIP",
-    "extra": {
-      "cluster-ip": "10.96.0.1",
-      "ports": "443/TCP",
-      "labels": "component=apiserver,provider=kubernetes,owner=system,k8s-app=apiserver",
-      "endpoints": "10.0.0.1:443, 10.0.0.2:443, 10.0.0.3:443"
-    }
-  }
+  { "name": "kubernetes", "namespace": "default", "age": "151d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.0.1", "ports": "443/TCP", "labels": "component=apiserver,provider=kubernetes", "endpoints": "10.0.0.1:443" } },
+  { "name": "kube-dns", "namespace": "kube-system", "age": "151d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.0.10", "ports": "53/UDP,53/TCP,9153/TCP", "labels": "k8s-app=kube-dns", "endpoints": "10.244.0.2:53, 10.244.0.3:53" } },
+  { "name": "frontend-svc", "namespace": "default", "age": "30d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.12.34", "ports": "80/TCP", "labels": "app=frontend", "endpoints": "10.244.1.5:80" } },
+  { "name": "backend-svc", "namespace": "default", "age": "30d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.56.78", "ports": "8080/TCP", "labels": "app=backend", "endpoints": "10.244.1.6:8080" } },
+  { "name": "postgres-primary", "namespace": "database", "age": "25d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.100.1", "ports": "5432/TCP", "labels": "app=postgres", "endpoints": "10.244.1.10:5432" } },
+  { "name": "metrics-server", "namespace": "kube-system", "age": "151d", "status": "ClusterIP", "extra": { "cluster-ip": "10.96.180.20", "ports": "443/TCP", "labels": "k8s-app=metrics-server", "endpoints": "10.244.0.5:443" } },
+  { "name": "grafana", "namespace": "monitoring", "age": "28d", "status": "LoadBalancer", "extra": { "cluster-ip": "10.96.150.2", "ports": "80:3000/TCP", "labels": "app=grafana", "endpoints": "10.244.1.21:3000", "external": "35.190.20.10" } }
 ]
