@@ -28,6 +28,18 @@ import MetadataSection from './sections/MetadataSection';
 import ResourceInfoSection from './sections/ResourceInfoSection';
 import ContainersSection from './sections/ContainersSection';
 
+// Resource Templates
+import PodOverview from './templates/PodOverview';
+import DeploymentOverview from './templates/DeploymentOverview';
+import ServiceOverview from './templates/ServiceOverview';
+import CronJobOverview from './templates/CronJobOverview';
+import NodeOverview from './templates/NodeOverview';
+import ConfigMapOverview from './templates/ConfigMapOverview';
+import SecretOverview from './templates/SecretOverview';
+import IngressOverview from './templates/IngressOverview';
+import PvcOverview from './templates/PvcOverview';
+import RbacOverview from './templates/RbacOverview';
+
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
     relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs, t, settings
@@ -76,53 +88,34 @@ export default function OverviewTab({
         isPod, isJob, isCronJob, isDaemonSet, isDeployment, isStorageClass, isIngressClass,
         isIngress, isPvc, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount,
         isService, isClusterRole, isNamespace, isNetworkPolicy, isNode, isPv,
-        restarts, readyCount, totalContainers, podSpec
+        restarts, readyCount, totalContainers, podSpec,
+        relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs
     };
+
+    const renderResourceSpecific = () => {
+        if (isPod) return <PodOverview {...sectionProps} />;
+        if (isDeployment || isStatefulSet || isDaemonSet || isJob) return <DeploymentOverview {...sectionProps} />;
+        if (isCronJob) return <CronJobOverview {...sectionProps} />;
+        if (isService) return <ServiceOverview {...sectionProps} />;
+        if (isNode) return <NodeOverview {...sectionProps} />;
+        if (kindLower.includes('configmap')) return <ConfigMapOverview {...sectionProps} />;
+        if (kindLower.includes('secret')) return <SecretOverview {...sectionProps} />;
+        if (isIngress) return <IngressOverview {...sectionProps} />;
+        if (isPvc) return <PvcOverview {...sectionProps} />;
+        if (isRole || isClusterRole || isRoleBinding || isClusterRoleBinding) return <RbacOverview {...sectionProps} isBinding={isRoleBinding || isClusterRoleBinding} />;
+        
+        return <ResourceInfoSection {...sectionProps} />;
+    };
+
+    const isStatefulSet = kindLower.includes('statefulset');
 
     return (
         <div className="space-y-4">
             <MetadataSection {...sectionProps} />
 
-            <ResourceInfoSection {...sectionProps} />
+            {renderResourceSpecific()}
 
-            {kindLower.includes('configmap') && data.data && (
-                <DetailSection title="Data" className="mt-4">
-                    <CodeEditor
-                        value={JSON.stringify(data.data, null, 2)}
-                        readOnly={true}
-                        fontSize={13}
-                    />
-                </DetailSection>
-            )}
-
-            {(isClusterRoleBinding || isRoleBinding) && (
-                <>
-                    <DetailSection title={t('resource_info')} className="mt-4">
-                        <table className="w-full text-sm text-left border-collapse">
-                            <tbody className="divide-y divide-slate-600">
-                                <tr className="border-b border-slate-600">
-                                    <td className="px-4 py-3 text-[var(--text-muted)] font-bold uppercase text-[10px] w-1/4">Role Reference</td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-wider">
-                                                {data.roleRef?.kind || (isClusterRoleBinding ? 'ClusterRole' : 'Role')}
-                                            </span>
-                                            <span className="font-mono text-info font-bold">{data.roleRef?.name || '—'}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </DetailSection>
-                    <SubjectsTable subjects={data.subjects} t={t} />
-                </>
-            )}
-
-            {(isClusterRole || isRole) && (
-                <RulesTable rules={data.rules} t={t} />
-            )}
-
-            {!isNamespace && !isNode && !isClusterRole && !isClusterRoleBinding && !isRole && !isRoleBinding && !isServiceAccount && !isStorageClass && !isIngressClass && (
+            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && (
                 <DetailSection title={t('resource_info')} className="mt-4">
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
@@ -132,25 +125,11 @@ export default function OverviewTab({
                 </DetailSection>
             )}
 
-            {kindLower.includes('secret') && data.data && (
-                <SecretDataSection
-                    data={data.data}
-                    kind={kind}
-                    namespace={namespace}
-                    name={name}
-                    t={t}
-                />
-            )}
-
-            {/* Related Resources Tables */}
-            {relatedPods && <PodsTable pods={relatedPods} t={t} icons={icons} />}
-            {relatedJobs && <JobsTable jobs={relatedJobs} t={t} icons={icons} />}
-            {relatedReplicaSets && <ReplicaSetsTable replicaSets={relatedReplicaSets} t={t} icons={icons} />}
-            {relatedServices && <EndpointsTable services={relatedServices} t={t} icons={icons} />}
-            {relatedHpas && <HpaTable hpas={relatedHpas} t={t} icons={icons} />}
-            
-            {status?.conditions && (
-                <ConditionsTable conditions={status.conditions} t={t} icons={icons} />
+            {isNamespace && (
+                <>
+                    {quotas && <ResourceQuotasTable quotas={quotas} t={t} />}
+                    {limits && <LimitRangesTable limits={limits} t={t} />}
+                </>
             )}
 
             {metadata.ownerReferences && (

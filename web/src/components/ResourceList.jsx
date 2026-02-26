@@ -7,271 +7,52 @@ import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
 
+import { PodListSchema } from './ResourceList/templates/PodList';
+import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
+import { ServiceListSchema } from './ResourceList/templates/ServiceList';
+import { CronJobListSchema } from './ResourceList/templates/CronJobList';
+import { NodeListSchema } from './ResourceList/templates/NodeList';
+import { IngressListSchema } from './ResourceList/templates/IngressList';
+import { ConfigMapListSchema } from './ResourceList/templates/ConfigMapList';
+import { SecretListSchema } from './ResourceList/templates/SecretList';
+import { PvcListSchema } from './ResourceList/templates/PvcList';
+import { PvListSchema } from './ResourceList/templates/PvList';
+import { EventListSchema } from './ResourceList/templates/EventList';
+import { NamespaceListSchema } from './ResourceList/templates/NamespaceList';
+import { CrdListSchema } from './ResourceList/templates/CrdList';
+import { RbacListSchema } from './ResourceList/templates/RbacList';
+
 // Column schema per resource kind
 const SCHEMAS = {
-    pods: {
-        title: 'Pods',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.node', label: 'Node' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'extra.restarts', label: 'Restarts' },
-            { key: 'extra.cpu', label: 'CPU usage' },
-            { key: 'extra.ram', label: 'RAM usage' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    deployments: {
-        title: 'Deployments',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.ready', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    statefulsets: {
-        title: 'StatefulSets',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.ready', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    daemonsets: {
-        title: 'Daemon Sets',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.pods', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    jobs: {
-        title: 'Jobs',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.ready', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    cronjobs: {
-        title: 'CronJobs',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.schedule', label: 'Schedule' },
-            { key: 'extra.suspend', label: 'Suspend' },
-            { key: 'extra.active', label: 'Active' },
-            { key: 'extra.last-schedule', label: 'Last Run' },
-            { key: 'age', label: 'Age' },
-        ],
-    },
-    replicasets: {
-        title: 'Replica Sets',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.ready', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    replicationcontrollers: {
-        title: 'Replication Controllers',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.images', label: 'Images' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.ready', label: 'Pods' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    services: {
-        title: 'Services',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'status', label: 'Type', badge: true },
-            { key: 'extra.cluster-ip', label: 'Cluster IP' },
-            { key: 'extra.endpoints', label: 'Int Endpoints' },
-            { key: 'extra.external', label: 'Ext Endpoints' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    ingresses: {
-        title: 'Ingresses',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.address', label: 'Endpoints' },
-            { key: 'extra.hosts', label: 'Hosts' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'ingress-classes': {
-        title: 'Ingress Classes',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'extra.controller', label: 'Controller' },
-            { key: 'status', label: 'Default', badge: true },
-            { key: 'age', label: 'Age' },
-        ],
-    },
-    configmaps: {
-        title: 'ConfigMaps',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    secrets: {
-        title: 'Secrets',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'extra.type', label: 'Type' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    pvcs: {
-        title: 'PersistentVolumeClaims',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'extra.volume', label: 'Volume' },
-            { key: 'extra.capacity', label: 'Capacity' },
-            { key: 'extra.access-modes', label: 'Access Modes' },
-            { key: 'extra.storage-class', label: 'Storage Class' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    pvs: {
-        title: 'Persistent Volumes',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'extra.capacity', label: 'Capacity' },
-            { key: 'extra.access-modes', label: 'Access Modes' },
-            { key: 'extra.reclaim-policy', label: 'Reclaim Policy' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'extra.claim', label: 'Claim' },
-            { key: 'extra.storage-class', label: 'Storage Class' },
-            { key: 'extra.reason', label: 'Reason' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'storage-classes': {
-        title: 'Storage Classes',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'extra.provisioner', label: 'Provisioner' },
-            { key: 'extra.parameters', label: 'Parameters' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'cluster-role-bindings': {
-        title: 'Cluster Role Bindings',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'cluster-roles': {
-        title: 'Cluster Roles',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    events: {
-        title: 'Events',
-        cols: [
-            { key: 'extra.last-seen', label: 'Last Seen' },
-            { key: 'extra.type', label: 'Type', badge: true },
-            { key: 'extra.reason', label: 'Reason' },
-            { key: 'extra.object', label: 'Object' },
-            { key: 'extra.message', label: 'Message' },
-        ],
-    },
-    namespaces: {
-        title: 'Namespaces',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'status', label: 'Phase', badge: true },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'network-policies': {
-        title: 'Network Policies',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'role-bindings': {
-        title: 'Role Bindings',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    roles: {
-        title: 'Roles',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    'service-accounts': {
-        title: 'Service Accounts',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'namespace', label: 'Namespace' },
-            { key: 'extra.labels', label: 'Labels' },
-            { key: 'age', label: 'Created' },
-        ],
-    },
-    crds: {
-        title: 'Custom Resource Definitions',
-        cols: [
-            { key: 'name', label: 'Name' },
-            { key: 'extra.group', label: 'Group' },
-            { key: 'extra.version', label: 'Version' },
-            { key: 'extra.scope', label: 'Scope' },
-            { key: 'status', label: 'Status', badge: true },
-            { key: 'age', label: 'Age' },
-        ],
-    },
+    pods: PodListSchema,
+    deployments: DeploymentListSchema,
+    statefulsets: DeploymentListSchema,
+    daemonsets: DeploymentListSchema,
+    jobs: DeploymentListSchema,
+    cronjobs: CronJobListSchema,
+    replicasets: DeploymentListSchema,
+    replicationcontrollers: DeploymentListSchema,
+    services: ServiceListSchema,
+    ingresses: IngressListSchema,
+    'ingress-classes': IngressListSchema,
+    configmaps: ConfigMapListSchema,
+    secrets: SecretListSchema,
+    pvcs: PvcListSchema,
+    pvs: PvListSchema,
+    'storage-classes': ConfigMapListSchema,
+    'cluster-role-bindings': RbacListSchema,
+    'cluster-roles': RbacListSchema,
+    events: EventListSchema,
+    namespaces: NamespaceListSchema,
+    'network-policies': ConfigMapListSchema,
+    'role-bindings': RbacListSchema,
+    roles: RbacListSchema,
+    'service-accounts': ConfigMapListSchema,
+    crds: CrdListSchema,
 };
+
+// ... existing code ...
+
 
 // Get a possibly-nested value like "extra.ready"
 function getVal(item, key) {
