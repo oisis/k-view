@@ -920,6 +920,18 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                				
 		                						statusObj := gin.H{
 		                							"phase":              "Running",
+		                							"podIP":              "10.244.1.42",
+		                							"qosClass":           "Burstable",
+		                							"containerStatuses": []gin.H{
+		                								{
+		                									"name":         "main",
+		                									"ready":        true,
+		                									"restartCount": 2,
+		                									"state": gin.H{
+		                										"running": gin.H{"startedAt": "2024-02-18T10:05:00Z"},
+		                									},
+		                								},
+		                							},
 		                						}
 		                						if isNamespace {
 		                							statusObj["phase"] = "Active"
@@ -968,6 +980,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		                			"replicas":             3,
 		                			"minReadySeconds":      0,
 		                			"revisionHistoryLimit": 10,
+		                			"serviceAccountName":   "frontend-sa",
 		                			"strategy": gin.H{
 		                				"type": "RollingUpdate",
 		                				"rollingUpdate": gin.H{

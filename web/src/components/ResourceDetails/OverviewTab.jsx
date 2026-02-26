@@ -184,24 +184,10 @@ export default function OverviewTab({
                     </>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600">
+                <div className="grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-slate-600">
                     <div className="overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse">
                             <tbody className="divide-y divide-slate-600">
-                                {isPod && (
-                                    <DetailRow label={t('label_ready')}>
-                                        <span className={`font-bold ${readyCount === totalContainers ? 'text-success' : 'text-warning'}`}>
-                                            {readyCount}/{totalContainers}
-                                        </span>
-                                    </DetailRow>
-                                )}
-                                {isPod && (
-                                    <DetailRow label={t('label_restarts')}>
-                                        <span className={`font-bold ${restarts > 0 ? 'text-warning' : 'text-[var(--text-primary)]'}`}>
-                                            {restarts}
-                                        </span>
-                                    </DetailRow>
-                                )}
                                 <DetailRow label={t('label_labels')}>
                                     <div className="flex flex-wrap gap-1.5">
                                         {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
@@ -222,16 +208,6 @@ export default function OverviewTab({
                     <div className="overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse">
                             <tbody className="divide-y divide-slate-600">
-                                {isPod && (
-                                    <>
-                                        <DetailRow label={t('label_cpu_usage')}>
-                                            <span className="text-info font-mono font-bold">{cpuUsage}</span>
-                                        </DetailRow>
-                                        <DetailRow label={t('label_ram_usage')}>
-                                            <span className="text-teal-400 font-mono font-bold">{ramUsage}</span>
-                                        </DetailRow>
-                                    </>
-                                )}
                                 {status?.loadBalancer?.ingress?.length > 0 && (
                                     <DetailRow label={t('label_ip_external')}>
                                         <span className="text-info font-mono font-bold">
@@ -396,6 +372,40 @@ export default function OverviewTab({
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
+                            {isPod && (
+                                <tr className="border-b border-slate-600">
+                                    <td colSpan="2" className="p-0">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-slate-600 text-[var(--font-size-sm)] bg-[var(--bg-sidebar)]/5">
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_node')}</span>
+                                                <Link to={`/nodes/-/${spec.nodeName}`} className="font-mono text-info font-bold truncate w-full hover:underline">
+                                                    {spec.nodeName || '—'}
+                                                </Link>
+                                            </div>
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_status')}</span>
+                                                <span className={`font-bold ${status.phase === 'Running' ? 'text-success' : 'text-warning'}`}>{status.phase || '—'}</span>
+                                            </div>
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">IP</span>
+                                                <span className="font-mono text-[var(--text-primary)] font-bold">{status.podIP || '—'}</span>
+                                            </div>
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">QoS Class</span>
+                                                <span className="text-[var(--text-primary)] font-bold">{status.qosClass || spec.qosClass || '—'}</span>
+                                            </div>
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_restarts')}</span>
+                                                <span className={`font-bold ${restarts > 0 ? 'text-warning' : 'text-[var(--text-primary)]'}`}>{restarts}</span>
+                                            </div>
+                                            <div className="px-4 py-3 flex flex-col items-center text-center">
+                                                <span className="text-[var(--font-size-xs)] text-[var(--text-muted)] uppercase font-bold mb-1">{t('label_service_account')}</span>
+                                                <span className="font-mono text-info font-bold truncate w-full">{spec.serviceAccountName || spec.serviceAccount || 'default'}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                             {isDaemonSet && (
                                 <>
                                     <tr className="border-b border-slate-600">
