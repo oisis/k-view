@@ -2166,8 +2166,8 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 	switch kind {
 	case "pods":
 		items = []ResourceItem{
-			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi", "images", "nginx:1.21", "labels", "app=frontend, tier=web")},
-			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi", "images", "node:18-alpine", "labels", "app=backend, tier=api")},
+			{Name: "frontend-web-5d8f7b", Namespace: "default", Age: "19h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "12m", "ram", "45Mi", "images", "nginx:1.21, sidecar-proxy:v1, log-collector:v2", "labels", "app=frontend, tier=web, env=prod, version=v1.2, team=blue")},
+			{Name: "backend-api-6c9f8c", Namespace: "default", Age: "4h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-02", "cpu", "25m", "ram", "128Mi", "images", "node:18-alpine", "labels", "app=backend, tier=api, role=master, security=high")},
 			{Name: "worker-job-abc12", Namespace: "default", Age: "2h", Status: "CrashLoopBackOff", Extra: ex("ready", "0/1", "restarts", "8", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "0m", "ram", "8Mi", "images", "busybox:latest", "labels", "job-name=worker-job")},
 			{Name: "cache-redis-001", Namespace: "default", Age: "3h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-03", "cpu", "5m", "ram", "256Mi", "images", "redis:7-alpine", "labels", "app=cache")},
 			{Name: "auth-service-xyz", Namespace: "auth", Age: "1h", Status: "Running", Extra: ex("ready", "1/1", "restarts", "0", "owner-uid", "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6", "node", "worker-01", "cpu", "8m", "ram", "64Mi", "images", "kview/auth:v1.2", "labels", "app=auth")},
@@ -2183,8 +2183,8 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "deployments":
 		items = []ResourceItem{
-			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3", "images", "nginx:1.21, busybox:latest", "labels", "app=frontend, tier=web")},
-			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "node:18-alpine", "labels", "app=backend, tier=api")},
+			{Name: "frontend-web", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "3/3", "up-to-date", "3", "available", "3", "images", "nginx:1.21, busybox:latest, alpine:3.18, curl:8.1", "labels", "app=frontend, tier=web, env=prod, managed-by=helm, team=frontend")},
+			{Name: "backend-api", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "node:18-alpine, vault-agent:1.14", "labels", "app=backend, tier=api, layer=application")},
 			{Name: "cache-redis", Namespace: "default", Age: "30d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "redis:7-alpine", "labels", "app=cache, tier=data")},
 			{Name: "auth-service", Namespace: "auth", Age: "20d", Status: "Running", Extra: ex("ready", "2/2", "up-to-date", "2", "available", "2", "images", "kview/auth:v1.2", "labels", "app=auth")},
 			{Name: "prometheus", Namespace: "monitoring", Age: "28d", Status: "Running", Extra: ex("ready", "1/1", "up-to-date", "1", "available", "1", "images", "prom/prometheus:v2.45.0", "labels", "app=prometheus")},
@@ -2245,8 +2245,8 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "services":
 		items = []ResourceItem{
-			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP", "labels", "component=apiserver,provider=kubernetes", "endpoints", "10.0.0.1:443")},
-			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP", "labels", "app=frontend", "endpoints", "10.244.1.5:80, 10.244.2.3:80")},
+			{Name: "kubernetes", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.0.1", "ports", "443/TCP", "labels", "component=apiserver,provider=kubernetes,owner=system,k8s-app=apiserver", "endpoints", "10.0.0.1:443, 10.0.0.2:443, 10.0.0.3:443")},
+			{Name: "frontend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.12.34", "ports", "80/TCP", "labels", "app=frontend,tier=web,access=public", "endpoints", "10.244.1.5:80, 10.244.2.3:80")},
 			{Name: "backend-svc", Namespace: "default", Age: "30d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.56.78", "ports", "8080/TCP", "labels", "app=backend", "endpoints", "10.244.1.6:8080")},
 			{Name: "postgres-primary", Namespace: "database", Age: "25d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.100.1", "ports", "5432/TCP", "labels", "app=postgres,role=primary", "endpoints", "10.244.1.10:5432")},
 			{Name: "kafka-broker", Namespace: "messaging", Age: "20d", Status: "ClusterIP", Extra: ex("cluster-ip", "10.96.200.1", "ports", "9092/TCP", "labels", "app=kafka", "endpoints", "10.244.3.4:9092")},
@@ -2275,8 +2275,8 @@ func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
 
 	case "configmaps":
 		items = []ResourceItem{
-			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true"), Data: map[string]interface{}{"ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIQ..."}},
-			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web"), Data: map[string]interface{}{"api-url": "https://api.example.com", "debug": "true", "timeout": "30s", "max-retries": "3"}},
+			{Name: "kube-root-ca.crt", Namespace: "default", Age: "30d", Extra: ex("data", "1", "labels", "kubernetes.io/cluster-service=true,managed-by=kubelet,component=pki,type=ca"), Data: map[string]interface{}{"ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIQ..."}},
+			{Name: "app-config", Namespace: "default", Age: "10d", Extra: ex("data", "5", "labels", "app=frontend,tier=web,env=prod,version=v1.2"), Data: map[string]interface{}{"api-url": "https://api.example.com", "debug": "true", "timeout": "30s", "max-retries": "3"}},
 			{Name: "nginx-config", Namespace: "ingress-nginx", Age: "30d", Extra: ex("data", "3", "labels", "app.kubernetes.io/name=ingress-nginx"), Data: map[string]interface{}{"nginx.conf": "user nginx;\nworker_processes auto;\n...", "proxy-body-size": "100m"}},
 			{Name: "prometheus-config", Namespace: "monitoring", Age: "28d", Extra: ex("data", "8", "labels", "app=prometheus")},
 			{Name: "loki-config", Namespace: "logging", Age: "28d", Extra: ex("data", "4", "labels", "app=loki")},

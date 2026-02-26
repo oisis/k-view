@@ -104,11 +104,13 @@ function StatCard({ label, value, sub, iconKey, color }) {
 
 function LabelsCell({ labels }) {
     const [expanded, setExpanded] = React.useState(false);
+    const { activeTheme } = useTheme();
     const labelEntries = Object.entries(labels || {});
     if (labelEntries.length === 0) return <span className="text-[var(--text-muted)] italic">none</span>;
 
     const visibleLabels = expanded ? labelEntries : labelEntries.slice(0, 2);
     const hasMore = labelEntries.length > 2;
+    const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
 
     return (
         <div className="flex flex-col gap-1 max-w-[250px]">
@@ -122,9 +124,10 @@ function LabelsCell({ labels }) {
             {hasMore && (
                 <button
                     onClick={() => setExpanded(!expanded)}
-                    className="text-[10px] text-info hover:text-info/80 font-semibold w-fit transition-colors"
+                    className="text-[10px] font-semibold w-fit transition-colors active:scale-95"
+                    style={{ color: expanded ? hideColor : 'var(--accent)' }}
                 >
-                    {expanded ? 'Show less' : `Show all (${labelEntries.length})`}
+                    {expanded ? 'Hide' : `Show all (${labelEntries.length})`}
                 </button>
             )}
         </div>
