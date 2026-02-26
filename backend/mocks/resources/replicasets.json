@@ -169,14 +169,14 @@
       "kind": "ReplicaSet",
       "metadata": {
         "annotations": {
-          "argocd.argoproj.io/tracking-id": "graceless-frontend:apps/Deployment:graceless/graceless-frontend",
+          "argocd.argoproj.io/tracking-id": "web-frontend:apps/Deployment:web/web-frontend",
           "deployment.kubernetes.io/desired-replicas": "1",
           "deployment.kubernetes.io/max-replicas": "2",
           "deployment.kubernetes.io/revision": "19"
         },
         "generation": 2,
         "labels": {
-          "app": "graceless-frontend",
+          "app": "web-frontend",
           "pod-template-hash": "6bc8d6c98f"
         },
         "name": "anon-replicasets-2",
@@ -186,14 +186,14 @@
         "replicas": 0,
         "selector": {
           "matchLabels": {
-            "app": "graceless-frontend",
+            "app": "web-frontend",
             "pod-template-hash": "6bc8d6c98f"
           }
         },
         "template": {
           "metadata": {
             "labels": {
-              "app": "graceless-frontend",
+              "app": "web-frontend",
               "pod-template-hash": "6bc8d6c98f"
             }
           },
@@ -219,7 +219,7 @@
                   },
                   {
                     "name": "VITE_BACKEND_HOST",
-                    "value": "gl-api.oisis.pl"
+                    "value": "api.example.com"
                   },
                   {
                     "name": "VITE_BACKEND_PORT",
@@ -231,12 +231,12 @@
                   },
                   {
                     "name": "VITE_FRONTEND_URL",
-                    "value": "https://graceless.oisis.pl"
+                    "value": "https://web.example.com"
                   }
                 ],
-                "image": "docker.io/library/graceless-frontend:0.15.0",
+                "image": "docker.io/library/web-frontend:0.15.0",
                 "imagePullPolicy": "IfNotPresent",
-                "name": "graceless-frontend",
+                "name": "web-frontend",
                 "ports": [
                   {
                     "containerPort": 80,
@@ -267,14 +267,14 @@
       "kind": "ReplicaSet",
       "metadata": {
         "annotations": {
-          "argocd.argoproj.io/tracking-id": "graceless-backend:apps/Deployment:graceless/graceless-backend",
+          "argocd.argoproj.io/tracking-id": "web-backend:apps/Deployment:web/web-backend",
           "deployment.kubernetes.io/desired-replicas": "1",
           "deployment.kubernetes.io/max-replicas": "2",
           "deployment.kubernetes.io/revision": "23"
         },
         "generation": 2,
         "labels": {
-          "app": "graceless-backend",
+          "app": "web-backend",
           "pod-template-hash": "54c5f6ffdd"
         },
         "name": "anon-replicasets-3",
@@ -284,14 +284,14 @@
         "replicas": 0,
         "selector": {
           "matchLabels": {
-            "app": "graceless-backend",
+            "app": "web-backend",
             "pod-template-hash": "54c5f6ffdd"
           }
         },
         "template": {
           "metadata": {
             "labels": {
-              "app": "graceless-backend",
+              "app": "web-backend",
               "pod-template-hash": "54c5f6ffdd"
             }
           },
@@ -313,7 +313,7 @@
                   },
                   {
                     "name": "ADMIN_EMAIL",
-                    "value": "graceless.oisis.pl@gmail.com"
+                    "value": "web.example.com@gmail.com"
                   },
                   {
                     "name": "ADMIN_PASSWORD",
@@ -325,11 +325,11 @@
                   },
                   {
                     "name": "BACKEND_API_URL",
-                    "value": "https://gl-api.oisis.pl"
+                    "value": "https://api.example.com"
                   },
                   {
                     "name": "DB_PATH",
-                    "value": "/data/graceless.db"
+                    "value": "/data/web.db"
                   },
                   {
                     "name": "DEVELOPER_MODE",
@@ -337,7 +337,7 @@
                   },
                   {
                     "name": "FRONTEND_URL",
-                    "value": "https://graceless.oisis.pl"
+                    "value": "https://web.example.com"
                   },
                   {
                     "name": "PORT",
@@ -365,7 +365,7 @@
                   },
                   {
                     "name": "SMTP_USER",
-                    "value": "graceless.oisis.pl@gmail.com"
+                    "value": "web.example.com@gmail.com"
                   },
                   {
                     "name": "SMTP_SECURE",
@@ -376,7 +376,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "key": "smtp-password",
-                        "name": "graceless-backend-smtp"
+                        "name": "web-backend-smtp"
                       }
                     }
                   },
@@ -407,7 +407,7 @@
                     "value": "[REDACTED]"
                   }
                 ],
-                "image": "docker.io/library/graceless-backend:0.16.0",
+                "image": "docker.io/library/web-backend:0.16.0",
                 "imagePullPolicy": "IfNotPresent",
                 "livenessProbe": {
                   "failureThreshold": 3,
@@ -421,7 +421,7 @@
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "name": "graceless-backend",
+                "name": "web-backend",
                 "ports": [
                   {
                     "containerPort": 3000,
@@ -476,13 +476,13 @@
               {
                 "name": "data",
                 "persistentVolumeClaim": {
-                  "claimName": "graceless-backend-data"
+                  "claimName": "web-backend-data"
                 }
               },
               {
                 "configMap": {
                   "defaultMode": 420,
-                  "name": "graceless-backend-config"
+                  "name": "web-backend-config"
                 },
                 "name": "config"
               }
@@ -1792,14 +1792,14 @@
       "kind": "ReplicaSet",
       "metadata": {
         "annotations": {
-          "argocd.argoproj.io/tracking-id": "graceless-backend:apps/Deployment:graceless/graceless-backend",
+          "argocd.argoproj.io/tracking-id": "web-backend:apps/Deployment:web/web-backend",
           "deployment.kubernetes.io/desired-replicas": "1",
           "deployment.kubernetes.io/max-replicas": "2",
           "deployment.kubernetes.io/revision": "25"
         },
         "generation": 1,
         "labels": {
-          "app": "graceless-backend",
+          "app": "web-backend",
           "pod-template-hash": "556f6c6b76"
         },
         "name": "anon-replicasets-9",
@@ -1809,14 +1809,14 @@
         "replicas": 1,
         "selector": {
           "matchLabels": {
-            "app": "graceless-backend",
+            "app": "web-backend",
             "pod-template-hash": "556f6c6b76"
           }
         },
         "template": {
           "metadata": {
             "labels": {
-              "app": "graceless-backend",
+              "app": "web-backend",
               "pod-template-hash": "556f6c6b76"
             }
           },
@@ -1838,7 +1838,7 @@
                   },
                   {
                     "name": "ADMIN_EMAIL",
-                    "value": "graceless.oisis.pl@gmail.com"
+                    "value": "web.example.com@gmail.com"
                   },
                   {
                     "name": "ADMIN_PASSWORD",
@@ -1850,11 +1850,11 @@
                   },
                   {
                     "name": "BACKEND_API_URL",
-                    "value": "https://gl-api.oisis.pl"
+                    "value": "https://api.example.com"
                   },
                   {
                     "name": "DB_PATH",
-                    "value": "/data/graceless.db"
+                    "value": "/data/web.db"
                   },
                   {
                     "name": "DEVELOPER_MODE",
@@ -1862,7 +1862,7 @@
                   },
                   {
                     "name": "FRONTEND_URL",
-                    "value": "https://graceless.oisis.pl"
+                    "value": "https://web.example.com"
                   },
                   {
                     "name": "PORT",
@@ -1890,7 +1890,7 @@
                   },
                   {
                     "name": "SMTP_USER",
-                    "value": "graceless.oisis.pl@gmail.com"
+                    "value": "web.example.com@gmail.com"
                   },
                   {
                     "name": "SMTP_SECURE",
@@ -1901,7 +1901,7 @@
                     "valueFrom": {
                       "secretKeyRef": {
                         "key": "smtp-password",
-                        "name": "graceless-backend-smtp"
+                        "name": "web-backend-smtp"
                       }
                     }
                   },
@@ -1932,7 +1932,7 @@
                     "value": "[REDACTED]"
                   }
                 ],
-                "image": "docker.io/library/graceless-backend:0.18.0",
+                "image": "docker.io/library/web-backend:0.18.0",
                 "imagePullPolicy": "IfNotPresent",
                 "livenessProbe": {
                   "failureThreshold": 3,
@@ -1946,7 +1946,7 @@
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "name": "graceless-backend",
+                "name": "web-backend",
                 "ports": [
                   {
                     "containerPort": 3000,
@@ -2001,13 +2001,13 @@
               {
                 "name": "data",
                 "persistentVolumeClaim": {
-                  "claimName": "graceless-backend-data"
+                  "claimName": "web-backend-data"
                 }
               },
               {
                 "configMap": {
                   "defaultMode": 420,
-                  "name": "graceless-backend-config"
+                  "name": "web-backend-config"
                 },
                 "name": "config"
               }
