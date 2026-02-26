@@ -1,31 +1,172 @@
 {
   "apiVersion": "v1",
   "kind": "EventList",
-  "metadata": {
-    "resourceVersion": "1000"
-  },
   "items": [
     {
       "apiVersion": "v1",
       "kind": "Event",
       "metadata": {
-        "name": "anon-events-1",
-        "namespace": "default",
-        "uid": "uid-event-1",
-        "creationTimestamp": "2024-02-26T21:00:00Z"
+        "name": "anon-pods-1.15d65072",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:31:28Z"
       },
       "involvedObject": {
         "kind": "Pod",
-        "namespace": "default",
-        "name": "anon-pods-1"
+        "namespace": "kube-system",
+        "name": "anon-pods-1",
+        "uid": "mock-uid"
+      },
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:07:28Z",
+      "count": 4,
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-1.4a086646",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:29:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-1",
+        "uid": "mock-uid"
       },
       "reason": "Scheduled",
-      "message": "Successfully assigned default/anon-pods-1 to node-1",
+      "message": "Successfully assigned kube-system/anon-pods-1 to node-1",
       "source": {
         "component": "default-scheduler"
       },
-      "firstTimestamp": "2024-02-26T21:00:00Z",
-      "lastTimestamp": "2024-02-26T21:00:00Z",
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:04:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-2.eb36bb98",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:26:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-2",
+        "uid": "mock-uid"
+      },
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:11:28Z",
+      "count": 1,
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-3.598d4fac",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:11:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-prod",
+        "name": "anon-pods-3",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:07:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-3.d69c3c11",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:02:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-prod",
+        "name": "anon-pods-3",
+        "uid": "mock-uid"
+      },
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:09:28Z",
+      "count": 4,
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-3.bc3be07c",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:10:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-prod",
+        "name": "anon-pods-3",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:25:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-4.307588e1",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:20:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-prod",
+        "name": "anon-pods-4",
+        "uid": "mock-uid"
+      },
+      "reason": "Started",
+      "message": "Started container nginx",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:48:28Z",
       "count": 1,
       "type": "Normal"
     },
@@ -33,25 +174,2281 @@
       "apiVersion": "v1",
       "kind": "Event",
       "metadata": {
-        "name": "anon-events-2",
+        "name": "anon-pods-5.85052aee",
         "namespace": "kube-system",
-        "uid": "uid-event-2",
-        "creationTimestamp": "2024-02-26T21:05:00Z"
+        "creationTimestamp": "2026-02-26T22:59:28Z"
       },
       "involvedObject": {
         "kind": "Pod",
         "namespace": "kube-system",
-        "name": "coredns-abc"
+        "name": "anon-pods-5",
+        "uid": "mock-uid"
+      },
+      "reason": "Scheduled",
+      "message": "Successfully assigned kube-system/anon-pods-5 to node-1",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:24:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-5.fa9abd1e",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:38:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-5",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:38:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-5.7bf809d8",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:08:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-5",
+        "uid": "mock-uid"
+      },
+      "reason": "Scheduled",
+      "message": "Successfully assigned kube-system/anon-pods-5 to node-1",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:03:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-6.6f777b80",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:45:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-6",
+        "uid": "mock-uid"
       },
       "reason": "BackOff",
       "message": "Back-off restarting failed container",
       "source": {
         "component": "kubelet"
       },
-      "firstTimestamp": "2024-02-26T21:05:00Z",
-      "lastTimestamp": "2024-02-26T21:10:00Z",
-      "count": 5,
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:37:28Z",
+      "count": 2,
       "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-6.477c30a5",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:38:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-6",
+        "uid": "mock-uid"
+      },
+      "reason": "BackOff",
+      "message": "Back-off restarting failed container",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:04:28Z",
+      "count": 2,
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-6.41bf8643",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:28:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-6",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-7.c615c816",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:21:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "kube-system",
+        "name": "anon-pods-7",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:19:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-8.8ab3dc7d",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-dev",
+        "name": "anon-pods-8",
+        "uid": "mock-uid"
+      },
+      "reason": "Scheduled",
+      "message": "Successfully assigned app-dev/anon-pods-8 to node-1",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:03:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-9.d2d9ee0f",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:39:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "monitoring",
+        "name": "anon-pods-9",
+        "uid": "mock-uid"
+      },
+      "reason": "Started",
+      "message": "Started container nginx",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:02:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-9.26cfb1d",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:05:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "monitoring",
+        "name": "anon-pods-9",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:46:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-10.4e23c536",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:33:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-dev",
+        "name": "anon-pods-10",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:49:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-10.8e8d7df",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:24:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-dev",
+        "name": "anon-pods-10",
+        "uid": "mock-uid"
+      },
+      "reason": "Pulled",
+      "message": "Container image \"nginx\" already present on machine",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-pods-10.82ce6193",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:43:28Z"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "app-dev",
+        "name": "anon-pods-10",
+        "uid": "mock-uid"
+      },
+      "reason": "Scheduled",
+      "message": "Successfully assigned app-dev/anon-pods-10 to node-1",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:27:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-1.2eb6140c",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:18:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-1",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-1-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:40:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-1.f3148ebf",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:30:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-1",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-1-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:16:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-1.7ce2b22b",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:27:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-1",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-1-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:54:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-2.94c7f9b4",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:26:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-2",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-2-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:27:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-2.1d6b5059",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:07:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-2",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-2-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:37:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-2.e7cc69f5",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:45:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-2",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-2-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:39:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-3.c90109c0",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:05:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-3",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-3-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:16:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-3.74372281",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:11:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-3",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-3-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:05:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-deployments-3.e7fde119",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "default",
+        "name": "anon-deployments-3",
+        "uid": "mock-uid"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set anon-deployments-3-abc to 3",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:11:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-1.964ebdee",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:17:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-1",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:59:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-1.88fadd7e",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:45:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-1",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:05:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-1.35ef208f",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:38:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-1",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:58:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-2.ea3c6ab1",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:15:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "monitoring",
+        "name": "anon-services-2",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-2.74766d0",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:02:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "monitoring",
+        "name": "anon-services-2",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:58:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-3.38a7e6fc",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "monitoring",
+        "name": "anon-services-3",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:52:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-4.19312d11",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:02:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "kube-system",
+        "name": "anon-services-4",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:10:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-4.e49728d4",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:16:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "kube-system",
+        "name": "anon-services-4",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:54:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-5.dd0af616",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-5",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:55:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-5.b1f54ff8",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:19:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-5",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:13:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-5.c75b919f",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:30:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-prod",
+        "name": "anon-services-5",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:24:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-6.dd609351",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:59:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-dev",
+        "name": "anon-services-6",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:40:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-6.ca9e4042",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:22:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-dev",
+        "name": "anon-services-6",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:51:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-6.ab189b55",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:04:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "app-dev",
+        "name": "anon-services-6",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:28:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-7.32253ce3",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "default",
+        "name": "anon-services-7",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:24:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-7.a188d122",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:16:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "default",
+        "name": "anon-services-7",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:18:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-8.583b7cf4",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:07:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "monitoring",
+        "name": "anon-services-8",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:32:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-services-8.736321e8",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:14:28Z"
+      },
+      "involvedObject": {
+        "kind": "Service",
+        "namespace": "monitoring",
+        "name": "anon-services-8",
+        "uid": "mock-uid"
+      },
+      "reason": "EnsuringLoadBalancer",
+      "message": "Ensuring load balancer",
+      "source": {
+        "component": "service-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:21:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-1.46dcf1f4",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:18:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "default",
+        "name": "anon-node-1",
+        "uid": "uid-node-1"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-1 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:15:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-2.8e015d65",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:19:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "kube-system",
+        "name": "anon-node-2",
+        "uid": "uid-node-2"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-2 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:01:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-2.65d27963",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "kube-system",
+        "name": "anon-node-2",
+        "uid": "uid-node-2"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-2 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:26:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-3.e7342c6d",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:55:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "monitoring",
+        "name": "anon-node-3",
+        "uid": "uid-node-3"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-3 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:37:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-3.b3c088d3",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:56:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "monitoring",
+        "name": "anon-node-3",
+        "uid": "uid-node-3"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-3 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:00:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-3.76876ccd",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:30:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "monitoring",
+        "name": "anon-node-3",
+        "uid": "uid-node-3"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-3 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-4.69a5b39c",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:45:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "app-prod",
+        "name": "anon-node-4",
+        "uid": "uid-node-4"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-4 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:04:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-5.a654562a",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:14:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "app-dev",
+        "name": "anon-node-5",
+        "uid": "uid-node-5"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-5 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:43:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-node-5.a4b69886",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:33:28Z"
+      },
+      "involvedObject": {
+        "kind": "Node",
+        "namespace": "app-dev",
+        "name": "anon-node-5",
+        "uid": "uid-node-5"
+      },
+      "reason": "NodeReady",
+      "message": "Node anon-node-5 status is now: NodeReady",
+      "source": {
+        "component": "kubelet"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:47:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-1.493fcd83",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:45:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "default",
+        "name": "anon-cronjob-1",
+        "uid": "uid-cronjob-1"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-1-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-1.91fa2a44",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:11:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "default",
+        "name": "anon-cronjob-1",
+        "uid": "uid-cronjob-1"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-1-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:58:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-2.f57fabe9",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:11:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "kube-system",
+        "name": "anon-cronjob-2",
+        "uid": "uid-cronjob-2"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-2-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:04:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-2.ddeb968",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:57:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "kube-system",
+        "name": "anon-cronjob-2",
+        "uid": "uid-cronjob-2"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-2-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:31:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-2.c97624e9",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:32:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "kube-system",
+        "name": "anon-cronjob-2",
+        "uid": "uid-cronjob-2"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-2-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:27:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-3.efeecc1",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:27:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "monitoring",
+        "name": "anon-cronjob-3",
+        "uid": "uid-cronjob-3"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-3-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:02:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-3.2db66349",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:20:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "monitoring",
+        "name": "anon-cronjob-3",
+        "uid": "uid-cronjob-3"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-3-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:20:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-4.3d360e69",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:40:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-prod",
+        "name": "anon-cronjob-4",
+        "uid": "uid-cronjob-4"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-4-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:56:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-4.cd47f2b3",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:09:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-prod",
+        "name": "anon-cronjob-4",
+        "uid": "uid-cronjob-4"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-4-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:42:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-4.792a345a",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:37:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-prod",
+        "name": "anon-cronjob-4",
+        "uid": "uid-cronjob-4"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-4-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:11:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-5.24c2ac7c",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:47:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-dev",
+        "name": "anon-cronjob-5",
+        "uid": "uid-cronjob-5"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-5-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:25:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-5.3734b3ae",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:57:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-dev",
+        "name": "anon-cronjob-5",
+        "uid": "uid-cronjob-5"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-5-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:36:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-cronjob-5.dbbcc118",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:43:28Z"
+      },
+      "involvedObject": {
+        "kind": "CronJob",
+        "namespace": "app-dev",
+        "name": "anon-cronjob-5",
+        "uid": "uid-cronjob-5"
+      },
+      "reason": "SawCompletedJob",
+      "message": "Saw completed job: anon-cronjob-5-123",
+      "source": {
+        "component": "cronjob-controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:55:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-1.117670d7",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:04:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "default",
+        "name": "anon-job-1",
+        "uid": "uid-job-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:30:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-1.beff4675",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:03:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "default",
+        "name": "anon-job-1",
+        "uid": "uid-job-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:08:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-2.a62a98d6",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:05:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "kube-system",
+        "name": "anon-job-2",
+        "uid": "uid-job-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:52:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-3.5422a235",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:41:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "monitoring",
+        "name": "anon-job-3",
+        "uid": "uid-job-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:49:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-3.c8fcfb48",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:48:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "monitoring",
+        "name": "anon-job-3",
+        "uid": "uid-job-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:39:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-3.9493b016",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:57:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "monitoring",
+        "name": "anon-job-3",
+        "uid": "uid-job-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:55:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-4.848a76d6",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:51:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "app-prod",
+        "name": "anon-job-4",
+        "uid": "uid-job-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:25:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-4.dc51007b",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:55:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "app-prod",
+        "name": "anon-job-4",
+        "uid": "uid-job-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:15:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-4.cf642232",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:47:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "app-prod",
+        "name": "anon-job-4",
+        "uid": "uid-job-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:42:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-job-5.2cbb16fc",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:35:28Z"
+      },
+      "involvedObject": {
+        "kind": "Job",
+        "namespace": "app-dev",
+        "name": "anon-job-5",
+        "uid": "uid-job-5"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-job-5",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:26:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-1.3ab62efe",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:37:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "default",
+        "name": "anon-statefulset-1",
+        "uid": "uid-statefulset-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-2.e49f6080",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:09:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "kube-system",
+        "name": "anon-statefulset-2",
+        "uid": "uid-statefulset-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:30:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-2.35ee0c44",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T23:36:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "kube-system",
+        "name": "anon-statefulset-2",
+        "uid": "uid-statefulset-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:01:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-2.9f3a814a",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:33:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "kube-system",
+        "name": "anon-statefulset-2",
+        "uid": "uid-statefulset-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-3.a5a92cd2",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:29:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "monitoring",
+        "name": "anon-statefulset-3",
+        "uid": "uid-statefulset-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:54:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-3.235dba66",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:55:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "monitoring",
+        "name": "anon-statefulset-3",
+        "uid": "uid-statefulset-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:32:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-4.c79a022d",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:23:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "app-prod",
+        "name": "anon-statefulset-4",
+        "uid": "uid-statefulset-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-statefulset-5.5450181a",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T22:42:28Z"
+      },
+      "involvedObject": {
+        "kind": "StatefulSet",
+        "namespace": "app-dev",
+        "name": "anon-statefulset-5",
+        "uid": "uid-statefulset-5"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-statefulset-5",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:11:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-1.8eaf293c",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:36:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "monitoring",
+        "name": "anon-daemonsets-1",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-1.98e9015",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:16:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "monitoring",
+        "name": "anon-daemonsets-1",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:15:28Z",
+      "count": 3,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-2.b3d45046",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:17:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "kube-system",
+        "name": "anon-daemonsets-2",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:50:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-3.82f37b15",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:28:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "monitoring",
+        "name": "anon-daemonsets-3",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:01:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-3.a2f25fd1",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:31:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "monitoring",
+        "name": "anon-daemonsets-3",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:53:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-daemonsets-3.ffa9b0",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T22:10:28Z"
+      },
+      "involvedObject": {
+        "kind": "DaemonSet",
+        "namespace": "monitoring",
+        "name": "anon-daemonsets-3",
+        "uid": "mock-uid"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-daemonsets-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:36:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-1.41adce76",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T22:10:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "default",
+        "name": "anon-persistentvolumeclaim-1",
+        "uid": "uid-persistentvolumeclaim-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:56:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-1.60fba0a0",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:16:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "default",
+        "name": "anon-persistentvolumeclaim-1",
+        "uid": "uid-persistentvolumeclaim-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-1.cc275de1",
+        "namespace": "default",
+        "creationTimestamp": "2026-02-26T23:04:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "default",
+        "name": "anon-persistentvolumeclaim-1",
+        "uid": "uid-persistentvolumeclaim-1"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-1",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:58:28Z",
+      "count": 2,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-2.1d3159b7",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:19:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "kube-system",
+        "name": "anon-persistentvolumeclaim-2",
+        "uid": "uid-persistentvolumeclaim-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:10:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-2.c05b4c4f",
+        "namespace": "kube-system",
+        "creationTimestamp": "2026-02-26T22:52:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "kube-system",
+        "name": "anon-persistentvolumeclaim-2",
+        "uid": "uid-persistentvolumeclaim-2"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-2",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T22:44:28Z",
+      "count": 5,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-3.bc383429",
+        "namespace": "monitoring",
+        "creationTimestamp": "2026-02-26T23:09:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "monitoring",
+        "name": "anon-persistentvolumeclaim-3",
+        "uid": "uid-persistentvolumeclaim-3"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-3",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:43:28Z",
+      "count": 4,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-4.f2c3e81f",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T23:37:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "app-prod",
+        "name": "anon-persistentvolumeclaim-4",
+        "uid": "uid-persistentvolumeclaim-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:36:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-4.d810025a",
+        "namespace": "app-prod",
+        "creationTimestamp": "2026-02-26T22:21:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "app-prod",
+        "name": "anon-persistentvolumeclaim-4",
+        "uid": "uid-persistentvolumeclaim-4"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-4",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:24:28Z",
+      "count": 1,
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "anon-persistentvolumeclaim-5.80b17d24",
+        "namespace": "app-dev",
+        "creationTimestamp": "2026-02-26T23:15:28Z"
+      },
+      "involvedObject": {
+        "kind": "PersistentVolumeClaim",
+        "namespace": "app-dev",
+        "name": "anon-persistentvolumeclaim-5",
+        "uid": "uid-persistentvolumeclaim-5"
+      },
+      "reason": "Created",
+      "message": "Created resource anon-persistentvolumeclaim-5",
+      "source": {
+        "component": "controller"
+      },
+      "firstTimestamp": "2026-02-26T21:44:28Z",
+      "lastTimestamp": "2026-02-26T23:26:28Z",
+      "count": 5,
+      "type": "Normal"
     }
   ]
 }
