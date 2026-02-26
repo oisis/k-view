@@ -412,40 +412,8 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	})
 }
 
-func (h *ResourceHandler) Create(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) Restart(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) Scale(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) Trigger(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) Delete(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) GetEvents(c *gin.Context) {
-	c.JSON(http.StatusOK, []gin.H{})
-}
-
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "placeholder"})
-}
-
-func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
-	c.JSON(http.StatusOK, []gin.H{})
 }
 
 func ex(kv ...string) map[string]string {
