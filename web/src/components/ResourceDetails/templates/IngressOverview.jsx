@@ -5,10 +5,10 @@ import IngressRulesTable from '../IngressRulesTable';
 export default function IngressOverview({ data, metadata, spec, status, t }) {
     return (
         <>
-            <DetailSection title={t('resource_info')}>
+            <DetailSection title={t('resource_info') || 'Resource Info'}>
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-slate-600">
-                        {status.loadBalancer?.ingress && (
+                        {status?.loadBalancer?.ingress && (
                             <tr className="border-b border-slate-600">
                                 <td className="px-4 py-3 text-[var(--text-muted)] font-bold uppercase text-[10px] w-1/4">Endpoints</td>
                                 <td className="px-4 py-3">
@@ -22,7 +22,7 @@ export default function IngressOverview({ data, metadata, spec, status, t }) {
                 </table>
             </DetailSection>
 
-            {spec.rules && <IngressRulesTable rules={spec.rules} t={t} />}
+            {spec?.rules && <IngressRulesTable spec={spec} t={t} />}
         </>
     );
 }
