@@ -47,6 +47,7 @@ import StatefulSetOverview from './templates/StatefulSetOverview';
 import PvOverview from './templates/PvOverview';
 import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
 import ServiceAccountOverview from './templates/ServiceAccountOverview';
+import CrdOverview from './templates/CrdOverview';
 
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits,
@@ -77,6 +78,7 @@ export default function OverviewTab({
     const isNetworkPolicy = kindLower === 'networkpolicies' || kindLower === 'networkpolicy' || kindLower === 'network-policies';
     const isNode = kindLower === 'nodes' || kindLower === 'node';
     const isPv = kindLower === 'persistentvolumes' || kindLower === 'persistentvolume' || kindLower === 'pvs';
+    const isCrd = kindLower.includes('customresourcedefinition') || kindLower === 'crds';
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -120,6 +122,7 @@ export default function OverviewTab({
         if (isPv) return <PvOverview {...sectionProps} />;
         if (isNetworkPolicy) return <NetworkPolicyOverview {...sectionProps} />;
         if (isServiceAccount) return <ServiceAccountOverview {...sectionProps} />;
+        if (isCrd) return <CrdOverview {...sectionProps} />;
         if (isRole || isClusterRole || isRoleBinding || isClusterRoleBinding) return <RbacOverview {...sectionProps} isBinding={isRoleBinding || isClusterRoleBinding} />;
         if (isNamespace) return <NamespaceOverview {...sectionProps} />;
         if (kindLower.includes('event')) return <EventOverview {...sectionProps} />;
@@ -135,7 +138,7 @@ export default function OverviewTab({
 
             {renderResourceSpecific()}
 
-            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && (
+            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && (
                 <DetailSection title={t('resource_info')} className="mt-4">
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">
