@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,25 +17,10 @@ import (
 	"k8s.io/client-go/dynamic"
 	"sigs.k8s.io/yaml"
 
-	"k-view/k8s"
+	"k-view/pkg/utils"
 )
 
-type ResourceHandler struct {
-	devMode    bool
-	k8sClient  k8s.KubernetesProvider
-	mu            sync.Mutex
-	cpuHistory    []MetricHistory
-	ramHistory    []MetricHistory
-	mockResources map[string][]ResourceItem
-}
-
-func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *ResourceHandler {
-	return &ResourceHandler{
-		devMode:       devMode,
-		k8sClient:     k8sClient,
-		mockResources: make(map[string][]ResourceItem),
-	}
-}
+// Base types moved to base.go
 
 // getGVR maps frontend URL :kind parameters to K8s schema.GroupVersionResource
 func getGVR(kind string) schema.GroupVersionResource {
@@ -114,68 +98,11 @@ func getGVR(kind string) schema.GroupVersionResource {
 	return gvr
 }
 
-// clusterScopedKinds is the set of resource kinds that are NOT namespaced.
-var clusterScopedKinds = map[string]bool{
-	"namespaces":            true,
-	"nodes":                 true,
-	"pvs":                   true,
-	"storage-classes":       true,
-	"crds":                  true,
-	"cluster-roles":         true,
-	"cluster-role-bindings": true,
-	"ingress-classes":       true,
-}
+// Moved to base.go
 
-// isClusterScoped returns true if the given kind is not namespace-scoped.
-func isClusterScoped(kind string) bool {
-	return clusterScopedKinds[strings.ToLower(kind)]
-}
+// utils.GetAge usage
 
-func getAge(t time.Time) string {
-	if t.IsZero() {
-		return "Unknown"
-	}
-	d := time.Since(t)
-	if d.Hours() > 24 {
-		return fmt.Sprintf("%dd", int(d.Hours()/24))
-	} else if d.Hours() > 1 {
-		return fmt.Sprintf("%dh", int(d.Hours()))
-	} else if d.Minutes() > 1 {
-		return fmt.Sprintf("%dm", int(d.Minutes()))
-	}
-	return fmt.Sprintf("%ds", int(d.Seconds()))
-}
-
-type ResourceItem struct {
-	Name      string                 `json:"name"`
-	Namespace string                 `json:"namespace,omitempty"`
-	Age       string                 `json:"age"`
-	Status    string                 `json:"status,omitempty"`
-	Extra     map[string]string      `json:"extra,omitempty"`
-	Data      map[string]interface{} `json:"data,omitempty"`
-}
-
-type MetricHistory struct {
-	Timestamp string  `json:"timestamp"`
-	Value     float64 `json:"value"`
-}
-
-type ClusterStats struct {
-	K8sVersion     string          `json:"k8sVersion"`
-	NodeCount      int             `json:"nodeCount"`
-	NodeCountReady int             `json:"nodeCountReady"`
-	PodCount       int             `json:"podCount"`
-	PodCountFailed int             `json:"podCountFailed"`
-	CPUUsage       float64         `json:"cpuUsage"` // Percentage
-	CPUTotal       string          `json:"cpuTotal"` // e.g., "32 Cores"
-	RAMUsage       float64         `json:"ramUsage"` // Percentage
-	RAMTotal       string          `json:"ramTotal"` // e.g., "128 GiB"
-	ClusterName    string          `json:"clusterName"`
-	ETCDHealth     string          `json:"etcdHealth"`
-	MetricsServer  bool            `json:"metricsServer"`
-	CPUHistory     []MetricHistory `json:"cpuHistory"`
-	RAMHistory     []MetricHistory `json:"ramHistory"`
-}
+// moved to base.go
 
 func (h *ResourceHandler) GetStats(c *gin.Context) {
 	if h.devMode {
@@ -397,7 +324,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	for _, item := range unstructuredList.Items {
 		name := item.GetName()
 		namespace := item.GetNamespace()
-		age := getAge(item.GetCreationTimestamp().Time)
+		age := utils.GetAge(item.GetCreationTimestamp().Time)
 		
 		status := "Active"
 		if statusMap, ok := item.Object["status"].(map[string]interface{}); ok {
@@ -819,7 +746,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			}
 			if lastSchedule, ok, _ := unstructured.NestedString(item.Object, "status", "lastScheduleTime"); ok && lastSchedule != "" {
 				if t, err := time.Parse(time.RFC3339, lastSchedule); err == nil {
-					extra["last-schedule"] = getAge(t) + " ago"
+					extra["last-schedule"] = utils.GetAge(t) + " ago"
 				}
 			}
 			if active, ok, _ := unstructured.NestedSlice(item.Object, "status", "active"); ok {
@@ -1451,7 +1378,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"resource": gin.H{
 			"name":      item.GetName(),
 			"namespace": item.GetNamespace(),
-			"age":       getAge(item.GetCreationTimestamp().Time),
+			"age":       utils.GetAge(item.GetCreationTimestamp().Time),
 		},
 		"metadata": item.Object["metadata"],
 		"spec":     item.Object["spec"],
@@ -2172,7 +2099,7 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 		firstSeen := "Unknown"
 		if okF && firstTimestamp != "" {
 			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
-				firstSeen = getAge(ft)
+				firstSeen = utils.GetAge(ft)
 			}
 		}
 
@@ -2180,15 +2107,15 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 		lastSeen := "Unknown"
 		if okL && lastTimestamp != "" {
 			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
-				lastSeen = getAge(lt)
+				lastSeen = utils.GetAge(lt)
 			}
 		}
 
 		if firstSeen == "Unknown" {
 			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
 				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
-					firstSeen = getAge(et)
-					lastSeen = getAge(et)
+					firstSeen = utils.GetAge(et)
+					lastSeen = utils.GetAge(et)
 				}
 			}
 		}
@@ -2279,7 +2206,7 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 		firstSeen := "Unknown"
 		if okF && firstTimestamp != "" {
 			if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
-				firstSeen = getAge(ft)
+				firstSeen = utils.GetAge(ft)
 			}
 		}
 
@@ -2287,15 +2214,15 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 		lastSeen := "Unknown"
 		if okL && lastTimestamp != "" {
 			if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
-				lastSeen = getAge(lt)
+				lastSeen = utils.GetAge(lt)
 			}
 		}
 
 		if firstSeen == "Unknown" {
 			if eventTime, ok, _ := unstructured.NestedString(e.Object, "eventTime"); ok && eventTime != "" {
 				if et, err := time.Parse(time.RFC3339Nano, eventTime); err == nil {
-					firstSeen = getAge(et)
-					lastSeen = getAge(et)
+					firstSeen = utils.GetAge(et)
+					lastSeen = utils.GetAge(et)
 				}
 			}
 		}
