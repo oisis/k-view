@@ -150,4 +150,6 @@ tmp/
 .gemini/instructions.txt
 .gemini/state/
 .gemini/cache/
+.gemini/*
 GEMINI.md
+.gemini/plans/
