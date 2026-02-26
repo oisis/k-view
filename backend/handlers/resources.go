@@ -346,6 +346,22 @@ func (h *ResourceHandler) List(c *gin.Context) {
 					extra["next-run"] = sched.Next(time.Now()).Format("15:04:05 (02.01)")
 				}
 			}
+			if suspend, ok, _ := unstructured.NestedBool(item.Object, "spec", "suspend"); ok {
+				extra["suspend"] = fmt.Sprintf("%v", suspend)
+			} else {
+				extra["suspend"] = "false"
+			}
+			if active, ok, _ := unstructured.NestedSlice(item.Object, "status", "active"); ok {
+				extra["active"] = fmt.Sprintf("%d", len(active))
+			} else {
+				extra["active"] = "0"
+			}
+			if lastRun, ok, _ := unstructured.NestedString(item.Object, "status", "lastScheduleTime"); ok {
+				extra["last-schedule"] = utils.GetAge(k8sutils.ParseK8sTime(lastRun))
+			} else {
+				extra["last-schedule"] = "—"
+			}
+			extra["images"] = k8sutils.GetImages(item.Object)
 			extra["labels"] = k8sutils.GetLabels(item.Object)
 		}
 
