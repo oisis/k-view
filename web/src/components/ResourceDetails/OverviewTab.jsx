@@ -79,6 +79,7 @@ export default function OverviewTab({
     const isNode = kindLower === 'nodes' || kindLower === 'node';
     const isPv = kindLower === 'persistentvolumes' || kindLower === 'persistentvolume' || kindLower === 'pvs';
     const isCrd = kindLower.includes('customresourcedefinition') || kindLower === 'crds';
+    const isReplicaSet = kindLower.includes('replicaset');
 
     const podSpec = isPod ? spec : (spec.template?.spec || {});
     const volumes = podSpec.volumes || [];
@@ -101,7 +102,7 @@ export default function OverviewTab({
         data, metadata, spec, status, kind, kindLower, namespace, name, t, settings, icons,
         isPod, isJob, isCronJob, isDaemonSet, isDeployment, isStorageClass, isIngressClass,
         isIngress, isPvc, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount,
-        isService, isClusterRole, isNamespace, isNetworkPolicy, isNode, isPv,
+        isService, isClusterRole, isNamespace, isNetworkPolicy, isNode, isPv, isCrd, isReplicaSet,
         restarts, readyCount, totalContainers, podSpec,
         relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs,
         mountedConfigMaps, mountedSecrets, mountedPvcs
@@ -109,7 +110,7 @@ export default function OverviewTab({
 
     const renderResourceSpecific = () => {
         if (isPod) return <PodOverview {...sectionProps} />;
-        if (isDeployment || isJob) return <DeploymentOverview {...sectionProps} />;
+        if (isDeployment || isJob || isReplicaSet) return <DeploymentOverview {...sectionProps} />;
         if (isStatefulSet) return <StatefulSetOverview {...sectionProps} />;
         if (isDaemonSet) return <DaemonSetOverview {...sectionProps} />;
         if (isCronJob) return <CronJobOverview {...sectionProps} />;
@@ -138,7 +139,7 @@ export default function OverviewTab({
 
             {renderResourceSpecific()}
 
-            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && (
+            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && (
                 <DetailSection title={t('resource_info')} className="mt-4">
                     <table className="w-full text-sm text-left border-collapse">
                         <tbody className="divide-y divide-slate-600">

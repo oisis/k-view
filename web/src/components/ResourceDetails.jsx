@@ -126,9 +126,13 @@ export default function ResourceDetails({ user }) {
                             if (kindLower.includes('service')) {
                                 const selector = detailsData.spec?.selector?.matchLabels || detailsData.spec?.selector || {};
                                 setRelatedPods(podsData.filter(p => {
-                                    // p.extra.labels is now a map (object)
-                                    const labels = p.extra?.labels || {};
-                                    return Object.entries(selector).every(([k, v]) => labels[k] === v);
+                                    if (!p || !p.extra) return false;
+                                    const labels = p.extra.labels;
+                                    if (!labels) return false;
+                                    if (typeof labels === 'object') {
+                                        return Object.entries(selector).every(([k, v]) => labels[k] === v);
+                                    }
+                                    return Object.entries(selector).every(([k, v]) => String(labels).includes(`${k}=${v}`));
                                 }));
                                 setRelatedEndpoints(detailsData.metadata?.endpoints || []);
                             } else if (kindLower === 'nodes' || kindLower === 'node') {

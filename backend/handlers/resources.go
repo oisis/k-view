@@ -432,6 +432,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"data":     item.Object["data"],
 	}
 
+	// Extract RBAC and common fields to root for frontend compatibility
+	if rules, ok := item.Object["rules"]; ok { response["rules"] = rules }
+	if subjects, ok := item.Object["subjects"]; ok { response["subjects"] = subjects }
+	if roleRef, ok := item.Object["roleRef"]; ok { response["roleRef"] = roleRef }
+	if owners := item.GetOwnerReferences(); len(owners) > 0 { response["ownerReferences"] = owners }
+
 	if kind == "nodes" || kind == "node" {
 		response["allocation"] = gin.H{
 			"cpu":    gin.H{"requests": 1.5, "limits": 3.0, "capacity": 8.0},
