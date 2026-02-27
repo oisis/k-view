@@ -197,10 +197,9 @@
   }
 }
 
-/* --- High specificity fixes for visibility --- */
+/* --- Base heading style (can be overridden by utility classes) --- */
 h1, h2, h3, h4 {
-  @apply font-bold;
-  color: rgb(var(--color-text-primary)) !important;
+  @apply font-bold text-primary;
 }
 
 @layer utilities {

@@ -173,27 +173,48 @@ export default function Settings() {
                         <icons.layers size={14} /> {t('interface_theme')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Object.entries(themes || {}).map(([id, themeCfg]) => (
-                            <button
-                                key={id}
-                                onClick={() => setTheme(id)}
-                                className={`flex flex-col text-left p-4 rounded-xl transition-all duration-200 group relative border
-                                    ${activeTheme === id
-                                        ? 'bg-accent/10 border-accent shadow-lg shadow-indigo-500/10'
-                                        : 'bg-card border-border hover:bg-card-hover'}`}
-                            >
-                                <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-accent text-button' : 'bg-bg-muted text-muted group-hover:text-primary'}`}>
-                                    {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
-                                </div>
-                                <h3 className="font-bold text-primary">{themeCfg.name}</h3>
+                        {Object.entries(themes || {}).map(([id, themeCfg]) => {
+                            const isSelected = activeTheme === id;
+                            const isLight = id.includes('light');
+                            
+                            let tileStyle = "";
+                            let iconBoxStyle = "";
+                            let textStyle = "";
 
-                                {activeTheme === id && (
-                                    <div className="absolute top-4 right-4 text-accent">
-                                        <icons.check size={16} />
+                            if (isLight) {
+                                tileStyle = "bg-[#ffffff] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-200");
+                                iconBoxStyle = "bg-[#2563eb] text-white";
+                                textStyle = "text-[#475569]";
+                            } else if (id.includes('dark') || id.includes('black')) {
+                                tileStyle = "bg-[#09090b] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-800");
+                                iconBoxStyle = isSelected ? "bg-[#2563eb] text-white" : "bg-[#3b82f6]/20 text-[#60a5fa]";
+                                textStyle = "text-[#f8fafc]";
+                            } else {
+                                // K-view / default
+                                tileStyle = "bg-[#1e1b4b] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-indigo-900/50");
+                                iconBoxStyle = isSelected ? "bg-[#2563eb] text-white" : "bg-[#3b82f6]/20 text-[#60a5fa]";
+                                textStyle = "text-[#f8fafc]";
+                            }
+
+                            return (
+                                <button
+                                    key={id}
+                                    onClick={() => setTheme(id)}
+                                    className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md ${tileStyle}`}
+                                >
+                                    <div className={`p-2 w-fit rounded-lg mb-3 transition-colors ${iconBoxStyle}`}>
+                                        {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
                                     </div>
-                                )}
-                            </button>
-                        ))}
+                                    <h3 className={`font-bold transition-colors ${textStyle}`}>{themeCfg.name}</h3>
+
+                                    {isSelected && (
+                                        <div className="absolute top-4 right-4 text-blue-600">
+                                            <icons.check size={16} />
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
