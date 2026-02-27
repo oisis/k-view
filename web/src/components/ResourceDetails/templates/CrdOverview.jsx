@@ -15,13 +15,13 @@ export default function CrdOverview({ data, metadata, spec, status, t }) {
                             <span className="font-mono text-info font-bold">{spec?.group}</span>
                         </DetailRow>
                         <DetailRow label="Scope">
-                            <span className="text-[var(--text-primary)]">{spec?.scope}</span>
+                            <span className="text-primary">{spec?.scope}</span>
                         </DetailRow>
                         <DetailRow label="Kind">
-                            <span className="font-bold text-[var(--text-primary)]">{names.kind}</span>
+                            <span className="font-bold text-primary">{names.kind}</span>
                         </DetailRow>
                         <DetailRow label="Plural">
-                            <span className="font-mono text-[var(--text-secondary)]">{names.plural}</span>
+                            <span className="font-mono text-secondary">{names.plural}</span>
                         </DetailRow>
                     </tbody>
                 </table>
@@ -39,18 +39,18 @@ export default function CrdOverview({ data, metadata, spec, status, t }) {
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
                             {versions.length === 0 ? (
-                                <tr><td colSpan="3" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No versions defined.</td></tr>
+                                <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No versions defined.</td></tr>
                             ) : (
                                 versions.map((v, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">{v.name}</td>
+                                        <td className="px-4 py-2 font-bold text-accent font-mono">{v.name}</td>
                                         <td className="px-4 py-2 text-center">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${v.served ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                                 {String(v.served)}
                                             </span>
                                         </td>
                                         <td className="px-4 py-2 text-center">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${v.storage ? 'bg-info/10 text-info' : 'bg-slate-500/10 text-[var(--text-muted)]'}`}>
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${v.storage ? 'bg-info/10 text-info' : 'bg-slate-500/10 text-text-muted'}`}>
                                                 {String(v.storage)}
                                             </span>
                                         </td>

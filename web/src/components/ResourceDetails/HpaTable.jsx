@@ -22,19 +22,19 @@ export default function HpaTable({ hpas, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {hpas.length === 0 ? (
-                            <tr><td colSpan="8" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No HPAs found.</td></tr>
+                            <tr><td colSpan="8" className="px-4 py-8 text-center text-text-muted italic">No HPAs found.</td></tr>
                         ) : (
                             hpas.map((hpa, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                    <td className="px-4 py-2 font-bold text-accent font-mono">
                                         <Link to={`/hpas/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>
                                     </td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{hpa.namespace}</td>
+                                    <td className="px-4 py-2 text-secondary">{hpa.namespace}</td>
                                     <td className="px-4 py-2 text-center">{hpa.extra?.min || '—'}</td>
                                     <td className="px-4 py-2 text-center">{hpa.extra?.max || '—'}</td>
                                     <td className="px-4 py-2 text-center font-bold text-info">{hpa.extra?.current || '—'}</td>
                                     <td className="px-4 py-2 text-xs font-mono">{hpa.extra?.target || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{hpa.age}</td>
+                                    <td className="px-4 py-2 text-text-muted text-xs">{hpa.age}</td>
                                     <td className="px-4 py-2 text-right">
                                         <ResourceActionMenu kind="hpas" namespace={hpa.namespace} name={hpa.name} onRefresh={() => window.location.reload()} />
                                     </td>

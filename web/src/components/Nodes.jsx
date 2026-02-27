@@ -89,14 +89,14 @@ function StatCard({ label, value, sub, iconKey, color }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
     return (
-        <div className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-2xl p-5 flex items-start gap-4 shadow-lg">
+        <div className="bg-glass glass border border-border rounded-2xl p-5 flex items-start gap-4 shadow-lg">
             <div className={`p-2 rounded-lg ${color}`}>
                 <Icon size={20} />
             </div>
             <div>
-                <p className="text-2xl font-bold text-[var(--text-primary)]">{value}</p>
-                <p className="text-sm text-[var(--text-secondary)]">{label}</p>
-                {sub && <p className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</p>}
+                <p className="text-2xl font-bold text-primary">{value}</p>
+                <p className="text-sm text-secondary">{label}</p>
+                {sub && <p className="text-xs text-text-muted mt-0.5">{sub}</p>}
             </div>
         </div>
     );
@@ -106,7 +106,7 @@ function LabelsCell({ labels }) {
     const [expanded, setExpanded] = React.useState(false);
     const { activeTheme } = useTheme();
     const labelEntries = Object.entries(labels || {});
-    if (labelEntries.length === 0) return <span className="text-[var(--text-muted)] italic">none</span>;
+    if (labelEntries.length === 0) return <span className="text-text-muted italic">none</span>;
 
     const visibleLabels = expanded ? labelEntries : labelEntries.slice(0, 2);
     const hasMore = labelEntries.length > 2;
@@ -153,8 +153,8 @@ export default function Nodes() {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Nodes</h2>
-                    <p className="text-[var(--text-secondary)] text-sm">
+                    <h2 className="text-2xl font-bold text-primary mb-1">Nodes</h2>
+                    <p className="text-secondary text-sm">
                         {loading ? 'Loading...' : `${filteredNodes.length} node${filteredNodes.length !== 1 ? 's' : ''} shown`}
                         {searchTerm && ` (filtered from ${nodes.length})`}
                     </p>
@@ -165,7 +165,7 @@ export default function Nodes() {
                         placeholder="Search nodes..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                 </div>
             </div>
@@ -185,13 +185,13 @@ export default function Nodes() {
             )}
 
             {/* Nodes table */}
-            <div className="glass rounded-2xl border border-[var(--border-color)] shadow-xl overflow-hidden">
-                <div className="p-4 border-b border-[var(--border-color)] bg-transparent">
-                    <h3 className="font-semibold text-[var(--text-secondary)]">Node Details</h3>
+            <div className="glass rounded-2xl border border-border shadow-xl overflow-hidden">
+                <div className="p-4 border-b border-border bg-transparent">
+                    <h3 className="font-semibold text-secondary">Node Details</h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-[var(--border-color)]">
+                    <table className="w-full text-sm text-left text-primary">
+                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-border">
                             <tr>
                                 <th className="px-4 py-3">Name</th>
                                 <th className="px-4 py-3">Labels</th>
@@ -209,14 +209,14 @@ export default function Nodes() {
                         </thead>
                         <tbody>
                             {loading && filteredNodes.length === 0 ? (
-                                <tr><td colSpan="12" className="px-4 py-8 text-center text-[var(--text-muted)] italic">Loading nodes...</td></tr>
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted italic">Loading nodes...</td></tr>
                             ) : filteredNodes.length === 0 ? (
-                                <tr><td colSpan="12" className="px-4 py-8 text-center text-[var(--text-muted)]">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
                             ) : (
                                 filteredNodes.map((node, i) => (
-                                    <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors text-[var(--text-primary)]">
+                                    <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2 font-mono font-medium text-[var(--text-primary)]">
+                                            <div className="flex items-center gap-2 font-mono font-medium text-primary">
                                                 <Link
                                                     to={`/nodes/-/${node.name}`}
                                                     className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
@@ -243,7 +243,7 @@ export default function Nodes() {
                                         <td className="px-4 py-3 text-xs font-mono text-right">{formatRAM(node.ramLimits, node.memoryCapacity)}</td>
                                         <td className="px-4 py-3 text-xs font-mono text-right">{bytesToGiB(node.memoryCapacity)}</td>
                                         <td className="px-4 py-3 text-info font-bold">{node.podsCount}</td>
-                                        <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(node.age).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-text-muted text-xs">{new Date(node.age).toLocaleDateString()}</td>
                                         <td className="px-4 py-3 text-right">
                                             <ResourceActionMenu
                                                 kind="nodes"

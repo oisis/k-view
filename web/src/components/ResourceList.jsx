@@ -100,10 +100,10 @@ function ExpandableCell({ value, type }) {
     const { activeTheme } = useTheme();
     const buttonRef = useRef(null);
 
-    if (!value || value === '—') return <span className="text-[var(--text-muted)]">—</span>;
+    if (!value || value === '—') return <span className="text-text-muted">—</span>;
 
     const items = typeof value === 'string' ? value.split(',').map(s => s.trim()) : (Array.isArray(value) ? value : [String(value)]);
-    if (items.length === 0) return <span className="text-[var(--text-muted)]">—</span>;
+    if (items.length === 0) return <span className="text-text-muted">—</span>;
 
     const handleMouseEnter = () => {
         if (buttonRef.current) {
@@ -122,7 +122,7 @@ function ExpandableCell({ value, type }) {
         <div className="relative group/expandable">
             <div className="flex flex-col gap-1 py-1 max-w-[300px]">
                 {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-[var(--text-secondary)] truncate" title={it}>
+                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-secondary truncate" title={it}>
                         {it}
                     </div>
                 ))}
@@ -134,7 +134,7 @@ function ExpandableCell({ value, type }) {
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsHovered(false)}
                             onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-[11px] font-bold text-[var(--accent)] hover:text-[var(--text-primary)] mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
+                            className="text-[11px] font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
                         >
                             Show all ({items.length})
                         </button>
@@ -161,7 +161,7 @@ function ExpandableCell({ value, type }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         {type === 'labels' ? 'Labels' : 'Images'}
                     </div>
                     <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
@@ -183,7 +183,7 @@ function ScheduleCell({ value, nextRun }) {
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const ref = useRef(null);
 
-    if (!value || value === '—') return <span className="text-[var(--text-muted)]">—</span>;
+    if (!value || value === '—') return <span className="text-text-muted">—</span>;
 
     const handleMouseEnter = () => {
         if (ref.current) {
@@ -199,7 +199,7 @@ function ScheduleCell({ value, nextRun }) {
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={() => setIsHovered(false)}
-                className="text-[13px] font-mono text-[var(--accent)] cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
+                className="text-[13px] font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
             >
                 {value}
             </span>
@@ -215,7 +215,7 @@ function ScheduleCell({ value, nextRun }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[200px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         Next Run
                     </div>
                     <div className="text-[13px] font-bold text-[var(--text-tooltip)] flex items-center gap-2">
@@ -313,8 +313,8 @@ export default function ResourceList({ kind }) {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">{t(kind) || schema.title}</h2>
-                    <p className="text-[var(--text-secondary)] text-sm">
+                    <h2 className="text-2xl font-bold text-primary mb-1">{t(kind) || schema.title}</h2>
+                    <p className="text-secondary text-sm">
                         {loading ? t('loading') : `${items.length} ${items.length === 1 ? t('item') : t('items')}`}
                         {namespace && ` ${t('in_ns')} "${namespace}"`}
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
@@ -326,7 +326,7 @@ export default function ResourceList({ kind }) {
                         placeholder={t('search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                     {isNamespaced && (<NamespaceSelect
                         namespaces={namespaces}
@@ -349,20 +349,20 @@ export default function ResourceList({ kind }) {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300">
+            <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)] border-collapse">
-                        <thead className="text-[13px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-widest">
+                    <table className="w-full text-[var(--font-size-sm)] text-left text-primary border-collapse">
+                        <thead className="text-[13px] text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-widest">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
+                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
                                     >
                                         <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
                                             {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
-                                            <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
+                                            <span className="text-text-muted group-hover:text-secondary transition-colors">
                                                 {sortConfig.key === col.key ? (
                                                     sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                 ) : (
@@ -378,9 +378,9 @@ export default function ResourceList({ kind }) {
                         </thead>
                         <tbody className="divide-none">
                             {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)] italic">{t('loading')}</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="hover:bg-[var(--sidebar-hover)]/20 transition-colors">
                                     {schema.cols.map(col => {
@@ -397,14 +397,14 @@ export default function ResourceList({ kind }) {
                                             content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
                                         } else if (col.key === 'extra.active') {
                                             cellClass = "px-3 py-1.5 whitespace-nowrap w-20 text-center";
-                                            content = <span className="text-[var(--text-primary)] font-bold">{val}</span>;
+                                            content = <span className="text-primary font-bold">{val}</span>;
                                         } else if (col.badge) {
                                             content = <StatusBadge value={val} />;
                                         } else if (col.key === 'name') {
                                             content = (
                                                 <Link
                                                     to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                    className="font-bold text-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+                                                    className="font-bold text-accent hover:text-primary transition-colors"
                                                 >
                                                     {val}
                                                 </Link>
@@ -419,7 +419,7 @@ export default function ResourceList({ kind }) {
                                                 </Link>
                                             );
                                         } else {
-                                            content = <span className="text-[var(--text-secondary)] font-medium">{val}</span>;
+                                            content = <span className="text-secondary font-medium">{val}</span>;
                                         }
 
                                         return (
@@ -459,15 +459,15 @@ export default function ResourceList({ kind }) {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-between glass rounded-xl border border-[var(--border-color)] px-6 py-4">
-                    <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                <div className="mt-6 flex items-center justify-between glass rounded-xl border border-border px-6 py-4">
+                    <div className="text-xs font-bold text-text-muted uppercase tracking-widest">
                         {t('showing')} {Math.min(items.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(items.length, currentPage * settings.itemsPerPage)} {t('of')} {items.length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_left size={18} />
                         </button>
@@ -477,13 +477,13 @@ export default function ResourceList({ kind }) {
                                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                                 .map((p, i, arr) => (
                                     <React.Fragment key={p}>
-                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-[var(--text-muted)] px-1">...</span>}
+                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-text-muted px-1">...</span>}
                                         <button
                                             onClick={() => setCurrentPage(p)}
                                             className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
                                                 ${currentPage === p
-                                                    ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
-                                                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
+                                                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                                                    : 'text-text-muted hover:text-primary border border-border hover:border-[var(--accent)]/30'}`}
                                         >
                                             {p}
                                         </button>
@@ -495,7 +495,7 @@ export default function ResourceList({ kind }) {
                         <button
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_right size={18} />
                         </button>

@@ -20,19 +20,19 @@ export default function PersistenceVolumeClaimsTable({ pvcNames, namespace, t })
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {(!pvcNames || pvcNames.length === 0) ? (
-                            <tr><td colSpan="7" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No PVCs found.</td></tr>
+                            <tr><td colSpan="7" className="px-4 py-8 text-center text-text-muted italic">No PVCs found.</td></tr>
                         ) : (
                             pvcNames.map((pvc, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono text-xs">
+                                    <td className="px-4 py-2 font-bold text-accent font-mono text-xs">
                                         <Link to={`/pvcs/${namespace}/${pvc}`} className="hover:underline">{pvc}</Link>
                                     </td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{namespace}</td>
-                                    <td className="px-4 py-2 text-center text-[var(--text-muted)]">—</td>
-                                    <td className="px-4 py-2 text-center text-[var(--text-muted)]">—</td>
-                                    <td className="px-4 py-2 text-center text-[var(--text-muted)]">—</td>
-                                    <td className="px-4 py-2 text-center text-[var(--text-muted)]">—</td>
-                                    <td className="px-4 py-2 text-center text-[var(--text-muted)]">—</td>
+                                    <td className="px-4 py-2 text-secondary">{namespace}</td>
+                                    <td className="px-4 py-2 text-center text-text-muted">—</td>
+                                    <td className="px-4 py-2 text-center text-text-muted">—</td>
+                                    <td className="px-4 py-2 text-center text-text-muted">—</td>
+                                    <td className="px-4 py-2 text-center text-text-muted">—</td>
+                                    <td className="px-4 py-2 text-center text-text-muted">—</td>
                                 </tr>
                             ))
                         )}

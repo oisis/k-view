@@ -11,7 +11,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
         <div className="space-y-6 mt-4">
             {(!containers || containers.length === 0) ? (
                 <DetailSection title={t('containers')}>
-                    <div className="px-6 py-8 text-center text-[var(--text-muted)] italic">No containers found.</div>
+                    <div className="px-6 py-8 text-center text-text-muted italic">No containers found.</div>
                 </DetailSection>
             ) : (
                 containers.map((c, i) => {
@@ -39,9 +39,9 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                                 )}
                                             </div>
                                             {stateInfo?.startedAt && (
-                                                <div className="text-xs text-[var(--text-muted)] flex items-center gap-1.5">
+                                                <div className="text-xs text-text-muted flex items-center gap-1.5">
                                                     <icons.refresh size={12} />
-                                                    Started at: <span className="text-[var(--text-secondary)] font-mono">{new Date(stateInfo.startedAt).toLocaleString()}</span>
+                                                    Started at: <span className="text-secondary font-mono">{new Date(stateInfo.startedAt).toLocaleString()}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -51,11 +51,11 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                             {c.env?.map(ev => (
                                                 <div key={ev.name} className="bg-[var(--bg-sidebar)]/10 rounded p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
                                                     <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
-                                                    <span className="text-[var(--text-muted)] truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
+                                                    <span className="text-text-muted truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
                                                         {ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}
                                                     </span>
                                                 </div>
-                                            )) || <span className="text-[var(--text-muted)] italic">None</span>}
+                                            )) || <span className="text-text-muted italic">None</span>}
                                         </div>
                                     </DetailRow>
                                     <DetailRow label={t('label_mounts')}>
@@ -73,18 +73,18 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                                     </div>
                                                     <div className="space-y-1">
                                                         <div className="flex gap-2">
-                                                            <span className="text-[var(--text-muted)] w-16 shrink-0">Path:</span>
-                                                            <span className="text-[var(--text-primary)] font-mono break-all">{vm.mountPath}</span>
+                                                            <span className="text-text-muted w-16 shrink-0">Path:</span>
+                                                            <span className="text-primary font-mono break-all">{vm.mountPath}</span>
                                                         </div>
                                                         {vm.subPath && (
                                                             <div className="flex gap-2 text-indigo-400/80">
-                                                                <span className="text-[var(--text-muted)] w-16 shrink-0">Sub:</span>
+                                                                <span className="text-text-muted w-16 shrink-0">Sub:</span>
                                                                 <span className="font-mono break-all">{vm.subPath}</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                            )) || <span className="text-[var(--text-muted)] italic">None</span>}
+                                            )) || <span className="text-text-muted italic">None</span>}
                                         </div>
                                     </DetailRow>
                                     <DetailRow label="Health Probes">

@@ -16,7 +16,7 @@ export default function RbacOverview({ data, metadata, t, isBinding }) {
                         <table className="w-full text-sm text-left border-collapse">
                             <tbody className="divide-y divide-slate-600">
                                 <tr className="border-b border-slate-600">
-                                    <td className="px-4 py-3 text-[var(--text-muted)] font-bold uppercase text-[10px] w-1/4">Role Reference</td>
+                                    <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] w-1/4">Role Reference</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
                                                                                          <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-wider">                                                {roleRef?.kind || '—'}

@@ -168,7 +168,7 @@ export default function Console() {
 
     // Tokenize line to find pod names or namespaces
     const renderLine = (line, exitCode, onTokenClick) => {
-        let defaultColor = exitCode !== 0 ? 'text-error' : 'text-[var(--text-primary)]';
+        let defaultColor = exitCode !== 0 ? 'text-error' : 'text-primary';
         if (/NotReady|CrashLoop|Error|Failed|Evicted|OOMKilled/i.test(line)) defaultColor = 'text-error';
         else if (/Warning|warn/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-warning';
         else if (/Running|Ready|Active|True/i.test(line) && !line.startsWith('NAME')) defaultColor = 'text-success';
@@ -321,7 +321,7 @@ export default function Console() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[var(--bg-glass)]/40 glass transition-colors duration-200">
+        <div className="flex flex-col h-full bg-glass/40 glass transition-colors duration-200">
             {/* Terminal output container */}
             <div
                 className="flex-1 overflow-auto flex flex-col font-mono text-sm p-4 leading-relaxed cursor-text"
@@ -339,11 +339,11 @@ export default function Console() {
                         {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-info">
                                 <span className="shrink-0">{PROMPT}</span>
-                                <span className="text-[var(--text-white)] font-bold">{entry.text}</span>
+                                <span className="text-white font-bold">{entry.text}</span>
                             </div>
                         )}
                         {entry.type === 'output' && (
-                            <div className="ml-4 mb-2 whitespace-pre text-[var(--text-primary)]">
+                            <div className="ml-4 mb-2 whitespace-pre text-primary">
                                 {entry.text.split('\n').map((line, li) => (
                                     <div key={li} className="min-h-[1.25rem]">
                                         {renderLine(line, entry.exitCode, appendToInput)}
@@ -355,7 +355,7 @@ export default function Console() {
                 ))}
 
                 {loading && (
-                    <div className="flex items-center gap-2 ml-4 text-[var(--text-muted)] mt-1">
+                    <div className="flex items-center gap-2 ml-4 text-text-muted mt-1">
                         <span className="animate-pulse">●</span> Running...
                     </div>
                 )}
@@ -364,13 +364,13 @@ export default function Console() {
             </div>
 
             {/* Input & Suggestions row */}
-            <div className="border-t border-[var(--border-color)] bg-[var(--bg-card)]/80 flex flex-col shrink-0">
+            <div className="border-t border-border bg-card/80 flex flex-col shrink-0">
                 {/* Suggestions bar */}
-                <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-color)] h-10 bg-[var(--bg-muted)]/50">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-border h-10 bg-[var(--bg-muted)]/50">
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                         {suggestions ? (
                             <>
-                                <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                                <span className="text-xs text-text-muted font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
                                 {suggestions.items.map((s, i) => (
                                     <button
                                         key={i}
@@ -382,14 +382,14 @@ export default function Console() {
                                 ))}
                             </>
                         ) : (
-                            <span className="text-xs text-[var(--text-muted)] italic">Type space or more characters to see suggestions...</span>
+                            <span className="text-xs text-text-muted italic">Type space or more characters to see suggestions...</span>
                         )}
                     </div>
 
                     <div className="relative" ref={nsRef}>
                         <button
                             onClick={toggleNsMenu}
-                            className="flex items-center gap-2 bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-input)] text-sm rounded-lg px-3 py-1 hover:border-info transition-colors min-w-[160px] font-sans font-medium justify-between shadow-sm"
+                            className="flex items-center gap-2 bg-[var(--bg-input)] border border-border text-[var(--text-input)] text-sm rounded-lg px-3 py-1 hover:border-info transition-colors min-w-[160px] font-sans font-medium justify-between shadow-sm"
                         >
                             <span className="truncate">{selectedNs || '(all namespaces)'}</span>
                             <span className={`transition-transform duration-200 ${nsMenuOpen ? 'rotate-180' : ''}`}>▾</span>
@@ -405,7 +405,7 @@ export default function Console() {
                                     width: `${nsBtnRect.width}px`,
                                     zIndex: 10000,
                                 }}
-                                className="bg-[var(--bg-glass)] glass border border-[var(--border-color)] rounded-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-2 duration-200"
+                                className="bg-glass glass border border-border rounded-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-2 duration-200"
                             >
                                 <div className="max-h-60 overflow-y-auto bg-[var(--bg-input)]">
                                     <button
@@ -439,7 +439,7 @@ export default function Console() {
                 </div>
 
                 {/* Input row */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-main)]/30">
+                <div className="flex items-center gap-2 px-4 py-3 bg-main/30">
                     <span className="text-info font-mono font-bold select-none">{PROMPT}</span>
                     <input
                         ref={inputRef}
@@ -451,15 +451,15 @@ export default function Console() {
                         disabled={loading}
                         spellCheck={false}
                         autoComplete="off"
-                        className="flex-1 bg-transparent outline-none text-[var(--text-primary)] font-mono caret-[var(--text-info)] font-bold"
+                        className="flex-1 bg-transparent outline-none text-primary font-mono caret-[var(--text-info)] font-bold"
                     />
                 </div>
 
                 {/* Hint / Toolbar */}
-                <div className="px-4 py-1.5 flex gap-4 text-xs text-[var(--text-muted)] border-t border-[var(--border-color)] uppercase tracking-widest">
-                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Enter</kbd> execute</span>
-                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Arrows</kbd> history</span>
-                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-[var(--text-muted)]">Ctrl+L</kbd> clear</span>
+                <div className="px-4 py-1.5 flex gap-4 text-xs text-text-muted border-t border-border uppercase tracking-widest">
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Enter</kbd> execute</span>
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Arrows</kbd> history</span>
+                    <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Ctrl+L</kbd> clear</span>
                     <span className="ml-auto opacity-50">Tip: Click output tokens or use suggestions above</span>
                 </div>
             </div>

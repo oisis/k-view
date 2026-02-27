@@ -23,12 +23,12 @@ export default function PersistentVolumesTable({ pvs, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {(!pvs || pvs.length === 0) ? (
-                            <tr><td colSpan="9" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No persistent volumes found.</td></tr>
+                            <tr><td colSpan="9" className="px-4 py-8 text-center text-text-muted italic">No persistent volumes found.</td></tr>
                         ) : (
                             pvs.map((pv, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2">
-                                        <Link to={`/persistentvolumes/-/${pv.name}`} className="font-bold text-[var(--accent)] hover:underline font-mono">
+                                        <Link to={`/persistentvolumes/-/${pv.name}`} className="font-bold text-accent hover:underline font-mono">
                                             {pv.name}
                                         </Link>
                                     </td>
@@ -37,11 +37,11 @@ export default function PersistentVolumesTable({ pvs, t }) {
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 font-mono text-xs text-info">{pv.extra?.capacity || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{pv.extra?.['access-mode'] || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)] text-xs">{pv.extra?.['reclaim-policy'] || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)] text-xs">{pv.extra?.['storage-class'] || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)] max-w-[200px] truncate">{pv.extra?.claim || '—'}</td>
-                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{pv.age}</td>
+                                    <td className="px-4 py-2 text-secondary">{pv.extra?.['access-mode'] || '—'}</td>
+                                    <td className="px-4 py-2 text-secondary text-xs">{pv.extra?.['reclaim-policy'] || '—'}</td>
+                                    <td className="px-4 py-2 text-secondary text-xs">{pv.extra?.['storage-class'] || '—'}</td>
+                                    <td className="px-4 py-2 text-secondary max-w-[200px] truncate">{pv.extra?.claim || '—'}</td>
+                                    <td className="px-4 py-2 text-text-muted text-xs">{pv.age}</td>
                                     <td className="px-4 py-2 text-right">
                                         <ResourceActionMenu kind="persistentvolumes" namespace="-" name={pv.name} onRefresh={() => window.location.reload()} />
                                     </td>

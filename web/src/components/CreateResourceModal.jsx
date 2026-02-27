@@ -229,34 +229,34 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-[var(--bg-glass-deep)] border border-[var(--border-color)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 backdrop-saturate-150">
+            <div className="bg-[var(--bg-glass-deep)] border border-border rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 backdrop-saturate-150">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
+                <div className="flex items-center justify-between p-6 border-b border-border">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[var(--accent)] text-[var(--text-white)] rounded-lg">
+                        <div className="p-2 bg-[var(--accent)] text-white rounded-lg">
                             <ZapIcon size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('create_resource')}</h2>
-                            <p className="text-xs text-[var(--text-muted)] mt-0.5 uppercase tracking-widest font-bold">Standard API v1.25+</p>
+                            <h2 className="text-xl font-bold text-primary">{t('create_resource')}</h2>
+                            <p className="text-xs text-text-muted mt-0.5 uppercase tracking-widest font-bold">Standard API v1.25+</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
+                    <button onClick={onClose} className="p-2 text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
                         <CloseIcon size={20} />
                     </button>
                 </div>
 
                 {/* Mode Selector */}
-                <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-[var(--border-color)]">
+                <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-border">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <FileIcon size={14} /> {t('raw_manifest')}
                     </button>
@@ -275,20 +275,20 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3 block">{t('resource_kind')}</label>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-3 block">{t('resource_kind')}</label>
                                     <div className="relative">
                                         <select
                                             value={selectedKind}
                                             onChange={(e) => setSelectedKind(e.target.value)}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
+                                            className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
                                         >
                                             {Object.entries(TEMPLATES).map(([key, tmpl]) => (
-                                                <option key={key} value={key} className="bg-[var(--bg-card)] text-[var(--text-primary)]">
+                                                <option key={key} value={key} className="bg-card text-primary">
                                                     {t(tmpl.name)}
                                                 </option>
                                             ))}
                                         </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
                                             {icons[TEMPLATES[selectedKind]?.iconKey] ? React.createElement(icons[TEMPLATES[selectedKind].iconKey], { size: 16 }) : <ZapIcon size={16} />}
                                         </div>
                                     </div>
@@ -296,25 +296,25 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">{t('label_name')}</label>
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">{t('label_name')}</label>
                                         <input
                                             type="text"
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             placeholder="e.g. my-app"
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                            className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                         />
                                     </div>
                                     {!TEMPLATES[selectedKind]?.isClusterScoped && (
                                         <div>
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">{t('label_namespace')}</label>
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">{t('label_namespace')}</label>
                                             <select
                                                 value={namespace}
                                                 onChange={(e) => setNamespace(e.target.value)}
-                                                className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
+                                                className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
                                             >
                                                 {namespaces?.map(ns => (
-                                                    <option key={ns} value={ns} className="bg-[var(--bg-card)] text-[var(--text-primary)]">{ns}</option>
+                                                    <option key={ns} value={ns} className="bg-card text-primary">{ns}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -323,64 +323,64 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <button
                                     onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-black uppercase tracking-widest hover:text-[var(--accent)] transition-colors"
+                                    className="flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest hover:text-accent transition-colors"
                                 >
                                     <ChevronRightIcon size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
                                     Advanced Options
                                 </button>
 
                                 {showAdvanced && (
-                                    <div className="space-y-4 p-4 bg-[var(--bg-sidebar)]/20 rounded-xl border border-[var(--border-color)] animate-in slide-in-from-top-2">
+                                    <div className="space-y-4 p-4 bg-[var(--bg-sidebar)]/20 rounded-xl border border-border animate-in slide-in-from-top-2">
                                         {(selectedKind === 'pods' || selectedKind === 'deployments') && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">Container Image</label>
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Container Image</label>
                                                 <input
                                                     type="text"
                                                     value={image}
                                                     onChange={(e) => setImage(e.target.value)}
-                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
                                         {selectedKind === 'deployments' && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">Replicas</label>
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Replicas</label>
                                                 <input
                                                     type="number"
                                                     value={replicas}
                                                     onChange={(e) => setReplicas(parseInt(e.target.value) || 1)}
-                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
                                         {(selectedKind === 'pods' || selectedKind === 'deployments' || selectedKind === 'services' || selectedKind === 'ingresses') && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">Port</label>
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Port</label>
                                                 <input
                                                     type="number"
                                                     value={ports}
                                                     onChange={(e) => setPorts(e.target.value)}
                                                     placeholder="80"
-                                                    className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                                                    className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
                                                 />
                                             </div>
                                         )}
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">Labels (key: value)</label>
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Labels (key: value)</label>
                                                 <textarea
                                                     value={labels}
                                                     onChange={(e) => setLabels(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="env: prod"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-2 block">Annotations (key: value)</label>
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Annotations (key: value)</label>
                                                 <textarea
                                                     value={annotations}
                                                     onChange={(e) => setAnnotations(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="managed-by: k-view"
                                                 />
                                             </div>
@@ -390,15 +390,15 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <button
                                     onClick={() => setMode('raw')}
-                                    className="flex items-center gap-2 text-[var(--accent)] text-xs font-bold hover:underline group"
+                                    className="flex items-center gap-2 text-accent text-xs font-bold hover:underline group"
                                 >
                                     {t('switch_to_yaml')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
 
-                            <div className="flex flex-col h-full bg-[var(--bg-sidebar)]/30 border border-[var(--border-color)] rounded-2xl overflow-hidden">
-                                <div className="px-4 py-2 bg-[var(--bg-sidebar)]/50 border-b border-[var(--border-color)] flex items-center justify-between">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Preview</span>
+                            <div className="flex flex-col h-full bg-[var(--bg-sidebar)]/30 border border-border rounded-2xl overflow-hidden">
+                                <div className="px-4 py-2 bg-[var(--bg-sidebar)]/50 border-b border-border flex items-center justify-between">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Preview</span>
                                     <div className="flex gap-1">
                                         <div className="w-2 h-2 rounded-full bg-rose-500/50"></div>
                                         <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
@@ -412,30 +412,30 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         </div>
                     ) : (
                         <div className="h-full flex flex-col">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-3 block">Resource Manifest (YAML/JSON)</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-3 block">Resource Manifest (YAML/JSON)</label>
                             <textarea
                                 value={rawContent}
                                 onChange={(e) => setRawContent(e.target.value)}
-                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-2xl p-6 text-[13px] font-mono text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
+                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-input)] border border-border rounded-2xl p-6 text-[13px] font-mono text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
                                 placeholder={"apiVersion: v1\nkind: Pod\n..."}
                             />
-                            <p className="text-[10px] text-[var(--text-muted)] mt-3 italic">Paste your Kubernetes resource definition here. Supports Multi-resource YAML (WIP).</p>
+                            <p className="text-[10px] text-text-muted mt-3 italic">Paste your Kubernetes resource definition here. Supports Multi-resource YAML (WIP).</p>
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 bg-[var(--bg-sidebar)]/30 border-t border-[var(--border-color)] flex items-center justify-end gap-3">
+                <div className="p-6 bg-[var(--bg-sidebar)]/30 border-t border-border flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                        className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted hover:text-primary transition-colors"
                     >
                         {t('cancel')}
                     </button>
                     <button
                         onClick={handleCreate}
                         disabled={isSubmitting || (mode === 'template' && !name) || !rawContent}
-                        className={`px-8 py-2.5 bg-[var(--accent)] text-[var(--text-white)] text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`px-8 py-2.5 bg-[var(--accent)] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {isSubmitting ? t('saving') : t('create')}
                     </button>

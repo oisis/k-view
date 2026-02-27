@@ -16,7 +16,7 @@ export default function CronJobOverview({ data, metadata, spec, status, relatedJ
                             <span className={`font-bold ${spec.suspend ? 'text-warning' : 'text-success'}`}>{String(spec.suspend)}</span>
                         </DetailRow>
                         <DetailRow label="Last Schedule">
-                            <span className="text-[var(--text-primary)]">{status.lastScheduleTime || '—'}</span>
+                            <span className="text-primary">{status.lastScheduleTime || '—'}</span>
                         </DetailRow>
                     </tbody>
                 </table>

@@ -48,13 +48,13 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     if (!open) setRect(e.currentTarget.getBoundingClientRect());
                     setOpen(o => !o);
                 }}
-                className="flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
+                className="flex items-center gap-2 bg-card border border-border text-primary text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
             >
                 <span className="flex items-center gap-2">
-                    {icons.nodes && <icons.nodes size={14} className="text-[var(--text-muted)]" />}
+                    {icons.nodes && <icons.nodes size={14} className="text-text-muted" />}
                     <span className="truncate">{displayValue}</span>
                 </span>
-                {icons.chevron_down && <icons.chevron_down size={14} className={`text-[var(--text-muted)] transition-transform ${open ? 'rotate-180' : ''}`} />}
+                {icons.chevron_down && <icons.chevron_down size={14} className={`text-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />}
             </button>
 
             {open && rect && createPortal(
@@ -67,12 +67,12 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                         width: Math.max(220, rect.width),
                         zIndex: 9999
                     }}
-                    className="bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-lg shadow-xl overflow-hidden"
+                    className="bg-[var(--bg-dropdown)] border border-border rounded-lg shadow-xl overflow-hidden"
                 >
                     {/* Search input */}
-                    <div className="p-2 border-b border-[var(--border-color)]">
+                    <div className="p-2 border-b border-border">
                         <div className="flex items-center gap-2 bg-[var(--bg-input)] rounded px-2 py-1.5">
-                            {icons.search && <icons.search size={13} className="text-[var(--text-muted)] shrink-0" />}
+                            {icons.search && <icons.search size={13} className="text-text-muted shrink-0" />}
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -83,7 +83,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                             />
                             {query && (
                                 <button onClick={() => setQuery('')}>
-                                    {icons.close && <icons.close size={13} className="text-[var(--text-muted)] hover:text-[var(--text-secondary)]" />}
+                                    {icons.close && <icons.close size={13} className="text-text-muted hover:text-secondary" />}
                                 </button>
                             )}
                         </div>
@@ -92,7 +92,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     {/* Options list */}
                     <ul className="max-h-52 overflow-y-auto py-1">
                         {filtered.length === 0 ? (
-                            <li className="px-4 py-3 text-xs text-[var(--text-muted)] text-center">No matches</li>
+                            <li className="px-4 py-3 text-xs text-text-muted text-center">No matches</li>
                         ) : (
                             filtered.map(ns => {
                                 const value = ns === 'All namespaces' ? '' : ns;
@@ -103,14 +103,14 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         key={ns}
                                         onClick={() => selectNs(ns)}
                                         className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors
-                      ${isSelected ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-bold' : 'text-[var(--text-input)] hover:bg-[var(--sidebar-hover)]'}`}
+                      ${isSelected ? 'bg-[var(--accent)]/10 text-accent font-bold' : 'text-[var(--text-input)] hover:bg-[var(--sidebar-hover)]'}`}
                                     >
-                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-[var(--text-muted)]'} />}
+                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-text-muted'} />}
                                         <span className="flex-1 text-left">{ns}</span>
                                         {isSystem && (
                                             <span className="text-xs text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
                                         )}
-                                        {isSelected && <span className="text-[var(--accent)] text-xs text-right">✓</span>}
+                                        {isSelected && <span className="text-accent text-xs text-right">✓</span>}
                                     </li>
                                 );
                             })

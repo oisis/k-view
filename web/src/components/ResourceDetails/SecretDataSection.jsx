@@ -100,11 +100,11 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {Object.keys(secretData).length === 0 ? (
-                            <tr><td colSpan="3" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No data found in this secret.</td></tr>
+                            <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No data found in this secret.</td></tr>
                         ) : (
                             Object.entries(secretData).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-[var(--text-primary)] font-mono">{key}</td>
+                                    <td className="px-4 py-3 font-bold text-primary font-mono">{key}</td>
                                     <td className="px-4 py-3">
                                         {editingKey === key ? (
                                             <div className="space-y-3">
@@ -126,7 +126,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                                                     <button
                                                         onClick={cancelEdit}
                                                         disabled={isUpdating}
-                                                        className="flex items-center gap-1.5 px-3 py-1 bg-white/5 hover:bg-white/10 text-[var(--text-muted)] rounded text-xs font-bold transition-colors"
+                                                        className="flex items-center gap-1.5 px-3 py-1 bg-white/5 hover:bg-white/10 text-text-muted rounded text-xs font-bold transition-colors"
                                                     >
                                                         <icons.close size={14} />
                                                         Cancel
@@ -135,7 +135,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-3">
-                                                <span className={`font-mono text-sm break-all ${revealedKeys[key] ? 'text-info' : 'text-[var(--text-muted)]'}`}>
+                                                <span className={`font-mono text-sm break-all ${revealedKeys[key] ? 'text-info' : 'text-text-muted'}`}>
                                                     {revealedKeys[key] ? decodeBase64(value) : '••••••••••••••••'}
                                                 </span>
                                             </div>
@@ -145,14 +145,14 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                                         <div className="flex items-center justify-end gap-1">
                                             <button
                                                 onClick={() => toggleReveal(key)}
-                                                className={`p-1.5 rounded transition-colors ${revealedKeys[key] ? 'text-info bg-info/10' : 'text-[var(--text-muted)] hover:bg-white/5'}`}
+                                                className={`p-1.5 rounded transition-colors ${revealedKeys[key] ? 'text-info bg-info/10' : 'text-text-muted hover:bg-white/5'}`}
                                                 title={revealedKeys[key] ? "Hide Value" : "Show Value"}
                                             >
                                                 {revealedKeys[key] ? <icons.lock size={16} /> : <icons.manifest size={16} />}
                                             </button>
                                             <button
                                                 onClick={() => startEdit(key, value)}
-                                                className="p-1.5 text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-white/5 rounded transition-colors"
+                                                className="p-1.5 text-text-muted hover:text-accent hover:bg-white/5 rounded transition-colors"
                                                 title="Edit Value"
                                             >
                                                 <icons.edit size={16} />

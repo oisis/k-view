@@ -198,12 +198,12 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
     }, [pod, namespace, containers, connectTerminal, cleanupTerminal]);
 
     return (
-        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-1 min-h-[500px] shadow-2xl relative">
+        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-1 min-h-[500px] shadow-2xl relative">
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-[var(--border-color)] shrink-0 backdrop-blur-md">
+            <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-border shrink-0 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     {icons.terminal && <icons.terminal size={18} className="text-info" />}
-                    <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
+                    <span className="text-xs uppercase font-bold text-text-muted tracking-widest">
                         Interactive Shell
                     </span>
                     {status === "connected" && (
@@ -217,9 +217,9 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 <div className="flex items-center gap-4">
                     {containers.length > 1 && (
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">Container:</span>
+                            <span className="text-sm font-bold text-text-muted uppercase tracking-widest whitespace-nowrap">Container:</span>
                             <select
-                                className="bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
+                                className="bg-card border border-border text-xs font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
                                 value={selectedContainer}
                                 onChange={(e) => {
                                     const newContainer = e.target.value;
@@ -239,7 +239,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                     )}
                     <button
                         onClick={() => { if (selectedContainer) { cleanupTerminal(); connectTerminal(selectedContainer); } }}
-                        className="p-1.5 text-[var(--text-muted)] hover:text-info hover:bg-info/10 rounded transition-colors"
+                        className="p-1.5 text-text-muted hover:text-info hover:bg-info/10 rounded transition-colors"
                         title="Reconnect"
                     >
                         {icons.refresh && <icons.refresh size={16} className={status === "connecting" ? "animate-spin" : ""} />}
@@ -251,14 +251,14 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             <div className="flex-1 relative w-full overflow-hidden bg-transparent">
                 {(status === "idle" && containers.length > 1) ? (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center p-8 border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]/50 max-w-sm w-full">
-                            {icons.terminal && <icons.terminal size={48} className="mx-auto text-[var(--text-muted)] mb-4 opacity-50" />}
-                            <h3 className="text-[var(--text-[var(--text-white)])] font-medium mb-2">Multiple Containers</h3>
-                            <p className="text-sm text-[var(--text-secondary)] mb-6">Select a container from the toolbar to start a remote shell session.</p>
+                        <div className="text-center p-8 border border-border rounded-xl bg-card/50 max-w-sm w-full">
+                            {icons.terminal && <icons.terminal size={48} className="mx-auto text-text-muted mb-4 opacity-50" />}
+                            <h3 className="text-[var(--text-white)] font-medium mb-2">Multiple Containers</h3>
+                            <p className="text-sm text-secondary mb-6">Select a container from the toolbar to start a remote shell session.</p>
                         </div>
                     </div>
                 ) : status === "connecting" ? (
-                    <div className="absolute inset-0 flex items-center justify-center font-mono text-sm text-[var(--text-muted)]">
+                    <div className="absolute inset-0 flex items-center justify-center font-mono text-sm text-text-muted">
                         <span className="flex items-center gap-2">
                             <div className="w-4 h-4 border-2 border-t-info border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
                             Connecting to pod...

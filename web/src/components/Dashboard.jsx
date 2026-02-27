@@ -23,7 +23,7 @@ function MiniChart({ data, color, label }) {
 
     return (
         <div className="flex flex-col gap-1 w-full mt-2">
-            <div className="flex justify-between text-xs text-[var(--text-muted)] font-mono">
+            <div className="flex justify-between text-xs text-text-muted font-mono">
                 <span>{data[0].timestamp}</span>
                 <span>{label}: {data[data.length - 1].value.toFixed(2)}%</span>
                 <span>{data[data.length - 1].timestamp}</span>
@@ -65,12 +65,12 @@ function MetricCard({ title, value, subValue, iconKey, color, children, onClick,
     return (
         <div
             onClick={onClick}
-            className={`bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
+            className={`bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border ${onClick ? 'cursor-pointer hover:border-[var(--accent)]/50' : ''} transition-all duration-300 group shadow-md hover:shadow-indigo-500/5 relative overflow-hidden`}
         >
             <div className={isCollapsed ? 'mb-5' : 'mb-3'}>
-                <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
-                <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-[var(--text-primary)] tracking-tight group-hover:text-[var(--accent)] transition-colors ${valueClassName}`}>{value}</h3>
-                {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-[var(--text-secondary)] mt-1.5 font-medium opacity-80`}>{subValue}</p>}
+                <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5`}>{title}</p>
+                <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold text-primary tracking-tight group-hover:text-accent transition-colors ${valueClassName}`}>{value}</h3>
+                {subValue && <p className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-secondary mt-1.5 font-medium opacity-80`}>{subValue}</p>}
             </div>
             <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl border ${cls} transition-transform group-hover:scale-110 duration-300`}>
                 <Icon size={isCollapsed ? 22 : 18} />
@@ -107,7 +107,7 @@ export default function Dashboard({ isCollapsed }) {
 
     if (loading && !stats) {
         return (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-[var(--text-secondary)]">
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-secondary">
                 <icons.refresh size={32} className="animate-spin text-blue-500" />
                 <p className="animate-pulse">{t('analyzing_cluster')}</p>
             </div>
@@ -119,10 +119,10 @@ export default function Dashboard({ isCollapsed }) {
             {/* Header */}
             <div className="flex items-end justify-between mb-12">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-[var(--text-primary)] tracking-tight">{t('system_overview')}</h2>
-                    <p className="text-[var(--text-secondary)] mt-2 flex items-center gap-2.5 font-medium">
+                    <h2 className="text-4xl font-extrabold text-primary tracking-tight">{t('system_overview')}</h2>
+                    <p className="text-secondary mt-2 flex items-center gap-2.5 font-medium">
                         <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
-                        {t('connected_as')} <span className="font-mono text-[var(--accent)] font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
+                        {t('connected_as')} <span className="font-mono text-accent font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
                     </p>
                 </div>
             </div>
@@ -163,8 +163,8 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('cluster_platform')}
                     value={
                         <div className="flex flex-col">
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1 font-black">Name</span>
-                            <span className="text-2xl md:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-text-muted mb-1 font-black">Name</span>
+                            <span className="text-2xl md:text-3xl font-black text-primary tracking-tight">
                                 {settings.clusterName || stats?.clusterName || "K8s Cluster"}
                             </span>
                         </div>
@@ -204,7 +204,7 @@ export default function Dashboard({ isCollapsed }) {
                                 style={{ width: stats?.podCount ? `${((stats.podCount - stats.podCountFailed) / stats.podCount) * 100}%` : '0%' }}
                             ></div>
                         </div>
-                        <span className="text-xs font-mono text-[var(--text-muted)]">
+                        <span className="text-xs font-mono text-text-muted">
                             {stats?.podCount ? Math.round(((stats.podCount - stats.podCountFailed) / stats.podCount) * 100) : 0}% {t('healthy')}
                         </span>
                     </div>
@@ -222,12 +222,12 @@ export default function Dashboard({ isCollapsed }) {
                 />
 
                 {/* CPU Usage */}
-                <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
+                <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{t('compute_load')}</p>
+                        <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('compute_load')}</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -235,18 +235,18 @@ export default function Dashboard({ isCollapsed }) {
                     </div>
                     <MiniChart
                         data={stats?.cpuHistory}
-                        color={stats?.cpuUsage >= 80 ? "#ef4444" : "#10b981"}
+                        color="var(--text-success)"
                         label={t('load')}
                     />
                 </div>
 
                 {/* RAM Usage */}
-                <div className={`md:col-span-2 bg-[var(--bg-glass)] glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-[var(--border-color)] shadow-lg hover:border-[var(--accent)]/30 transition-all duration-300 group relative overflow-hidden`}>
+                <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
-                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-1.5">{t('memory_pressure')}</p>
+                        <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('memory_pressure')}</p>
                         <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-[var(--text-secondary)] font-medium opacity-60`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
+                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -254,7 +254,7 @@ export default function Dashboard({ isCollapsed }) {
                     </div>
                     <MiniChart
                         data={stats?.ramHistory}
-                        color={stats?.ramUsage >= 80 ? "#ef4444" : "#10b981"}
+                        color="var(--text-purple)"
                         label={t('used')}
                     />
                 </div>
@@ -262,14 +262,14 @@ export default function Dashboard({ isCollapsed }) {
             </div>
 
             {/* Quick Info Footer */}
-            <div className="mt-10 pt-6 border-t border-[var(--border-color)] flex items-center gap-6 justify-center">
-                <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
+            <div className="mt-10 pt-6 border-t border-border flex items-center gap-6 justify-center">
+                <div className="flex items-center gap-2 text-xs text-text-muted font-medium">
                     <div className="flex items-center gap-2">
                         <icons.about size={14} className="text-info/60" />
                         {t('metrics_update_info', { sec: settings.resourceRefreshInterval })}
                     </div>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
+                <div className="flex items-center gap-2 text-[11px] text-text-muted font-medium">
                     <icons.activity size={14} className="text-success/60" />
                     {t('cluster_health_stable')}
                 </div>

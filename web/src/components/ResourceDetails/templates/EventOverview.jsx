@@ -11,25 +11,25 @@ export default function EventOverview({ data, t }) {
                         <span className={`font-bold ${data.type === 'Warning' ? 'text-error' : 'text-success'}`}>{data.type}</span>
                     </DetailRow>
                     <DetailRow label="Reason">
-                        <span className="font-bold text-[var(--text-primary)]">{data.reason}</span>
+                        <span className="font-bold text-primary">{data.reason}</span>
                     </DetailRow>
                     <DetailRow label="Message">
-                        <span className="text-[var(--text-secondary)]">{data.message}</span>
+                        <span className="text-secondary">{data.message}</span>
                     </DetailRow>
                     <DetailRow label="Object">
                         <span className="font-mono text-info">{data.involvedObject?.kind}/{data.involvedObject?.name}</span>
                     </DetailRow>
                     <DetailRow label="Source">
-                        <span className="text-[var(--text-muted)]">{data.source?.component || '—'} {data.source?.host || ''}</span>
+                        <span className="text-text-muted">{data.source?.component || '—'} {data.source?.host || ''}</span>
                     </DetailRow>
                     <DetailRow label="Count">
-                        <span className="font-bold text-[var(--text-primary)]">{data.count}</span>
+                        <span className="font-bold text-primary">{data.count}</span>
                     </DetailRow>
                     <DetailRow label="First Seen">
-                        <span className="text-[var(--text-muted)]">{data.firstTimestamp}</span>
+                        <span className="text-text-muted">{data.firstTimestamp}</span>
                     </DetailRow>
                     <DetailRow label="Last Seen">
-                        <span className="text-[var(--text-muted)]">{data.lastTimestamp}</span>
+                        <span className="text-text-muted">{data.lastTimestamp}</span>
                     </DetailRow>
                 </tbody>
             </table>

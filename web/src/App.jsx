@@ -44,12 +44,12 @@ function Section({ label, children, defaultOpen = true, isCollapsed, userEmail }
                 onClick={toggle}
                 className="w-full flex items-center justify-between px-2 pt-3 pb-1 group"
             >
-                <span className="text-[13px] font-bold tracking-widest uppercase text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors block">
+                <span className="text-[13px] font-bold tracking-widest uppercase text-text-muted group-hover:text-secondary transition-colors block">
                     {label}
                 </span>
                 {open
-                    ? <icons.chevron_down size={10} className="text-[var(--text-muted)]" />
-                    : <icons.chevron_right size={10} className="text-[var(--text-muted)]" />
+                    ? <icons.chevron_down size={10} className="text-text-muted" />
+                    : <icons.chevron_right size={10} className="text-text-muted" />
                 }
             </button>
             {open && <div className="space-y-0.5">{children}</div>}
@@ -66,16 +66,16 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
             href={href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
         ${active
-                    ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]'}
+                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                    : 'text-secondary hover:bg-[var(--sidebar-hover)] hover:text-primary'}
                 ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-[var(--text-white)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'} transition-colors shrink-0`} />
+            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : 'text-text-muted group-hover:text-primary'} transition-colors shrink-0`} />
             {!isCollapsed && (
                 <>
                     <span className="flex-1 truncate tracking-tight">{label}</span>
-                    {active && <icons.chevron_right size={12} className="text-[var(--text-white)]/70" />}
+                    {active && <icons.chevron_right size={12} className="text-white/70" />}
                 </>
             )}
         </a>
@@ -90,13 +90,13 @@ function NavActionButton({ onClick, iconKey, label, isCollapsed }) {
         <button
             onClick={onClick}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
-        text-[var(--text-secondary)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)]
+        text-secondary hover:bg-[var(--sidebar-hover)] hover:text-primary
         ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full text-left'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors shrink-0" />
+            <Icon size={isCollapsed ? 20 : 16} className="text-text-muted group-hover:text-primary transition-colors shrink-0" />
             {!isCollapsed && (
-                <span className="flex-1 truncate tracking-tight font-bold text-[var(--accent)]">{label}</span>
+                <span className="flex-1 truncate tracking-tight font-bold text-accent">{label}</span>
             )}
         </button>
     );
@@ -109,9 +109,9 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
     const { icons } = useTheme();
 
     return (
-        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
+        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-border flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
             {/* Logo + Toggle */}
-            <div className={`border-b border-[var(--border-color)] flex items-center transition-all duration-300 min-h-[64px] py-2 ${isCollapsed ? 'px-0 justify-center' : 'px-4 justify-between gap-2'}`}>
+            <div className={`border-b border-border flex items-center transition-all duration-300 min-h-[64px] py-2 ${isCollapsed ? 'px-0 justify-center' : 'px-4 justify-between gap-2'}`}>
                 {!isCollapsed ? (
                     <div className="flex-1 flex justify-center overflow-hidden">
                         <img src={logo} alt="K-View Logo" className="w-44 h-auto opacity-95 transition-all duration-300 transform origin-left" />
@@ -119,8 +119,8 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                 ) : null}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
-                        ${isCollapsed ? 'hover:bg-[var(--accent)]/10 text-[var(--accent)]' : ''}`}
+                    className={`p-2 rounded-xl text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
+                        ${isCollapsed ? 'hover:bg-[var(--accent)]/10 text-accent' : ''}`}
                     title={isCollapsed ? t('expand_menu') : t('collapse_menu')}
                 >
                     {isCollapsed ? <icons.expand_menu size={20} /> : <icons.collapse_menu size={20} />}
@@ -183,14 +183,14 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
             </nav>
 
             {/* Bottom: admin + mode label + logout */}
-            <div className={`border-t border-[var(--border-color)] transition-all duration-300 ${isCollapsed ? 'py-3 px-2 flex flex-col items-center gap-4' : 'px-3 py-3 space-y-2'}`}>
+            <div className={`border-t border-border transition-all duration-300 ${isCollapsed ? 'py-3 px-2 flex flex-col items-center gap-4' : 'px-3 py-3 space-y-2'}`}>
                 {!isCollapsed && (user.role === 'kview-cluster-admin' || user.role === 'admin') && (
                     <a
                         href="/access"
                         className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold transition-all w-full
                 ${p === '/access'
                                 ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-sm'
-                                : 'text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
+                                : 'text-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
                     >
                         <icons.admin_panel size={16} /> {t('admin_panel')}
                     </a>
@@ -301,14 +301,14 @@ function App() {
     };
 
     if (loading) {
-        return <div className="flex items-center justify-center min-h-screen text-[var(--text-secondary)] bg-[var(--bg-main)]">{t('loading')}</div>;
+        return <div className="flex items-center justify-center min-h-screen text-secondary bg-main">{t('loading')}</div>;
     }
 
     const protect = (el) => user ? el : <Navigate to="/login" />;
 
     return (
         <Router>
-            <div className={`flex h-screen text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
+            <div className={`flex h-screen text-primary relative overflow-hidden transition-colors duration-200`}>
                 <div
                     className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
                     style={{

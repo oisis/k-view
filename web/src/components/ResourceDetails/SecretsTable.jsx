@@ -8,7 +8,7 @@ export default function SecretsTable({ secrets, namespace, t }) {
     return (
         <DetailSection title="Secrets" className="mt-4">
             {items.length === 0 ? (
-                <div className="p-4 text-center text-sm text-[var(--text-muted)] italic">No secrets found.</div>
+                <div className="p-4 text-center text-sm text-text-muted italic">No secrets found.</div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
@@ -23,7 +23,7 @@ export default function SecretsTable({ secrets, namespace, t }) {
                                     <td className="px-4 py-2 font-mono text-sm">
                                         <Link
                                             to={`/secrets/${namespace || '-'}/${s.name}`}
-                                            className="text-[var(--accent)] hover:underline font-bold"
+                                            className="text-accent hover:underline font-bold"
                                         >
                                             {s.name}
                                         </Link>

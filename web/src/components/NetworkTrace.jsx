@@ -160,19 +160,19 @@ export default function NetworkTrace({ kind, namespace, name }) {
     return (
         <div className="flex flex-col flex-1">
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/60 backdrop-blur-md">
+            <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-[var(--bg-sidebar)]/60 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-900/30 text-blue-400 rounded-lg">
                         {icons.activity && <icons.activity size={18} />}
                     </div>
                     <div>
-                        <h2 className="text-sm font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">Network Flow Trace</h2>
-                        <p className="text-xs text-[var(--text-muted)] font-mono">
+                        <h2 className="text-sm font-bold text-[var(--text-white)] uppercase tracking-wider">Network Flow Trace</h2>
+                        <p className="text-xs text-text-muted font-mono">
                             {kind.toUpperCase()} • {namespace ? `${namespace}/` : ''}{name}
                         </p>
                     </div>
                 </div>
-                <button onClick={fetchTrace} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-white)] hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
+                <button onClick={fetchTrace} className="p-2 text-secondary hover:text-white hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
                     {icons.refresh && <icons.refresh size={16} className={loading ? "animate-spin" : ""} />}
                 </button>
             </div>
@@ -180,7 +180,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
             {/* Content Area */}
             <div className="flex-1 overflow-auto bg-[var(--bg-sidebar)]/20 backdrop-blur-md p-6">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center p-20 text-[var(--text-muted)] h-full min-h-[300px]">
+                    <div className="flex flex-col items-center justify-center p-20 text-text-muted h-full min-h-[300px]">
                         {icons.activity && <icons.activity size={32} className="animate-pulse mb-4 text-blue-500/50" />}
                         <p>Analyzing network topology...</p>
                     </div>
@@ -198,7 +198,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {traceData.nodes.map((n, i) => (
                                 <div key={i} className={`flex items-start gap-2.5 p-2.5 rounded-lg border ${n.healthy ? 'bg-success/10 border-success/20 shadow-sm' : 'bg-error/10 border-error/20 shadow-sm'}`}>
-                                    <div className="mt-0.5 text-[var(--text-muted)]">
+                                    <div className="mt-0.5 text-text-muted">
                                         {kindIconMap[n.type.toLowerCase()] || (icons.pod && <icons.pod size={14} />)}
                                     </div>
                                     <div>
@@ -207,15 +207,15 @@ export default function NetworkTrace({ kind, namespace, name }) {
                                                 {n.type}: {n.name}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-[var(--text-primary)] mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
+                                        <p className="text-xs text-primary mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* Diagram Container */}
-                        <div className="mt-8 bg-[var(--bg-sidebar)]/40 border border-[var(--border-color)] rounded-2xl p-6 overflow-x-auto relative flex items-center justify-center glass shadow-inner">
-                            <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold font-mono text-[var(--text-primary)]">
+                        <div className="mt-8 bg-[var(--bg-sidebar)]/40 border border-border rounded-2xl p-6 overflow-x-auto relative flex items-center justify-center glass shadow-inner">
+                            <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold font-mono text-primary">
                                 <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Healthy</span>
                                 <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-error"></div> Error</span>
                             </div>

@@ -14,13 +14,13 @@ export default function PvcOverview({ data, metadata, spec, status, t }) {
                         <span className="font-mono text-info font-bold">{spec.volumeName}</span>
                     </DetailRow>
                     <DetailRow label="Storage Class">
-                        <span className="text-[var(--text-primary)]">{spec.storageClassName}</span>
+                        <span className="text-primary">{spec.storageClassName}</span>
                     </DetailRow>
                     <DetailRow label="Access Modes">
-                        <span className="text-[var(--text-secondary)]">{spec.accessModes?.join(', ')}</span>
+                        <span className="text-secondary">{spec.accessModes?.join(', ')}</span>
                     </DetailRow>
                     <DetailRow label="Capacity">
-                        <span className="font-bold text-[var(--text-primary)]">{status.capacity?.storage}</span>
+                        <span className="font-bold text-primary">{status.capacity?.storage}</span>
                     </DetailRow>
                 </tbody>
             </table>

@@ -6,7 +6,7 @@ export default function PolicyRulesTable({ title, rules, t }) {
     if (!rules || rules.length === 0) {
         return (
             <DetailSection title={title} className="mt-4">
-                <div className="p-4 bg-[var(--bg-sidebar)]/5 text-[var(--text-muted)] italic text-sm">
+                <div className="p-4 bg-[var(--bg-sidebar)]/5 text-text-muted italic text-sm">
                     No rules defined.
                 </div>
             </DetailSection>

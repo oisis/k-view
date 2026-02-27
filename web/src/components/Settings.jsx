@@ -4,7 +4,7 @@ import { useTheme } from '../ThemeContext';
 
 const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, max, placeholder, description }) => (
     <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+        <label className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
             <Icon size={14} /> {label}
         </label>
         <div className="relative">
@@ -15,28 +15,28 @@ const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, ma
                 min={min}
                 max={max}
                 placeholder={placeholder}
-                className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
+                className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
             />
         </div>
-        {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
+        {description && <p className="text-[11px] text-text-muted italic">{description}</p>}
     </div>
 );
 
 const SelectField = ({ label, icon: Icon, value, onChange, options, description }) => (
     <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+        <label className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
             <Icon size={14} /> {label}
         </label>
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
+            className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer"
         >
             {options.map(opt => (
-                <option key={opt.value} value={opt.value} className="bg-[var(--bg-card)] text-[var(--text-primary)]">{opt.label}</option>
+                <option key={opt.value} value={opt.value} className="bg-card text-primary">{opt.label}</option>
             ))}
         </select>
-        {description && <p className="text-[11px] text-[var(--text-muted)] italic">{description}</p>}
+        {description && <p className="text-[11px] text-text-muted italic">{description}</p>}
     </div>
 );
 
@@ -104,7 +104,7 @@ export default function Settings() {
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <icons.activity className="animate-spin text-info" size={32} />
-                    <p className="text-[13px] text-[var(--text-muted)]">{t('loading_settings')}</p>
+                    <p className="text-[13px] text-text-muted">{t('loading_settings')}</p>
                 </div>
             </div>
         );

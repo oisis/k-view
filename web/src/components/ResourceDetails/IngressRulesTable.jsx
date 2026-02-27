@@ -21,15 +21,15 @@ export default function IngressRulesTable({ spec, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {rules.length === 0 ? (
-                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No rules defined.</td></tr>
+                            <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No rules defined.</td></tr>
                         ) : (
                             rules.map((rule, ri) => (
                                 (rule.http?.paths || [{}]).map((path, pi) => (
                                     <tr key={`${ri}-${pi}`} className="hover:bg-white/5 transition-colors">
                                         <td className="px-4 py-2 font-bold text-info font-mono text-xs">{rule.host || '*'}</td>
-                                        <td className="px-4 py-2 font-mono text-xs text-[var(--text-primary)]">{path.path || '/'}</td>
-                                        <td className="px-4 py-2 text-xs text-[var(--text-muted)]">{path.pathType || 'ImplementationSpecific'}</td>
-                                        <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono text-xs">
+                                        <td className="px-4 py-2 font-mono text-xs text-primary">{path.path || '/'}</td>
+                                        <td className="px-4 py-2 text-xs text-text-muted">{path.pathType || 'ImplementationSpecific'}</td>
+                                        <td className="px-4 py-2 font-bold text-accent font-mono text-xs">
                                             <Link to={`/services/${spec.namespace || '-'}/${path.backend?.service?.name}`} className="hover:underline">
                                                 {path.backend?.service?.name || '—'}
                                             </Link>

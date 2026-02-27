@@ -8,7 +8,7 @@ export default function ImagePullSecretsTable({ imagePullSecrets, namespace, t }
     return (
         <DetailSection title="Image Pull Secrets" className="mt-4">
             {items.length === 0 ? (
-                <div className="p-4 text-center text-sm text-[var(--text-muted)] italic">No image pull secrets found.</div>
+                <div className="p-4 text-center text-sm text-text-muted italic">No image pull secrets found.</div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">

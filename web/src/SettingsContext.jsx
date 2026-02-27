@@ -33,7 +33,6 @@ export function SettingsProvider({ children }) {
             if (saved) {
                 setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
             } else if (scope !== 'anonymous') {
-                // If switching to a user who has no settings, try to inherit from anonymous or use defaults
                 const anonSaved = localStorage.getItem('kview-settings-anonymous');
                 if (anonSaved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(anonSaved) });
                 else setSettings(DEFAULT_SETTINGS);
@@ -42,6 +41,20 @@ export function SettingsProvider({ children }) {
             setSettings(DEFAULT_SETTINGS);
         }
     }, [settingsKey, scope]);
+
+    // Sync settings across tabs
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === settingsKey && e.newValue) {
+                try {
+                    const newSettings = JSON.parse(e.newValue);
+                    setSettings(prev => ({ ...prev, ...newSettings }));
+                } catch (err) { }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [settingsKey]);
 
     useEffect(() => {
         localStorage.setItem(settingsKey, JSON.stringify(settings));

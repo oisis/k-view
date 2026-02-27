@@ -8,7 +8,7 @@ function NamespaceSelect({ namespaces, selected, onChange }) {
         <select
             value={selected || ''}
             onChange={(e) => onChange(e.target.value)}
-            className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none min-w-[150px] font-medium h-10"
+            className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-primary focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none min-w-[150px] font-medium h-10"
         >
             <option value="">{t('all_namespaces') || 'All Namespaces'}</option>
             {namespaces.map(ns => (
@@ -149,8 +149,8 @@ export default function EventsList() {
         <div className="p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-1">{t('events') || 'Events'}</h2>
-                    <p className="text-[var(--text-secondary)] text-sm">
+                    <h2 className="text-2xl font-bold text-primary mb-1">{t('events') || 'Events'}</h2>
+                    <p className="text-secondary text-sm">
                         {loading ? t('loading') || 'Loading...' : `${filteredItems.length} ${filteredItems.length === 1 ? t('item') || 'item' : t('items') || 'items'}`}
                         {namespace && ` ${t('in_ns') || 'in namespace'} "${namespace}"`}
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages }) || `Page ${currentPage} of ${totalPages}`}`}
@@ -162,7 +162,7 @@ export default function EventsList() {
                         placeholder={t('search_placeholder') || 'Search...'}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-[var(--border-color)] px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                     <NamespaceSelect
                         namespaces={namespaces}
@@ -176,20 +176,20 @@ export default function EventsList() {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="glass rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
+            <div className="glass rounded-2xl border border-border shadow-2xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)]">
-                        <thead className="text-[13px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-widest border-b border-[var(--border-color)]">
+                    <table className="w-full text-[var(--font-size-sm)] text-left text-primary">
+                        <thead className="text-[13px] text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-widest border-b border-border">
                             <tr>
                                 {cols.map(col => (
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-[var(--text-primary)] transition-colors group select-none font-bold"
+                                        className="px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold"
                                     >
                                         <div className="flex items-center gap-2">
                                             {t(`label_${col.label.toLowerCase().replace(' ', '_')}`) || col.label}
-                                            <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
+                                            <span className="text-text-muted group-hover:text-secondary transition-colors">
                                                 {sortConfig.key === col.key ? (
                                                     sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                 ) : (
@@ -203,27 +203,27 @@ export default function EventsList() {
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
                             {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={cols.length} className="px-6 py-8 text-center text-[var(--text-muted)] italic">{t('loading') || 'Loading...'}</td></tr>
+                                <tr><td colSpan={cols.length} className="px-6 py-8 text-center text-text-muted italic">{t('loading') || 'Loading...'}</td></tr>
                             ) : paginatedItems.length === 0 ? (
-                                <tr><td colSpan={cols.length} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_events') || 'No events found.'}</td></tr>
+                                <tr><td colSpan={cols.length} className="px-6 py-8 text-center text-text-muted">{t('no_events') || 'No events found.'}</td></tr>
                             ) : paginatedItems.map((item, i) => (
-                                <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
+                                <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {cols.map(col => {
                                         const val = getVal(item, col.key);
                                         let cellClass = "px-4 py-2 whitespace-nowrap";
-                                        let content = <span className="text-[var(--text-secondary)] font-medium">{val}</span>;
+                                        let content = <span className="text-secondary font-medium">{val}</span>;
 
                                         if (col.key === 'name') {
                                             content = <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${item.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>{String(val)}</span>;
                                         } else if (col.key === 'message') {
-                                            content = <span className="text-[var(--text-secondary)] max-w-sm block break-words whitespace-normal leading-tight">{String(val)}</span>;
+                                            content = <span className="text-secondary max-w-sm block break-words whitespace-normal leading-tight">{String(val)}</span>;
                                         } else if (col.key === 'reason') {
-                                            content = <span className="text-[var(--text-primary)] font-bold">{String(val)}</span>;
+                                            content = <span className="text-primary font-bold">{String(val)}</span>;
                                         } else if (col.key === 'count') {
                                             cellClass = "px-4 py-2 whitespace-nowrap text-center";
-                                            content = <span className="text-[var(--text-primary)] font-bold">{String(val)}</span>;
+                                            content = <span className="text-primary font-bold">{String(val)}</span>;
                                         } else if (col.key === 'source' || col.key === 'object' || col.key === 'firstSeen' || col.key === 'lastSeen') {
-                                            content = <span className="text-[var(--text-muted)] text-[11px] font-mono">{String(val)}</span>;
+                                            content = <span className="text-text-muted text-[11px] font-mono">{String(val)}</span>;
                                         }
 
                                         return <td key={col.key} className={cellClass}>{content}</td>;
@@ -236,15 +236,15 @@ export default function EventsList() {
             </div>
 
             {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-between bg-[var(--bg-glass)] glass rounded-xl border border-[var(--border-color)] px-6 py-4">
-                    <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                <div className="mt-6 flex items-center justify-between bg-glass glass rounded-xl border border-border px-6 py-4">
+                    <div className="text-xs font-bold text-text-muted uppercase tracking-widest">
                         {t('showing') || 'Showing'} {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} {t('of') || 'of'} {filteredItems.length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_left size={18} />
                         </button>
@@ -254,13 +254,13 @@ export default function EventsList() {
                                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                                 .map((p, i, arr) => (
                                     <React.Fragment key={p}>
-                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-[var(--text-muted)] px-1">...</span>}
+                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-text-muted px-1">...</span>}
                                         <button
                                             onClick={() => setCurrentPage(p)}
                                             className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
                                                 ${currentPage === p
-                                                    ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg shadow-indigo-500/20'
-                                                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--accent)]/30'}`}
+                                                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                                                    : 'text-text-muted hover:text-primary border border-border hover:border-[var(--accent)]/30'}`}
                                         >
                                             {p}
                                         </button>
@@ -272,7 +272,7 @@ export default function EventsList() {
                         <button
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="p-2 rounded-lg border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_right size={18} />
                         </button>

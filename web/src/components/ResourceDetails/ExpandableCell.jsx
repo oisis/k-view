@@ -9,10 +9,10 @@ export default function ExpandableCell({ value, type }) {
     const { activeTheme } = useTheme();
     const buttonRef = useRef(null);
 
-    if (!value || value === '—') return <span className="text-[var(--text-muted)]">—</span>;
+    if (!value || value === '—') return <span className="text-text-muted">—</span>;
 
     const items = typeof value === 'string' ? value.split(',').map(s => s.trim()) : (Array.isArray(value) ? value : [String(value)]);
-    if (items.length === 0) return <span className="text-[var(--text-muted)]">—</span>;
+    if (items.length === 0) return <span className="text-text-muted">—</span>;
 
     const handleMouseEnter = () => {
         if (buttonRef.current) {
@@ -28,7 +28,7 @@ export default function ExpandableCell({ value, type }) {
         <div className="relative group/expandable">
             <div className="flex flex-col gap-1 py-1 max-w-[300px]">
                 {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-[var(--text-secondary)] truncate" title={it}>
+                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-secondary truncate" title={it}>
                         {it}
                     </div>
                 ))}
@@ -40,7 +40,7 @@ export default function ExpandableCell({ value, type }) {
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsHovered(false)}
                             onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-[11px] font-bold text-[var(--accent)] hover:text-[var(--text-primary)] mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
+                            className="text-[11px] font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
                         >
                             Show all ({items.length})
                         </button>
@@ -67,7 +67,7 @@ export default function ExpandableCell({ value, type }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         {type === 'labels' ? 'Labels' : 'Images'}
                     </div>
                     <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">

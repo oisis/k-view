@@ -11,7 +11,7 @@ export default function ConditionBadge({ label, status }) {
             ) : (
                 <icons.alert size={12} className="text-warning" />
             )}
-            <span className="text-xs text-[var(--text-secondary)]">{label}</span>
+            <span className="text-xs text-secondary">{label}</span>
         </div>
     );
 }

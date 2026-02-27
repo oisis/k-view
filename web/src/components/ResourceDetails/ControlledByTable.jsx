@@ -19,18 +19,18 @@ export default function ControlledByTable({ ownerReferences, namespace, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {(!ownerReferences || ownerReferences.length === 0) ? (
-                            <tr><td colSpan="6" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No controller found.</td></tr>
+                            <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No controller found.</td></tr>
                         ) : (
                             ownerReferences.map((ref, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono text-xs">
+                                    <td className="px-4 py-2 font-bold text-accent font-mono text-xs">
                                         <Link to={`/${ref.kind.toLowerCase()}s/${namespace}/${ref.name}`} className="hover:underline">{ref.name}</Link>
                                     </td>
-                                    <td className="px-4 py-2 text-xs font-bold uppercase text-[var(--text-muted)] tracking-wider">{ref.kind}</td>
+                                    <td className="px-4 py-2 text-xs font-bold uppercase text-text-muted tracking-wider">{ref.kind}</td>
                                     <td className="px-4 py-2 text-center">—</td>
-                                    <td className="px-4 py-2 text-xs text-[var(--text-muted)]">—</td>
-                                    <td className="px-4 py-2"><span className="text-[var(--text-muted)] italic">—</span></td>
-                                    <td className="px-4 py-2"><span className="text-[var(--text-muted)] italic">—</span></td>
+                                    <td className="px-4 py-2 text-xs text-text-muted">—</td>
+                                    <td className="px-4 py-2"><span className="text-text-muted italic">—</span></td>
+                                    <td className="px-4 py-2"><span className="text-text-muted italic">—</span></td>
                                 </tr>
                             ))
                         )}

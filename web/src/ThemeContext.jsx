@@ -120,6 +120,17 @@ export function ThemeProvider({ children }) {
         localStorage.setItem('kview-theme', activeTheme);
     }, [activeTheme]);
 
+    // Sync theme across tabs
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'kview-theme' && e.newValue) {
+                setActiveTheme(e.newValue);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
     const value = {
         themes: {
             'dark': { id: 'dark', name: 'Dark' },

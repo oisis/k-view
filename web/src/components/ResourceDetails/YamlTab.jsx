@@ -62,33 +62,33 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
 
     if (loading) {
         return (
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] flex items-center justify-center p-8 min-h-[400px]">
+            <div className="bg-glass glass rounded-2xl border border-border flex items-center justify-center p-8 min-h-[400px]">
                 <div className="flex flex-col items-center gap-3">
                     <icons.refresh size={32} className="animate-spin text-info" />
-                    <p className="text-[var(--text-muted)] font-medium">{t('loading')}</p>
+                    <p className="text-text-muted font-medium">{t('loading')}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden flex flex-col flex-none">
-            <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-[var(--text-white)])]/5 border-b border-[var(--border-color)]/20">
+        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
+            <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-border/20">
                 <div className="flex items-center gap-4">
-                    <span className="text-xs uppercase font-bold text-[var(--text-muted)] tracking-widest">
+                    <span className="text-xs uppercase font-bold text-text-muted tracking-widest">
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                     </span>
                     {!isEditing && (
                         <div className="flex bg-black/30 rounded p-0.5">
                             <button
                                 onClick={() => setFormat('yaml')}
-                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])]'}`}
+                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-text-muted hover:text-[var(--text-white)]'}`}
                             >
                                 YAML
                             </button>
                             <button
                                 onClick={() => setFormat('json')}
-                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])]'}`}
+                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-text-muted hover:text-[var(--text-white)]'}`}
                             >
                                 JSON
                             </button>
@@ -96,11 +96,11 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-[10px] uppercase font-black text-[var(--text-muted)] pl-2">Size</span>
+                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-[10px] uppercase font-black text-text-muted pl-2">Size</span>
                         <select
                             value={editorFontSize}
                             onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
-                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-[var(--border-color)]"
+                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
                         >
                             {[10, 11, 12, 13, 14, 16].map(size => (
                                 <option key={size} value={size}>{size}px</option>
@@ -121,7 +121,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         <>
                             <button
                                 onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                className="text-xs font-bold px-3 py-1 text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])] transition-colors uppercase tracking-widest"
+                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
                                 disabled={isSaving}
                             >
                                 {t('cancel')}
@@ -168,7 +168,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         </>
                     )}
                     {!isEditing && (
-                        <button className="text-[var(--text-muted)] hover:text-[var(--text-[var(--text-white)])] transition-colors" onClick={() => {
+                        <button className="text-text-muted hover:text-[var(--text-white)] transition-colors" onClick={() => {
                             navigator.clipboard.writeText(yaml).then(() => {
                                 setShowSuccess(true);
                                 setTimeout(() => setShowSuccess(false), 2000);

@@ -19,12 +19,12 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
         <>
             <DetailSection title="Addresses" className="mt-4">
                 {addresses.length === 0 ? (
-                    <div className="p-4 text-center text-[var(--text-muted)] italic">No addresses found.</div>
+                    <div className="p-4 text-center text-text-muted italic">No addresses found.</div>
                 ) : (
                     <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {addresses.map((addr, idx) => (
                             <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-slate-600/50 flex flex-col">
-                                <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider mb-1">{addr.type}</span>
+                                <span className="text-[10px] font-black text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
                                 <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
                             </div>
                         ))}
@@ -121,7 +121,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
                         <thead>
-                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-[10px] font-black tracking-widest text-[var(--text-muted)] border-b border-slate-600">
+                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-[10px] font-black tracking-widest text-text-muted border-b border-slate-600">
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Last probe time</th>
@@ -132,7 +132,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                         </thead>
                         <tbody className="divide-y divide-slate-600/50">
                             {conditions.length === 0 ? (
-                                <tr><td colSpan="6" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No conditions found.</td></tr>
+                                <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No conditions found.</td></tr>
                             ) : (
                                 conditions.map((cond, idx) => (
                                     <tr key={idx} className="hover:bg-slate-700/10 transition-colors">
@@ -142,10 +142,10 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                                                 {cond.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-xs text-[var(--text-muted)] font-mono">{cond.lastProbeTime ? new Date(cond.lastProbeTime).toLocaleString() : '—'}</td>
-                                        <td className="px-4 py-3 text-xs text-[var(--text-muted)] font-mono">{cond.lastTransitionTime ? new Date(cond.lastTransitionTime).toLocaleString() : '—'}</td>
+                                        <td className="px-4 py-3 text-xs text-text-muted font-mono">{cond.lastProbeTime ? new Date(cond.lastProbeTime).toLocaleString() : '—'}</td>
+                                        <td className="px-4 py-3 text-xs text-text-muted font-mono">{cond.lastTransitionTime ? new Date(cond.lastTransitionTime).toLocaleString() : '—'}</td>
                                         <td className="px-4 py-3 font-medium">{cond.reason}</td>
-                                        <td className="px-4 py-3 text-xs text-[var(--text-secondary)] italic max-w-xs truncate" title={cond.message}>{cond.message}</td>
+                                        <td className="px-4 py-3 text-xs text-secondary italic max-w-xs truncate" title={cond.message}>{cond.message}</td>
                                     </tr>
                                 ))
                             )}

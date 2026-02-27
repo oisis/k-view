@@ -92,16 +92,16 @@ export default function Login() {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center min-h-screen text-[var(--text-secondary)]">Checking authentication settings...</div>;
+        return <div className="flex justify-center items-center min-h-screen text-secondary">Checking authentication settings...</div>;
     }
 
     return (
         <div className="flex items-center justify-center min-h-screen">
-            <div className="bg-[var(--bg-card)] p-8 rounded-2xl shadow-2xl max-w-sm w-full border border-[var(--border-color)] glass relative overflow-hidden">
+            <div className="bg-card p-8 rounded-2xl shadow-2xl max-w-sm w-full border border-border glass relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
                 <div className="text-center mb-8 relative z-10">
                     <h1 className="text-3xl font-bold text-blue-400 mb-2">K-View</h1>
-                    <p className="text-[var(--text-secondary)]">Kubernetes Dashboard</p>
+                    <p className="text-secondary">Kubernetes Dashboard</p>
                 </div>
 
                 {loginError && (
@@ -121,11 +121,11 @@ export default function Login() {
                 )}
 
                 {providers.local && (
-                    <div className="mt-4 pt-4 border-t border-[var(--border-color)] text-center">
+                    <div className="mt-4 pt-4 border-t border-border text-center">
                         {!showLocalLogin ? (
                             <button
                                 onClick={() => setShowLocalLogin(true)}
-                                className="text-xs text-[var(--text-secondary)] hover:text-blue-400 transition-colors flex items-center justify-center gap-1 mx-auto"
+                                className="text-xs text-secondary hover:text-blue-400 transition-colors flex items-center justify-center gap-1 mx-auto"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6" /></svg>
                                 Local user login
@@ -133,10 +133,10 @@ export default function Login() {
                         ) : providers.oidc && (
                             <div className="relative my-4">
                                 <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-[var(--border-color)]"></div>
+                                    <div className="w-full border-t border-border"></div>
                                 </div>
                                 <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                                    <span className="px-2 bg-[var(--bg-card)] text-[var(--text-muted)]">Local Auth</span>
+                                    <span className="px-2 bg-card text-text-muted">Local Auth</span>
                                 </div>
                             </div>
                         )}
@@ -146,23 +146,23 @@ export default function Login() {
                 {providers.local && showLocalLogin && (
                     <form onSubmit={handleLocalSubmit} className="space-y-4 mb-4">
                         <div>
-                            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Username</label>
+                            <label className="block text-xs font-medium text-secondary mb-1">Username</label>
                             <input
                                 type="text"
                                 required
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
-                                className="w-full px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-md text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full px-3 py-2 bg-main border border-border rounded-md text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">Password</label>
+                            <label className="block text-xs font-medium text-secondary mb-1">Password</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                className="w-full px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-md text-sm text-[var(--text-primary)] focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full px-3 py-2 bg-main border border-border rounded-md text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
                             />
                         </div>
                         <button
@@ -182,8 +182,8 @@ export default function Login() {
                 )}
 
                 {providers.dev && (
-                    <div className="border-t border-[var(--border-color)] mt-6 pt-4 relative z-10">
-                        <p className="text-xs text-[var(--text-muted)] text-center mb-3 uppercase font-bold tracking-wider">Development</p>
+                    <div className="border-t border-border mt-6 pt-4 relative z-10">
+                        <p className="text-xs text-text-muted text-center mb-3 uppercase font-bold tracking-wider">Development</p>
                         <button
                             onClick={handleDevLogin}
                             className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-bold text-[var(--text-button)] bg-[var(--bg-warning)] hover:brightness-110 transition-all shadow-lg"

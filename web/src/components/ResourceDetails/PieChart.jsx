@@ -35,12 +35,12 @@ export default function PieChart({ percent, label, subLabel, color = 'var(--acce
                     />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs font-bold text-[var(--text-primary)]">{validPercent.toFixed(1)}%</span>
+                    <span className="text-xs font-bold text-primary">{validPercent.toFixed(1)}%</span>
                 </div>
             </div>
             <div className="mt-2 text-center">
-                <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">{label}</div>
-                <div className="text-xs font-mono text-[var(--text-secondary)]">{subLabel}</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</div>
+                <div className="text-xs font-mono text-secondary">{subLabel}</div>
             </div>
         </div>
     );

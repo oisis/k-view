@@ -3,8 +3,8 @@ import React from 'react';
 export default function ProbeDetail({ label, probe, t }) {
     if (!probe) return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{label}</span>
-            <span className="text-[var(--text-muted)] italic">{t('not_defined')}</span>
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">{label}</span>
+            <span className="text-text-muted italic">{t('not_defined')}</span>
         </div>
     );
 
@@ -16,10 +16,10 @@ export default function ProbeDetail({ label, probe, t }) {
 
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">{label}</span>
+            <span className="text-xs font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
                          <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded">                {details || 'Unknown'}
             </div>
-            <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
+            <div className="text-xs text-text-muted mt-1 flex flex-wrap gap-x-3">
                 <span>{t('delay')}: {probe.initialDelaySeconds || 0}s</span>
                 <span>{t('timeout')}: {probe.timeoutSeconds || 1}s</span>
                 <span>{t('period')}: {probe.periodSeconds || 10}s</span>

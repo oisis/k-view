@@ -17,7 +17,7 @@ export default function ContainersSection({ podSpec, isPod, t, namespace }) {
                 ))}
                 {podSpec.initContainers?.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-slate-600/50">
-                        <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-4">Init Containers</p>
+                        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-4">Init Containers</p>
                         <div className="space-y-4">
                             {podSpec.initContainers.map(c => (
                                 <ContainerDetails

@@ -214,7 +214,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
             <button
                 onClick={toggleMenu}
-                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-[var(--text-white)] shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]'}`}
+                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)]'}`}
             >
                 {icons.more ? <icons.more size={16} /> : <span>•••</span>}
             </button>
@@ -231,46 +231,46 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="w-56 bg-[var(--bg-dropdown)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                    <div className="w-56 bg-[var(--bg-dropdown)] border border-border rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                         {(isPod || isWorkload) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-[var(--accent)] hover:text-[var(--text-white)] hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-border/30 mb-1 pb-2">
                                 {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
                             </button>
                         )}
                         {isCronJob && (
-                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-[var(--text-white)] hover:bg-emerald-500 transition-colors uppercase tracking-widest group border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-widest group border-b border-border/30 mb-1 pb-2">
                                 {icons.zap && <icons.zap size={14} className="group-hover:scale-125 transition-transform" />} {t('run_now')}
                             </button>
                         )}
-                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-secondary hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                             {icons.edit && <icons.edit size={14} />} {t('edit')}
                         </button>
-                        <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-[var(--border-color)]/30 mb-1 pb-2">
+                        <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-border/30 mb-1 pb-2">
                             {icons.trash && <icons.trash size={14} />} {t('delete')}
                         </button>
 
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
                             </button>
                         )}
                         {isScalable && (
-                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.activity && <icons.activity size={14} />} {t('scale_replicas')}
                             </button>
                         )}
                         {(isPod || isDaemonSet || isJob || isReplicaSet || isStatefulSet || isReplicationController) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('view_logs')}
                             </button>
                         )}
                         {isPod && (
-                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                             </button>
                         )}
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
                                 {icons.download && <icons.download size={14} />} {t('export_yaml')}
                             </button>
                         )}
@@ -283,7 +283,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
             {isOpen && confirmAction && createPortal(
                 <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setConfirmAction(null); setIsOpen(false); }} />
-                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6">
                             {confirmAction === 'delete' && (
                                 <>
@@ -292,28 +292,28 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             {icons.alert_triangle && <icons.alert_triangle size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_delete')}</h3>
-                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                            <h3 className="text-lg font-bold text-primary">{t('confirm_delete')}</h3>
+                                            <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
 
-                                    <label className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--bg-muted)]/50 border border-[var(--border-color)] cursor-pointer group transition-colors hover:border-rose-500/30">
+                                    <label className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--bg-muted)]/50 border border-border cursor-pointer group transition-colors hover:border-rose-500/30">
                                         <input
                                             type="checkbox"
                                             checked={forceDelete}
                                             onChange={(e) => setForceDelete(e.target.checked)}
-                                            className="w-4 h-4 rounded border-[var(--border-color)] bg-transparent text-rose-500 focus:ring-0"
+                                            className="w-4 h-4 rounded border-border bg-transparent text-rose-500 focus:ring-0"
                                         />
-                                        <span className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+                                        <span className="text-sm font-medium text-secondary group-hover:text-primary transition-colors">
                                             {t('force_delete')}
                                         </span>
                                     </label>
 
                                     <div className="flex gap-3">
-                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
-                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-[var(--text-white)] text-sm font-bold uppercase rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
+                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
                                             {isProcessing ? '...' : t('delete_now')}
                                         </button>
                                     </div>
@@ -322,20 +322,20 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
                             {confirmAction === 'restart' && (
                                 <>
-                                    <div className="flex items-center gap-3 text-[var(--accent)] mb-6">
+                                    <div className="flex items-center gap-3 text-accent mb-6">
                                         <div className="p-3 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20">
                                             {icons.zap && <icons.zap size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_restart')}</h3>
-                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                            <h3 className="text-lg font-bold text-primary">{t('confirm_restart')}</h3>
+                                            <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
-                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--text-white)] text-sm font-bold uppercase rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">
+                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">
                                             {isProcessing ? '...' : t('restart')}
                                         </button>
                                     </div>
@@ -349,28 +349,28 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             {icons.activity && <icons.activity size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('set_replicas')}</h3>
-                                            <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                            <h3 className="text-lg font-bold text-primary">{t('set_replicas')}</h3>
+                                            <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 mb-6 bg-[var(--bg-muted)]/50 p-4 rounded-2xl border border-[var(--border-color)]">
-                                        <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-2 bg-[var(--bg-card)] rounded-lg hover:text-[var(--accent)] border border-[var(--border-color)] transition-colors shadow-sm">
+                                    <div className="flex items-center gap-4 mb-6 bg-[var(--bg-muted)]/50 p-4 rounded-2xl border border-border">
+                                        <button onClick={() => setScaleValue(Math.max(0, scaleValue - 1))} className="p-2 bg-card rounded-lg hover:text-accent border border-border transition-colors shadow-sm">
                                             {icons.chevron_down && <icons.chevron_down size={20} />}
                                         </button>
                                         <input
                                             type="number"
                                             value={scaleValue}
                                             onChange={(e) => setScaleValue(parseInt(e.target.value) || 0)}
-                                            className="flex-1 bg-transparent text-center text-2xl font-black text-[var(--text-primary)] focus:outline-none"
+                                            className="flex-1 bg-transparent text-center text-2xl font-black text-primary focus:outline-none"
                                         />
-                                        <button onClick={() => setScaleValue(scaleValue + 1)} className="p-2 bg-[var(--bg-card)] rounded-lg hover:text-[var(--accent)] border border-[var(--border-color)] transition-colors shadow-sm">
+                                        <button onClick={() => setScaleValue(scaleValue + 1)} className="p-2 bg-card rounded-lg hover:text-accent border border-border transition-colors shadow-sm">
                                             {icons.chevron_up && <icons.chevron_up size={20} />}
                                         </button>
                                     </div>
 
                                     <div className="flex gap-3">
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
                                         <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">

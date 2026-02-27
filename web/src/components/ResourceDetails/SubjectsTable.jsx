@@ -12,7 +12,7 @@ export default function SubjectsTable({ subjects, t }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
                     <thead>
-                        <tr className="bg-[var(--bg-sidebar)]/10 text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                        <tr className="bg-[var(--bg-sidebar)]/10 text-text-muted border-b border-border">
                             <th className="px-4 py-3 text-left">Name</th>
                             <th className="px-4 py-3 text-left">Namespace</th>
                             <th className="px-4 py-3 text-left">Kind</th>
@@ -22,18 +22,18 @@ export default function SubjectsTable({ subjects, t }) {
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {subjects.map((sub, i) => (
                             <tr key={i} className="hover:bg-white/5 transition-colors">
-                                <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                <td className="px-4 py-2 font-bold text-accent font-mono">
                                     {sub.kind === 'ServiceAccount' ? (
-                                        <Link to={`/serviceaccounts/${sub.namespace || '-'}/${sub.name}`} className="hover:underline text-[var(--text-primary)]">
+                                        <Link to={`/serviceaccounts/${sub.namespace || '-'}/${sub.name}`} className="hover:underline text-primary">
                                             {sub.name}
                                         </Link>
                                     ) : (
-                                        <span className="text-[var(--text-primary)]">{sub.name}</span>
+                                        <span className="text-primary">{sub.name}</span>
                                     )}
                                 </td>
-                                <td className="px-4 py-2 font-mono text-xs text-[var(--text-secondary)]">
+                                <td className="px-4 py-2 font-mono text-xs text-secondary">
                                     {sub.namespace ? (
-                                        <Link to={`/namespaces/-/${sub.namespace}`} className="text-[var(--accent)] hover:underline">
+                                        <Link to={`/namespaces/-/${sub.namespace}`} className="text-accent hover:underline">
                                             {sub.namespace}
                                         </Link>
                                     ) : '—'}
@@ -41,7 +41,7 @@ export default function SubjectsTable({ subjects, t }) {
                                 <td className="px-4 py-2 text-xs text-info font-bold uppercase tracking-wider">
                                     {sub.kind}
                                 </td>
-                                <td className="px-4 py-2 text-xs text-[var(--text-muted)] font-mono">
+                                <td className="px-4 py-2 text-xs text-text-muted font-mono">
                                     {sub.apiGroup || '—'}
                                 </td>
                             </tr>

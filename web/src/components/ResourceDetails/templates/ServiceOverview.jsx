@@ -15,13 +15,13 @@ export default function ServiceOverview({ data, metadata, spec, status, relatedP
                             </span>
                         </DetailRow>
                         <DetailRow label="Cluster IP">
-                            <span className="font-mono text-[var(--text-primary)]">{spec.clusterIP || 'None'}</span>
+                            <span className="font-mono text-primary">{spec.clusterIP || 'None'}</span>
                         </DetailRow>
                         {spec.selector && (
                             <DetailRow label="Selector">
                                 <div className="flex flex-wrap gap-1.5">
                                     {Object.entries(spec.selector).map(([k, v]) => (
-                                                                                 <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] rounded text-xs text-[var(--text-secondary)] font-mono">                                            {k}: {v}
+                                                                                 <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] rounded text-xs text-secondary font-mono">                                            {k}: {v}
                                         </span>
                                     ))}
                                 </div>

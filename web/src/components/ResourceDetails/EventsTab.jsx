@@ -28,7 +28,7 @@ export default function EventsTab({ kind, namespace, name, t }) {
     if (loading) {
         return (
             <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
-                <div className="p-8 text-center text-[var(--text-muted)]">{t('loading')}</div>
+                <div className="p-8 text-center text-text-muted">{t('loading')}</div>
             </DetailSection>
         );
     }
@@ -56,27 +56,27 @@ export default function EventsTab({ kind, namespace, name, t }) {
                                     {e.name || '—'}
                                 </span>
                             </td>
-                            <td className="px-6 py-4 font-medium text-[var(--text-[var(--text-white)])]">{e.reason}</td>
-                            <td className="px-6 py-4 text-[var(--text-secondary)] max-w-md break-words">{e.message}</td>
-                            <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
+                            <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
+                            <td className="px-6 py-4 text-secondary max-w-md break-words">{e.message}</td>
+                            <td className="px-6 py-4 text-text-muted text-xs">
                                 {e.source?.component || e.source || '—'}
                             </td>
-                            <td className="px-6 py-4 text-[var(--text-secondary)] text-xs font-mono break-all max-w-[150px]">
+                            <td className="px-6 py-4 text-secondary text-xs font-mono break-all max-w-[150px]">
                                 {e.subObject || '—'}
                             </td>
-                            <td className="px-6 py-4 text-[var(--text-secondary)] text-center font-bold">
+                            <td className="px-6 py-4 text-secondary text-center font-bold">
                                 {e.count || 1}
                             </td>
-                            <td className="px-6 py-4 text-[var(--text-muted)] whitespace-nowrap text-xs">
+                            <td className="px-6 py-4 text-text-muted whitespace-nowrap text-xs">
                                 {e.firstSeen || e.age || '—'}
                             </td>
-                            <td className="px-6 py-4 text-[var(--text-primary)] font-bold whitespace-nowrap text-xs">
+                            <td className="px-6 py-4 text-primary font-bold whitespace-nowrap text-xs">
                                 {e.lastSeen || e.age || '—'}
                             </td>
                         </tr>
                     )) : (
                         <tr>
-                            <td colSpan="8" className="px-6 py-8 text-center text-[var(--text-muted)]">
+                            <td colSpan="8" className="px-6 py-8 text-center text-text-muted">
                                 {t('no_events')}
                             </td>
                         </tr>

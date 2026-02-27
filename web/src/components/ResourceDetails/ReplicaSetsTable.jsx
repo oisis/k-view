@@ -22,15 +22,15 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {replicaSets.length === 0 ? (
-                            <tr><td colSpan="7" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No replica sets found.</td></tr>
+                            <tr><td colSpan="7" className="px-4 py-8 text-center text-text-muted italic">No replica sets found.</td></tr>
                         ) : (
                             replicaSets.map((rs, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-4 py-2 font-bold text-[var(--accent)] font-mono">
+                                    <td className="px-4 py-2 font-bold text-accent font-mono">
                                         <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="hover:underline">{rs.name}</Link>
                                     </td>
-                                    <td className="px-4 py-2 text-[var(--text-secondary)]">{rs.namespace}</td>
-                                    <td className="px-4 py-2 text-[var(--text-muted)] text-xs">{rs.age}</td>
+                                    <td className="px-4 py-2 text-secondary">{rs.namespace}</td>
+                                    <td className="px-4 py-2 text-text-muted text-xs">{rs.age}</td>
                                     <td className="px-4 py-2 text-center font-bold">
                                         {rs.extra?.ready || '0'}/{rs.extra?.desired || '0'}
                                     </td>

@@ -214,7 +214,7 @@ export default function ResourceDetails({ user }) {
         <div className="flex-1 flex items-center justify-center min-h-[400px]">
             <div className="flex flex-col items-center gap-3">
                 <icons.refresh size={32} className="animate-spin text-info" />
-                <p className="text-[var(--text-muted)] font-medium">{t('loading')}</p>
+                <p className="text-text-muted font-medium">{t('loading')}</p>
             </div>
         </div>
     );
@@ -237,7 +237,7 @@ export default function ResourceDetails({ user }) {
     );
 
     if (!data || !data.metadata) return (
-        <div className="p-8 text-center text-[var(--text-muted)] italic">
+        <div className="p-8 text-center text-text-muted italic">
             {t('resource_not_found') || 'Resource not found.'}
         </div>
     );
@@ -255,7 +255,7 @@ export default function ResourceDetails({ user }) {
             <div className="flex items-center gap-6 mb-6">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
+                    className="p-2.5 rounded-xl bg-card border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all shadow-sm active:scale-95"
                 >
                     <icons.chevron_left size={22} />
                 </button>
@@ -264,11 +264,11 @@ export default function ResourceDetails({ user }) {
                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-[0.2em] leading-none">
                             {t(kindLower.replace(/s$/, '')) || (kindLower.replace(/s$/, ''))}
                         </span>
-                        <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">
+                        <h2 className="text-3xl font-black text-primary tracking-tight">
                             {name}
                         </h2>
                     </div>
-                    <p className="text-[var(--text-white)] light:text-blue-600 text-xs mt-2 font-mono flex items-center gap-2">
+                    <p className="text-white light:text-blue-600 text-xs mt-2 font-mono flex items-center gap-2">
                         UID: {metadata.uid}
                     </p>
                 </div>
@@ -288,8 +288,8 @@ export default function ResourceDetails({ user }) {
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl
                             ${activeTab === tab.id
-                                ? 'text-[var(--text-white)] bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
-                                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]/20'}`}
+                                ? 'text-white bg-[var(--accent)] shadow-lg shadow-indigo-500/20'
+                                : 'text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)]/20'}`}
                     >
                         <tab.icon size={14} />
                         {tab.label}
@@ -298,7 +298,7 @@ export default function ResourceDetails({ user }) {
                 {isCronJob && canEdit && (
                     <button
                         onClick={() => setConfirmTrigger(true)}
-                        className="flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl text-emerald-400 hover:text-[var(--text-white)] hover:bg-emerald-500/30"
+                        className="flex items-center gap-2.5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all rounded-xl text-emerald-400 hover:text-white hover:bg-emerald-500/30"
                     >
                         <icons.zap size={14} />
                         {t('trigger')}
@@ -309,19 +309,19 @@ export default function ResourceDetails({ user }) {
             {confirmTrigger && createPortal(
                 <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setConfirmTrigger(false)} />
-                    <div className="relative w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6">
                             <div className="flex items-center gap-3 text-emerald-400 mb-6">
                                 <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                                     <icons.zap size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirm_trigger')}</h3>
-                                    <p className="text-sm text-[var(--text-secondary)]">{name}</p>
+                                    <h3 className="text-lg font-bold text-primary">{t('confirm_trigger')}</h3>
+                                    <p className="text-sm text-secondary">{name}</p>
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <button onClick={() => setConfirmTrigger(false)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-[var(--text-primary)] text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                <button onClick={() => setConfirmTrigger(false)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                     {t('cancel')}
                                 </button>
                                 <button onClick={executeTrigger} disabled={isTriggering} className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">

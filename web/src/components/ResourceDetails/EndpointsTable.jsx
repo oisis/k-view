@@ -17,7 +17,7 @@ export default function EndpointsTable({ endpoints, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {(!endpoints || endpoints.length === 0) ? (
-                            <tr><td colSpan="4" className="px-4 py-8 text-center text-[var(--text-muted)] italic">No endpoints found.</td></tr>
+                            <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic">No endpoints found.</td></tr>
                         ) : (
                             endpoints.map((ep, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
@@ -26,7 +26,7 @@ export default function EndpointsTable({ endpoints, t }) {
                                         {ep.ports?.map(p => `${p.name || '-'}: ${p.port}/${p.protocol}`).join(', ')}
                                     </td>
                                     <td className="px-4 py-2">
-                                        <Link to={`/nodes/-/${ep.node}`} className="text-xs text-[var(--accent)] hover:underline font-mono">
+                                        <Link to={`/nodes/-/${ep.node}`} className="text-xs text-accent hover:underline font-mono">
                                             {ep.node}
                                         </Link>
                                     </td>

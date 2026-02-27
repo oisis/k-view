@@ -15,19 +15,19 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
             <DetailSection title={t('resource_info') || "Resource Info"}>
                 <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Replicas</span>
-                        <span className="text-sm font-bold text-[var(--text-primary)]">{status?.replicas ?? 0}</span>
+                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Replicas</span>
+                        <span className="text-sm font-bold text-primary">{status?.replicas ?? 0}</span>
                     </div>
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Ready</span>
+                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Ready</span>
                         <span className="text-sm font-bold text-success">{status?.readyReplicas ?? 0}</span>
                     </div>
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Updated</span>
+                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Updated</span>
                         <span className="text-sm font-bold text-info">{status?.updatedReplicas ?? 0}</span>
                     </div>
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">Available</span>
+                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Available</span>
                         <span className="text-sm font-bold text-success">{status?.availableReplicas ?? 0}</span>
                     </div>
                 </div>

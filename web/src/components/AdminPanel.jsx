@@ -38,7 +38,7 @@ export default function AdminPanel() {
         }));
     };
 
-    if (loading) return <div className="p-8 text-[var(--text-muted)]">{t('loading')}</div>;
+    if (loading) return <div className="p-8 text-text-muted">{t('loading')}</div>;
 
     if (error) {
         return (
@@ -54,42 +54,42 @@ export default function AdminPanel() {
         <div className="p-8 space-y-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
                         {icons.role && React.createElement(icons.role, { className: "text-info" })} {t('access_control')}
                     </h2>
-                    <p className="text-[var(--text-secondary)]">{t('effective_permissions_desc')}</p>
+                    <p className="text-secondary">{t('effective_permissions_desc')}</p>
                 </div>
-                <div className="flex items-center gap-2 bg-[var(--bg-muted)] border border-[var(--border-color)] px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] shadow-sm">
+                <div className="flex items-center gap-2 bg-[var(--bg-muted)] border border-border px-3 py-1.5 rounded-full text-xs text-text-muted shadow-sm">
                     {icons.deployment && React.createElement(icons.deployment, { size: 14, className: "text-green-400" })}
                     Config loaded from: Git/Helm (Read-Only)
                 </div>
             </div>
 
             {/* My Permissions Section */}
-            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent flex justify-between items-center">
-                    <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
+            <div className="glass rounded-2xl border border-border overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-border bg-transparent flex justify-between items-center">
+                    <h3 className="font-semibold text-secondary flex items-center gap-2">
                         {icons.admin_panel && React.createElement(icons.admin_panel, { className: "text-info", size: 18 })} {t('effective_permissions')}
                     </h3>
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-[var(--text-muted)]">{t('assigned_role')}:</span>
+                        <span className="text-sm text-text-muted">{t('assigned_role')}:</span>
                         <span className="px-2.5 py-1 rounded text-xs font-semibold bg-info/10 text-info">
                             {status?.role} {status?.namespace ? `(${status.namespace})` : ''}
                         </span>
                     </div>
                 </div>
-                <div className="p-6 bg-[var(--bg-main)]">
-                    <div className="mb-4 text-sm text-[var(--text-secondary)]">
-                        {t('connected_as')} <strong className="text-[var(--text-primary)]">{status?.email}</strong>. {t('effective_permissions_desc')}:
+                <div className="p-6 bg-main">
+                    <div className="mb-4 text-sm text-secondary">
+                        {t('connected_as')} <strong className="text-primary">{status?.email}</strong>. {t('effective_permissions_desc')}:
                     </div>
                     <div className="space-y-3">
                         {status?.rules?.map((rule, idx) => (
                             <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-[var(--bg-muted)]/50 rounded-md">
                                 <div className="sm:w-1/3 flex items-center gap-2">
                                     {icons.check_circle && React.createElement(icons.check_circle, { size: 16, className: "text-green-500 shrink-0" })}
-                                    <span className="text-sm font-medium text-[var(--text-primary)]">{rule.resource}</span>
+                                    <span className="text-sm font-medium text-primary">{rule.resource}</span>
                                 </div>
-                                <div className="sm:w-2/3 text-sm text-[var(--text-muted)] font-mono bg-[var(--bg-muted)]/80 p-1.5 rounded">
+                                <div className="sm:w-2/3 text-sm text-text-muted font-mono bg-[var(--bg-muted)]/80 p-1.5 rounded">
                                     {rule.verbs}
                                 </div>
                             </div>
@@ -99,18 +99,18 @@ export default function AdminPanel() {
             </div>
 
             {/* Role Definitions Section */}
-            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent">
-                    <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
+            <div className="glass rounded-2xl border border-border overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-border bg-transparent">
+                    <h3 className="font-semibold text-secondary flex items-center gap-2">
                         {icons.lock && React.createElement(icons.lock, { className: "text-cyan", size: 18 })} {t('role_definitions')}
                     </h3>
                 </div>
                 <div className="divide-y divide-[var(--border-color)]">
                     {roles.length === 0 ? (
-                        <div className="p-8 text-center text-[var(--text-muted)]">No K-View roles detected.</div>
+                        <div className="p-8 text-center text-text-muted">No K-View roles detected.</div>
                     ) : (
                         roles.map((role, i) => (
-                            <div key={i} className="bg-[var(--bg-main)]">
+                            <div key={i} className="bg-main">
                                 <button
                                     onClick={() => toggleRole(role.name)}
                                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-[var(--sidebar-hover)]/30 transition-colors"
@@ -121,26 +121,26 @@ export default function AdminPanel() {
                                         </div>
                                         <span className="font-mono text-sm font-semibold text-cyan">{role.name}</span>
                                     </div>
-                                    {expandedRoles[role.name] ? (icons.chevron_up && React.createElement(icons.chevron_up, { size: 18, className: "text-[var(--text-muted)]" })) : (icons.chevron_down && React.createElement(icons.chevron_down, { size: 18, className: "text-[var(--text-muted)]" }))}
+                                    {expandedRoles[role.name] ? (icons.chevron_up && React.createElement(icons.chevron_up, { size: 18, className: "text-text-muted" })) : (icons.chevron_down && React.createElement(icons.chevron_down, { size: 18, className: "text-text-muted" }))}
                                 </button>
 
                                 {expandedRoles[role.name] && (
                                     <div className="px-6 pb-6 pt-2 overflow-x-auto">
-                                        <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden">
-                                            <thead className="bg-[var(--bg-sidebar)]/10 text-[var(--text-muted)] uppercase tracking-wider">
+                                        <table className="w-full text-left text-xs border border-border rounded-lg overflow-hidden">
+                                            <thead className="bg-[var(--bg-sidebar)]/10 text-text-muted uppercase tracking-wider">
                                                 <tr>
-                                                    <th className="px-4 py-2 border-b border-r border-[var(--border-color)]">{t('api_groups')}</th>
-                                                    <th className="px-4 py-2 border-b border-r border-[var(--border-color)]">{t('resources')}</th>
-                                                    <th className="px-4 py-2 border-b border-[var(--border-color)]">{t('verbs')}</th>
+                                                    <th className="px-4 py-2 border-b border-r border-border">{t('api_groups')}</th>
+                                                    <th className="px-4 py-2 border-b border-r border-border">{t('resources')}</th>
+                                                    <th className="px-4 py-2 border-b border-border">{t('verbs')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-[var(--border-color)]">
                                                 {role.rules?.map((rule, idx) => (
                                                     <tr key={idx} className="hover:bg-[var(--bg-muted)]/30">
-                                                        <td className="px-4 py-2 border-r border-[var(--border-color)] font-mono text-[var(--text-secondary)]">
+                                                        <td className="px-4 py-2 border-r border-border font-mono text-secondary">
                                                             {rule.apiGroups?.map(g => g === "" ? "(core)" : g).join(', ')}
                                                         </td>
-                                                        <td className="px-4 py-2 border-r border-[var(--border-color)] text-[var(--text-primary)]">
+                                                        <td className="px-4 py-2 border-r border-border text-primary">
                                                             <div className="flex flex-wrap gap-1">
                                                                 {rule.resources?.map((res, rIdx) => (
                                                                     <span key={rIdx} className="bg-transparent px-1.5 py-0.5 rounded text-[10px]">
@@ -165,15 +165,15 @@ export default function AdminPanel() {
             </div>
 
             {/* Global Assignments Table */}
-            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent">
-                    <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
+            <div className="glass rounded-2xl border border-border overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-border bg-transparent">
+                    <h3 className="font-semibold text-secondary flex items-center gap-2">
                         {icons.shield && React.createElement(icons.shield, { className: "text-green-400", size: 18 })} Global Assignments
                     </h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-[var(--border-color)]">
+                    <table className="w-full text-left text-sm text-primary">
+                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-border">
                             <tr>
                                 <th className="px-6 py-3">{t('user')}</th>
                                 <th className="px-6 py-3">Type</th>
@@ -184,23 +184,23 @@ export default function AdminPanel() {
                         <tbody>
                             {!status?.assignments || status.assignments.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)]">No k-view role bindings detected in the cluster.</td>
+                                    <td colSpan="4" className="px-6 py-8 text-center text-text-muted">No k-view role bindings detected in the cluster.</td>
                                 </tr>
                             ) : (
                                 status.assignments.map((assignment, i) => (
-                                    <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-[var(--text-primary)]">
+                                    <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-primary">
                                             {assignment.user || assignment.group || 'Unknown'}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 rounded text-xs uppercase font-bold bg-transparent text-[var(--text-muted)]">
+                                            <span className="px-2 py-1 rounded text-xs uppercase font-bold bg-transparent text-text-muted">
                                                 {assignment.user ? 'User' : 'Group'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-info font-mono text-xs">
                                             {assignment.role}
                                         </td>
-                                        <td className="px-6 py-4 text-[var(--text-muted)]">
+                                        <td className="px-6 py-4 text-text-muted">
                                             {assignment.namespace || <span className="text-xs bg-[var(--text-purple)]/10 text-purple px-1.5 py-0.5 rounded">Cluster-Wide</span>}
                                         </td>
                                     </tr>
