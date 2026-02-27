@@ -375,95 +375,78 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
-	if ns == "-" { ns = "" }
-
-	if h.devMode {
-		unstructuredItems := h.mockRawResourceList(kind, ns)
-		var found *unstructured.Unstructured
-		for _, it := range unstructuredItems {
-			if it.GetName() == name { 
-				found = &it
-				break 
-			}
-		}
-		
-		if found != nil {
-			response := gin.H{
-				"resource": gin.H{
-					"name": found.GetName(), 
-					"namespace": found.GetNamespace(), 
-					"age": utils.GetAge(found.GetCreationTimestamp().Time),
-					"status": found.Object["status"],
-				},
-				"metadata": found.Object["metadata"],
-				"spec":     found.Object["spec"],
-				"status":   found.Object["status"],
-				"data":     found.Object["data"],
-			}
-			if kind == "nodes" || kind == "node" {
-				response["allocation"] = gin.H{
-					"cpu": gin.H{"requests": 1.5, "limits": 3.0, "capacity": 8.0},
-					"memory": gin.H{"requests": 6144, "limits": 12288, "capacity": 32768},
-					"pods": gin.H{"allocation": 24, "capacity": 110},
-				}
-			}
-			c.JSON(http.StatusOK, response)
-			return
-		}
-
-		// Fallback if not found in raw mocks
-		items := h.mockResourceList(kind, ns)
-		var legacyFound *ResourceItem
-		for _, it := range items {
-			if it.Name == name { legacyFound = &it; break }
-		}
-		if legacyFound == nil {
-			legacyFound = &ResourceItem{Name: name, Namespace: ns, Age: "1h", Status: "Active"}
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"resource": legacyFound,
-			"metadata": gin.H{
-				"name": legacyFound.Name,
-				"namespace": legacyFound.Namespace,
-				"uid": "mock-uid",
-				"creationTimestamp": time.Now().Format(time.RFC3339),
-				"labels": gin.H{"app": legacyFound.Name},
-			},
-			"spec": gin.H{},
-			"status": gin.H{"phase": legacyFound.Status},
-		})
-		return
+	if ns == "-" {
+		ns = ""
 	}
 
-	dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
-	gvr := getGVR(kind)
-	item, err := dynClient.Resource(gvr).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
+	var item *unstructured.Unstructured
+
+	if h.devMode {
+		// Normalize kind for mockup lookup
+		mockKind := kind
+		if kind == "serviceaccounts" { mockKind = "service-accounts" }
+		if kind == "nodes" { mockKind = "nodes" }
+
+		unstructuredItems := h.mockRawResourceList(mockKind, ns)
+		for i := range unstructuredItems {
+			if unstructuredItems[i].GetName() == name {
+				item = &unstructuredItems[i]
+				break
+			}
+		}
+	} else {
+		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+			return
+		}
+		gvr := getGVR(kind)
+		var resInterface dynamic.ResourceInterface
+		if ns != "" && !isClusterScoped(kind) {
+			resInterface = dynClient.Resource(gvr).Namespace(ns)
+		} else {
+			resInterface = dynClient.Resource(gvr)
+		}
+
+		raw, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+		if err == nil {
+			item = raw
+		}
+	}
+
+	if item == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
 		return
 	}
 
-		// ... around line 430 in GetDetails ...
-		response := gin.H{
-			"resource": gin.H{"name": item.GetName(), "namespace": item.GetNamespace(), "age": utils.GetAge(item.GetCreationTimestamp().Time)},
-			"metadata": item.Object["metadata"],
-			"spec":     item.Object["spec"],
-			"status":   item.Object["status"],
-			"data":     item.Object["data"],
-		}
-	
-		if kind == "nodes" || kind == "node" {
-			// Mock allocation data for now, real calculation would require summing all pods on this node
-			response["allocation"] = gin.H{
-				"cpu": gin.H{"requests": 1.2, "limits": 2.5, "capacity": 8.0},
-				"memory": gin.H{"requests": 4096, "limits": 8192, "capacity": 16384},
-				"pods": gin.H{"allocation": 45, "capacity": 110},
-			}
-		}
-	
-		c.JSON(http.StatusOK, response)
+	response := gin.H{
+		"resource": gin.H{
+			"name":      item.GetName(),
+			"namespace": item.GetNamespace(),
+			"age":       utils.GetAge(item.GetCreationTimestamp().Time),
+			"status":    item.Object["status"],
+		},
+		"metadata": item.Object["metadata"],
+		"spec":     item.Object["spec"],
+		"status":   item.Object["status"],
+		"data":     item.Object["data"],
 	}
+
+	if kind == "nodes" || kind == "node" {
+		response["allocation"] = gin.H{
+			"cpu":    gin.H{"requests": 1.5, "limits": 3.0, "capacity": 8.0},
+			"memory": gin.H{"requests": 6144, "limits": 12288, "capacity": 32768},
+			"pods":   gin.H{"allocation": 24, "capacity": 110},
+		}
+	}
+
+	if kind == "serviceaccounts" || kind == "service-accounts" || kind == "serviceaccount" {
+		response["secrets"] = item.Object["secrets"]
+		response["imagePullSecrets"] = item.Object["imagePullSecrets"]
+	}
+
+	c.JSON(http.StatusOK, response)
+}
 
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
