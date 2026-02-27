@@ -18,10 +18,10 @@ import logo from './assets/k-view-logo.png';
 import background from './assets/background.png';
 
 // ── Collapsible section ────────────────────────────────────────────────────
-function Section({ label, children, defaultOpen = true, isCollapsed, userEmail }) {
+function Section({ id, label, children, defaultOpen = false, isCollapsed, userEmail }) {
     const { icons } = useTheme();
     const scope = userEmail || 'anonymous';
-    const key = `sidebar-section-${scope}-${label}`;
+    const key = `sidebar-section-${scope}-${id || label}`;
     const [open, setOpen] = useState(() => {
         try { return JSON.parse(localStorage.getItem(key)) ?? defaultOpen; }
         catch { return defaultOpen; }
@@ -135,7 +135,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
                 </div>
 
-                <Section label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="workloads" label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
@@ -146,20 +146,20 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="network" label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
                     <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
                     <NavItem href="/network/services" iconKey="service" label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
                     <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
                     <NavItem href="/crd" iconKey="crd" label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
@@ -173,7 +173,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section label={t('tools')} defaultOpen={true} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
                     <NavItem href="/about" iconKey="about" label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
                     <NavItem href="/console" iconKey="console" label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
