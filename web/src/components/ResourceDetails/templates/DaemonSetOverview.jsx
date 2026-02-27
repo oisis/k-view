@@ -7,7 +7,7 @@ export default function DaemonSetOverview({ data, metadata, spec, status, relate
     return (
         <>
             <DetailSection title={t('resource_info')}>
-                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-600 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border">
                     <div className="px-4 py-3 flex flex-col items-center">
                         <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Desired</span>
                         <span className="text-sm font-bold text-primary">{status.desiredNumberScheduled || 0}</span>

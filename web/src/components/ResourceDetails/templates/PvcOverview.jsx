@@ -6,7 +6,7 @@ export default function PvcOverview({ data, metadata, spec, status, t }) {
     return (
         <DetailSection title={t('resource_info')}>
             <table className="w-full text-sm text-left border-collapse">
-                <tbody className="divide-y divide-slate-600">
+                <tbody className="divide-y divide-border">
                     <DetailRow label="Status">
                         <span className={`font-bold ${status.phase === 'Bound' ? 'text-success' : 'text-warning'}`}>{status.phase}</span>
                     </DetailRow>

@@ -59,7 +59,7 @@
 }
 
 .theme-dark {
-  /* --- Channels: True Dark (Neutral Black/Gray) --- */
+  /* --- Channels: Dark (Slate/Gray) --- */
   --color-bg-main: 9 9 11;
   --color-bg-sidebar: 0 0 0;
   --color-bg-card: 12 12 15;
@@ -112,9 +112,9 @@
   --color-bg-input: 241 245 249;
   --color-bg-console: 248 250 252;
   --color-bg-editor: 255 255 255;
-  --color-border-color: 226 232 240;
-  --color-border-muted: 248 250 252;
-  --color-border-tooltip: 226 232 240;
+  --color-border-color: 96 165 250; /* Blue-400 */
+  --color-border-muted: 96 165 250; /* Unified Blue-400 */
+  --color-border-tooltip: 96 165 250;
   --color-text-primary: 15 23 42;
   --color-text-secondary: 71 85 105;
   --color-text-muted: 100 116 139;
@@ -135,11 +135,11 @@
   
   --wallpaper-opacity: 0.35;
   --wallpaper-brightness: 0.95;
+  --border-width: 1.5px;
 }
 
 /* ==========================================================================
-   2. UNIFIED TRANSPARENCY MAPPING
-   All themes now share the same opacity levels for identical components.
+   2. LEGACY SUPPORT & COMPATIBILITY LAYER
    ========================================================================== */
 
 :root, .theme-dark, .theme-light {
@@ -183,6 +183,12 @@
   --sidebar-hover: rgb(var(--color-bg-card-hover) / 0.2);
 }
 
+/* Adjustments for Light theme to ensure solid borders */
+.theme-light {
+  --border-color: rgb(var(--color-border-color)); /* Force 1.0 opacity */
+  --border-muted: rgb(var(--color-border-muted)); /* Force 1.0 opacity */
+}
+
 /* ==========================================================================
    3. GLOBAL STYLES & RESETS
    ========================================================================== */
@@ -193,6 +199,10 @@
     font-family: var(--font-sans, sans-serif);
     font-size: var(--font-size-base);
     background-color: rgb(var(--color-bg-main)) !important; 
+  }
+
+  table {
+    border-collapse: collapse !important;
   }
 
   table, thead, tbody, tfoot, tr, td, th {
@@ -212,4 +222,27 @@ h1, h2, h3, h4 {
     backdrop-filter: blur(12px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
   }
+}
+
+/* --- Clean single borders for Light theme --- */
+.theme-light .border-b,
+.theme-light .divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-color) !important;
+  border-bottom-width: 1px !important;
+}
+
+.theme-light .border,
+.theme-light .border-t,
+.theme-light .border-l,
+.theme-light .border-r {
+  border-color: var(--border-color) !important;
+}
+
+.theme-light table td, 
+.theme-light table th {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-light table {
+  border: 1px solid var(--border-color);
 }

@@ -9,7 +9,7 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
         <DetailSection title={title} className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-slate-600">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('label_name') || "Name"}</th>
                             <th className="px-4 py-3 text-left">{t('label_namespace') || "Namespace"}</th>

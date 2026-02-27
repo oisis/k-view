@@ -14,8 +14,8 @@ export default function RbacOverview({ data, metadata, t, isBinding }) {
                 <>
                     <DetailSection title={t('resource_info') || "Role Reference"}>
                         <table className="w-full text-sm text-left border-collapse">
-                            <tbody className="divide-y divide-slate-600">
-                                <tr className="border-b border-slate-600">
+                            <tbody className="divide-y divide-border">
+                                <tr className="border-b border-border">
                                     <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] w-1/4">Role Reference</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">

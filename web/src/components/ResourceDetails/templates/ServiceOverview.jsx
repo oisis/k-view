@@ -9,7 +9,7 @@ export default function ServiceOverview({ data, metadata, spec, status, relatedP
         <>
             <DetailSection title={t('resource_info')}>
                 <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-slate-600">
+                    <tbody className="divide-y divide-border">
                         <DetailRow label="Type">
                                                          <span className="px-2 py-0.5 rounded-md bg-info/10 text-info text-[10px] font-black uppercase">                                {spec.type}
                             </span>

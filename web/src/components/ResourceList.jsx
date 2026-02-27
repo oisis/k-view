@@ -376,15 +376,14 @@ export default function ResourceList({ kind }) {
                                 <th className="px-3 py-2.5 whitespace-nowrap w-20 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-none">
+                        <tbody>
                             {loading && paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
-                            ) : paginatedItems.map((item, i) => (
-                                <tr key={i} className="hover:bg-[var(--sidebar-hover)]/20 transition-colors">
-                                    {schema.cols.map(col => {
-                                        const val = getVal(item, col.key);
+                                                            ) : paginatedItems.map((item, i) => (
+                                                                <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/20 transition-colors">
+                                                                    {schema.cols.map(col => {                                        const val = getVal(item, col.key);
 
                                         // Conditional rendering based on column key
                                         let content;

@@ -8,7 +8,7 @@ export default function StatefulSetOverview({ data, metadata, spec, status, rela
     return (
         <>
             <DetailSection title={t('resource_info')}>
-                <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-slate-600 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border">
                     <div className="px-4 py-3 flex flex-col items-center">
                         <span className="text-[10px] font-bold text-text-muted uppercase mb-1">Replicas</span>
                         <span className="text-sm font-bold text-primary">{status.replicas || 0}</span>

@@ -90,15 +90,15 @@ export default {
 
         // Borders with unified default opacity
         border: ({ opacityValue }) => opacityValue === undefined 
-          ? 'rgb(var(--color-border-color) / 0.3)' 
+          ? 'rgb(var(--color-border-color) / 0.5)' 
           : `rgb(var(--color-border-color) / ${opacityValue})`,
         
         'border-muted': ({ opacityValue }) => opacityValue === undefined 
-          ? 'rgb(var(--color-border-muted) / 0.15)' 
+          ? 'rgb(var(--color-border-muted) / 0.3)' 
           : `rgb(var(--color-border-muted) / ${opacityValue})`,
         
         'border-tooltip': ({ opacityValue }) => opacityValue === undefined 
-          ? 'rgb(var(--color-border-tooltip) / 0.4)' 
+          ? 'rgb(var(--color-border-tooltip) / 0.6)' 
           : `rgb(var(--color-border-tooltip) / ${opacityValue})`,
       },
       sidebarHover: 'rgb(var(--color-bg-card-hover) / 0.2)',

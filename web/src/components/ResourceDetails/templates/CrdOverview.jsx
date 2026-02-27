@@ -10,7 +10,7 @@ export default function CrdOverview({ data, metadata, spec, status, t }) {
         <>
             <DetailSection title={t('resource_info') || "CRD Info"}>
                 <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-slate-600">
+                    <tbody className="divide-y divide-border">
                         <DetailRow label="Group">
                             <span className="font-mono text-info font-bold">{spec?.group}</span>
                         </DetailRow>
@@ -30,7 +30,7 @@ export default function CrdOverview({ data, metadata, spec, status, t }) {
             <DetailSection title="Versions" className="mt-4">
                 <div className="overflow-x-auto">
                     <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                        <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-slate-600">
+                        <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
                             <tr>
                                 <th className="px-4 py-3 text-left">Version</th>
                                 <th className="px-4 py-3 text-center">Served</th>

@@ -39,7 +39,7 @@ export default function PolicyRulesTable({ title, rules, t }) {
 
     return (
         <DetailSection title={title} className="mt-4">
-            <div className="border border-slate-600 rounded-lg overflow-hidden">
+            <div className="border border-border rounded-lg overflow-hidden">
                 <CodeEditor
                     value={yamlContent}
                     readOnly={true}

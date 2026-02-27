@@ -8,7 +8,7 @@ export default function CronJobOverview({ data, metadata, spec, status, relatedJ
         <>
             <DetailSection title={t('resource_info')}>
                 <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-slate-600">
+                    <tbody className="divide-y divide-border">
                         <DetailRow label="Schedule">
                             <span className="font-mono text-info font-bold">{spec.schedule}</span>
                         </DetailRow>

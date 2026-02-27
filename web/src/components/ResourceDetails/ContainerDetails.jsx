@@ -22,7 +22,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
                     return (
                         <DetailSection key={i} title={`${t('label_container')}: ${c.name}`}>
                             <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-slate-600">
+                                <tbody className="divide-y divide-border">
                                     <DetailRow label={t('label_image')}>
                                         <ExpandableCell value={c.image} type="images" />
                                     </DetailRow>

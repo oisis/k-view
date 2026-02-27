@@ -142,7 +142,7 @@ export default function OverviewTab({
             {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && (
                 <DetailSection title={t('resource_info')} className="mt-4">
                     <table className="w-full text-sm text-left border-collapse">
-                        <tbody className="divide-y divide-slate-600">
+                        <tbody className="divide-y divide-border">
                             <ContainersSection {...sectionProps} />
                         </tbody>
                     </table>

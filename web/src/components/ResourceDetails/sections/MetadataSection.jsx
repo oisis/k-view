@@ -15,7 +15,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
-                <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
+                <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                         <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                         <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
@@ -31,7 +31,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                 </div>
             ) : (
                 <>
-                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600 bg-[var(--bg-sidebar)]/10`}>
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
@@ -51,7 +51,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                             <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                         </div>
                         {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) && (
-                            <div className="px-6 py-4 flex flex-col items-center text-center border-l border-slate-600">
+                            <div className="px-6 py-4 flex flex-col items-center text-center border-l border-border">
                                 <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
                             </div>
@@ -59,7 +59,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                     </div>
 
                     {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
+                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">
                                     {isDaemonSet ? 'Pods Running' : t('label_status')}
@@ -100,10 +100,10 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                 </>
             )}
 
-            <div className="grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-slate-600">
+            <div className="grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-border">
                 <div className="overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse">
-                        <tbody className="divide-y divide-slate-600">
+                        <tbody className="divide-y divide-border">
                             <DetailRow label={t('label_labels')}>
                                 <div className="flex flex-wrap gap-1.5">
                                     {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
@@ -123,7 +123,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                 </div>
                 <div className="overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse">
-                        <tbody className="divide-y divide-slate-600">
+                        <tbody className="divide-y divide-border">
                             {status?.loadBalancer?.ingress?.length > 0 && (
                                 <DetailRow label={t('label_ip_external')}>
                                     <span className="text-info font-mono font-bold">

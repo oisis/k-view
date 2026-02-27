@@ -23,7 +23,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 ) : (
                     <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {addresses.map((addr, idx) => (
-                            <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-slate-600/50 flex flex-col">
+                            <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-border/50 flex flex-col">
                                 <span className="text-[10px] font-black text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
                                 <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
                             </div>
@@ -33,10 +33,10 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
             </DetailSection>
 
             <DetailSection title="System Information">
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-600 border-b border-slate-600">
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
                     <div className="overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse">
-                            <tbody className="divide-y divide-slate-600">
+                            <tbody className="divide-y divide-border">
                                 <DetailRow label="Machine ID">
                                     <span className="font-mono text-xs">{nodeInfo.machineID || '—'}</span>
                                 </DetailRow>
@@ -57,7 +57,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                     </div>
                     <div className="overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse">
-                            <tbody className="divide-y divide-slate-600">
+                            <tbody className="divide-y divide-border">
                                 <DetailRow label="Container Runtime">
                                     <span className="font-bold text-info">{nodeInfo.containerRuntimeVersion || '—'}</span>
                                 </DetailRow>
@@ -80,10 +80,10 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
             </DetailSection>
 
             <DetailSection title="Allocation">
-                <div className="p-4 bg-[var(--bg-sidebar)]/5 border-b border-slate-600">
+                <div className="p-4 bg-[var(--bg-sidebar)]/5 border-b border-border">
                     <CapacityTable capacity={nodeStatus.capacity || {}} allocatable={nodeStatus.allocatable || {}} t={t} />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 rounded border border-slate-600/30">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 rounded border border-border/30">
                     <PieChart
                         percent={allocation.cpu?.capacity > 0 ? (allocation.cpu.requests / allocation.cpu.capacity) * 100 : 0}
                         label="CPU Requests"
@@ -121,7 +121,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
                         <thead>
-                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-[10px] font-black tracking-widest text-text-muted border-b border-slate-600">
+                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-[10px] font-black tracking-widest text-text-muted border-b border-border">
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Last probe time</th>
@@ -130,7 +130,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                                 <th className="px-4 py-3">Message</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-600/50">
+                        <tbody className="divide-y divide-border/50">
                             {conditions.length === 0 ? (
                                 <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No conditions found.</td></tr>
                             ) : (
