@@ -123,7 +123,7 @@ export default function Settings() {
     return (
         <div className="flex-1 overflow-auto text-primary">
             <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-accent text-button">
                             <icons.palette size={20} />
@@ -182,16 +182,16 @@ export default function Settings() {
                             let textStyle = "";
 
                             if (isLight) {
-                                tileStyle = "bg-[#ffffff] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-200");
+                                tileStyle = "bg-[#ffffff99] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-200");
                                 iconBoxStyle = "bg-[#2563eb] text-white";
                                 textStyle = "text-[#475569]";
                             } else if (id.includes('dark') || id.includes('black')) {
-                                tileStyle = "bg-[#09090b] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-800");
+                                tileStyle = "bg-[#09090b99] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-800");
                                 iconBoxStyle = isSelected ? "bg-[#2563eb] text-white" : "bg-[#3b82f6]/20 text-[#60a5fa]";
                                 textStyle = "text-[#f8fafc]";
                             } else {
                                 // K-view / default
-                                tileStyle = "bg-[#1e1b4b] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-indigo-900/50");
+                                tileStyle = "bg-[#1e1b4b99] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-indigo-900/50");
                                 iconBoxStyle = isSelected ? "bg-[#2563eb] text-white" : "bg-[#3b82f6]/20 text-[#60a5fa]";
                                 textStyle = "text-[#f8fafc]";
                             }
@@ -200,12 +200,14 @@ export default function Settings() {
                                 <button
                                     key={id}
                                     onClick={() => setTheme(id)}
-                                    className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md ${tileStyle}`}
+                                    className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md backdrop-blur-md ${tileStyle}`}
                                 >
-                                    <div className={`p-2 w-fit rounded-lg mb-3 transition-colors ${iconBoxStyle}`}>
-                                        {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2 w-fit rounded-lg transition-colors ${iconBoxStyle}`}>
+                                            {id.includes('light') ? <icons.sun size={36} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={36} /> : <icons.layers size={36} />}
+                                        </div>
+                                        <h3 className={`text-lg font-bold transition-colors ${textStyle}`}>{themeCfg.name}</h3>
                                     </div>
-                                    <h3 className={`font-bold transition-colors ${textStyle}`}>{themeCfg.name}</h3>
 
                                     {isSelected && (
                                         <div className="absolute top-4 right-4 text-blue-600">
