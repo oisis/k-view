@@ -79,16 +79,16 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                     </span>
                     {!isEditing && (
-                        <div className="flex bg-black/30 rounded p-0.5">
+                        <div className="flex bg-black/30 rounded p-0.5 ml-2">
                             <button
                                 onClick={() => setFormat('yaml')}
-                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'yaml' ? 'bg-info/20 text-info' : 'text-text-muted hover:text-[var(--text-white)]'}`}
+                                className={`px-3 py-0.5 text-[10px] font-black rounded transition-all ${format === 'yaml' ? 'bg-accent text-white shadow-sm' : 'text-white hover:bg-white/10'}`}
                             >
                                 YAML
                             </button>
                             <button
                                 onClick={() => setFormat('json')}
-                                className={`px-2 py-0.5 text-xs font-bold rounded ${format === 'json' ? 'bg-info/20 text-info' : 'text-text-muted hover:text-[var(--text-white)]'}`}
+                                className={`px-3 py-0.5 text-[10px] font-black rounded transition-all ${format === 'json' ? 'bg-accent text-white shadow-sm' : 'text-white hover:bg-white/10'}`}
                             >
                                 JSON
                             </button>

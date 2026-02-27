@@ -247,16 +247,16 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 </div>
 
                 {/* Mode Selector */}
-                <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-border">
+                <div className="flex p-1 bg-sidebar/50 border-b border-border">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'template' ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'raw' ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <FileIcon size={14} /> {t('raw_manifest')}
                     </button>

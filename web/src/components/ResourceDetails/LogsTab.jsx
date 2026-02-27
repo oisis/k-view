@@ -108,82 +108,83 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
                             className="pl-9 pr-4 py-1.5 bg-[var(--bg-input)] border border-border rounded-md text-xs text-[var(--text-input)] placeholder:text-text-muted focus:outline-none focus:border-[var(--accent)]/50 w-64 transition-all"
                         />
-                        <button
-                            onClick={() => setLogSearchRegex(!logSearchRegex)}
-                                                         className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black transition-colors ${logSearchRegex ? 'bg-[var(--accent)] text-white' : 'bg-transparent text-text-muted hover:text-primary'}`}                            title={t('regex_tooltip')}
-                        >
-                            .*
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-border/50">
-                        <span className="text-xs uppercase font-black text-text-muted pl-2">{t('refresh')}</span>
-                        <select
-                            value={logRefreshInterval}
-                            onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
-                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
-                        >
-                            <option value="0">OFF</option>
-                            <option value="5">5s</option>
-                            <option value="10">10s</option>
-                            <option value="15">15s</option>
-                            <option value="30">30s</option>
-                            <option value="60">60s</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-border/50">
-                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
-                        <select
-                            value={logFontSize}
-                            onChange={(e) => setLogFontSize(parseInt(e.target.value))}
-                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
-                        >
-                            {[10, 12, 13, 14, 16].map(size => (
-                                <option key={size} value={size}>{size}px</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {containers && containers.length > 1 && (
-                        <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-border/50 ml-2">
-                            <span className="text-xs uppercase font-bold text-text-muted pl-2">{t('label_container')}</span>
-                            <select
-                                value={logContainer}
-                                onChange={(e) => {
-                                    setLogContainer(e.target.value);
-                                    setLogPage(1);
-                                    setLogs('');
-                                }}
-                                className="bg-transparent text-xs font-bold text-accent outline-none pr-1 px-2 py-0.5 cursor-pointer"
-                            >
-                                {containers.map(c => (
-                                    <option key={c.name} value={c.name}>{c.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                        <div
-                            className={`w-8 h-4 rounded-full relative transition-colors ${logWrapLines ? 'bg-[var(--accent)]' : 'bg-slate-400/40 border border-border'}`}
-                            onClick={() => setLogWrapLines(!logWrapLines)}
-                        >
-                            <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
-                        </div>
-                        <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('wrap_lines')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                        <div
-                            className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-[var(--accent)]' : 'bg-slate-400/40 border border-border'}`}
-                            onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
-                        >
-                            <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
-                        </div>
-                        <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('pagination')}</span>
-                    </label>
+                                                <button
+                                                    onClick={() => setLogSearchRegex(!logSearchRegex)}
+                                                    className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black transition-colors ${logSearchRegex ? 'bg-accent text-white' : 'bg-transparent text-text-muted hover:text-primary'}`}
+                                                    title={t('regex_tooltip')}
+                                                >
+                                                    .*
+                                                </button>
+                                            </div>
+                        
+                                            <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50">
+                                                <span className="text-xs uppercase font-black text-text-muted pl-2">{t('refresh')}</span>
+                                                <select
+                                                    value={logRefreshInterval}
+                                                    onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
+                                                    className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
+                                                >
+                                                    <option value="0">OFF</option>
+                                                    <option value="5">5s</option>
+                                                    <option value="10">10s</option>
+                                                    <option value="15">15s</option>
+                                                    <option value="30">30s</option>
+                                                    <option value="60">60s</option>
+                                                </select>
+                                            </div>
+                        
+                                            <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50">
+                                                <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
+                                                <select
+                                                    value={logFontSize}
+                                                    onChange={(e) => setLogFontSize(parseInt(e.target.value))}
+                                                    className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
+                                                >
+                                                    {[10, 12, 13, 14, 16].map(size => (
+                                                        <option key={size} value={size}>{size}px</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                        
+                                            {containers && containers.length > 1 && (
+                                                <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50 ml-2">
+                                                    <span className="text-xs uppercase font-bold text-text-muted pl-2">{t('label_container')}</span>
+                                                    <select
+                                                        value={logContainer}
+                                                        onChange={(e) => {
+                                                            setLogContainer(e.target.value);
+                                                            setLogPage(1);
+                                                            setLogs('');
+                                                        }}
+                                                        className="bg-transparent text-xs font-bold text-accent outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                                                    >
+                                                        {containers.map(c => (
+                                                            <option key={c.name} value={c.name}>{c.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
+                        
+                                        <div className="flex items-center gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <div
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                                                    onClick={() => setLogWrapLines(!logWrapLines)}
+                                                >
+                                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
+                                                </div>
+                                                <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('wrap_lines')}</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <div
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                                                    onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
+                                                >
+                                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
+                                                </div>
+                                                <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('pagination')}</span>
+                                            </label>
 
                     {logPaginationEnabled && totalPages > 1 && (
                         <div className="flex items-center gap-1 bg-[var(--bg-muted)]/50 rounded px-2 py-1 border border-border/30">

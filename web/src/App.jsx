@@ -66,7 +66,7 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
             href={href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
         ${active
-                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
+                    ? 'bg-accent text-white shadow-lg shadow-indigo-500/20'
                     : 'text-secondary hover:bg-[var(--sidebar-hover)] hover:text-primary'}
                 ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full'}`}
             title={isCollapsed ? label : ''}

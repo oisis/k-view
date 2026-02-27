@@ -102,8 +102,8 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                     <li
                                         key={ns}
                                         onClick={() => selectNs(ns)}
-                                        className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors
-                      ${isSelected ? 'bg-[var(--accent)]/10 text-accent font-bold' : 'text-[var(--text-input)] hover:bg-[var(--sidebar-hover)]'}`}
+                                        className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors rounded-md mx-1
+                      ${isSelected ? 'bg-accent text-white font-bold' : 'text-primary hover:bg-sidebar/20'}`}
                                     >
                                         {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-text-muted'} />}
                                         <span className="flex-1 text-left">{ns}</span>

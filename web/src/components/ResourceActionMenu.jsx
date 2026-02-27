@@ -214,7 +214,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
             <button
                 onClick={toggleMenu}
-                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)]'}`}
+                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary hover:bg-sidebar/20'}`}
             >
                 {icons.more ? <icons.more size={16} /> : <span>•••</span>}
             </button>
