@@ -277,7 +277,12 @@ export default function ResourceDetails({ user }) {
             <div className="flex items-center justify-center gap-2 mb-2 bg-[var(--bg-sidebar)]/80 p-1 rounded-2xl border border-[var(--accent)] mx-auto backdrop-blur-md shadow-lg shadow-indigo-500/10">
                 {[
                     { id: 'overview', label: t('overview'), icon: icons.about },
-                    { id: 'events', label: t('events'), icon: icons.list },
+                    { 
+                        id: 'events', 
+                        label: t('events'), 
+                        icon: icons.list,
+                        hidden: ['configmaps', 'secrets', 'roles', 'cluster-roles', 'role-bindings', 'cluster-role-bindings', 'storage-classes', 'ingress-classes', 'serviceaccounts', 'service-accounts'].includes(kindLower)
+                    },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
                     { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: !['pod', 'pods', 'job', 'jobs', 'deployment', 'deployments', 'daemonset', 'daemonsets', 'replicaset', 'replicasets', 'statefulset', 'statefulsets', 'replicationcontroller', 'replicationcontrollers', 'cronjob', 'cronjobs'].includes(kindLower) },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: !['pod', 'pods'].includes(kindLower) },
