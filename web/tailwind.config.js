@@ -64,9 +64,13 @@ export default {
     },
   },
   // Disable DaisyUI theming to use our custom CSS variable system exclusively.
-  plugins: [require("daisyui")],
+  plugins: [
+    // require("daisyui")
+  ],
+  /*
   daisyui: {
     themes: false, // Prevent DaisyUI from injecting its own themes and variables.
     logs: false, // Silence DaisyUI logs in the console.
   },
+  */
 }
