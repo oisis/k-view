@@ -331,12 +331,11 @@ export default function Console() {
                     }
                 }}
             >
-                {history.map((entry, i) => (
-                    <div key={i} className="mb-1">
-                        {entry.type === 'banner' && (
-                            <div className="text-red-500 mb-3 whitespace-pre">{entry.text}</div>
-                        )}
-                        {entry.type === 'cmd' && (
+                                        {history.map((entry, i) => (
+                                            <div key={i} className="mb-1">
+                                                {entry.type === 'banner' && (
+                                                    <div className="text-primary mb-3 whitespace-pre">{entry.text}</div>
+                                                )}                        {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-info">
                                 <span className="shrink-0">{PROMPT}</span>
                                 <span className="text-white font-bold">{entry.text}</span>
