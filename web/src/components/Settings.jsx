@@ -173,7 +173,7 @@ export default function Settings() {
                                         : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
                             >
                                 <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-[var(--accent)] text-[var(--text-white)]' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
-                                    {id === 'light' ? <icons.sun size={18} /> : id === 'black' ? <icons.zap size={18} /> : <icons.moon size={18} />}
+                                    {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
                                 </div>
                                 <h3 className="font-bold text-[var(--text-primary)]">{themeCfg.name}</h3>
 

@@ -185,13 +185,13 @@ export default function Nodes() {
             )}
 
             {/* Nodes table */}
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-xl">
-                <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/30">
+            <div className="glass rounded-2xl border border-[var(--border-color)] shadow-xl overflow-hidden">
+                <div className="p-4 border-b border-[var(--border-color)] bg-transparent">
                     <h3 className="font-semibold text-[var(--text-secondary)]">Node Details</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-transparent uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-4 py-3">Name</th>
                                 <th className="px-4 py-3">Labels</th>

@@ -176,10 +176,10 @@ export default function EventsList() {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-2xl">
+            <div className="glass rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)]">
-                        <thead className="text-[13px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-widest border-b border-[var(--border-color)]">
+                        <thead className="text-[13px] text-[var(--text-muted)] bg-transparent uppercase tracking-widest border-b border-[var(--border-color)]">
                             <tr>
                                 {cols.map(col => (
                                     <th

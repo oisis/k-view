@@ -66,8 +66,8 @@ export default function AdminPanel() {
             </div>
 
             {/* My Permissions Section */}
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50 flex justify-between items-center">
+            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent flex justify-between items-center">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                         {icons.admin_panel && React.createElement(icons.admin_panel, { className: "text-info", size: 18 })} {t('effective_permissions')}
                     </h3>
@@ -99,8 +99,8 @@ export default function AdminPanel() {
             </div>
 
             {/* Role Definitions Section */}
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50">
+            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                         {icons.lock && React.createElement(icons.lock, { className: "text-cyan", size: 18 })} {t('role_definitions')}
                     </h3>
@@ -165,15 +165,15 @@ export default function AdminPanel() {
             </div>
 
             {/* Global Assignments Table */}
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-sidebar)]/50">
+            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-[var(--border-color)] bg-transparent">
                     <h3 className="font-semibold text-[var(--text-secondary)] flex items-center gap-2">
                         {icons.shield && React.createElement(icons.shield, { className: "text-green-400", size: 18 })} Global Assignments
                     </h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-muted)]/60 uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-transparent uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-6 py-3">{t('user')}</th>
                                 <th className="px-6 py-3">Type</th>

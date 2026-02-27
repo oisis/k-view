@@ -349,10 +349,10 @@ export default function ResourceList({ kind }) {
                 <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            <div className="bg-[var(--bg-glass)] glass rounded-2xl border border-[var(--border-color)] shadow-2xl">
+            <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)]">
-                        <thead className="text-[13px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/50 uppercase tracking-widest border-b border-[var(--border-color)]">
+                    <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)] border-collapse">
+                        <thead className="text-[13px] text-[var(--text-muted)] bg-transparent uppercase tracking-widest">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
@@ -376,13 +376,13 @@ export default function ResourceList({ kind }) {
                                 <th className="px-3 py-2.5 whitespace-nowrap w-20 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[var(--border-color)]">
+                        <tbody className="divide-none">
                             {loading && paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)] italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-[var(--text-muted)]">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
-                                <tr key={i} className="border-b border-[var(--border-color)] hover:bg-[var(--sidebar-hover)]/30 transition-colors">
+                                <tr key={i} className="hover:bg-[var(--sidebar-hover)]/20 transition-colors">
                                     {schema.cols.map(col => {
                                         const val = getVal(item, col.key);
 
@@ -459,7 +459,7 @@ export default function ResourceList({ kind }) {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-between bg-[var(--bg-glass)] glass rounded-xl border border-[var(--border-color)] px-6 py-4">
+                <div className="mt-6 flex items-center justify-between glass rounded-xl border border-[var(--border-color)] px-6 py-4">
                     <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
                         {t('showing')} {Math.min(items.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(items.length, currentPage * settings.itemsPerPage)} {t('of')} {items.length}
                     </div>

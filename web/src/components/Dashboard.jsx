@@ -29,15 +29,10 @@ function MiniChart({ data, color, label }) {
                 <span>{data[data.length - 1].timestamp}</span>
             </div>
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[60px] overflow-visible">
-                <defs>
-                    <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity="0.4" />
-                        <stop offset="100%" stopColor={color} stopOpacity="0" />
-                    </linearGradient>
-                </defs>
                 <path
                     d={`M 0,${height} L ${points} L ${width},${height} Z`}
-                    fill={`url(#${gradId})`}
+                    fill={color}
+                    fillOpacity="0.1"
                 />
                 <polyline
                     fill="none"
