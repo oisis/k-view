@@ -40,8 +40,7 @@ export default function PodsTable({ pods, t }) {
                                     <td className="px-4 py-2"><ExpandableCell value={pod.extra?.labels} type="labels" /></td>
                                     <td className="px-4 py-2 text-xs font-mono text-info truncate max-w-[120px]">{pod.extra?.node || '—'}</td>
                                     <td className="px-4 py-2">
-                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${pod.status === 'Running' || pod.status === 'Succeeded' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                            {pod.status}
+                                                                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${pod.status === 'Running' || pod.status === 'Succeeded' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>                                            {pod.status}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center font-bold">{pod.extra?.restarts || 0}</td>

@@ -67,26 +67,26 @@ function StatusBadge({ value }) {
     const v = String(value);
     const translatedValue = t(v.toLowerCase()) || v;
     const map = {
-        Normal: 'bg-info/10 text-black border-info',
-        Warning: 'bg-warning/10 text-warning border-warning/20',
-        Running: 'bg-success/10 text-success border-success/20',
-        Active: 'bg-success/10 text-success border-success/20',
-        Complete: 'bg-purple/10 text-purple border-purple/20',
-        Bound: 'bg-purple/10 text-purple border-purple/20',
-        ClusterIP: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-        LoadBalancer: 'bg-cyan/10 text-cyan border-cyan/20',
-        CrashLoopBackOff: 'bg-error/10 text-error border-error/20',
-        Failed: 'bg-error/10 text-error border-error/20',
-        Degraded: 'bg-warning/10 text-warning border-warning/20',
-        Pending: 'bg-warning/10 text-warning border-warning/20',
-        Suspended: 'bg-warning/10 text-warning border-warning/20',
-        Available: 'bg-cyan/10 text-cyan border-cyan/20',
-        Released: 'bg-warning/10 text-warning border-warning/20',
-        Default: 'bg-purple/10 text-purple border-purple/20',
+        Normal: 'bg-info/10 text-black',
+        Warning: 'bg-warning/10 text-warning',
+        Running: 'bg-success/10 text-success',
+        Active: 'bg-success/10 text-success',
+        Complete: 'bg-purple/10 text-purple',
+        Bound: 'bg-purple/10 text-purple',
+        ClusterIP: 'bg-slate-500/10 text-slate-400',
+        LoadBalancer: 'bg-cyan/10 text-cyan',
+        CrashLoopBackOff: 'bg-error/10 text-error',
+        Failed: 'bg-error/10 text-error',
+        Degraded: 'bg-warning/10 text-warning',
+        Pending: 'bg-warning/10 text-warning',
+        Suspended: 'bg-warning/10 text-warning',
+        Available: 'bg-cyan/10 text-cyan',
+        Released: 'bg-warning/10 text-warning',
+        Default: 'bg-purple/10 text-purple',
     };
-    const cls = map[v] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+    const cls = map[v] || 'bg-slate-500/10 text-slate-400';
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${cls}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${cls}`}>
             <div className={`w-1 h-1 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {translatedValue}
         </span>
@@ -122,7 +122,7 @@ function ExpandableCell({ value, type }) {
         <div className="relative group/expandable">
             <div className="flex flex-col gap-1 py-1 max-w-[300px]">
                 {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-[var(--bg-sidebar)]/50 px-2 py-0.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] truncate" title={it}>
+                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-[var(--text-secondary)] truncate" title={it}>
                         {it}
                     </div>
                 ))}

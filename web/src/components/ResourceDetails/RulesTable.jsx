@@ -52,15 +52,13 @@ export default function RulesTable({ rules = [], t }) {
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.verbs?.map((v, i) => (
-                                            <span key={i} className="px-1.5 py-0.5 bg-info/10 text-info border border-info/20 rounded text-xs font-bold uppercase">{v}</span>
-                                        )) || <span className="text-[var(--text-muted)] italic">—</span>}
+                                                                                         <span key={i} className="px-1.5 py-0.5 bg-info/10 text-info rounded text-xs font-bold uppercase">{v}</span>                                        )) || <span className="text-[var(--text-muted)] italic">—</span>}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.apiGroups?.map((g, i) => (
-                                            <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded text-[10px] font-black">{g === '' ? 'core' : g}</span>
-                                        )) || <span className="text-[var(--text-muted)] italic">—</span>}
+                                                                                         <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px] font-black">{g === '' ? 'core' : g}</span>                                        )) || <span className="text-[var(--text-muted)] italic">—</span>}
                                     </div>
                                 </td>
                             </tr>

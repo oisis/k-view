@@ -17,8 +17,7 @@ export default function ProbeDetail({ label, probe, t }) {
     return (
         <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-[var(--text-[var(--text-white)])] uppercase tracking-wider">{label}</span>
-            <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded border border-info/20">
-                {details || 'Unknown'}
+                         <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded">                {details || 'Unknown'}
             </div>
             <div className="text-xs text-[var(--text-muted)] mt-1 flex flex-wrap gap-x-3">
                 <span>{t('delay')}: {probe.initialDelaySeconds || 0}s</span>

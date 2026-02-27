@@ -96,8 +96,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-[var(--border-color)]/50 mr-2">
-                        <span className="text-[10px] uppercase font-black text-[var(--text-muted)] pl-2">Size</span>
+                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-[10px] uppercase font-black text-[var(--text-muted)] pl-2">Size</span>
                         <select
                             value={editorFontSize}
                             onChange={(e) => setEditorFontSize(parseInt(e.target.value))}

@@ -33,8 +33,7 @@ export default function PersistentVolumesTable({ pvs, t }) {
                                         </Link>
                                     </td>
                                     <td className="px-4 py-2">
-                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase border ${pv.status === 'Bound' ? 'bg-success/10 text-success border-success/20' : (pv.status === 'Available' ? 'bg-info/10 text-info border-info/20' : 'bg-warning/10 text-warning border-warning/20')}`}>
-                                            {pv.status || 'Unknown'}
+                                                                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${pv.status === 'Bound' ? 'bg-success/10 text-success' : (pv.status === 'Available' ? 'bg-info/10 text-info' : 'bg-warning/10 text-warning')}`}>                                            {pv.status || 'Unknown'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 font-mono text-xs text-info">{pv.extra?.capacity || '—'}</td>

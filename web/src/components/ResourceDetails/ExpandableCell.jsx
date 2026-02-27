@@ -28,7 +28,7 @@ export default function ExpandableCell({ value, type }) {
         <div className="relative group/expandable">
             <div className="flex flex-col gap-1 py-1 max-w-[300px]">
                 {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-[var(--bg-sidebar)]/50 px-2 py-0.5 rounded border border-[var(--border-color)] text-[var(--text-secondary)] truncate" title={it}>
+                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-[var(--text-secondary)] truncate" title={it}>
                         {it}
                     </div>
                 ))}

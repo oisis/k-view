@@ -109,8 +109,7 @@ export default function Settings() {
     if (error) {
         return (
             <div className="flex-1 p-8 bg-[var(--bg-main)]">
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">
-                    Error: {error}
+                                 <div className="bg-red-500/10 rounded-xl p-4 text-red-400 text-sm">                    Error: {error}
                 </div>
             </div>
         );
@@ -167,10 +166,10 @@ export default function Settings() {
                             <button
                                 key={id}
                                 onClick={() => setTheme(id)}
-                                className={`flex flex-col text-left p-4 rounded-xl border transition-all duration-200 group relative
+                                className={`flex flex-col text-left p-4 rounded-xl transition-all duration-200 group relative
                                     ${activeTheme === id
-                                        ? 'bg-info/10 bg-[var(--bg-card)] border-[var(--accent)] shadow-lg shadow-indigo-500/10'
-                                        : 'bg-[var(--bg-card)] border-[var(--border-color)] hover:border-[var(--accent)]/50'}`}
+                                        ? 'bg-info/10 bg-[var(--bg-card)] shadow-lg shadow-indigo-500/10'
+                                        : 'bg-[var(--bg-card)] hover:bg-[var(--sidebar-hover)]'}`}
                             >
                                 <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-[var(--accent)] text-[var(--text-white)]' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
                                     {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
@@ -288,7 +287,7 @@ export default function Settings() {
                     <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
                         <div className="p-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-info/10 text-info rounded-xl border border-info/20">
+                                <div className="p-3 bg-info/10 text-info rounded-xl">
                                     <icons.user size={24} />
                                 </div>
                                 <div>
@@ -319,7 +318,7 @@ export default function Settings() {
                     <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
                         <div className="p-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
+                                <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
                                     <icons.clusterrole size={24} />
                                 </div>
                                 <div>
@@ -329,7 +328,7 @@ export default function Settings() {
                             </div>
                             <div className="mt-6">
                                 <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('assigned_role')}</dt>
-                                <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
                                     {details?.role}
                                 </dd>
                             </div>

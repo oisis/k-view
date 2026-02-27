@@ -29,15 +29,12 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_status')}>
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-2">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.ready ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                                    {status?.ready ? 'Ready' : 'Not Ready'}
+                                                                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${status?.ready ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>                                                    {status?.ready ? 'Ready' : 'Not Ready'}
                                                 </span>
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${status?.started ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
-                                                    {status?.started ? 'Started' : 'Not Started'}
+                                                                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${status?.started ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>                                                    {status?.started ? 'Started' : 'Not Started'}
                                                 </span>
                                                 {status?.restartCount > 0 && (
-                                                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase border bg-error/10 text-error border-error/20">
-                                                        Restarts: {status.restartCount}
+                                                                                                         <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-error/10 text-error">                                                        Restarts: {status.restartCount}
                                                     </span>
                                                 )}
                                             </div>
@@ -52,7 +49,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_env_variables')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-1">
                                             {c.env?.map(ev => (
-                                                <div key={ev.name} className="bg-black/20 rounded border border-white/5 p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
+                                                <div key={ev.name} className="bg-black/20 rounded p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
                                                     <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
                                                     <span className="text-[var(--text-muted)] truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
                                                         {ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}
@@ -64,7 +61,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_mounts')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-1">
                                             {c.volumeMounts?.map(vm => (
-                                                <div key={vm.mountPath} className="p-3 bg-black/20 rounded-xl border border-white/5 text-[11px] flex flex-col gap-2 relative overflow-hidden group">
+                                                <div key={vm.mountPath} className="p-3 bg-black/20 rounded-xl text-[11px] flex flex-col gap-2 relative overflow-hidden group">
                                                     <div className="font-bold text-info border-b border-white/5 pb-1.5 flex justify-between items-center">
                                                         <div className="flex items-center gap-2">
                                                             <icons.clipboard size={12} />

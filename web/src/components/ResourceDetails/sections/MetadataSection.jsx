@@ -107,12 +107,12 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                             <DetailRow label={t('label_labels')}>
                                 <div className="flex flex-wrap gap-1.5">
                                     {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
-                                        <span key={k} className="px-2 py-0.5 bg-info/10 border border-info/20 rounded text-sm text-info font-mono">
+                                        <span key={k} className="px-2 py-0.5 bg-info/10 rounded text-sm text-info font-mono">
                                             {k}: {v}
                                         </span>
                                     ))}
                                     {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
-                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded border border-[var(--border-color)] self-center">
+                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center">
                                             + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
                                         </span>
                                     )}

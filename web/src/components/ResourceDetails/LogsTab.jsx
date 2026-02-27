@@ -110,8 +110,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                         />
                         <button
                             onClick={() => setLogSearchRegex(!logSearchRegex)}
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black border transition-colors ${logSearchRegex ? 'bg-[var(--accent)] text-[var(--text-white)] border-[var(--accent)]' : 'bg-transparent text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)]'}`}
-                            title={t('regex_tooltip')}
+                                                         className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black transition-colors ${logSearchRegex ? 'bg-[var(--accent)] text-[var(--text-white)]' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}                            title={t('regex_tooltip')}
                         >
                             .*
                         </button>

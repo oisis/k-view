@@ -73,7 +73,7 @@ export default function AdminPanel() {
                     </h3>
                     <div className="flex items-center gap-2">
                         <span className="text-sm text-[var(--text-muted)]">{t('assigned_role')}:</span>
-                        <span className="px-2.5 py-1 rounded text-xs font-semibold bg-info/10 text-info border border-info/20">
+                        <span className="px-2.5 py-1 rounded text-xs font-semibold bg-info/10 text-info">
                             {status?.role} {status?.namespace ? `(${status.namespace})` : ''}
                         </span>
                     </div>
@@ -84,7 +84,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="space-y-3">
                         {status?.rules?.map((rule, idx) => (
-                            <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-[var(--bg-muted)]/50 border border-[var(--border-color)] rounded-md">
+                            <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-[var(--bg-muted)]/50 rounded-md">
                                 <div className="sm:w-1/3 flex items-center gap-2">
                                     {icons.check_circle && React.createElement(icons.check_circle, { size: 16, className: "text-green-500 shrink-0" })}
                                     <span className="text-sm font-medium text-[var(--text-primary)]">{rule.resource}</span>
@@ -116,7 +116,7 @@ export default function AdminPanel() {
                                     className="w-full px-6 py-4 flex items-center justify-between hover:bg-[var(--sidebar-hover)]/30 transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-[var(--text-cyan)]/10 flex items-center justify-center border border-[var(--text-cyan)]/20">
+                                        <div className="w-8 h-8 rounded-lg bg-[var(--text-cyan)]/10 flex items-center justify-center">
                                             {icons.shield && React.createElement(icons.shield, { size: 16, className: "text-cyan" })}
                                         </div>
                                         <span className="font-mono text-sm font-semibold text-cyan">{role.name}</span>
@@ -143,7 +143,7 @@ export default function AdminPanel() {
                                                         <td className="px-4 py-2 border-r border-[var(--border-color)] text-[var(--text-primary)]">
                                                             <div className="flex flex-wrap gap-1">
                                                                 {rule.resources?.map((res, rIdx) => (
-                                                                    <span key={rIdx} className="bg-[var(--bg-muted)] border border-[var(--border-color)] px-1.5 py-0.5 rounded text-[10px]">
+                                                                    <span key={rIdx} className="bg-transparent px-1.5 py-0.5 rounded text-[10px]">
                                                                         {res}
                                                                     </span>
                                                                 ))}
@@ -193,7 +193,7 @@ export default function AdminPanel() {
                                             {assignment.user || assignment.group || 'Unknown'}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 rounded text-xs uppercase font-bold bg-[var(--bg-muted)] border border-[var(--border-color)] text-[var(--text-muted)]">
+                                            <span className="px-2 py-1 rounded text-xs uppercase font-bold bg-transparent text-[var(--text-muted)]">
                                                 {assignment.user ? 'User' : 'Group'}
                                             </span>
                                         </td>
@@ -201,7 +201,7 @@ export default function AdminPanel() {
                                             {assignment.role}
                                         </td>
                                         <td className="px-6 py-4 text-[var(--text-muted)]">
-                                            {assignment.namespace || <span className="text-xs bg-[var(--text-purple)]/10 text-purple px-1.5 py-0.5 rounded border border-[var(--text-purple)]/20">Cluster-Wide</span>}
+                                            {assignment.namespace || <span className="text-xs bg-[var(--text-purple)]/10 text-purple px-1.5 py-0.5 rounded">Cluster-Wide</span>}
                                         </td>
                                     </tr>
                                 ))

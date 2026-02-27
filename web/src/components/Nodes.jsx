@@ -116,7 +116,7 @@ function LabelsCell({ labels }) {
         <div className="flex flex-col gap-1 max-w-[250px]">
             <div className="flex flex-wrap gap-1">
                 {visibleLabels.map(([k, v]) => (
-                    <span key={k} className="text-[10px] bg-slate-500/10 border border-slate-500/20 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
+                    <span key={k} className="text-[10px] bg-slate-500/10 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
                         {k.split('/').pop()}: {v}
                     </span>
                 ))}
