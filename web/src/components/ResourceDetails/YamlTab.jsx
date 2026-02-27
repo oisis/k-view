@@ -37,16 +37,21 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
         const fetchYaml = async () => {
             try {
                 const nsPath = namespace && namespace !== '-' ? `/${namespace}` : '/-';
-                const res = await fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`);
+                const url = `/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`;
+                const res = await fetch(url, { credentials: 'same-origin' });
                 if (res.ok) {
                     const data = await res.text();
                     if (mounted) {
                         setYaml(data);
                         setEditedYaml(data);
                     }
+                } else {
+                    console.error('API error:', res.status, res.statusText);
+                    if (mounted) setYaml(`Error: Failed to load manifest (${res.status})`);
                 }
             } catch (e) {
                 console.error('Failed to fetch YAML/JSON:', e);
+                if (mounted) setYaml('Error: Network failure');
             } finally {
                 if (mounted) setLoading(false);
             }

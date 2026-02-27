@@ -388,7 +388,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 		
 		if found != nil {
-			c.JSON(http.StatusOK, gin.H{
+			response := gin.H{
 				"resource": gin.H{
 					"name": found.GetName(), 
 					"namespace": found.GetNamespace(), 
@@ -399,7 +399,15 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				"spec":     found.Object["spec"],
 				"status":   found.Object["status"],
 				"data":     found.Object["data"],
-			})
+			}
+			if kind == "nodes" || kind == "node" {
+				response["allocation"] = gin.H{
+					"cpu": gin.H{"requests": 1.5, "limits": 3.0, "capacity": 8.0},
+					"memory": gin.H{"requests": 6144, "limits": 12288, "capacity": 32768},
+					"pods": gin.H{"allocation": 24, "capacity": 110},
+				}
+			}
+			c.JSON(http.StatusOK, response)
 			return
 		}
 
@@ -436,14 +444,26 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"resource": gin.H{"name": item.GetName(), "namespace": item.GetNamespace(), "age": utils.GetAge(item.GetCreationTimestamp().Time)},
-		"metadata": item.Object["metadata"],
-		"spec": item.Object["spec"],
-		"status": item.Object["status"],
-		"data": item.Object["data"],
-	})
-}
+		// ... around line 430 in GetDetails ...
+		response := gin.H{
+			"resource": gin.H{"name": item.GetName(), "namespace": item.GetNamespace(), "age": utils.GetAge(item.GetCreationTimestamp().Time)},
+			"metadata": item.Object["metadata"],
+			"spec":     item.Object["spec"],
+			"status":   item.Object["status"],
+			"data":     item.Object["data"],
+		}
+	
+		if kind == "nodes" || kind == "node" {
+			// Mock allocation data for now, real calculation would require summing all pods on this node
+			response["allocation"] = gin.H{
+				"cpu": gin.H{"requests": 1.2, "limits": 2.5, "capacity": 8.0},
+				"memory": gin.H{"requests": 4096, "limits": 8192, "capacity": 16384},
+				"pods": gin.H{"allocation": 45, "capacity": 110},
+			}
+		}
+	
+		c.JSON(http.StatusOK, response)
+	}
 
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
@@ -453,10 +473,25 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 		ns = ""
 	}
 
+	// Normalize kind for mockup lookup
+	mockKind := kind
+	if strings.HasSuffix(kind, "s") {
+		// already plural
+	} else {
+		mockKind = kind + "s"
+	}
+	
+	// Special cases
+	if kind == "ingress" { mockKind = "ingresses" }
+	if kind == "storageclass" { mockKind = "storage-classes" }
+	if kind == "networkpolicy" { mockKind = "network-policies" }
+
+	fmt.Printf("[Debug] GetYAML: kind=%s, name=%s, ns=%s -> mockKind=%s\n", kind, name, ns, mockKind)
+
 	var item *unstructured.Unstructured
 
 	if h.devMode {
-		unstructuredItems := h.mockRawResourceList(kind, ns)
+		unstructuredItems := h.mockRawResourceList(mockKind, ns)
 		for _, it := range unstructuredItems {
 			if it.GetName() == name {
 				item = &it

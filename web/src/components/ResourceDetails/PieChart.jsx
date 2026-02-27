@@ -1,9 +1,10 @@
 import React from 'react';
 
 export default function PieChart({ percent, label, subLabel, color = 'var(--accent)' }) {
+    const validPercent = isFinite(percent) ? Math.max(0, Math.min(100, percent)) : 0;
     const radius = 35;
     const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (percent / 100) * circumference;
+    const offset = circumference - (validPercent / 100) * circumference;
 
     return (
         <div className="flex flex-col items-center">
@@ -28,13 +29,13 @@ export default function PieChart({ percent, label, subLabel, color = 'var(--acce
                         stroke={color}
                         strokeWidth="8"
                         strokeDasharray={circumference}
-                        strokeDashoffset={offset}
+                        strokeDashoffset={isNaN(offset) ? circumference : offset}
                         strokeLinecap="round"
                         className="transition-all duration-1000 ease-out"
                     />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs font-bold text-[var(--text-primary)]">{percent.toFixed(1)}%</span>
+                    <span className="text-xs font-bold text-[var(--text-primary)]">{validPercent.toFixed(1)}%</span>
                 </div>
             </div>
             <div className="mt-2 text-center">
