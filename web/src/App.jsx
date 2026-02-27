@@ -320,6 +320,13 @@ function App() {
                         filter: `grayscale(var(--wallpaper-grayscale, 100%)) brightness(var(--wallpaper-brightness))`,
                     }}
                 />
+                <div
+                    className="absolute inset-0 pointer-events-none z-0"
+                    style={{
+                        backgroundColor: 'var(--bg-overlay)',
+                        backdropFilter: 'blur(4px)', // Soft blur for the overlay itself
+                    }}
+                />
                 {user && (
                     <Sidebar
                         user={user}

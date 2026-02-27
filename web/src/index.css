@@ -22,6 +22,7 @@
     --font-size-2xl: 27.34px;   /* 21.875 * 1.25 */
 
     /* --- Default Theme: K-View --- */
+    --bg-overlay: rgba(11, 15, 25, 0.5); /* Dark blue overlay */
     --bg-main: rgba(11, 15, 25, 0.8);
     --bg-sidebar: #0F172A;
     --bg-card: rgba(17, 24, 39, 0.7);
@@ -58,6 +59,7 @@
   }
 
   .theme-dark {
+    --bg-overlay: rgba(0, 0, 0, 0.5); /* Black overlay */
     --bg-main: rgba(0, 0, 0, 0.8);
     --bg-sidebar: rgba(0, 0, 0, 0.8);
     --bg-card: rgba(10, 10, 10, 0.7);
@@ -93,6 +95,7 @@
   }
 
   .theme-light {
+    --bg-overlay: rgba(255, 255, 255, 0.3); /* White overlay */
     --bg-main: rgba(255, 255, 255, 0.4);
     --bg-sidebar: rgba(241, 245, 249, 0.6);
     --bg-card: rgba(255, 255, 255, 0.4);
