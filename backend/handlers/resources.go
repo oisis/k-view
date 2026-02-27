@@ -432,6 +432,10 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"data":     item.Object["data"],
 	}
 
+	// Extra safety for missing fields in some K8s versions/objects
+	if response["spec"] == nil { response["spec"] = item.Object["spec"] }
+	if response["metadata"] == nil { response["metadata"] = item.Object["metadata"] }
+
 	// Extract RBAC and common fields to root for frontend compatibility
 	if rules, ok := item.Object["rules"]; ok { response["rules"] = rules }
 	if subjects, ok := item.Object["subjects"]; ok { response["subjects"] = subjects }
