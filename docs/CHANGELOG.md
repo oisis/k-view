@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.41.0] - 2026-02-27
+
+### Added
+- **Full Multi-language Support**: Expanded internationalization to 8 languages (EN, PL, DE, FR, ES, JA, KO, ZH) with synchronized keys and verified syntax.
+- **Unified Transparency System**: Implemented a consistent Glassmorphism effect across all themes with standardized default opacities for cards, sidebars, and glass elements.
+- **Improved Settings Controls**: Reintroduced prominent "Save Settings" and "Reload" buttons, and added new "Reset to Defaults" functionality.
+- **Responsive Theme Previews**: Redesigned theme selection tiles with larger icons, representative backgrounds, and side-by-side labels for better UX.
+
+### Changed
+- **Tailwind Architecture Refactor**: Overhauled the CSS variable system using RGB channels, enabling native Tailwind opacity modifier support (e.g., `text-primary/50`).
+- **Typography Standardization**: Unified font sizes across all views, increasing base readability (12px for small labels) and standardizing header styles.
+- **True Dark Theme**: Redesigned the "Dark" theme from a slate-blue palette to a neutral black/gray aesthetic for higher contrast and clarity.
+- **Refined Table Styling**: Unified border thickness (1.5px) and colors across all themes, enforced border-collapse globally, and implemented deep blue inverted headers for resource detail sections.
+
+### Fixed
+- **State Synchronization**: Added cross-tab state synchronization for theme and settings using storage event listeners.
+- **Visibility & Layering**: Resolved critical Z-index issues where content would fall behind background overlays and fixed heading visibility across all themes.
+- **Dashboard Consistency**: Standardized font sizes, margins, and colors on the Dashboard to match other application pages.
+- **Translation Syntax**: Fixed critical JS syntax errors in locale files that previously prevented production builds.
+- **Sidebar Persistence**: Fixed an issue where sidebar sections would expand unexpectedly by stabilizing localStorage keys.
+
+## [0.40.0] - 2026-02-27
+
+### Changed
+- Initial version bump for UI refactor synchronization.
+
 ## [0.39.0] - 2026-02-27
 
 ### Added
