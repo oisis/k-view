@@ -17,12 +17,31 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const [logFontSize, setLogFontSize] = useState(14);
     const [loading, setLoading] = useState(true);
 
+    // Update logContainer when containers list changes (e.g. after async load)
+    useEffect(() => {
+        if (containers && containers.length > 0 && !logContainer) {
+            setLogContainer(containers[0].name || containers[0].containerName || '');
+        }
+    }, [containers]);
+
     const fetchLogs = async () => {
-        const k = kind.toLowerCase();
-        if (!k.includes('pod') && !k.includes('job') && !k.includes('deploy') && !k.includes('daemonset') && !k.includes('replicaset') && !k.includes('statefulset') && !k.includes('replicationcontroller')) return;
+        if (!logContainer && (!containers || containers.length === 0)) return;
         try {
+            // Normalize kind for API
+            let normalizedKind = kind.toLowerCase();
+            if (normalizedKind === 'pod') normalizedKind = 'pods';
+            if (normalizedKind === 'service') normalizedKind = 'services';
+            if (normalizedKind === 'deployment') normalizedKind = 'deployments';
+            if (normalizedKind === 'daemonset') normalizedKind = 'daemonsets';
+            if (normalizedKind === 'statefulset') normalizedKind = 'statefulsets';
+            if (normalizedKind === 'replicaset') normalizedKind = 'replicasets';
+            if (normalizedKind === 'job') normalizedKind = 'jobs';
+            if (normalizedKind === 'cronjob') normalizedKind = 'cronjobs';
+
             const containerQuery = logContainer ? `&container=${logContainer}` : '';
-            const logsRes = await fetch(`/api/pods/${namespace}/${name}/logs?tail=1000${containerQuery}`);
+            // Always use the resources endpoint which handles controllers
+            const url = `/api/resources/${normalizedKind}/${namespace || '-'}/${name}/logs?tail=1000${containerQuery}`;
+            const logsRes = await fetch(url);
             if (logsRes.ok) {
                 const logsData = await logsRes.text();
                 setLogs(logsData);

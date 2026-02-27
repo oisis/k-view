@@ -11,8 +11,8 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
                     <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600">
                         <tr>
-                            <th className="px-4 py-3 text-left">{t('label_name')}</th>
-                            <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left">{t('label_name') || "Name"}</th>
+                            <th className="px-4 py-3 text-left">{t('label_namespace') || "Namespace"}</th>
                             <th className="px-4 py-3 text-left">Age</th>
                             <th className="px-4 py-3 text-center">Pods</th>
                             <th className="px-4 py-3 text-left">Labels</th>

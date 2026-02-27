@@ -115,30 +115,43 @@ export default function ResourceDetails({ user }) {
                     }
                 }
 
-                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || kindLower.includes('service') || kindLower === 'nodes' || kindLower === 'node') {
+                // Related Pods and Services matching logic
+                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || kindLower.includes('service') || kindLower === 'nodes' || kindLower === 'node' || kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset')) {
                     const [podsRes, svcsRes] = await Promise.all([
                         fetch(`/api/resources/pods?namespace=${nsQuery}`),
                         kindLower.includes('daemonset') ? fetch(`/api/resources/services?namespace=${nsQuery}`) : Promise.resolve(null)
                     ]);
+                    
                     if (podsRes && podsRes.ok) {
                         const podsData = await podsRes.json();
                         if (Array.isArray(podsData)) {
-                            if (kindLower.includes('service')) {
-                                const selector = detailsData.spec?.selector?.matchLabels || detailsData.spec?.selector || {};
-                                setRelatedPods(podsData.filter(p => {
-                                    if (!p || !p.extra) return false;
-                                    const labels = p.extra.labels;
-                                    if (!labels) return false;
+                            const selector = detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector || null;
+                            const uid = detailsData?.metadata?.uid;
+
+                            setRelatedPods(podsData.filter(p => {
+                                if (!p) return false;
+                                
+                                // Node matching
+                                if (kindLower === 'nodes' || kindLower === 'node') return p?.extra?.node === name;
+
+                                // Selector matching (Deployments, Services, etc.)
+                                if (selector && Object.keys(selector).length > 0) {
+                                    const labels = p.labels || p.extra?.labels || {};
                                     if (typeof labels === 'object') {
-                                        return Object.entries(selector).every(([k, v]) => labels[k] === v);
+                                        return Object.entries(selector).every(([k, v]) => labels[k] === String(v));
                                     }
-                                    return Object.entries(selector).every(([k, v]) => String(labels).includes(`${k}=${v}`));
-                                }));
-                                setRelatedEndpoints(detailsData.metadata?.endpoints || []);
-                            } else if (kindLower === 'nodes' || kindLower === 'node') {
-                                setRelatedPods(podsData.filter(p => p.extra?.node === name));
-                            } else {
-                                setRelatedPods(podsData.filter(p => p.extra?.['owner-uid'] === detailsData.metadata?.uid));
+                                }
+
+                                // Owner UID matching (fallback)
+                                const ownerUid = p?.extra?.['owner-uid'];
+                                if (ownerUid && uid && ownerUid === uid) return true;
+
+                                // ownerReferences check
+                                return (p.metadata?.ownerReferences || []).some(o => o.uid === uid);
+                            }));
+
+                            if (kindLower.includes('service')) {
+                                setRelatedEndpoints(detailsData?.metadata?.endpoints || []);
                             }
                         }
                     }
@@ -231,6 +244,11 @@ export default function ResourceDetails({ user }) {
 
     const { metadata } = data;
     const isCronJob = kindLower.includes('cronjob');
+    const isPod = kindLower.includes('pod');
+
+    const containers = isPod
+        ? (data.status?.containerStatuses || data.spec?.containers || [])
+        : (data.spec?.template?.spec?.containers || data.spec?.template?.containers || data.spec?.jobTemplate?.spec?.template?.spec?.containers || []);
 
     return (
         <div className="p-6 max-w-7xl mx-auto w-full flex flex-col min-h-full">
@@ -261,7 +279,7 @@ export default function ResourceDetails({ user }) {
                     { id: 'overview', label: t('overview'), icon: icons.about },
                     { id: 'events', label: t('events'), icon: icons.list },
                     { id: 'yaml', label: t('yaml'), icon: icons.manifest },
-                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: !['pod', 'pods', 'job', 'jobs', 'deployment', 'deployments', 'daemonset', 'daemonsets', 'replicaset', 'replicasets', 'statefulset', 'statefulsets', 'replicationcontroller', 'replicationcontrollers'].includes(kindLower) },
+                    { id: 'logs', label: t('logs'), icon: icons.terminal, hidden: !['pod', 'pods', 'job', 'jobs', 'deployment', 'deployments', 'daemonset', 'daemonsets', 'replicaset', 'replicasets', 'statefulset', 'statefulsets', 'replicationcontroller', 'replicationcontrollers', 'cronjob', 'cronjobs'].includes(kindLower) },
                     { id: 'exec', label: t('terminal'), icon: icons.terminal, hidden: !['pod', 'pods'].includes(kindLower) },
                     { id: 'trace', label: t('trace'), icon: icons.activity, hidden: !['ingress', 'ingresses', 'services', 'pods'].includes(kindLower) }
                 ].filter(t => !t.hidden).map(tab => (
@@ -343,7 +361,7 @@ export default function ResourceDetails({ user }) {
                     <YamlTab kind={kind} namespace={namespace} name={name} canEdit={canEdit} t={t} onRefresh={() => window.location.reload()} />
                 )}
                 {activeTab === 'logs' && (
-                    <LogsTab kind={kind} namespace={namespace} name={name} containers={data.spec?.containers || data.spec?.template?.spec?.containers || []} t={t} />
+                    <LogsTab kind={kind} namespace={namespace} name={name} containers={containers} t={t} />
                 )}
                 {activeTab === 'exec' && (
                     <PodTerminal
