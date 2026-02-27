@@ -224,25 +224,36 @@ h1, h2, h3, h4 {
   }
 }
 
-/* --- Clean single borders for Light theme --- */
-.theme-light .border-b,
-.theme-light .divide-y > :not([hidden]) ~ :not([hidden]) {
+/* --- Global Table & Border Styles --- */
+table {
+  border-collapse: collapse !important;
+  width: 100%;
+}
+
+.border, .border-b, .border-t, .border-l, .border-r,
+table td, table th,
+.divide-y > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--border-color) !important;
-  border-bottom-width: 1px !important;
+  border-width: 1px;
 }
 
-.theme-light .border,
-.theme-light .border-t,
-.theme-light .border-l,
-.theme-light .border-r {
-  border-color: var(--border-color) !important;
+/* Thicker borders for all themes for consistency */
+.border, .border-b, .border-t, .border-l, .border-r {
+  border-width: 1.5px;
 }
 
-.theme-light table td, 
-.theme-light table th {
-  border-bottom: 1px solid var(--border-color);
+table td, table th {
+  border-bottom-width: 1.5px !important;
 }
 
-.theme-light table {
-  border: 1px solid var(--border-color);
+.theme-light {
+  --border-color: rgb(var(--color-border-color)); /* Solid blue */
+}
+
+.theme-dark, :root {
+  --border-color: rgb(255 255 255 / 0.2); /* Soft white for dark modes */
+}
+
+.theme-k-view {
+  --border-color: rgb(255 255 255 / 0.25);
 }
