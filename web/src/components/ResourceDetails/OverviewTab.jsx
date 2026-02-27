@@ -160,30 +160,30 @@ export default function OverviewTab({
             {(mountedConfigMaps.length > 0 || mountedSecrets.length > 0 || mountedPvcs.length > 0) && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     {mountedConfigMaps.length > 0 && (
-                        <DetailSection title="Mounted ConfigMaps">
+                        <DetailSection title={t('mounted_configmaps')}>
                             <div className="p-2 space-y-1">
                                 {mountedConfigMaps.map(cm => (
-                                                                         <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 rounded-lg hover:bg-[var(--sidebar-hover)] text-xs font-mono text-info truncate">                                        {cm}
+                                                                         <Link key={cm} to={`/configmaps/${namespace}/${cm}`} className="block px-3 py-2 bg-sidebar/30 rounded-lg hover:bg-card-hover text-xs font-mono text-info truncate">                                        {cm}
                                     </Link>
                                 ))}
                             </div>
                         </DetailSection>
                     )}
                     {mountedSecrets.length > 0 && (
-                        <DetailSection title="Mounted Secrets">
+                        <DetailSection title={t('mounted_secrets')}>
                             <div className="p-2 space-y-1">
                                 {mountedSecrets.map(s => (
-                                                                         <Link key={s} to={`/secrets/${namespace}/${s}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 rounded-lg hover:bg-[var(--sidebar-hover)] text-xs font-mono text-info truncate">                                        {s}
+                                                                         <Link key={s} to={`/secrets/${namespace}/${s}`} className="block px-3 py-2 bg-sidebar/30 rounded-lg hover:bg-card-hover text-xs font-mono text-info truncate">                                        {s}
                                     </Link>
                                 ))}
                             </div>
                         </DetailSection>
                     )}
                     {mountedPvcs.length > 0 && (
-                        <DetailSection title="Mounted PVCs">
+                        <DetailSection title={t('mounted_pvcs')}>
                             <div className="p-2 space-y-1">
                                 {mountedPvcs.map(pvc => (
-                                                                         <Link key={pvc} to={`/pvcs/${namespace}/${pvc}`} className="block px-3 py-2 bg-[var(--bg-sidebar)]/30 rounded-lg hover:bg-[var(--sidebar-hover)] text-xs font-mono text-info truncate">                                        {pvc}
+                                                                         <Link key={pvc} to={`/pvcs/${namespace}/${pvc}`} className="block px-3 py-2 bg-sidebar/30 rounded-lg hover:bg-card-hover text-xs font-mono text-info truncate">                                        {pvc}
                                     </Link>
                                 ))}
                             </div>

@@ -95,6 +95,18 @@ export const de = {
     effective_permissions_desc: 'Ihre Berechtigungen im Cluster.',
     resources: 'Ressourcen',
     allowed_verbs: 'Erlaubte Aktionen',
+    no_controller_found: 'Kein Controller gefunden.',
+    mounted_configmaps: 'Montierte ConfigMaps',
+    mounted_secrets: 'Montierte Secrets',
+    mounted_pvcs: 'Montierte PVCs',
+    ready: 'Bereit',
+    not_ready: 'Nicht bereit',
+    started: 'Gestartet',
+    not_started: 'Nicht gestartet',
+    started_at: 'Gestartet am',
+    none: 'Keine',
+    read_only: 'NUR LESEN',
+    read_write: 'LESEN-SCHREIBEN',
 
     // Dashboard
     analyzing_cluster: 'Clusterzustand wird analysiert...',

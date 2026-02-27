@@ -56,6 +56,10 @@
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
+  
+  --wallpaper-opacity: 0.4;
+  --wallpaper-brightness: 0.5;
+  --sidebar-hover: 30 41 59;
 }
 
 .theme-dark {
@@ -203,6 +207,7 @@
 
   table {
     border-collapse: collapse !important;
+    width: 100%;
   }
 
   table, thead, tbody, tfoot, tr, td, th {
@@ -225,11 +230,6 @@ h1, h2, h3, h4 {
 }
 
 /* --- Global Table & Border Styles --- */
-table {
-  border-collapse: collapse !important;
-  width: 100%;
-}
-
 .border, .border-b, .border-t, .border-l, .border-r,
 table td, table th,
 .divide-y > :not([hidden]) ~ :not([hidden]) {
@@ -246,14 +246,11 @@ table td, table th {
   border-bottom-width: 1.5px !important;
 }
 
-.theme-light {
-  --border-color: rgb(var(--color-border-color)); /* Solid blue */
+/* --- Inverted headers for DetailSection in Light theme --- */
+.theme-light .detail-section-header {
+  @apply bg-accent !important;
 }
 
-.theme-dark, :root {
-  --border-color: rgb(255 255 255 / 0.2); /* Soft white for dark modes */
-}
-
-.theme-k-view {
-  --border-color: rgb(255 255 255 / 0.25);
+.theme-light .detail-section-header h3 {
+  color: #ffffff !important;
 }
