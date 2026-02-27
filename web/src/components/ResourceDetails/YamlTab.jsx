@@ -20,7 +20,13 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
             const nsPath = namespace && namespace !== '-' ? `/${namespace}` : '/-';
             const res = await fetch(`/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`);
             if (res.ok) {
-                const data = await res.text();
+                let data = await res.text();
+                if (format === 'json') {
+                    try {
+                        const parsed = JSON.parse(data);
+                        data = JSON.stringify(parsed, null, 2);
+                    } catch (e) { /* fallback to raw */ }
+                }
                 setYaml(data);
                 setEditedYaml(data);
             }
@@ -40,7 +46,13 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                 const url = `/api/resources/${kind}${nsPath}/${name}/yaml?format=${format}`;
                 const res = await fetch(url, { credentials: 'same-origin' });
                 if (res.ok) {
-                    const data = await res.text();
+                    let data = await res.text();
+                    if (format === 'json') {
+                        try {
+                            const parsed = JSON.parse(data);
+                            data = JSON.stringify(parsed, null, 2);
+                        } catch (e) { /* fallback to raw */ }
+                    }
                     if (mounted) {
                         setYaml(data);
                         setEditedYaml(data);
@@ -184,6 +196,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                 onChange={isEditing ? setEditedYaml : null}
                 readOnly={!isEditing}
                 fontSize={editorFontSize}
+                language={format}
             />
         </div>
     );
