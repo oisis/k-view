@@ -115,12 +115,12 @@ export default function Dashboard({ isCollapsed }) {
     }
 
     return (
-        <div className="p-6 md:p-8 lg:p-10 w-full transition-all duration-500">
+        <div className="p-4 md:p-8 w-full transition-all duration-500">
             {/* Header */}
-            <div className="flex items-end justify-between mb-12">
+            <div className="flex items-end justify-between mb-8">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-primary tracking-tight">{t('system_overview')}</h2>
-                    <p className="text-secondary mt-2 flex items-center gap-2.5 font-medium">
+                    <h2 className="text-2xl font-bold text-primary tracking-tight">{t('system_overview')}</h2>
+                    <p className="text-secondary mt-1 flex items-center gap-2.5 font-medium text-sm">
                         <span className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--text-success)] opacity-80"></span>
                         {t('connected_as')} <span className="font-mono text-accent font-bold">{settings.clusterName || stats?.clusterName || 'Local Cluster'}</span>
                     </p>
@@ -164,7 +164,7 @@ export default function Dashboard({ isCollapsed }) {
                     value={
                         <div className="flex flex-col">
                             <span className="text-[10px] uppercase tracking-[0.2em] text-text-muted mb-1 font-black">Name</span>
-                            <span className="text-2xl md:text-3xl font-black text-primary tracking-tight">
+                            <span className="text-xl md:text-2xl font-black text-primary tracking-tight">
                                 {settings.clusterName || stats?.clusterName || "K8s Cluster"}
                             </span>
                         </div>
@@ -225,7 +225,7 @@ export default function Dashboard({ isCollapsed }) {
                 <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('compute_load')}</p>
-                        <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-2xl' : 'text-xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
                             <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
                         </h3>
@@ -244,7 +244,7 @@ export default function Dashboard({ isCollapsed }) {
                 <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('memory_pressure')}</p>
-                        <h3 className={`${isCollapsed ? 'text-4xl' : 'text-3xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-2xl' : 'text-xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
                             <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
                         </h3>
