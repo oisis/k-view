@@ -11,7 +11,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [showSuccess, setShowSuccess] = useState(false);
-    const [editorFontSize, setEditorFontSize] = useState(12);
+    const [editorFontSize, setEditorFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {

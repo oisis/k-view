@@ -14,7 +14,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const [logLinesPerPage] = useState(36);
     const [logContainer, setLogContainer] = useState(containers && containers.length > 0 ? containers[0].name : '');
     const [logWrapLines, setLogWrapLines] = useState(false);
-    const [logFontSize, setLogFontSize] = useState(14);
+    const [logFontSize, setLogFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
 
     // Update logContainer when containers list changes (e.g. after async load)
@@ -139,7 +139,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                             onChange={(e) => setLogFontSize(parseInt(e.target.value))}
                             className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
                         >
-                            {[10, 12, 14, 16].map(size => (
+                            {[10, 12, 13, 14, 16].map(size => (
                                 <option key={size} value={size}>{size}px</option>
                             ))}
                         </select>

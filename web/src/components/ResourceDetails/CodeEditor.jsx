@@ -3,7 +3,7 @@ import React from 'react';
 export default function CodeEditor({ value, onChange, readOnly, fontSize = 12 }) {
     const lines = value.split('\n');
     const lineCount = lines.length;
-    const LINE_HEIGHT = '1.6rem';
+    const LINE_HEIGHT = '1.25rem';
 
     return (
         <div className="bg-main/20 border-t border-border/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
