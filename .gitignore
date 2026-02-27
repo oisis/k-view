@@ -143,6 +143,7 @@ vite.config.ts.timestamp-*
 
 # Custom files and dirs
 tmp/
+tmp-gemini/
 
 # Gemini CLI local settings and state
 .gemini/settings.json
