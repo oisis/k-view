@@ -15,21 +15,56 @@ export default {
     },
     extend: {
       colors: {
-        // Backgrounds
-        main: 'rgb(var(--color-bg-main) / <alpha-value>)',
-        sidebar: 'rgb(var(--color-bg-sidebar) / <alpha-value>)',
-        card: 'rgb(var(--color-bg-card) / <alpha-value>)',
-        'card-hover': 'rgb(var(--color-bg-card-hover) / <alpha-value>)',
-        'bg-muted': 'rgb(var(--color-bg-muted) / <alpha-value>)',
-        glass: 'rgb(var(--color-bg-glass) / <alpha-value>)',
-        'glass-deep': 'rgb(var(--color-bg-glass-deep) / <alpha-value>)',
-        dropdown: 'rgb(var(--color-bg-dropdown) / <alpha-value>)',
-        tooltip: 'rgb(var(--color-bg-tooltip) / <alpha-value>)',
-        input: 'rgb(var(--color-bg-input) / <alpha-value>)',
-        console: 'rgb(var(--color-bg-console) / <alpha-value>)',
-        editor: 'rgb(var(--color-bg-editor) / <alpha-value>)',
+        // Backgrounds with unified default opacities
+        main: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-main) / 0.45)' 
+          : `rgb(var(--color-bg-main) / ${opacityValue})`,
+        
+        sidebar: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-sidebar) / 0.85)' 
+          : `rgb(var(--color-bg-sidebar) / ${opacityValue})`,
+        
+        card: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-card) / 0.65)' 
+          : `rgb(var(--color-bg-card) / ${opacityValue})`,
+        
+        'card-hover': ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-card-hover) / 0.85)' 
+          : `rgb(var(--color-bg-card-hover) / ${opacityValue})`,
+        
+        'bg-muted': ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-muted) / 0.25)' 
+          : `rgb(var(--color-bg-muted) / ${opacityValue})`,
+        
+        glass: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-glass) / 0.35)' 
+          : `rgb(var(--color-bg-glass) / ${opacityValue})`,
+        
+        'glass-deep': ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-glass-deep) / 0.75)' 
+          : `rgb(var(--color-bg-glass-deep) / ${opacityValue})`,
+        
+        dropdown: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-dropdown) / 0.95)' 
+          : `rgb(var(--color-bg-dropdown) / ${opacityValue})`,
+        
+        tooltip: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-tooltip) / 0.98)' 
+          : `rgb(var(--color-bg-tooltip) / ${opacityValue})`,
+        
+        input: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-input) / 0.6)' 
+          : `rgb(var(--color-bg-input) / ${opacityValue})`,
+        
+        console: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-console) / 0.95)' 
+          : `rgb(var(--color-bg-console) / ${opacityValue})`,
+        
+        editor: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-bg-editor) / 0.85)' 
+          : `rgb(var(--color-bg-editor) / ${opacityValue})`,
 
-        // Text
+        // Text (Usually opaque)
         primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
         secondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
         'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
@@ -39,7 +74,7 @@ export default {
         'input-text': 'rgb(var(--color-text-input) / <alpha-value>)',
         'editor-code': 'rgb(var(--color-text-editor-code) / <alpha-value>)',
 
-        // Status & Accent Colors
+        // Status Colors
         accent: 'rgb(var(--color-accent) / <alpha-value>)',
         'accent-hover': 'rgb(var(--color-accent-hover) / <alpha-value>)',
         info: 'rgb(var(--color-text-info) / <alpha-value>)',
@@ -50,12 +85,20 @@ export default {
         orange: 'rgb(var(--color-text-orange) / <alpha-value>)',
         cyan: 'rgb(var(--color-text-cyan) / <alpha-value>)',
 
-        // Borders
-        border: 'rgb(var(--color-border-color) / <alpha-value>)',
-        'border-muted': 'rgb(var(--color-border-muted) / <alpha-value>)',
-        'border-tooltip': 'rgb(var(--color-border-tooltip) / <alpha-value>)',
+        // Borders with unified default opacity
+        border: ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-border-color) / 0.3)' 
+          : `rgb(var(--color-border-color) / ${opacityValue})`,
+        
+        'border-muted': ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-border-muted) / 0.15)' 
+          : `rgb(var(--color-border-muted) / ${opacityValue})`,
+        
+        'border-tooltip': ({ opacityValue }) => opacityValue === undefined 
+          ? 'rgb(var(--color-border-tooltip) / 0.4)' 
+          : `rgb(var(--color-border-tooltip) / ${opacityValue})`,
       },
-      sidebarHover: 'rgb(var(--color-bg-card-hover) / <alpha-value>)',
+      sidebarHover: 'rgb(var(--color-bg-card-hover) / 0.2)',
     },
   },
   plugins: [],

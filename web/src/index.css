@@ -16,10 +16,9 @@
   --font-size-2xl: 27.34px;
 
   /* --- Global UI Settings --- */
-  --wallpaper-opacity: 0.6;
+  --wallpaper-opacity: 0.65;
   --wallpaper-brightness: 0.6;
   --wallpaper-grayscale: 0%;
-  --sidebar-hover-opacity: 0.1;
 
   /* --- Channels: K-View (Default) --- */
   --color-bg-main: 11 15 25;
@@ -127,32 +126,33 @@
   --color-text-orange: 234 88 12;
   --color-text-cyan: 8 145 178;
   
-  --wallpaper-opacity: 0.3;
-  --wallpaper-brightness: 0.9;
+  --wallpaper-opacity: 0.35;
+  --wallpaper-brightness: 0.95;
 }
 
 /* ==========================================================================
-   2. LEGACY SUPPORT & COMPATIBILITY LAYER
+   2. UNIFIED TRANSPARENCY MAPPING
+   All themes now share the same opacity levels for identical components.
    ========================================================================== */
 
 :root, .theme-dark, .theme-light {
-  --bg-main: rgb(var(--color-bg-main) / 0.4); /* Lower opacity for transparency */
-  --bg-sidebar: rgb(var(--color-bg-sidebar) / 0.8);
-  --bg-card: rgb(var(--color-bg-card) / 0.6);
-  --bg-card-hover: rgb(var(--color-bg-card-hover) / 0.8);
-  --bg-muted: rgb(var(--color-bg-muted) / 0.2);
-  --bg-glass: rgb(var(--color-bg-glass) / 0.3);
-  --bg-glass-deep: rgb(var(--color-bg-glass-deep) / 0.6);
-  --bg-dropdown: rgb(var(--color-bg-dropdown) / 0.9);
-  --bg-tooltip: rgb(var(--color-bg-tooltip) / 0.95);
-  --bg-input: rgb(var(--color-bg-input) / 0.5);
-  --bg-console: rgb(var(--color-bg-console) / 0.9);
-  --bg-editor: rgb(var(--color-bg-editor) / 0.8);
-  --bg-overlay: rgb(var(--color-bg-main) / 0.3);
+  --bg-main: rgb(var(--color-bg-main) / 0.45); 
+  --bg-sidebar: rgb(var(--color-bg-sidebar) / 0.85);
+  --bg-card: rgb(var(--color-bg-card) / 0.65);
+  --bg-card-hover: rgb(var(--color-bg-card-hover) / 0.85);
+  --bg-muted: rgb(var(--color-bg-muted) / 0.25);
+  --bg-glass: rgb(var(--color-bg-glass) / 0.35);
+  --bg-glass-deep: rgb(var(--color-bg-glass-deep) / 0.75);
+  --bg-dropdown: rgb(var(--color-bg-dropdown) / 0.95);
+  --bg-tooltip: rgb(var(--color-bg-tooltip) / 0.98);
+  --bg-input: rgb(var(--color-bg-input) / 0.6);
+  --bg-console: rgb(var(--color-bg-console) / 0.95);
+  --bg-editor: rgb(var(--color-bg-editor) / 0.85);
+  --bg-overlay: rgb(var(--color-bg-main) / 0.35);
 
-  --border-color: rgb(var(--color-border-color) / 0.2);
-  --border-muted: rgb(var(--color-border-muted) / 0.1);
-  --border-tooltip: rgb(var(--color-border-tooltip) / 0.3);
+  --border-color: rgb(var(--color-border-color) / 0.3);
+  --border-muted: rgb(var(--color-border-muted) / 0.15);
+  --border-tooltip: rgb(var(--color-border-tooltip) / 0.4);
 
   --text-primary: rgb(var(--color-text-primary));
   --text-secondary: rgb(var(--color-text-secondary));
@@ -185,7 +185,7 @@
     @apply bg-main text-secondary antialiased transition-colors duration-200;
     font-family: var(--font-sans, sans-serif);
     font-size: var(--font-size-base);
-    background-color: rgb(var(--color-bg-main)) !important; /* Solid base behind wallpaper */
+    background-color: rgb(var(--color-bg-main)) !important; 
   }
 
   table, thead, tbody, tfoot, tr, td, th {
