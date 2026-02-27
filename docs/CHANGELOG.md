@@ -5,7 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.27.3] - 2026-02-23
+## [0.39.0] - 2026-02-27
+
+### Added
+- **Native Mock System**: Replaced flat mockups with real, anonymized Kubernetes resource structures (API List format).
+- **Unified Logging API**: New backend logic to fetch logs from any workload (Deployment, Job, CronJob) by automatically resolving them to their associated pods.
+- **Resource Templates**: New modular frontend architecture with dedicated templates for all major K8s resources (Pods, Deployments, Nodes, etc.), restoring the detailed views from v0.37.0.
+- **CRD View**: Dedicated detailed view for CustomResourceDefinitions with version and scope information.
+
+### Fixed
+- **Stability**: Fixed multiple "white screen" crashes by implementing optional chaining and safer data mapping.
+- **Secret Management**: Improved Base64 handling with UTF-8 support and secure masking/editing.
+- **Node View**: Restored rich node metrics, allocation pie charts, and system information.
+- **YAML View**: Fixed manifest loading for cluster-scoped resources and added JSON format support.
+
+## [0.38.0] - 2026-02-26
 
 ### Fixed
 - **RBAC Duplication**: Implemented backend deduplication logic to ensure users are not duplicated in the "Global Assignments" table when they appear in both static config and live cluster bindings.
