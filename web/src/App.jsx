@@ -308,7 +308,7 @@ function App() {
 
     return (
         <Router>
-            <div className={`flex h-screen bg-[var(--bg-main)] text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
+            <div className={`flex h-screen text-[var(--text-primary)] relative overflow-hidden transition-colors duration-200`}>
                 <div
                     className="absolute inset-0 pointer-events-none z-0 transition-all duration-500"
                     style={{
@@ -316,8 +316,8 @@ function App() {
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
-                        opacity: 'var(--wallpaper-opacity)',
-                        filter: `grayscale(var(--wallpaper-grayscale, 100%)) brightness(var(--wallpaper-brightness))`,
+                        opacity: 'var(--wallpaper-opacity, 0.6)',
+                        filter: `grayscale(var(--wallpaper-grayscale, 0%)) brightness(var(--wallpaper-brightness, 0.6))`,
                     }}
                 />
                 <div
@@ -328,13 +328,15 @@ function App() {
                     }}
                 />
                 {user && (
-                    <Sidebar
-                        user={user}
-                        onLogout={handleLogout}
-                        isCollapsed={isCollapsed}
-                        setIsCollapsed={setIsCollapsed}
-                        onCreateResource={() => setIsCreateModalOpen(true)}
-                    />
+                    <div className="relative z-10 flex h-full">
+                        <Sidebar
+                            user={user}
+                            onLogout={handleLogout}
+                            isCollapsed={isCollapsed}
+                            setIsCollapsed={setIsCollapsed}
+                            onCreateResource={() => setIsCreateModalOpen(true)}
+                        />
+                    </div>
                 )}
 
                 <CreateResourceModal
@@ -345,7 +347,7 @@ function App() {
                     }}
                     namespaces={namespaces}
                 />
-                <main className="flex-1 overflow-auto flex flex-col">
+                <main className="flex-1 overflow-auto flex flex-col relative z-10">
                     <Routes>
                         {/* Auth */}
                         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

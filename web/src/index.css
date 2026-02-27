@@ -6,133 +6,178 @@
    1. THEME & TYPOGRAPHY DEFINITIONS
    ========================================================================== */
 
-/**
- * The :root selector holds the default theme (K-View).
- * Theme-specific classes (.theme-dark, .theme-light) override these variables.
- * This structure ensures a solid default and clean overrides.
- */
-@layer base {
-  :root {
-    /* --- Typography (Modular Scale: 1.25 ratio, 14px base) --- */
-    --font-size-xs: 10px;
-    --font-size-sm: 13px;
-    --font-size-base: 14px;       /* Base */
-    --font-size-lg: 17.5px;    /* 14 * 1.25 */
-    --font-size-xl: 21.875px;  /* 17.5 * 1.25 */
-    --font-size-2xl: 27.34px;   /* 21.875 * 1.25 */
+:root {
+  /* --- Typography --- */
+  --font-size-xs: 10px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 17.5px;
+  --font-size-xl: 21.875px;
+  --font-size-2xl: 27.34px;
 
-    /* --- Default Theme: K-View --- */
-    --bg-overlay: rgba(11, 15, 25, 0.5); /* Dark blue overlay */
-    --bg-main: rgba(11, 15, 25, 0.8);
-    --bg-sidebar: #0F172A;
-    --bg-card: rgba(17, 24, 39, 0.7);
-    --bg-card-hover: #1E293B;
-    --bg-muted: #111827;
-    --bg-glass: rgba(15, 23, 42, 0.4);
-    --bg-glass-deep: rgba(15, 23, 42, 0.7);
-    --bg-dropdown: #111827;
-    --bg-tooltip: rgba(15, 23, 42, 0.95);
-    --bg-input: #1E293B;
-    --bg-console: #020617;
-    --bg-editor: #0D1117;
-    --border-color: #334155;
-    --border-muted: #111827;
-    --border-tooltip: #334155;
-    --text-primary: #F9FAFB;      /* Headings */
-    --text-secondary: #94A3B8;    /* Body */
-    --text-muted: #64748B;        /* Captions */
-    --text-white: #FFFFFF;
-    --text-button: #FFFFFF;
-    --text-tooltip: #F9FAFB;
-    --text-input: #FFFFFF;
-    --text-editor-code: #93C5FD;
-    --sidebar-hover: #1E293B;
-    --accent: #6366F1;
-    --accent-hover: #4F46E5;
-    --text-info: #60A5FA;
-    --text-success: #4ADE80;
-    --text-warning: #FBBF24;
-    --text-error: #F87171;
-    --text-purple: #A78BFA;
-    --text-orange: #FB923C;
-    --text-cyan: #22D3EE;
-  }
+  /* --- Global UI Settings --- */
+  --wallpaper-opacity: 0.6;
+  --wallpaper-brightness: 0.6;
+  --wallpaper-grayscale: 0%;
+  --sidebar-hover-opacity: 0.1;
 
-  .theme-dark {
-    --bg-overlay: rgba(0, 0, 0, 0.5); /* Black overlay */
-    --bg-main: rgba(0, 0, 0, 0.8);
-    --bg-sidebar: rgba(0, 0, 0, 0.8);
-    --bg-card: rgba(10, 10, 10, 0.7);
-    --bg-card-hover: #111111;
-    --bg-muted: #000000;
-    --bg-glass: rgba(0, 0, 0, 0.35);
-    --bg-glass-deep: rgba(0, 0, 0, 0.65);
-    --bg-dropdown: #0A0A0A;
-    --bg-tooltip: rgba(10, 10, 10, 0.95);
-    --bg-input: #27272A;
-    --bg-console: #000000;
-    --bg-editor: #000000;
-    --border-color: #27272A;
-    --border-muted: #09090B;
-    --border-tooltip: #27272A;
-    --text-primary: #FAFAFA;
-    --text-secondary: #A1A1AA;
-    --text-muted: #52525B;
-    --text-white: #FFFFFF;
-    --text-button: #FFFFFF;
-    --text-tooltip: #FAFAFA;
-    --text-input: #FFFFFF;
-    --text-editor-code: #60A5FA;
-    --sidebar-hover: #111111;
-    --accent: #4F46E5;
-    --text-info: #60A5FA;
-    --text-success: #4ADE80;
-    --text-warning: #FBBF24;
-    --text-error: #F87171;
-    --text-purple: #A78BFA;
-    --text-orange: #FB923C;
-    --text-cyan: #22D3EE;
-  }
+  /* --- Channels: K-View (Default) --- */
+  --color-bg-main: 11 15 25;
+  --color-bg-sidebar: 15 23 42;
+  --color-bg-card: 17 24 39;
+  --color-bg-card-hover: 30 41 59;
+  --color-bg-muted: 17 24 39;
+  --color-bg-glass: 15 23 42;
+  --color-bg-glass-deep: 15 23 42;
+  --color-bg-dropdown: 17 24 39;
+  --color-bg-tooltip: 15 23 42;
+  --color-bg-input: 30 41 59;
+  --color-bg-console: 2 6 23;
+  --color-bg-editor: 13 17 23;
+  --color-border-color: 51 65 85;
+  --color-border-muted: 17 24 39;
+  --color-border-tooltip: 51 65 85;
+  --color-text-primary: 249 250 251;
+  --color-text-secondary: 148 163 184;
+  --color-text-muted: 100 116 139;
+  --color-text-white: 255 255 255;
+  --color-text-button: 255 255 255;
+  --color-text-tooltip: 249 250 251;
+  --color-text-input: 255 255 255;
+  --color-text-editor-code: 147 197 253;
+  --color-accent: 99 102 241;
+  --color-accent-hover: 79 70 229;
+  --color-text-info: 96 165 250;
+  --color-text-success: 74 222 128;
+  --color-text-warning: 251 191 36;
+  --color-text-error: 248 113 113;
+  --color-text-purple: 167 139 250;
+  --color-text-orange: 251 146 60;
+  --color-text-cyan: 34 211 238;
+}
 
-  .theme-light {
-    --bg-overlay: rgba(255, 255, 255, 0.3); /* White overlay */
-    --bg-main: rgba(255, 255, 255, 0.4);
-    --bg-sidebar: rgba(241, 245, 249, 0.6);
-    --bg-card: rgba(255, 255, 255, 0.4);
-    --bg-card-hover: rgba(248, 250, 252, 0.6);
-    --bg-muted: rgba(241, 245, 249, 0.4);
-    --bg-glass: rgba(255, 255, 255, 0.3);
-    --bg-glass-deep: rgba(255, 255, 255, 0.5);
-    --bg-dropdown: rgba(255, 255, 255, 0.85);
-    --bg-tooltip: rgba(255, 255, 255, 0.95);
-    --bg-input: #F1F5F9;
-    --bg-editor: rgba(255, 255, 255, 0.5);
-    --border-color: #E2E8F0;
-    --border-muted: #F8FAFC;
-    --border-tooltip: #E2E8F0;
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #64748B;
-    --text-white: #0F172A;
-    --text-button: #FFFFFF;
-    --text-tooltip: #0F172A;
-    --text-input: #0F172A;
-    --text-editor-code: #0F172A;
-    --sidebar-hover: #E2E8F0;
-    --accent: #3B82F6;
-    --accent-hover: #2563EB;
-    --text-info: #2563EB;
-    --text-success: #16A34A;
-    --text-warning: #D97706;
-    --text-error: #DC2626;
-    --text-purple: #7C3AED;
-    --text-orange: #EA580C;
-    --text-cyan: #0891B2;
-  }
+.theme-dark {
+  /* --- Channels: Dark (Slate/Gray) --- */
+  --color-bg-main: 17 24 39;
+  --color-bg-sidebar: 31 41 55;
+  --color-bg-card: 31 41 55;
+  --color-bg-card-hover: 55 65 81;
+  --color-bg-muted: 17 24 39;
+  --color-bg-glass: 31 41 55;
+  --color-bg-glass-deep: 31 41 55;
+  --color-bg-dropdown: 31 41 55;
+  --color-bg-tooltip: 31 41 55;
+  --color-bg-input: 55 65 81;
+  --color-bg-console: 3 7 18;
+  --color-bg-editor: 13 17 23;
+  --color-border-color: 55 65 81;
+  --color-border-muted: 31 41 55;
+  --color-border-tooltip: 55 65 81;
+  --color-text-primary: 243 244 246;
+  --color-text-secondary: 156 163 175;
+  --color-text-muted: 107 114 128;
+  --color-text-white: 255 255 255;
+  --color-text-button: 255 255 255;
+  --color-text-tooltip: 243 244 246;
+  --color-text-input: 255 255 255;
+  --color-text-editor-code: 147 197 253;
+  --color-accent: 59 130 246;
+  --color-accent-hover: 37 99 235;
+  --color-text-info: 96 165 250;
+  --color-text-success: 74 222 128;
+  --color-text-warning: 251 191 36;
+  --color-text-error: 248 113 113;
+  --color-text-purple: 167 139 250;
+  --color-text-orange: 251 146 60;
+  --color-text-cyan: 34 211 238;
+}
+
+.theme-light {
+  /* --- Channels: Light --- */
+  --color-bg-main: 255 255 255;
+  --color-bg-sidebar: 241 245 249;
+  --color-bg-card: 255 255 255;
+  --color-bg-card-hover: 248 250 252;
+  --color-bg-muted: 241 245 249;
+  --color-bg-glass: 255 255 255;
+  --color-bg-glass-deep: 255 255 255;
+  --color-bg-dropdown: 255 255 255;
+  --color-bg-tooltip: 255 255 255;
+  --color-bg-input: 241 245 249;
+  --color-bg-console: 248 250 252;
+  --color-bg-editor: 255 255 255;
+  --color-border-color: 226 232 240;
+  --color-border-muted: 248 250 252;
+  --color-border-tooltip: 226 232 240;
+  --color-text-primary: 15 23 42;
+  --color-text-secondary: 71 85 105;
+  --color-text-muted: 100 116 139;
+  --color-text-white: 15 23 42; 
+  --color-text-button: 255 255 255; 
+  --color-text-tooltip: 15 23 42;
+  --color-text-input: 15 23 42;
+  --color-text-editor-code: 15 23 42;
+  --color-accent: 59 130 246;
+  --color-accent-hover: 37 99 235;
+  --color-text-info: 37 99 235;
+  --color-text-success: 22 163 74;
+  --color-text-warning: 217 119 6;
+  --color-text-error: 220 38 38;
+  --color-text-purple: 124 58 237;
+  --color-text-orange: 234 88 12;
+  --color-text-cyan: 8 145 178;
+  
+  --wallpaper-opacity: 0.3;
+  --wallpaper-brightness: 0.9;
 }
 
 /* ==========================================================================
-   2. GLOBAL STYLES & UTILITIES
+   2. LEGACY SUPPORT & COMPATIBILITY LAYER
+   ========================================================================== */
+
+:root, .theme-dark, .theme-light {
+  --bg-main: rgb(var(--color-bg-main) / 0.4); /* Lower opacity for transparency */
+  --bg-sidebar: rgb(var(--color-bg-sidebar) / 0.8);
+  --bg-card: rgb(var(--color-bg-card) / 0.6);
+  --bg-card-hover: rgb(var(--color-bg-card-hover) / 0.8);
+  --bg-muted: rgb(var(--color-bg-muted) / 0.2);
+  --bg-glass: rgb(var(--color-bg-glass) / 0.3);
+  --bg-glass-deep: rgb(var(--color-bg-glass-deep) / 0.6);
+  --bg-dropdown: rgb(var(--color-bg-dropdown) / 0.9);
+  --bg-tooltip: rgb(var(--color-bg-tooltip) / 0.95);
+  --bg-input: rgb(var(--color-bg-input) / 0.5);
+  --bg-console: rgb(var(--color-bg-console) / 0.9);
+  --bg-editor: rgb(var(--color-bg-editor) / 0.8);
+  --bg-overlay: rgb(var(--color-bg-main) / 0.3);
+
+  --border-color: rgb(var(--color-border-color) / 0.2);
+  --border-muted: rgb(var(--color-border-muted) / 0.1);
+  --border-tooltip: rgb(var(--color-border-tooltip) / 0.3);
+
+  --text-primary: rgb(var(--color-text-primary));
+  --text-secondary: rgb(var(--color-text-secondary));
+  --text-muted: rgb(var(--color-text-muted));
+  --text-white: rgb(var(--color-text-white));
+  --text-button: rgb(var(--color-text-button));
+  --text-tooltip: rgb(var(--color-text-tooltip));
+  --text-input: rgb(var(--color-text-input));
+  --text-editor-code: rgb(var(--color-text-editor-code));
+
+  --accent: rgb(var(--color-accent));
+  --accent-hover: rgb(var(--color-accent-hover));
+  --text-info: rgb(var(--color-text-info));
+  --text-success: rgb(var(--color-text-success));
+  --text-warning: rgb(var(--color-text-warning));
+  --text-error: rgb(var(--color-text-error));
+  --text-purple: rgb(var(--color-text-purple));
+  --text-orange: rgb(var(--color-text-orange));
+  --text-cyan: rgb(var(--color-text-cyan));
+  
+  --sidebar-hover: rgb(var(--color-bg-card-hover) / 0.2);
+}
+
+/* ==========================================================================
+   3. GLOBAL STYLES & RESETS
    ========================================================================== */
 
 @layer base {
@@ -140,25 +185,25 @@
     @apply bg-main text-secondary antialiased transition-colors duration-200;
     font-family: var(--font-sans, sans-serif);
     font-size: var(--font-size-base);
+    background-color: rgb(var(--color-bg-main)) !important; /* Solid base behind wallpaper */
   }
 
-  h1, h2, h3, h4 {
-    @apply text-primary font-bold;
+  table, thead, tbody, tfoot, tr, td, th {
+    background-color: transparent !important;
+    background-image: none !important;
   }
 }
 
+/* --- High specificity fixes for visibility --- */
+h1, h2, h3, h4 {
+  @apply font-bold;
+  color: rgb(var(--color-text-primary)) !important;
+}
+
 @layer utilities {
-  /**
-   * Glassmorphism utility.
-   * This class applies a background color with transparency and a backdrop blur
-   * to create a "frosted glass" effect. It's crucial for UI elements
-   * that sit on top of dynamic or image-based backgrounds.
-   * The !important flags ensure these critical UI properties override any
-   * conflicting styles from other frameworks like DaisyUI.
-   */
   .glass {
     background-color: var(--bg-glass) !important;
-    backdrop-filter: blur(16px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    backdrop-filter: blur(12px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
   }
 }

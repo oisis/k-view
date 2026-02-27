@@ -51,8 +51,12 @@ export function SettingsProvider({ children }) {
         setSettings(prev => ({ ...prev, ...newSettings }));
     };
 
+    const resetSettings = () => {
+        setSettings(DEFAULT_SETTINGS);
+    };
+
     return (
-        <SettingsContext.Provider value={{ settings, updateSettings, setScope }}>
+        <SettingsContext.Provider value={{ settings, updateSettings, resetSettings, setScope }}>
             {children}
         </SettingsContext.Provider>
     );

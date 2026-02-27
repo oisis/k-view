@@ -41,7 +41,7 @@ const SelectField = ({ label, icon: Icon, value, onChange, options, description 
 );
 
 export default function Settings() {
-    const { settings, updateSettings } = useSettings();
+    const { settings, updateSettings, resetSettings } = useSettings();
     const { t } = useTranslation();
     const { icons, themes, activeTheme, setTheme } = useTheme();
     const [details, setDetails] = useState(null);
@@ -76,6 +76,10 @@ export default function Settings() {
         setHasChanges(false);
     };
 
+    const handleReset = () => {
+        resetSettings();
+    };
+
     useEffect(() => {
         Promise.all([
             fetch('/api/auth/details').then(res => {
@@ -97,7 +101,7 @@ export default function Settings() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-[var(--bg-main)]">
+            <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <icons.activity className="animate-spin text-info" size={32} />
                     <p className="text-[13px] text-[var(--text-muted)]">{t('loading_settings')}</p>
@@ -108,7 +112,7 @@ export default function Settings() {
 
     if (error) {
         return (
-            <div className="flex-1 p-8 bg-[var(--bg-main)]">
+            <div className="flex-1 p-8">
                                  <div className="bg-red-500/10 rounded-xl p-4 text-red-400 text-sm">                    Error: {error}
                 </div>
             </div>
@@ -117,27 +121,34 @@ export default function Settings() {
 
 
     return (
-        <div className="flex-1 overflow-auto bg-[var(--bg-main)] text-[var(--text-primary)]">
+        <div className="flex-1 overflow-auto text-primary">
             <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-[var(--accent)] text-[var(--text-white)]">
+                        <div className="p-2 rounded-lg bg-accent text-button">
                             <icons.palette size={20} />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight">{t('settings')}</h1>
-                            <p className="text-[13px] text-[var(--text-muted)] mt-1">{t('settings_desc')}</p>
+                            <p className="text-sm text-muted mt-1">{t('settings_desc')}</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            onClick={handleReset}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-border bg-card text-secondary hover:bg-bg-muted active:scale-95 whitespace-nowrap"
+                        >
+                            <icons.trash size={16} />
+                            {t('reset_defaults')}
+                        </button>
                         <button
                             onClick={handleReload}
                             disabled={!hasChanges}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border
                                 ${hasChanges
-                                    ? 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-muted)]'
-                                    : 'bg-transparent border-transparent text-[var(--text-muted)] cursor-default'}`}
+                                    ? 'bg-card border-border text-primary hover:bg-bg-muted active:scale-95 whitespace-nowrap'
+                                    : 'opacity-40 cursor-default border-transparent text-muted whitespace-nowrap'}`}
                         >
                             <icons.refresh size={16} />
                             {t('reload')}
@@ -147,18 +158,18 @@ export default function Settings() {
                             disabled={!hasChanges}
                             className={`flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-black transition-all shadow-lg
                                 ${hasChanges
-                                    ? 'bg-[var(--accent)] text-[var(--text-white)] hover:opacity-90 shadow-indigo-500/20 active:scale-95'
-                                    : 'bg-[var(--bg-muted)] text-[var(--text-muted)] cursor-default'}`}
+                                    ? 'bg-accent text-button hover:opacity-90 shadow-indigo-500/20 active:scale-95 whitespace-nowrap'
+                                    : 'opacity-40 cursor-default bg-bg-muted text-muted whitespace-nowrap'}`}
                         >
                             <icons.shield_check size={16} />
-                            {t('save_changes')}
+                            {t('save_settings')}
                         </button>
                     </div>
                 </div>
 
                 {/* Theme Selection */}
                 <div className="space-y-4">
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-muted flex items-center gap-2">
                         <icons.layers size={14} /> {t('interface_theme')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -166,18 +177,18 @@ export default function Settings() {
                             <button
                                 key={id}
                                 onClick={() => setTheme(id)}
-                                className={`flex flex-col text-left p-4 rounded-xl transition-all duration-200 group relative
+                                className={`flex flex-col text-left p-4 rounded-xl transition-all duration-200 group relative border
                                     ${activeTheme === id
-                                        ? 'bg-info/10 bg-[var(--bg-card)] shadow-lg shadow-indigo-500/10'
-                                        : 'bg-[var(--bg-card)] hover:bg-[var(--sidebar-hover)]'}`}
+                                        ? 'bg-accent/10 border-accent shadow-lg shadow-indigo-500/10'
+                                        : 'bg-card border-border hover:bg-card-hover'}`}
                             >
-                                <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-[var(--accent)] text-[var(--text-white)]' : 'bg-[var(--bg-muted)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
+                                <div className={`p-2 w-fit rounded-lg mb-3 ${activeTheme === id ? 'bg-accent text-button' : 'bg-bg-muted text-muted group-hover:text-primary'}`}>
                                     {id.includes('light') ? <icons.sun size={18} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={18} /> : <icons.layers size={18} />}
                                 </div>
-                                <h3 className="font-bold text-[var(--text-primary)]">{themeCfg.name}</h3>
+                                <h3 className="font-bold text-primary">{themeCfg.name}</h3>
 
                                 {activeTheme === id && (
-                                    <div className="absolute top-4 right-4 text-[var(--accent)]">
+                                    <div className="absolute top-4 right-4 text-accent">
                                         <icons.check size={16} />
                                     </div>
                                 )}
@@ -186,8 +197,8 @@ export default function Settings() {
                     </div>
                 </div>
 
-                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden glass shadow-sm">
-                    <div className="p-6 border-b border-[var(--border-color)]">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden glass shadow-sm">
+                    <div className="p-6 border-b border-border">
                         <h2 className="text-lg font-semibold flex items-center gap-2">
                             <icons.nodes size={18} className="text-info" /> {t('cluster_configuration')}
                         </h2>
@@ -215,10 +226,10 @@ export default function Settings() {
                     </div>
                 </div>
 
-                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl overflow-hidden glass shadow-sm">
-                    <div className="p-6 border-b border-[var(--border-color)]">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden glass shadow-sm">
+                    <div className="p-6 border-b border-border">
                         <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <icons.dashboard size={18} className="text-purple-400" /> {t('interface_preferences')}
+                            <icons.dashboard size={18} className="text-purple" /> {t('interface_preferences')}
                         </h2>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -284,7 +295,7 @@ export default function Settings() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Identity Card */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
+                    <div className="bg-card border border-border rounded-xl overflow-hidden glass shadow-sm">
                         <div className="p-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-info/10 text-info rounded-xl">
@@ -292,19 +303,19 @@ export default function Settings() {
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-semibold">{t('user_identity')}</h2>
-                                    <p className="text-[13px] text-[var(--text-muted)]">{t('user_identity_desc')}</p>
+                                    <p className="text-sm text-muted">{t('user_identity_desc')}</p>
                                 </div>
                             </div>
                             <div className="mt-6 space-y-4">
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('email_username')}</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('email_username')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <icons.fingerprint size={14} className="text-info" />
                                         {details?.email}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('namespace_scope')}</dt>
+                                    <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('namespace_scope')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <icons.globe size={14} className="text-info" />
                                         {details?.namespace || '<all namespaces>'}
@@ -315,20 +326,20 @@ export default function Settings() {
                     </div>
 
                     {/* Role Card */}
-                    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
+                    <div className="bg-card border border-border rounded-xl overflow-hidden glass shadow-sm">
                         <div className="p-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500/10 text-purple-400 rounded-xl">
+                                <div className="p-3 bg-purple/10 text-purple rounded-xl">
                                     <icons.clusterrole size={24} />
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-semibold">{t('cluster_permissions')}</h2>
-                                    <p className="text-[13px] text-[var(--text-muted)]">{t('cluster_permissions_desc')}</p>
+                                    <p className="text-sm text-muted">{t('cluster_permissions_desc')}</p>
                                 </div>
                             </div>
                             <div className="mt-6">
-                                <dt className="text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('assigned_role')}</dt>
-                                <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400">
+                                <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('assigned_role')}</dt>
+                                <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple/10 text-purple">
                                     {details?.role}
                                 </dd>
                             </div>
@@ -337,24 +348,24 @@ export default function Settings() {
                 </div>
 
                 {/* Permissions Table */}
-                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden glass shadow-sm">
-                    <div className="p-6 border-b border-[var(--border-color)]">
+                <div className="bg-card border border-border rounded-xl overflow-hidden glass shadow-sm">
+                    <div className="p-6 border-b border-border">
                         <h2 className="text-lg font-semibold">{t('effective_permissions')}</h2>
-                        <p className="text-[13px] text-[var(--text-muted)]">{t('effective_permissions_desc')}</p>
+                        <p className="text-sm text-muted">{t('effective_permissions_desc')}</p>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-[var(--bg-muted)]/30">
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('resources')}</th>
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-[var(--text-muted)]">{t('allowed_verbs')}</th>
+                                <tr className="bg-bg-muted/30">
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-muted">{t('resources')}</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-muted">{t('allowed_verbs')}</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[var(--border-color)]">
+                            <tbody className="divide-y divide-border">
                                 {details?.rules?.map((rule, idx) => (
-                                    <tr key={idx} className="hover:bg-[var(--bg-muted)]/10 transition-colors">
-                                        <td className="px-6 py-4 text-[13px] font-medium">{rule.resource}</td>
-                                        <td className="px-6 py-4 text-[13px] font-mono text-info">{rule.verbs}</td>
+                                    <tr key={idx} className="hover:bg-bg-muted/10 transition-colors">
+                                        <td className="px-6 py-4 text-sm font-medium">{rule.resource}</td>
+                                        <td className="px-6 py-4 text-sm font-mono text-info">{rule.verbs}</td>
                                     </tr>
                                 ))}
                             </tbody>

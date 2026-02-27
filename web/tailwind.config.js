@@ -5,72 +5,58 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    // Implement the modular scale for typography.
-    // Base size is 14px, other sizes are derived from it.
     fontSize: {
-      'xs': 'var(--font-size-xs)',   // 10px
-      'sm': 'var(--font-size-sm)',   // 13px
-      'base': 'var(--font-size-base)', // 14px (Base)
-      'lg': 'var(--font-size-lg)',   // 17.5px (Base * 1.25)
-      'xl': 'var(--font-size-xl)',   // 21.875px (LG * 1.25)
-      '2xl': 'var(--font-size-2xl)', // 27.34px (XL * 1.25)
+      'xs': 'var(--font-size-xs)',
+      'sm': 'var(--font-size-sm)',
+      'base': 'var(--font-size-base)',
+      'lg': 'var(--font-size-lg)',
+      'xl': 'var(--font-size-xl)',
+      '2xl': 'var(--font-size-2xl)',
     },
     extend: {
-      // Map the CSS variables to Tailwind's color system.
-      // This allows for semantic class names like `bg-main`, `text-primary`.
       colors: {
         // Backgrounds
-        main: 'var(--bg-main)',
-        sidebar: 'var(--bg-sidebar)',
-        card: 'var(--bg-card)',
-        'card-hover': 'var(--bg-card-hover)',
-        muted: 'var(--bg-muted)',
-        glass: 'var(--bg-glass)',
-        'glass-deep': 'var(--bg-glass-deep)',
-        dropdown: 'var(--bg-dropdown)',
-        tooltip: 'var(--bg-tooltip)',
-        input: 'var(--bg-input)',
-        console: 'var(--bg-console)',
-        editor: 'var(--bg-editor)',
+        main: 'rgb(var(--color-bg-main) / <alpha-value>)',
+        sidebar: 'rgb(var(--color-bg-sidebar) / <alpha-value>)',
+        card: 'rgb(var(--color-bg-card) / <alpha-value>)',
+        'card-hover': 'rgb(var(--color-bg-card-hover) / <alpha-value>)',
+        'bg-muted': 'rgb(var(--color-bg-muted) / <alpha-value>)',
+        glass: 'rgb(var(--color-bg-glass) / <alpha-value>)',
+        'glass-deep': 'rgb(var(--color-bg-glass-deep) / <alpha-value>)',
+        dropdown: 'rgb(var(--color-bg-dropdown) / <alpha-value>)',
+        tooltip: 'rgb(var(--color-bg-tooltip) / <alpha-value>)',
+        input: 'rgb(var(--color-bg-input) / <alpha-value>)',
+        console: 'rgb(var(--color-bg-console) / <alpha-value>)',
+        editor: 'rgb(var(--color-bg-editor) / <alpha-value>)',
 
         // Text
-        primary: 'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        muted: 'var(--text-muted)',
-        white: 'var(--text-white)',
-        button: 'var(--text-button)',
-        'tooltip-text': 'var(--text-tooltip)', // Renamed to avoid conflict
-        'input-text': 'var(--text-input)',       // Renamed to avoid conflict
-        'editor-code': 'var(--text-editor-code)',
+        primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+        secondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
+        'text-muted': 'rgb(var(--color-text-muted) / <alpha-value>)',
+        white: 'rgb(var(--color-text-white) / <alpha-value>)',
+        button: 'rgb(var(--color-text-button) / <alpha-value>)',
+        'tooltip-text': 'rgb(var(--color-text-tooltip) / <alpha-value>)',
+        'input-text': 'rgb(var(--color-text-input) / <alpha-value>)',
+        'editor-code': 'rgb(var(--color-text-editor-code) / <alpha-value>)',
 
         // Status & Accent Colors
-        accent: 'var(--accent)',
-        'accent-hover': 'var(--accent-hover)',
-        info: 'var(--text-info)',
-        success: 'var(--text-success)',
-        warning: 'var(--text-warning)',
-        error: 'var(--text-error)',
-        purple: 'var(--text-purple)',
-        orange: 'var(--text-orange)',
-        cyan: 'var(--text-cyan)',
+        accent: 'rgb(var(--color-accent) / <alpha-value>)',
+        'accent-hover': 'rgb(var(--color-accent-hover) / <alpha-value>)',
+        info: 'rgb(var(--color-text-info) / <alpha-value>)',
+        success: 'rgb(var(--color-text-success) / <alpha-value>)',
+        warning: 'rgb(var(--color-text-warning) / <alpha-value>)',
+        error: 'rgb(var(--color-text-error) / <alpha-value>)',
+        purple: 'rgb(var(--color-text-purple) / <alpha-value>)',
+        orange: 'rgb(var(--color-text-orange) / <alpha-value>)',
+        cyan: 'rgb(var(--color-text-cyan) / <alpha-value>)',
 
         // Borders
-        DEFAULT: 'var(--border-color)', // Allows using just `border-border`
-        muted: 'var(--border-muted)',
-        tooltip: 'var(--border-tooltip)',
+        border: 'rgb(var(--color-border-color) / <alpha-value>)',
+        'border-muted': 'rgb(var(--color-border-muted) / <alpha-value>)',
+        'border-tooltip': 'rgb(var(--color-border-tooltip) / <alpha-value>)',
       },
-      // Sidebar hover color
-      sidebarHover: 'var(--sidebar-hover)',
+      sidebarHover: 'rgb(var(--color-bg-card-hover) / <alpha-value>)',
     },
   },
-  // Disable DaisyUI theming to use our custom CSS variable system exclusively.
-  plugins: [
-    // require("daisyui")
-  ],
-  /*
-  daisyui: {
-    themes: false, // Prevent DaisyUI from injecting its own themes and variables.
-    logs: false, // Silence DaisyUI logs in the console.
-  },
-  */
+  plugins: [],
 }
