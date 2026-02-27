@@ -59,30 +59,30 @@
 }
 
 .theme-dark {
-  /* --- Channels: Dark (Slate/Gray) --- */
-  --color-bg-main: 17 24 39;
-  --color-bg-sidebar: 31 41 55;
-  --color-bg-card: 31 41 55;
-  --color-bg-card-hover: 55 65 81;
-  --color-bg-muted: 17 24 39;
-  --color-bg-glass: 31 41 55;
-  --color-bg-glass-deep: 31 41 55;
-  --color-bg-dropdown: 31 41 55;
-  --color-bg-tooltip: 31 41 55;
-  --color-bg-input: 55 65 81;
-  --color-bg-console: 3 7 18;
-  --color-bg-editor: 13 17 23;
-  --color-border-color: 55 65 81;
-  --color-border-muted: 31 41 55;
-  --color-border-tooltip: 55 65 81;
-  --color-text-primary: 243 244 246;
-  --color-text-secondary: 156 163 175;
-  --color-text-muted: 107 114 128;
+  /* --- Channels: True Dark (Neutral Black/Gray) --- */
+  --color-bg-main: 9 9 11;
+  --color-bg-sidebar: 0 0 0;
+  --color-bg-card: 12 12 15;
+  --color-bg-card-hover: 24 24 27;
+  --color-bg-muted: 9 9 11;
+  --color-bg-glass: 0 0 0;
+  --color-bg-glass-deep: 0 0 0;
+  --color-bg-dropdown: 12 12 15;
+  --color-bg-tooltip: 12 12 15;
+  --color-bg-input: 24 24 27;
+  --color-bg-console: 0 0 0;
+  --color-bg-editor: 0 0 0;
+  --color-border-color: 39 39 42;
+  --color-border-muted: 9 9 11;
+  --color-border-tooltip: 39 39 42;
+  --color-text-primary: 250 250 250;
+  --color-text-secondary: 161 161 170;
+  --color-text-muted: 82 82 91;
   --color-text-white: 255 255 255;
   --color-text-button: 255 255 255;
-  --color-text-tooltip: 243 244 246;
+  --color-text-tooltip: 250 250 250;
   --color-text-input: 255 255 255;
-  --color-text-editor-code: 147 197 253;
+  --color-text-editor-code: 96 165 250;
   --color-accent: 59 130 246;
   --color-accent-hover: 37 99 235;
   --color-text-info: 96 165 250;
@@ -92,6 +92,10 @@
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
+
+  --wallpaper-opacity: 0.5;
+  --wallpaper-brightness: 0.4;
+  --wallpaper-grayscale: 100%;
 }
 
 .theme-light {
