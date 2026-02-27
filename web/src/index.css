@@ -246,11 +246,11 @@ table td, table th {
   border-bottom-width: 1.5px !important;
 }
 
-/* --- Inverted headers for DetailSection in Light theme --- */
-.theme-light .detail-section-header {
-  @apply bg-accent !important;
+/* --- Inverted headers for DetailSection (Unified across all themes) --- */
+.detail-section-header {
+  background-color: #1e3a8a !important; /* Deep Blue (Blue-900) */
 }
 
-.theme-light .detail-section-header h3 {
+.detail-section-header h3 {
   color: #ffffff !important;
 }
