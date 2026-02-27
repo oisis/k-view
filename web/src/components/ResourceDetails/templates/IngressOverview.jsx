@@ -10,7 +10,7 @@ export default function IngressOverview({ data, metadata, spec, status, t }) {
                     <tbody className="divide-y divide-border">
                         {status?.loadBalancer?.ingress && (
                             <tr className="border-b border-border">
-                                <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] w-1/4">Endpoints</td>
+                                <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Endpoints</td>
                                 <td className="px-4 py-3">
                                     {status.loadBalancer.ingress.map((ing, i) => (
                                         <div key={i} className="font-mono text-info font-bold">{ing.ip || ing.hostname}</div>

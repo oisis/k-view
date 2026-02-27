@@ -10,7 +10,7 @@ export default function NamespaceOverview({ data, metadata, status, quotas, limi
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
                         <tr className="border-b border-border">
-                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] w-1/4">Status</td>
+                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Status</td>
                             <td className="px-4 py-3">
                                 <span className={`font-bold ${status?.phase === 'Active' ? 'text-success' : 'text-warning'}`}>
                                     {status?.phase || 'Unknown'}

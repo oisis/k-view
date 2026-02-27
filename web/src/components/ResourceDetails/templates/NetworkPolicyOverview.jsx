@@ -7,7 +7,7 @@ export default function NetworkPolicyOverview({ data, metadata, spec, t }) {
         <>
             <DetailSection title={t('resource_info')}>
                 <div className="px-4 py-3 bg-[var(--bg-sidebar)]/5 border-b border-border">
-                    <span className="text-[10px] font-bold text-text-muted uppercase block mb-2">Pod Selector</span>
+                    <span className="text-xs font-bold text-text-muted uppercase block mb-2">Pod Selector</span>
                     <div className="flex flex-wrap gap-1.5">
                         {Object.entries(spec.podSelector?.matchLabels || {}).map(([k, v]) => (
                             <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-border rounded text-xs text-secondary font-mono">

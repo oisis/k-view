@@ -35,8 +35,8 @@ export default function EventsTab({ kind, namespace, name, t }) {
 
     return (
         <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
-            <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-left">
+            <table className="w-full text-sm border-collapse">
+                <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-left">
                     <tr>
                         <th className="px-6 py-3">{t('label_name')}</th>
                         <th className="px-6 py-3">{t('reason')}</th>
@@ -52,7 +52,7 @@ export default function EventsTab({ kind, namespace, name, t }) {
                     {events && events.length > 0 ? events.map((e, i) => (
                         <tr key={i} className="hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4">
-                                <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
                                     {e.name || '—'}
                                 </span>
                             </td>

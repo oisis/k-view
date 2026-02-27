@@ -11,7 +11,7 @@ export default function ServiceOverview({ data, metadata, spec, status, relatedP
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
                         <DetailRow label="Type">
-                                                         <span className="px-2 py-0.5 rounded-md bg-info/10 text-info text-[10px] font-black uppercase">                                {spec.type}
+                                                         <span className="px-2 py-0.5 rounded-md bg-info/10 text-info text-xs font-black uppercase">                                {spec.type}
                             </span>
                         </DetailRow>
                         <DetailRow label="Cluster IP">

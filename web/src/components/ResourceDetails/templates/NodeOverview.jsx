@@ -24,7 +24,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                     <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {addresses.map((addr, idx) => (
                             <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-border/50 flex flex-col">
-                                <span className="text-[10px] font-black text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
                                 <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
                             </div>
                         ))}
@@ -121,7 +121,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
                         <thead>
-                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-[10px] font-black tracking-widest text-text-muted border-b border-border">
+                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-xs font-black tracking-wider text-text-muted border-b border-border">
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Last probe time</th>
@@ -138,7 +138,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                                     <tr key={idx} className="hover:bg-slate-700/10 transition-colors">
                                         <td className="px-4 py-3 font-bold text-info">{cond.type}</td>
                                         <td className="px-4 py-3">
-                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${cond.status === 'True' ? (cond.type === 'Ready' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning') : (cond.type === 'Ready' ? 'bg-danger/20 text-danger' : 'bg-success/20 text-success')}`}>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${cond.status === 'True' ? (cond.type === 'Ready' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning') : (cond.type === 'Ready' ? 'bg-danger/20 text-danger' : 'bg-success/20 text-success')}`}>
                                                 {cond.status}
                                             </span>
                                         </td>

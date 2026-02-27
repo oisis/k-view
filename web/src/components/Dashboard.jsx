@@ -163,7 +163,7 @@ export default function Dashboard({ isCollapsed }) {
                     title={t('cluster_platform')}
                     value={
                         <div className="flex flex-col">
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-text-muted mb-1 font-black">Name</span>
+                            <span className="text-xs uppercase tracking-wider text-text-muted mb-1 font-black">Name</span>
                             <span className="text-xl md:text-2xl font-black text-primary tracking-tight">
                                 {settings.clusterName || stats?.clusterName || "K8s Cluster"}
                             </span>
@@ -269,7 +269,7 @@ export default function Dashboard({ isCollapsed }) {
                         {t('metrics_update_info', { sec: settings.resourceRefreshInterval })}
                     </div>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-text-muted font-medium">
+                <div className="flex items-center gap-2 text-xs text-text-muted font-medium">
                     <icons.activity size={14} className="text-success/60" />
                     {t('cluster_health_stable')}
                 </div>

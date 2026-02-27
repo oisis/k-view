@@ -40,14 +40,14 @@ export default function ExpandableCell({ value, type }) {
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsHovered(false)}
                             onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-[11px] font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
+                            className="text-xs font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
                         >
                             Show all ({items.length})
                         </button>
                     ) : (
                         <button
                             onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                            className="text-[11px] font-bold mt-1 text-left px-1 underline active:scale-95"
+                            className="text-xs font-bold mt-1 text-left px-1 underline active:scale-95"
                             style={{ color: hideColor }}
                         >
                             Hide
@@ -67,7 +67,7 @@ export default function ExpandableCell({ value, type }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         {type === 'labels' ? 'Labels' : 'Images'}
                     </div>
                     <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">

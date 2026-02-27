@@ -4,7 +4,7 @@ import { useTheme } from '../ThemeContext';
 
 const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, max, placeholder, description }) => (
     <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
+        <label className="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
             <Icon size={14} /> {label}
         </label>
         <div className="relative">
@@ -18,13 +18,13 @@ const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, ma
                 className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all"
             />
         </div>
-        {description && <p className="text-[11px] text-text-muted italic">{description}</p>}
+        {description && <p className="text-xs text-text-muted italic">{description}</p>}
     </div>
 );
 
 const SelectField = ({ label, icon: Icon, value, onChange, options, description }) => (
     <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
+        <label className="text-xs font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
             <Icon size={14} /> {label}
         </label>
         <select
@@ -36,7 +36,7 @@ const SelectField = ({ label, icon: Icon, value, onChange, options, description 
                 <option key={opt.value} value={opt.value} className="bg-card text-primary">{opt.label}</option>
             ))}
         </select>
-        {description && <p className="text-[11px] text-text-muted italic">{description}</p>}
+        {description && <p className="text-xs text-text-muted italic">{description}</p>}
     </div>
 );
 
@@ -104,7 +104,7 @@ export default function Settings() {
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <icons.activity className="animate-spin text-info" size={32} />
-                    <p className="text-[13px] text-text-muted">{t('loading_settings')}</p>
+                    <p className="text-sm text-text-muted">{t('loading_settings')}</p>
                 </div>
             </div>
         );
@@ -169,7 +169,7 @@ export default function Settings() {
 
                 {/* Theme Selection */}
                 <div className="space-y-4">
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-muted flex items-center gap-2">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-muted flex items-center gap-2">
                         <icons.layers size={14} /> {t('interface_theme')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -331,14 +331,14 @@ export default function Settings() {
                             </div>
                             <div className="mt-6 space-y-4">
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('email_username')}</dt>
+                                    <dt className="text-xs font-bold tracking-wider uppercase text-muted">{t('email_username')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <icons.fingerprint size={14} className="text-info" />
                                         {details?.email}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('namespace_scope')}</dt>
+                                    <dt className="text-xs font-bold tracking-wider uppercase text-muted">{t('namespace_scope')}</dt>
                                     <dd className="mt-1 text-base font-mono flex items-center gap-2">
                                         <icons.globe size={14} className="text-info" />
                                         {details?.namespace || '<all namespaces>'}
@@ -361,7 +361,7 @@ export default function Settings() {
                                 </div>
                             </div>
                             <div className="mt-6">
-                                <dt className="text-xs font-bold tracking-widest uppercase text-muted">{t('assigned_role')}</dt>
+                                <dt className="text-xs font-bold tracking-wider uppercase text-muted">{t('assigned_role')}</dt>
                                 <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple/10 text-purple">
                                     {details?.role}
                                 </dd>
@@ -380,8 +380,8 @@ export default function Settings() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-bg-muted/30">
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-muted">{t('resources')}</th>
-                                    <th className="px-6 py-3 text-xs font-bold tracking-widest uppercase text-muted">{t('allowed_verbs')}</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted">{t('resources')}</th>
+                                    <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted">{t('allowed_verbs')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">

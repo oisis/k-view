@@ -86,7 +86,7 @@ function StatusBadge({ value }) {
     };
     const cls = map[v] || 'bg-slate-500/10 text-slate-400';
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${cls}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider ${cls}`}>
             <div className={`w-1 h-1 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {translatedValue}
         </span>
@@ -134,14 +134,14 @@ function ExpandableCell({ value, type }) {
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={() => setIsHovered(false)}
                             onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-[11px] font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
+                            className="text-xs font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
                         >
                             Show all ({items.length})
                         </button>
                     ) : (
                         <button
                             onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                            className="text-[11px] font-bold mt-1 text-left px-1 underline active:scale-95"
+                            className="text-xs font-bold mt-1 text-left px-1 underline active:scale-95"
                             style={{ color: hideColor }}
                         >
                             Hide
@@ -161,7 +161,7 @@ function ExpandableCell({ value, type }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         {type === 'labels' ? 'Labels' : 'Images'}
                     </div>
                     <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
@@ -199,7 +199,7 @@ function ScheduleCell({ value, nextRun }) {
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={() => setIsHovered(false)}
-                className="text-[13px] font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
+                className="text-sm font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
             >
                 {value}
             </span>
@@ -215,10 +215,10 @@ function ScheduleCell({ value, nextRun }) {
                     }}
                     className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[200px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-[10px] font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
                         Next Run
                     </div>
-                    <div className="text-[13px] font-bold text-[var(--text-tooltip)] flex items-center gap-2">
+                    <div className="text-sm font-bold text-[var(--text-tooltip)] flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                         {nextRun || 'Calculating...'}
                     </div>
@@ -326,7 +326,7 @@ export default function ResourceList({ kind }) {
                         placeholder={t('search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                     {isNamespaced && (<NamespaceSelect
                         namespaces={namespaces}
@@ -351,8 +351,8 @@ export default function ResourceList({ kind }) {
 
             <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-[var(--font-size-sm)] text-left text-primary border-collapse">
-                        <thead className="text-[13px] text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-widest">
+                    <table className="w-full text-sm text-left text-primary border-collapse">
+                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
@@ -459,7 +459,7 @@ export default function ResourceList({ kind }) {
             {/* Pagination Controls */}
             {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between glass rounded-xl border border-border px-6 py-4">
-                    <div className="text-xs font-bold text-text-muted uppercase tracking-widest">
+                    <div className="text-xs font-bold text-text-muted uppercase tracking-wider">
                         {t('showing')} {Math.min(items.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(items.length, currentPage * settings.itemsPerPage)} {t('of')} {items.length}
                     </div>
                     <div className="flex items-center gap-2">

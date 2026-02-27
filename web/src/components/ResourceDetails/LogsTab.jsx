@@ -133,7 +133,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                     </div>
 
                     <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md border border-border/50">
-                        <span className="text-[10px] uppercase font-black text-text-muted pl-2">Size</span>
+                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
                         <select
                             value={logFontSize}
                             onChange={(e) => setLogFontSize(parseInt(e.target.value))}

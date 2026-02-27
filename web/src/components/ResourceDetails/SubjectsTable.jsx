@@ -10,7 +10,7 @@ export default function SubjectsTable({ subjects, t }) {
     return (
         <DetailSection title="Subjects" className="mt-4">
             <div className="overflow-x-auto">
-                <table className="w-full text-[var(--font-size-sm)] border-collapse">
+                <table className="w-full text-sm border-collapse">
                     <thead>
                         <tr className="bg-[var(--bg-sidebar)]/10 text-text-muted border-b border-border">
                             <th className="px-4 py-3 text-left">Name</th>

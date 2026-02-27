@@ -7,8 +7,8 @@ export default function PersistentVolumesTable({ pvs, t }) {
     return (
         <DetailSection title="Persistent Volumes" className="mt-4">
             <div className="overflow-x-auto">
-                <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('label_name') || 'Name'}</th>
                             <th className="px-4 py-3 text-left">{t('label_status') || 'Status'}</th>
@@ -33,7 +33,7 @@ export default function PersistentVolumesTable({ pvs, t }) {
                                         </Link>
                                     </td>
                                     <td className="px-4 py-2">
-                                                                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${pv.status === 'Bound' ? 'bg-success/10 text-success' : (pv.status === 'Available' ? 'bg-info/10 text-info' : 'bg-warning/10 text-warning')}`}>                                            {pv.status || 'Unknown'}
+                                                                                 <span className={`px-2 py-0.5 rounded-lg text-xs font-black uppercase ${pv.status === 'Bound' ? 'bg-success/10 text-success' : (pv.status === 'Available' ? 'bg-info/10 text-info' : 'bg-warning/10 text-warning')}`}>                                            {pv.status || 'Unknown'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 font-mono text-xs text-info">{pv.extra?.capacity || '—'}</td>

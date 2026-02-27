@@ -9,7 +9,7 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 12 })
         <div className="bg-main/20 border-t border-border/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
             <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start">
                 <div
-                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-border/20 py-4 font-mono text-[var(--font-size-xs)] text-text-muted text-right pr-3 select-none"
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-border/20 py-4 font-mono text-xs text-text-muted text-right pr-3 select-none"
                     style={{ fontSize: `${fontSize}px` }}
                 >
                     {lines.map((_, i) => (

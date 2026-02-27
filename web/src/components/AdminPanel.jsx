@@ -127,7 +127,7 @@ export default function AdminPanel() {
                                 {expandedRoles[role.name] && (
                                     <div className="px-6 pb-6 pt-2 overflow-x-auto">
                                         <table className="w-full text-left text-xs border border-border rounded-lg overflow-hidden">
-                                            <thead className="bg-[var(--bg-sidebar)]/10 text-text-muted uppercase tracking-wider">
+                                            <thead className="text-xs bg-[var(--bg-sidebar)]/10 text-text-muted uppercase tracking-wider">
                                                 <tr>
                                                     <th className="px-4 py-2 border-b border-r border-border">{t('api_groups')}</th>
                                                     <th className="px-4 py-2 border-b border-r border-border">{t('resources')}</th>
@@ -143,7 +143,7 @@ export default function AdminPanel() {
                                                         <td className="px-4 py-2 border-r border-border text-primary">
                                                             <div className="flex flex-wrap gap-1">
                                                                 {rule.resources?.map((res, rIdx) => (
-                                                                    <span key={rIdx} className="bg-transparent px-1.5 py-0.5 rounded text-[10px]">
+                                                                    <span key={rIdx} className="bg-transparent px-1.5 py-0.5 rounded text-xs">
                                                                         {res}
                                                                     </span>
                                                                 ))}

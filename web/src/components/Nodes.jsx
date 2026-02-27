@@ -116,7 +116,7 @@ function LabelsCell({ labels }) {
         <div className="flex flex-col gap-1 max-w-[250px]">
             <div className="flex flex-wrap gap-1">
                 {visibleLabels.map(([k, v]) => (
-                    <span key={k} className="text-[10px] bg-slate-500/10 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
+                    <span key={k} className="text-xs bg-slate-500/10 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
                         {k.split('/').pop()}: {v}
                     </span>
                 ))}
@@ -124,7 +124,7 @@ function LabelsCell({ labels }) {
             {hasMore && (
                 <button
                     onClick={() => setExpanded(!expanded)}
-                    className="text-[10px] font-semibold w-fit transition-colors active:scale-95"
+                    className="text-xs font-semibold w-fit transition-colors active:scale-95"
                     style={{ color: expanded ? hideColor : 'var(--accent)' }}
                 >
                     {expanded ? 'Hide' : `Show all (${labelEntries.length})`}
@@ -165,7 +165,7 @@ export default function Nodes() {
                         placeholder="Search nodes..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                 </div>
             </div>

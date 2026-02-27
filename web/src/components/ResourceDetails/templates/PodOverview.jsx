@@ -32,15 +32,15 @@ export default function PodOverview({ data, metadata, spec, status, t, icons, mo
             <DetailSection title={t('resource_info')}>
                 <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-border bg-[var(--bg-sidebar)]/5">
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">CPU Usage</span>
+                        <span className="text-xs font-bold text-text-muted uppercase mb-1">CPU Usage</span>
                         <span className="text-sm font-bold text-info">{cpuUsage}</span>
                     </div>
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">RAM Usage</span>
+                        <span className="text-xs font-bold text-text-muted uppercase mb-1">RAM Usage</span>
                         <span className="text-sm font-bold text-info">{ramUsage}</span>
                     </div>
                     <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-text-muted uppercase mb-1">IP Address</span>
+                        <span className="text-xs font-bold text-text-muted uppercase mb-1">IP Address</span>
                         <span className="text-sm font-mono text-primary">{status.podIP || '—'}</span>
                     </div>
                 </div>

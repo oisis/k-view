@@ -16,7 +16,7 @@ export default function RulesTable({ rules = [], t }) {
         <DetailSection title="Rules" className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
                         <tr>
                             <th className="px-4 py-3 text-left">Resources</th>
                             <th className="px-4 py-3 text-left">Non-resource URL</th>
@@ -58,7 +58,7 @@ export default function RulesTable({ rules = [], t }) {
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.apiGroups?.map((g, i) => (
-                                                                                         <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px] font-black">{g === '' ? 'core' : g}</span>                                        )) || <span className="text-text-muted italic">—</span>}
+                                                                                         <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-xs font-black">{g === '' ? 'core' : g}</span>                                        )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                             </tr>

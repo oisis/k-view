@@ -203,11 +203,11 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-border shrink-0 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     {icons.terminal && <icons.terminal size={18} className="text-info" />}
-                    <span className="text-xs uppercase font-bold text-text-muted tracking-widest">
+                    <span className="text-xs uppercase font-bold text-text-muted tracking-wider">
                         Interactive Shell
                     </span>
                     {status === "connected" && (
-                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-success/10 text-success border border-success/20 uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold bg-success/10 text-success border border-success/20 uppercase tracking-wider">
                             <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
                             Live
                         </span>
@@ -217,7 +217,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 <div className="flex items-center gap-4">
                     {containers.length > 1 && (
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-text-muted uppercase tracking-widest whitespace-nowrap">Container:</span>
+                            <span className="text-sm font-bold text-text-muted uppercase tracking-wider whitespace-nowrap">Container:</span>
                             <select
                                 className="bg-card border border-border text-xs font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
                                 value={selectedContainer}

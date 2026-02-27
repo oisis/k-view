@@ -9,8 +9,8 @@ export default function LimitRangesTable({ limits, t, icons }) {
                                          <div key={l.metadata?.name || l.name} className="bg-[var(--bg-muted)]/30 rounded-lg p-4 overflow-x-auto">                        <h4 className="font-bold text-accent mb-3 flex items-center gap-2">
                             {icons?.about && <icons.about size={14} />} {l.metadata?.name || l.name}
                         </h4>
-                        <table className="w-full text-[var(--font-size-xs)]">
-                            <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-black/20 border-b-2 border-border text-center">
+                        <table className="w-full text-xs">
+                            <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-black/20 border-b-2 border-border text-center">
                                 <tr>
                                     <th className="px-3 py-2">{t('type')}</th>
                                     <th className="px-3 py-2">{t('usage_metrics')}</th>

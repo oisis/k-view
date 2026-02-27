@@ -39,7 +39,7 @@ export default function PieChart({ percent, label, subLabel, color = 'var(--acce
                 </div>
             </div>
             <div className="mt-2 text-center">
-                <div className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</div>
+                <div className="text-xs font-black uppercase tracking-wider text-text-muted">{label}</div>
                 <div className="text-xs font-mono text-secondary">{subLabel}</div>
             </div>
         </div>

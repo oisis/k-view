@@ -238,7 +238,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-primary">{t('create_resource')}</h2>
-                            <p className="text-xs text-text-muted mt-0.5 uppercase tracking-widest font-bold">Standard API v1.25+</p>
+                            <p className="text-xs text-text-muted mt-0.5 uppercase tracking-wider font-bold">Standard API v1.25+</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
@@ -250,13 +250,13 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="flex p-1 bg-[var(--bg-sidebar)]/50 border-b border-border">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'template' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'raw' ? 'bg-[var(--accent)] text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
                     >
                         <FileIcon size={14} /> {t('raw_manifest')}
                     </button>
@@ -275,7 +275,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-3 block">{t('resource_kind')}</label>
+                                    <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-3 block">{t('resource_kind')}</label>
                                     <div className="relative">
                                         <select
                                             value={selectedKind}
@@ -296,7 +296,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">{t('label_name')}</label>
+                                        <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">{t('label_name')}</label>
                                         <input
                                             type="text"
                                             value={name}
@@ -307,7 +307,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                     </div>
                                     {!TEMPLATES[selectedKind]?.isClusterScoped && (
                                         <div>
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">{t('label_namespace')}</label>
+                                            <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">{t('label_namespace')}</label>
                                             <select
                                                 value={namespace}
                                                 onChange={(e) => setNamespace(e.target.value)}
@@ -323,7 +323,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <button
                                     onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest hover:text-accent transition-colors"
+                                    className="flex items-center gap-2 text-primary text-xs font-black uppercase tracking-wider hover:text-accent transition-colors"
                                 >
                                     <ChevronRightIcon size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
                                     Advanced Options
@@ -333,7 +333,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                     <div className="space-y-4 p-4 bg-[var(--bg-sidebar)]/20 rounded-xl border border-border animate-in slide-in-from-top-2">
                                         {(selectedKind === 'pods' || selectedKind === 'deployments') && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Container Image</label>
+                                                <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">Container Image</label>
                                                 <input
                                                     type="text"
                                                     value={image}
@@ -344,7 +344,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                         )}
                                         {selectedKind === 'deployments' && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Replicas</label>
+                                                <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">Replicas</label>
                                                 <input
                                                     type="number"
                                                     value={replicas}
@@ -355,7 +355,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                         )}
                                         {(selectedKind === 'pods' || selectedKind === 'deployments' || selectedKind === 'services' || selectedKind === 'ingresses') && (
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Port</label>
+                                                <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">Port</label>
                                                 <input
                                                     type="number"
                                                     value={ports}
@@ -367,20 +367,20 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                         )}
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Labels (key: value)</label>
+                                                <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">Labels (key: value)</label>
                                                 <textarea
                                                     value={labels}
                                                     onChange={(e) => setLabels(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-xs text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="env: prod"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2 block">Annotations (key: value)</label>
+                                                <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-2 block">Annotations (key: value)</label>
                                                 <textarea
                                                     value={annotations}
                                                     onChange={(e) => setAnnotations(e.target.value)}
-                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-[10px] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
+                                                    className="w-full h-24 bg-[var(--bg-input)] border border-border rounded-xl px-3 py-2 text-xs text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none"
                                                     placeholder="managed-by: k-view"
                                                 />
                                             </div>
@@ -398,28 +398,28 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                             <div className="flex flex-col h-full bg-[var(--bg-sidebar)]/30 border border-border rounded-2xl overflow-hidden">
                                 <div className="px-4 py-2 bg-[var(--bg-sidebar)]/50 border-b border-border flex items-center justify-between">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Preview</span>
+                                    <span className="text-xs font-black uppercase tracking-wider text-text-muted">Preview</span>
                                     <div className="flex gap-1">
                                         <div className="w-2 h-2 rounded-full bg-rose-500/50"></div>
                                         <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
                                         <div className="w-2 h-2 rounded-full bg-emerald-500/50"></div>
                                     </div>
                                 </div>
-                                <pre className="p-4 text-[11px] font-mono text-[var(--text-editor-code)] overflow-auto flex-1 opacity-90">
+                                <pre className="p-4 text-xs font-mono text-[var(--text-editor-code)] overflow-auto flex-1 opacity-90">
                                     {rawContent}
                                 </pre>
                             </div>
                         </div>
                     ) : (
                         <div className="h-full flex flex-col">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-3 block">Resource Manifest (YAML/JSON)</label>
+                            <label className="text-xs font-black uppercase tracking-wider text-text-muted mb-3 block">Resource Manifest (YAML/JSON)</label>
                             <textarea
                                 value={rawContent}
                                 onChange={(e) => setRawContent(e.target.value)}
-                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-input)] border border-border rounded-2xl p-6 text-[13px] font-mono text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
+                                className="flex-1 min-h-[300px] w-full bg-[var(--bg-input)] border border-border rounded-2xl p-6 text-sm font-mono text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all resize-none shadow-inner"
                                 placeholder={"apiVersion: v1\nkind: Pod\n..."}
                             />
-                            <p className="text-[10px] text-text-muted mt-3 italic">Paste your Kubernetes resource definition here. Supports Multi-resource YAML (WIP).</p>
+                            <p className="text-xs text-text-muted mt-3 italic">Paste your Kubernetes resource definition here. Supports Multi-resource YAML (WIP).</p>
                         </div>
                     )}
                 </div>
@@ -428,14 +428,14 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="p-6 bg-[var(--bg-sidebar)]/30 border-t border-border flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted hover:text-primary transition-colors"
+                        className="px-6 py-2.5 text-xs font-black uppercase tracking-wider text-text-muted hover:text-primary transition-colors"
                     >
                         {t('cancel')}
                     </button>
                     <button
                         onClick={handleCreate}
                         disabled={isSubmitting || (mode === 'template' && !name) || !rawContent}
-                        className={`px-8 py-2.5 bg-[var(--accent)] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`px-8 py-2.5 bg-[var(--accent)] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {isSubmitting ? t('saving') : t('create')}
                     </button>

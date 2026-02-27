@@ -369,7 +369,7 @@ export default function Console() {
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                         {suggestions ? (
                             <>
-                                <span className="text-xs text-text-muted font-bold uppercase tracking-widest shrink-0 mr-2">{suggestions.title}:</span>
+                                <span className="text-xs text-text-muted font-bold uppercase tracking-wider shrink-0 mr-2">{suggestions.title}:</span>
                                 {suggestions.items.map((s, i) => (
                                     <button
                                         key={i}
@@ -455,7 +455,7 @@ export default function Console() {
                 </div>
 
                 {/* Hint / Toolbar */}
-                <div className="px-4 py-1.5 flex gap-4 text-xs text-text-muted border-t border-border uppercase tracking-widest">
+                <div className="px-4 py-1.5 flex gap-4 text-xs text-text-muted border-t border-border uppercase tracking-wider">
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Enter</kbd> execute</span>
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Arrows</kbd> history</span>
                     <span><kbd className="bg-[var(--bg-muted)] px-1 rounded text-text-muted">Ctrl+L</kbd> clear</span>

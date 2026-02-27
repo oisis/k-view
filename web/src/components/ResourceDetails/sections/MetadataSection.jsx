@@ -17,15 +17,15 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
             {isSpecialMetadataOnly ? (
                 <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
-                        <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                         <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_uid')}</span>
-                        <span className="text-[var(--font-size-xs)] font-mono text-secondary truncate w-full">{metadata?.uid || '—'}</span>
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_uid')}</span>
+                        <span className="text-xs font-mono text-secondary truncate w-full">{metadata?.uid || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                         <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                     </div>
                 </div>
@@ -33,11 +33,11 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                 <>
                     <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_name')}</span>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_namespace')}</span>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_namespace')}</span>
                             {namespace === '-' ? (
                                 <span className="text-sm text-text-muted font-bold italic">—</span>
                             ) : (
@@ -47,12 +47,12 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                             )}
                         </div>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_created')}</span>
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                             <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                         </div>
                         {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret')) && (
                             <div className="px-6 py-4 flex flex-col items-center text-center border-l border-border">
-                                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
                             </div>
                         )}
@@ -61,7 +61,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                     {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && (
                         <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
                             <div className="px-6 py-4 flex flex-col items-center text-center">
-                                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
                                     {isDaemonSet ? 'Pods Running' : t('label_status')}
                                 </span>
                                 {isDaemonSet ? (
@@ -78,7 +78,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                                 )}
                             </div>
                             <div className="px-6 py-4 flex flex-col items-center text-center">
-                                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
                                     {isDaemonSet ? 'Pods Desired' : t('label_node')}
                                 </span>
                                 {isDaemonSet ? (
@@ -92,7 +92,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                                 )}
                             </div>
                             <div className="px-6 py-4 flex flex-col items-center text-center">
-                                <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">{t('label_age')}</span>
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data.resource?.age || '—'}</span>
                             </div>
                         </div>
@@ -112,7 +112,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                                         </span>
                                     ))}
                                     {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
-                                        <span className="text-[10px] text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center">
+                                        <span className="text-xs text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center">
                                             + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
                                         </span>
                                     )}

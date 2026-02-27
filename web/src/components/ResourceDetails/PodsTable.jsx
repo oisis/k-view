@@ -8,8 +8,8 @@ export default function PodsTable({ pods, t }) {
     return (
         <DetailSection title="Pods" className="mt-4">
             <div className="overflow-x-auto">
-                <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('label_name')}</th>
                             <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
@@ -40,7 +40,7 @@ export default function PodsTable({ pods, t }) {
                                     <td className="px-4 py-2"><ExpandableCell value={pod.extra?.labels} type="labels" /></td>
                                     <td className="px-4 py-2 text-xs font-mono text-info truncate max-w-[120px]">{pod.extra?.node || '—'}</td>
                                     <td className="px-4 py-2">
-                                                                                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${pod.status === 'Running' || pod.status === 'Succeeded' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>                                            {pod.status}
+                                                                                 <span className={`px-2 py-0.5 rounded-lg text-xs font-black uppercase ${pod.status === 'Running' || pod.status === 'Succeeded' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>                                            {pod.status}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center font-bold">{pod.extra?.restarts || 0}</td>

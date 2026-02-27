@@ -8,7 +8,7 @@ function NamespaceSelect({ namespaces, selected, onChange }) {
         <select
             value={selected || ''}
             onChange={(e) => onChange(e.target.value)}
-            className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-primary focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none min-w-[150px] font-medium h-10"
+            className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-primary focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none min-w-[150px] font-medium h-10"
         >
             <option value="">{t('all_namespaces') || 'All Namespaces'}</option>
             {namespaces.map(ns => (
@@ -162,7 +162,7 @@ export default function EventsList() {
                         placeholder={t('search_placeholder') || 'Search...'}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-[var(--font-size-sm)] text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
+                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
                     />
                     <NamespaceSelect
                         namespaces={namespaces}
@@ -178,8 +178,8 @@ export default function EventsList() {
 
             <div className="glass rounded-2xl border border-border shadow-2xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-[var(--font-size-sm)] text-left text-primary">
-                        <thead className="text-[13px] text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-widest border-b border-border">
+                    <table className="w-full text-sm text-left text-primary">
+                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-border">
                             <tr>
                                 {cols.map(col => (
                                     <th
@@ -214,7 +214,7 @@ export default function EventsList() {
                                         let content = <span className="text-secondary font-medium">{val}</span>;
 
                                         if (col.key === 'name') {
-                                            content = <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${item.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>{String(val)}</span>;
+                                            content = <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${item.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>{String(val)}</span>;
                                         } else if (col.key === 'message') {
                                             content = <span className="text-secondary max-w-sm block break-words whitespace-normal leading-tight">{String(val)}</span>;
                                         } else if (col.key === 'reason') {
@@ -223,7 +223,7 @@ export default function EventsList() {
                                             cellClass = "px-4 py-2 whitespace-nowrap text-center";
                                             content = <span className="text-primary font-bold">{String(val)}</span>;
                                         } else if (col.key === 'source' || col.key === 'object' || col.key === 'firstSeen' || col.key === 'lastSeen') {
-                                            content = <span className="text-text-muted text-[11px] font-mono">{String(val)}</span>;
+                                            content = <span className="text-text-muted text-xs font-mono">{String(val)}</span>;
                                         }
 
                                         return <td key={col.key} className={cellClass}>{content}</td>;
@@ -237,7 +237,7 @@ export default function EventsList() {
 
             {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between bg-glass glass rounded-xl border border-border px-6 py-4">
-                    <div className="text-xs font-bold text-text-muted uppercase tracking-widest">
+                    <div className="text-xs font-bold text-text-muted uppercase tracking-wider">
                         {t('showing') || 'Showing'} {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} {t('of') || 'of'} {filteredItems.length}
                     </div>
                     <div className="flex items-center gap-2">

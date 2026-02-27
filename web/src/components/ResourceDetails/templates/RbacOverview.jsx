@@ -16,10 +16,10 @@ export default function RbacOverview({ data, metadata, t, isBinding }) {
                         <table className="w-full text-sm text-left border-collapse">
                             <tbody className="divide-y divide-border">
                                 <tr className="border-b border-border">
-                                    <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] w-1/4">Role Reference</td>
+                                    <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Role Reference</td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
-                                                                                         <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-wider">                                                {roleRef?.kind || '—'}
+                                                                                         <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-xs font-black uppercase tracking-wider">                                                {roleRef?.kind || '—'}
                                             </span>
                                             <span className="font-mono text-info font-bold">{roleRef?.name || '—'}</span>
                                         </div>

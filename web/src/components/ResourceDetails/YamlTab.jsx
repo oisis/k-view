@@ -75,7 +75,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
         <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
             <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-border/20">
                 <div className="flex items-center gap-4">
-                    <span className="text-xs uppercase font-bold text-text-muted tracking-widest">
+                    <span className="text-xs uppercase font-bold text-text-muted tracking-wider">
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                     </span>
                     {!isEditing && (
@@ -96,7 +96,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-[10px] uppercase font-black text-text-muted pl-2">Size</span>
+                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
                         <select
                             value={editorFontSize}
                             onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
@@ -112,7 +112,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     {canEdit && !isEditing && (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="text-xs font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-widest"
+                            className="text-xs font-bold px-3 py-1 bg-info/10 text-info rounded hover:bg-info/20 transition-colors uppercase tracking-wider"
                         >
                             {t('edit_manifest', { format: format.toUpperCase() })}
                         </button>
@@ -121,7 +121,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         <>
                             <button
                                 onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[var(--text-white)] transition-colors uppercase tracking-widest"
+                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[var(--text-white)] transition-colors uppercase tracking-wider"
                                 disabled={isSaving}
                             >
                                 {t('cancel')}
@@ -159,7 +159,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                                         setIsSaving(false);
                                     }
                                 }}
-                                className="text-xs font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-widest flex items-center gap-1.5"
+                                className="text-xs font-bold px-3 py-1 bg-success/20 text-success rounded hover:bg-success/30 transition-colors uppercase tracking-wider flex items-center gap-1.5"
                                 disabled={isSaving}
                             >
                                 {isSaving ? <icons.refresh size={10} className="animate-pulse" /> : <icons.check_circle_alt size={10} />}

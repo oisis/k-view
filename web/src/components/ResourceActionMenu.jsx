@@ -233,12 +233,12 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 >
                     <div className="w-56 bg-[var(--bg-dropdown)] border border-border rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                         {(isPod || isWorkload) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-widest group border-b border-border/30 mb-1 pb-2">
+                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-wider group border-b border-border/30 mb-1 pb-2">
                                 {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
                             </button>
                         )}
                         {isCronJob && (
-                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-widest group border-b border-border/30 mb-1 pb-2">
+                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-wider group border-b border-border/30 mb-1 pb-2">
                                 {icons.zap && <icons.zap size={14} className="group-hover:scale-125 transition-transform" />} {t('run_now')}
                             </button>
                         )}

@@ -5,8 +5,8 @@ export default function ConditionsTable({ conditions, t }) {
     return (
         <DetailSection title={t('status_conditions')} className="mt-4">
             <div className="overflow-x-auto">
-                <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-center">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-center">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('type')}</th>
                             <th className="px-4 py-3">{t('label_status')}</th>
@@ -24,7 +24,7 @@ export default function ConditionsTable({ conditions, t }) {
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-3 font-medium text-primary">{c.type}</td>
                                     <td className="px-4 py-3 text-center">
-                                        <span className={`px-2 py-0.5 rounded text-[var(--font-size-sm)] font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                        <span className={`px-2 py-0.5 rounded text-sm font-bold ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                             {c.status}
                                         </span>
                                     </td>
