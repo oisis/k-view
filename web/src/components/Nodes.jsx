@@ -191,7 +191,7 @@ export default function Nodes() {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-transparent uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-4 py-3">Name</th>
                                 <th className="px-4 py-3">Labels</th>

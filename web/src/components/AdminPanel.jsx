@@ -127,7 +127,7 @@ export default function AdminPanel() {
                                 {expandedRoles[role.name] && (
                                     <div className="px-6 pb-6 pt-2 overflow-x-auto">
                                         <table className="w-full text-left text-xs border border-[var(--border-color)] rounded-lg overflow-hidden">
-                                            <thead className="bg-[var(--bg-muted)] text-[var(--text-muted)] uppercase tracking-wider">
+                                            <thead className="bg-[var(--bg-sidebar)]/10 text-[var(--text-muted)] uppercase tracking-wider">
                                                 <tr>
                                                     <th className="px-4 py-2 border-b border-r border-[var(--border-color)]">{t('api_groups')}</th>
                                                     <th className="px-4 py-2 border-b border-r border-[var(--border-color)]">{t('resources')}</th>
@@ -173,7 +173,7 @@ export default function AdminPanel() {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm text-[var(--text-primary)]">
-                        <thead className="text-xs text-[var(--text-muted)] bg-transparent uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <thead className="text-xs text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-[var(--border-color)]">
                             <tr>
                                 <th className="px-6 py-3">{t('user')}</th>
                                 <th className="px-6 py-3">Type</th>

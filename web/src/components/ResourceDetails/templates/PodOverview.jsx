@@ -30,7 +30,7 @@ export default function PodOverview({ data, metadata, spec, status, t, icons, mo
     return (
         <>
             <DetailSection title={t('resource_info')}>
-                <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-slate-600 bg-[var(--bg-sidebar)]/5 border-b border-slate-600 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 divide-x divide-slate-600 bg-[var(--bg-sidebar)]/5">
                     <div className="px-4 py-3 flex flex-col items-center">
                         <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">CPU Usage</span>
                         <span className="text-sm font-bold text-info">{cpuUsage}</span>
@@ -44,12 +44,9 @@ export default function PodOverview({ data, metadata, spec, status, t, icons, mo
                         <span className="text-sm font-mono text-[var(--text-primary)]">{status.podIP || '—'}</span>
                     </div>
                 </div>
-                <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-slate-600">
-                        <ContainerDetails containers={spec.containers || []} statuses={status.containerStatuses} t={t} />
-                    </tbody>
-                </table>
             </DetailSection>
+
+            <ContainerDetails containers={spec.containers || []} statuses={status.containerStatuses} t={t} />
             
             {status?.conditions && (
                 <ConditionsTable conditions={status.conditions} t={t} icons={icons} />

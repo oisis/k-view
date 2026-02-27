@@ -9,7 +9,7 @@ export default function CapacityTable({ capacity, allocatable, t }) {
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left border-collapse">
                 <thead>
-                    <tr className="bg-[var(--bg-sidebar)]/20 text-[var(--text-muted)] uppercase text-[10px] tracking-widest border-b border-slate-600/50">
+                    <tr className="bg-[var(--bg-sidebar)]/10 text-[var(--text-muted)] uppercase text-[10px] tracking-widest border-b border-slate-600/50">
                         <th className="px-4 py-3 font-black">Resource</th>
                         <th className="px-4 py-3 font-black">Capacity</th>
                         <th className="px-4 py-3 font-black">Allocatable</th>

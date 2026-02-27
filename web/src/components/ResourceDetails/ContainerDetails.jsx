@@ -49,7 +49,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_env_variables')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-1">
                                             {c.env?.map(ev => (
-                                                <div key={ev.name} className="bg-black/20 rounded p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
+                                                <div key={ev.name} className="bg-[var(--bg-sidebar)]/10 rounded p-2 font-mono text-[10px] flex flex-col gap-0.5 overflow-hidden">
                                                     <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
                                                     <span className="text-[var(--text-muted)] truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
                                                         {ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}
@@ -61,8 +61,8 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_mounts')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-1">
                                             {c.volumeMounts?.map(vm => (
-                                                <div key={vm.mountPath} className="p-3 bg-black/20 rounded-xl text-[11px] flex flex-col gap-2 relative overflow-hidden group">
-                                                    <div className="font-bold text-info border-b border-white/5 pb-1.5 flex justify-between items-center">
+                                                <div key={vm.mountPath} className="p-3 bg-[var(--bg-sidebar)]/10 rounded-xl text-[11px] flex flex-col gap-2 relative overflow-hidden group">
+                                                    <div className="font-bold text-info pb-1.5 flex justify-between items-center">
                                                         <div className="flex items-center gap-2">
                                                             <icons.clipboard size={12} />
                                                             {vm.name}

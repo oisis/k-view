@@ -352,7 +352,7 @@ export default function ResourceList({ kind }) {
             <div className="glass rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
                     <table className="w-full text-[var(--font-size-sm)] text-left text-[var(--text-primary)] border-collapse">
-                        <thead className="text-[13px] text-[var(--text-muted)] bg-transparent uppercase tracking-widest">
+                        <thead className="text-[13px] text-[var(--text-muted)] bg-[var(--bg-sidebar)]/10 uppercase tracking-widest">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th

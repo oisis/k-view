@@ -11,10 +11,8 @@ export default function ContainersSection({ podSpec, isPod, t, namespace }) {
                 {(podSpec.containers || []).map(c => (
                     <ContainerDetails
                         key={c.name}
-                        container={c}
-                        isPod={isPod}
+                        containers={[c]}
                         t={t}
-                        namespace={namespace}
                     />
                 ))}
                 {podSpec.initContainers?.length > 0 && (
@@ -24,10 +22,8 @@ export default function ContainersSection({ podSpec, isPod, t, namespace }) {
                             {podSpec.initContainers.map(c => (
                                 <ContainerDetails
                                     key={c.name}
-                                    container={c}
-                                    isPod={isPod}
+                                    containers={[c]}
                                     t={t}
-                                    namespace={namespace}
                                 />
                             ))}
                         </div>

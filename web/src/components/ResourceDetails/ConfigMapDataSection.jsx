@@ -60,7 +60,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
         <DetailSection title={t('data') || "Data"} className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-[var(--font-size-sm)] border-collapse">
-                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-muted)]/50 border-b-2 border-slate-600 text-left">
+                    <thead className="text-[11px] text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-slate-600 text-left">
                         <tr>
                             <th className="px-4 py-3 w-1/4">Key</th>
                             <th className="px-4 py-3">Value</th>
