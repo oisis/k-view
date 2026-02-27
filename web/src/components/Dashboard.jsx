@@ -262,7 +262,7 @@ export default function Dashboard({ isCollapsed }) {
             </div>
 
             {/* Quick Info Footer */}
-            <div className="mt-10 pt-6 border-t border-border flex items-center gap-6 justify-center">
+            <div className="mt-8 flex items-center gap-6 justify-center">
                 <div className="flex items-center gap-2 text-xs text-text-muted font-medium">
                     <div className="flex items-center gap-2">
                         <icons.about size={14} className="text-info/60" />
