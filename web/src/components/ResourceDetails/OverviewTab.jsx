@@ -132,6 +132,7 @@ export default function OverviewTab({
     };
 
     const isStatefulSet = kindLower.includes('statefulset');
+    const ownerRefs = metadata?.ownerReferences || data?.ownerReferences || data?.resource?.ownerReferences;
 
     return (
         <div className="space-y-4">
@@ -192,8 +193,8 @@ export default function OverviewTab({
                 </div>
             )}
 
-            {metadata.ownerReferences && (
-                <ControlledByTable owners={metadata.ownerReferences} namespace={namespace} t={t} icons={icons} />
+            {ownerRefs && (
+                <ControlledByTable owners={ownerRefs} namespace={namespace} t={t} icons={icons} />
             )}
         </div>
     );

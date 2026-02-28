@@ -48,8 +48,8 @@ export default function PodOverview({ data, metadata, spec, status, t, icons, mo
 
             <ContainerDetails containers={spec.containers || []} statuses={status.containerStatuses} t={t} />
             
-            {status?.conditions && (
-                <ConditionsTable conditions={status.conditions} t={t} icons={icons} />
+            {(status?.conditions || data.resource?.status?.conditions) && (
+                <ConditionsTable conditions={status?.conditions || data.resource?.status?.conditions} t={t} icons={icons} />
             )}
 
             {mountedPvcs && mountedPvcs.length > 0 && (

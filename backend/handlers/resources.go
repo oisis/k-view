@@ -419,28 +419,37 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		return
 	}
 
+	// Ensure status and metadata are deeply accessible
+	statusData, _, _ := unstructured.NestedMap(item.Object, "status")
+	metaData, _, _ := unstructured.NestedMap(item.Object, "metadata")
+
 	response := gin.H{
 		"resource": gin.H{
 			"name":      item.GetName(),
 			"namespace": item.GetNamespace(),
 			"age":       utils.GetAge(item.GetCreationTimestamp().Time),
-			"status":    item.Object["status"],
+			"status":    statusData,
 		},
-		"metadata": item.Object["metadata"],
+		"metadata": metaData,
 		"spec":     item.Object["spec"],
-		"status":   item.Object["status"],
+		"status":   statusData,
 		"data":     item.Object["data"],
 	}
-
-	// Extra safety for missing fields in some K8s versions/objects
-	if response["spec"] == nil { response["spec"] = item.Object["spec"] }
-	if response["metadata"] == nil { response["metadata"] = item.Object["metadata"] }
 
 	// Extract RBAC and common fields to root for frontend compatibility
 	if rules, ok := item.Object["rules"]; ok { response["rules"] = rules }
 	if subjects, ok := item.Object["subjects"]; ok { response["subjects"] = subjects }
 	if roleRef, ok := item.Object["roleRef"]; ok { response["roleRef"] = roleRef }
-	if owners := item.GetOwnerReferences(); len(owners) > 0 { response["ownerReferences"] = owners }
+	
+	owners := item.GetOwnerReferences()
+	if len(owners) > 0 { 
+		response["ownerReferences"] = owners 
+		// Sync ownerReferences into metadata for components expecting it there
+		if metaData != nil {
+			metaData["ownerReferences"] = owners
+			response["metadata"] = metaData
+		}
+	}
 
 	if kind == "nodes" || kind == "node" {
 		response["allocation"] = gin.H{
