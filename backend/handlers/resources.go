@@ -455,6 +455,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		response["imagePullSecrets"] = item.Object["imagePullSecrets"]
 	}
 
+	if kind == "pods" || kind == "pod" {
+		metrics, err := h.k8sClient.GetPodMetrics(c.Request.Context(), ns, name)
+		if err == nil && metrics != nil {
+			response["metrics"] = metrics
+		}
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
