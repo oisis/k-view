@@ -225,9 +225,9 @@ export default function Dashboard({ isCollapsed }) {
                 <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('compute_load')}</p>
-                        <h3 className={`${isCollapsed ? 'text-2xl' : 'text-xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-5xl' : 'text-4xl'} font-black transition-colors flex items-baseline gap-3 ${(stats?.cpuUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
+                            <span className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-secondary font-bold opacity-70`}>{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-info bg-info/10 border border-info/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -244,9 +244,9 @@ export default function Dashboard({ isCollapsed }) {
                 <div className={`md:col-span-2 bg-glass glass ${isCollapsed ? 'p-6' : 'p-4'} rounded-2xl border border-border shadow-lg hover:border-accent/30 transition-all duration-300 group relative overflow-hidden`}>
                     <div className="mb-5">
                         <p className="text-xs font-bold text-text-muted uppercase tracking-[0.15em] mb-1.5">{t('memory_pressure')}</p>
-                        <h3 className={`${isCollapsed ? 'text-2xl' : 'text-xl'} font-bold transition-colors flex items-baseline gap-2.5 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
+                        <h3 className={`${isCollapsed ? 'text-5xl' : 'text-4xl'} font-black transition-colors flex items-baseline gap-3 ${(stats?.ramUsage >= 80) ? 'text-error' : 'text-success'}`}>
                             {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                            <span className={`${isCollapsed ? 'text-sm' : 'text-xs'} text-secondary font-medium opacity-60`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
+                            <span className={`${isCollapsed ? 'text-xs' : 'text-xs'} text-secondary font-bold opacity-70`}>{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
                         </h3>
                     </div>
                     <div className={`absolute ${isCollapsed ? 'top-4 right-4' : 'top-2 right-2'} p-2 rounded-xl text-purple bg-purple/10 border border-purple/20 group-hover:scale-110 transition-transform duration-300`}>
