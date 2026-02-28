@@ -3,11 +3,13 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 type TraceNode struct {
@@ -21,10 +23,11 @@ type TraceNode struct {
 }
 
 type TraceEdge struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	Healthy bool   `json:"healthy"`
-	Message string `json:"message"`
+	From    string            `json:"from"`
+	To      string            `json:"to"`
+	Healthy bool              `json:"healthy"`
+	Message string            `json:"message"`
+	Details map[string]string `json:"details,omitempty"`
 }
 
 type TraceResponse struct {
@@ -85,6 +88,11 @@ func (m *MockClient) GetIngress(ctx context.Context, namespace, name string) (*n
 	return nil, fmt.Errorf("ingress %s not found in mock", name)
 }
 func (m *MockClient) GetService(ctx context.Context, namespace, name string) (*corev1.Service, error) {
+	for _, s := range mockServices(namespace) {
+		if s.Name == name {
+			return &s, nil
+		}
+	}
 	return nil, fmt.Errorf("service %s not found in mock", name)
 }
 func (m *MockClient) GetPod(ctx context.Context, namespace, name string) (*corev1.Pod, error) {
@@ -96,31 +104,40 @@ func (m *MockClient) GetPod(ctx context.Context, namespace, name string) (*corev
 	return nil, fmt.Errorf("pod %s not found in mock", name)
 }
 func (m *MockClient) ListServices(ctx context.Context, namespace string) ([]corev1.Service, error) {
-	return []corev1.Service{}, nil // simplify for now
+	return mockServices(namespace), nil
 }
 func (m *MockClient) ListIngresses(ctx context.Context, namespace string) ([]netv1.Ingress, error) {
-	return []netv1.Ingress{}, nil // simplify for now
+	return []netv1.Ingress{}, nil
+}
+
+func mockServices(namespace string) []corev1.Service {
+	return []corev1.Service{
+		{
+			ObjectMeta: metav1.ObjectMeta{Name: "frontend-svc", Namespace: "default"},
+			Spec: corev1.ServiceSpec{
+				Selector: map[string]string{"app": "frontend"},
+				Ports:    []corev1.ServicePort{{Port: 80, TargetPort: intstr.FromInt(8080)}},
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{Name: "backend-svc", Namespace: "default"},
+			Spec: corev1.ServiceSpec{
+				Selector: map[string]string{"app": "backend"},
+				Ports:    []corev1.ServicePort{{Port: 8080, TargetPort: intstr.FromInt(8080)}},
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{Name: "k-view-service", Namespace: "k-view"},
+			Spec: corev1.ServiceSpec{
+				Selector: map[string]string{"app": "k"},
+				Ports:    []corev1.ServicePort{{Port: 80, TargetPort: intstr.FromInt(8080)}},
+			},
+		},
+	}
 }
 
 // TraceFlow provides a unified entrypoint for tracing network connections
-func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, name string) (*TraceResponse, error) {
-	// For simplicity, we cast exactly to *Client here, allowing expansion later.
-	client, ok := provider.(*Client)
-	if !ok {
-		// If mock, return a standard fake trace so we don't break DEV_MODE
-		return &TraceResponse{
-			Nodes: []TraceNode{
-				{Type: "Ingress", Name: "mock-ingress", Healthy: true, Message: "Mock Ingress OK"},
-				{Type: "Service", Name: "mock-service", Healthy: true, Message: "Mock Service OK"},
-				{Type: "Pod", Name: "mock-pod-1", Healthy: true, Message: "Mock Pod OK"},
-			},
-			Edges: []TraceEdge{
-				{From: "Ingress:mock-ingress", To: "Service:mock-service", Healthy: true, Message: "Port Match"},
-				{From: "Service:mock-service", To: "Pod:mock-pod-1", Healthy: true, Message: "Selector Match"},
-			},
-		}, nil
-	}
-
+func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespace, name string) (*TraceResponse, error) {
 	res := &TraceResponse{}
 	resType = strings.ToLower(resType)
 
@@ -213,7 +230,10 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		})
 		
 		// Find Ingresses pointing here
-		ings, _ := client.ListIngresses(ctx, namespace)
+		ings, err := client.ListIngresses(ctx, namespace)
+		if err != nil {
+			log.Printf("Warning: failed to list ingresses for service trace: %v", err)
+		}
 		for _, ing := range ings {
 			for _, rule := range ing.Spec.Rules {
 				if rule.HTTP == nil { continue }
@@ -260,7 +280,10 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 		})
 
 		// Find Services picking this pod
-		svcs, _ := client.ListServices(ctx, namespace)
+		svcs, err := client.ListServices(ctx, namespace)
+		if err != nil {
+			log.Printf("Warning: failed to list services for pod trace: %v", err)
+		}
 		for _, svc := range svcs {
 			if matchesSelector(svc.Spec.Selector, pod.Labels) {
 				res.Nodes = append(res.Nodes, TraceNode{
@@ -273,15 +296,31 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 
 				// Put target port on the edge instead of selector
 				portInfo := ""
+				details := make(map[string]string)
 				if len(svc.Spec.Ports) > 0 {
 					p := svc.Spec.Ports[0]
-					portInfo = fmt.Sprintf("%d -> %s", p.Port, p.TargetPort.String())
+					portInfo = fmt.Sprintf("%d \u2192 %s", p.Port, p.TargetPort.String())
+					details["Service Port"] = fmt.Sprintf("%d", p.Port)
+					details["Target Port"] = p.TargetPort.String()
+					details["Protocol"] = string(p.Protocol)
+					if p.NodePort != 0 {
+						details["NodePort"] = fmt.Sprintf("%d", p.NodePort)
+					}
 				}
 
-				res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: portInfo})
+				res.Edges = append(res.Edges, TraceEdge{
+					From:    "Service:" + svc.Name,
+					To:      "Pod:" + pod.Name,
+					Healthy: true,
+					Message: portInfo,
+					Details: details,
+				})
 				
 				// Trace up to Ingresses
-				ings, _ := client.ListIngresses(ctx, namespace)
+				ings, err := client.ListIngresses(ctx, namespace)
+				if err != nil {
+					log.Printf("Warning: failed to list ingresses for pod trace: %v", err)
+				}
 				for _, ing := range ings {
 					for _, rule := range ing.Spec.Rules {
 						if rule.HTTP == nil { continue }
@@ -311,8 +350,11 @@ func TraceFlow(ctx context.Context, provider interface{}, resType, namespace, na
 	return deduplicateTrace(res), nil
 }
 
-func traceServiceToPods(ctx context.Context, client *Client, namespace string, svc *corev1.Service, res *TraceResponse) {
-	pods, _ := client.ListPods(ctx, namespace)
+func traceServiceToPods(ctx context.Context, client KubernetesProvider, namespace string, svc *corev1.Service, res *TraceResponse) {
+	pods, err := client.ListPods(ctx, namespace)
+	if err != nil {
+		log.Printf("Warning: failed to list pods for service trace: %v", err)
+	}
 	matched := 0
 	for _, pod := range pods {
 		if matchesSelector(svc.Spec.Selector, pod.Labels) {

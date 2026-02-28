@@ -254,3 +254,68 @@ table td, table th {
 .detail-section-header h3 {
   color: #ffffff !important;
 }
+
+/* --- Mermaid Diagram Styling (K-View System) --- */
+.mermaid .node rect, 
+.mermaid .node circle, 
+.mermaid .node ellipse, 
+.mermaid .node polygon, 
+.mermaid .node path {
+  transition: all 0.2s ease;
+}
+
+/* Node Classes mapped to K-View variables */
+.node-healthy rect, .node-healthy path, .node-healthy polygon {
+  fill: var(--bg-card) !important;
+  stroke: var(--border-color) !important;
+  stroke-width: 1.5px !important;
+}
+
+.node-unhealthy rect, .node-unhealthy path, .node-unhealthy polygon {
+  fill: var(--bg-muted) !important;
+  stroke: var(--text-error) !important;
+  stroke-width: 2px !important;
+}
+
+.node-external rect, .node-external path, .node-external polygon {
+  fill: var(--bg-muted) !important;
+  stroke: var(--text-success) !important;
+  stroke-width: 1.5px !important;
+}
+
+/* Edge paths general properties */
+.edgePath .path {
+  stroke-width: 2px !important;
+}
+
+/* Trace Edge Labels (Port Mappings) */
+.trace-edge-label {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  pointer-events: all !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff !important; /* Always white text for these badges */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+}
+
+.trace-edge-label:hover {
+  transform: scale(1.05);
+}
+
+.trace-edge-label.healthy {
+  background-color: #16a34a !important; /* Solid Green-600 for visibility */
+}
+
+.theme-dark .trace-edge-label.healthy {
+  background-color: #059669 !important; /* Solid Emerald-600 */
+}
+
+.trace-edge-label.unhealthy {
+  background-color: #dc2626 !important; /* Solid Red-600 */
+}
+

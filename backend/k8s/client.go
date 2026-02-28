@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes"
@@ -31,6 +32,13 @@ type KubernetesProvider interface {
 	GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error)
 	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
+	
+	// Network related methods
+	GetPod(ctx context.Context, namespace, name string) (*corev1.Pod, error)
+	GetService(ctx context.Context, namespace, name string) (*corev1.Service, error)
+	GetIngress(ctx context.Context, namespace, name string) (*netv1.Ingress, error)
+	ListServices(ctx context.Context, namespace string) ([]corev1.Service, error)
+	ListIngresses(ctx context.Context, namespace string) ([]netv1.Ingress, error)
 }
 
 // ---- Real Client ----
@@ -322,11 +330,13 @@ var allMockNodes = []corev1.Node{
 }
 
 func mockPod(name, namespace string, phase corev1.PodPhase, age time.Duration) corev1.Pod {
+	appLabel := strings.Split(name, "-")[0]
 	pod := corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:              name,
 			Namespace:         namespace,
 			CreationTimestamp: metav1.NewTime(time.Now().Add(age)),
+			Labels:            map[string]string{"app": appLabel},
 		},
 		Spec: corev1.PodSpec{
 			NodeName: "worker-01",

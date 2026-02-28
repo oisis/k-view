@@ -1,39 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTheme } from '../ThemeContext';
 import mermaid from 'mermaid';
 
-mermaid.initialize({
-    startOnLoad: false,
-    theme: 'base',
-    themeVariables: {
-        darkMode: true,
-        background: 'transparent',
-        primaryColor: '#1e293b',
-        primaryTextColor: '#f8fafc',
-        primaryBorderColor: '#334155',
-        secondaryColor: '#1e293b', // Neutral dark for labels
-        tertiaryColor: '#16a34a',
-        edgeLabelBackground: '#1e293b',
-    },
-    flowchart: {
-        htmlLabels: true,
-        curve: 'basis'
-    }
-});
-
 export default function NetworkTrace({ kind, namespace, name }) {
-    const { icons } = useTheme();
-
-    const kindIconMap = {
-        'ingress': icons.external && <icons.external size={14} className="text-purple-400" />,
-        'service': icons.network && <icons.network size={14} className="text-orange-400" />,
-        'pod': icons.pod && <icons.pod size={14} className="text-blue-400" />,
-        'external': icons.activity && <icons.activity size={14} className="text-success" />
-    };
+    const { icons, activeTheme } = useTheme();
     const [traceData, setTraceData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const mermaidRef = useRef(null);
+    const [tooltip, setTooltip] = useState({ visible: false, type: '', data: null, coords: { x: 0, y: 0 } });
+
+    // Helper to get HEX color from CSS variable for Mermaid line styling
+    const getThemeColor = (varName, fallback) => {
+        const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        if (!val) return fallback;
+        if (val.startsWith('#')) return val;
+        const match = val.match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)(?:[, /]+([\d.]+))?\)/);
+        if (match) {
+            const r = parseInt(match[1]).toString(16).padStart(2, '0');
+            const g = parseInt(match[2]).toString(16).padStart(2, '0');
+            const b = parseInt(match[3]).toString(16).padStart(2, '0');
+            return `#${r}${g}${b}`;
+        }
+        return fallback;
+    };
 
     const fetchTrace = async () => {
         if (!kind || !name) return;
@@ -58,172 +49,216 @@ export default function NetworkTrace({ kind, namespace, name }) {
     }, [kind, namespace, name]);
 
     useEffect(() => {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: activeTheme === 'light' ? 'default' : 'base',
+            themeVariables: {
+                background: 'transparent',
+                fontFamily: 'inherit',
+            },
+            flowchart: {
+                htmlLabels: true,
+                curve: 'basis',
+                useMaxWidth: true,
+            }
+        });
+
         if (traceData && mermaidRef.current) {
             renderDiagram();
+        }
+    }, [traceData, activeTheme]);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const trigger = e.target.closest('.trace-tooltip-trigger');
+            if (trigger && traceData) {
+                const type = trigger.getAttribute('data-type');
+                const idx = parseInt(trigger.getAttribute('data-node-idx'));
+                let data = null;
+                let title = '';
+                
+                if (type === 'Edge') {
+                    data = traceData.edges[idx]?.details;
+                    title = 'Port Mapping';
+                } else if (traceData.nodes && traceData.nodes[idx]) {
+                    const node = traceData.nodes[idx];
+                    data = type === 'Labels' ? node.labels : node.selectors;
+                    title = node.name;
+                }
+                
+                if (data) {
+                    const rect = trigger.getBoundingClientRect();
+                    setTooltip({
+                        visible: true,
+                        type: title,
+                        data,
+                        coords: { x: rect.left, y: rect.top }
+                    });
+                }
+            }
+        };
+
+        const container = mermaidRef.current;
+        if (container) {
+            container.addEventListener('mouseover', handleMouseMove);
+            return () => container.removeEventListener('mouseover', handleMouseMove);
         }
     }, [traceData]);
 
     const renderDiagram = async () => {
         if (!traceData || !traceData.nodes) return;
 
-        // 1. Header
+        const successHex = getThemeColor('--text-success', '#22c55e');
+        const errorHex = getThemeColor('--text-error', '#ef4444');
+
         let graphDef = "flowchart LR\n";
 
-        // 2. Nodes (using rich HTML labels)
+        // 1. Add nodes and apply CSS classes from index.css
         traceData.nodes.forEach((n, i) => {
             const nodeId = `N${i}`;
-            let label = `<b>${n.type}</b><br/>${n.name}`;
-
-            if (n.details) {
-                const cleanDetails = n.details.replace(/\n/g, '<br/>');
-                label += `<br/><i style="font-size:12px; opacity:0.9; color:#94a3b8">${cleanDetails}</i>`;
-            }
-
-            if (n.selectors && Object.keys(n.selectors).length > 0) {
-                const selStr = Object.entries(n.selectors).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:12px; opacity:0.8; color:#94a3b8">Selector:<br/>${selStr}</i>`;
-            }
-
+            const nodeClass = n.type === 'External' ? 'node-external' : (n.healthy ? 'node-healthy' : 'node-unhealthy');
+            
+            let label = `<div style='min-width:200px; padding:15px; text-align:left; color:var(--text-primary);'>`;
+            label += `<div style='font-size:10px; font-weight:900; opacity:0.6; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;'>${n.type}</div>`;
+            label += `<div style='font-size:15px; font-weight:800; line-height:1.2; word-break:break-all; text-align:center; margin-bottom:15px;'>${n.name}</div>`;
+            
+            label += `<div style='display:flex; justify-content:center; gap:8px;'>`;
             if (n.labels && Object.keys(n.labels).length > 0) {
-                // Limit to 3 labels maximum visually
-                const labStr = Object.entries(n.labels).slice(0, 3).map(([k, v]) => `${k}=${v}`).join('<br/>');
-                label += `<br/><i style="font-size:12px; opacity:0.8; color:#94a3b8">Labels:<br/>${labStr}${Object.keys(n.labels).length > 3 ? '<br/>...' : ''}</i>`;
+                label += `<div class='trace-tooltip-trigger' data-type='Labels' data-node-idx='${i}' style='font-size:9px; font-weight:900; color:white; background:var(--accent); padding:4px 10px; border-radius:6px; cursor:pointer;'>LABELS</div>`;
             }
+            if (n.selectors && Object.keys(n.selectors).length > 0) {
+                label += `<div class='trace-tooltip-trigger' data-type='Selectors' data-node-idx='${i}' style='font-size:9px; font-weight:900; color:white; background:var(--text-purple); padding:4px 10px; border-radius:6px; cursor:pointer;'>SELECTORS</div>`;
+            }
+            label += `</div></div>`;
 
-            // Mermaid requires node titles containing special chars or quotes to be encased in string literals without inner double quotes.
-            label = label.replace(/"/g, "'");
-            graphDef += `  ${nodeId}("${label}")\n`;
+            const sanitizedLabel = label.replace(/\n/g, ' ').replace(/"/g, "'");
+            graphDef += `  ${nodeId}("${sanitizedLabel}")\n`;
+            graphDef += `  class ${nodeId} ${nodeClass}\n`;
         });
 
-        // 3. Edges
-        let edgeCount = 0;
-        let linkStyles = [];
+        // 2. Add edges with interactive labels using CSS classes
         if (traceData.edges) {
-            traceData.edges.forEach((e) => {
+            let edgeCount = 0;
+            traceData.edges.forEach((e, idx) => {
                 const fromIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.from);
                 const toIdx = traceData.nodes.findIndex(n => `${n.type}:${n.name}` === e.to);
-
                 if (fromIdx >= 0 && toIdx >= 0) {
                     const arrow = e.healthy ? "-->" : "-.->";
-
-                    // Sanitize message and add background styling for standard match labels
                     let msg = e.message ? String(e.message).replace(/->/g, '&#8594;').replace(/"/g, "'") : "";
-                    let text = "";
-                    if (msg) {
-                        const bgClass = e.healthy ? "rgba(21, 128, 61, 0.9)" : "rgba(185, 28, 28, 0.9)";
-                        text = `|"<span style='background:${bgClass}; color:white; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 13px; white-space: nowrap;'>${msg}</span>"|`;
-                    }
-
-                    graphDef += `  N${fromIdx} ${arrow} ${text} N${toIdx}\n`;
-
-                    // Style links with more vibrant colors and thicker strokes
-                    const color = e.healthy ? "#22c55e" : "#ef4444";
-                    linkStyles.push(`  linkStyle ${edgeCount} stroke:${color},stroke-width:3px,fill:none\n`);
+                    
+                    const statusClass = e.healthy ? 'healthy' : 'unhealthy';
+                    const edgeHex = e.healthy ? successHex : errorHex;
+                    
+                    // Simple div with trace-edge-label class (styled in index.css)
+                    let labelHtml = `<div class='trace-tooltip-trigger trace-edge-label ${statusClass}' data-type='Edge' data-node-idx='${idx}'>${msg}</div>`;
+                    
+                    graphDef += `  N${fromIdx} ${arrow} |"${labelHtml.replace(/\n/g, ' ')}"| N${toIdx}\n`;
+                    graphDef += `  linkStyle ${edgeCount} stroke:${edgeHex},stroke-width:2px,fill:none\n`;
                     edgeCount++;
                 }
             });
         }
 
-        // 4. Styles (Individual style instead of classDef for maximum compatibility)
-        traceData.nodes.forEach((n, i) => {
-            const nodeId = `N${i}`;
-            if (n.type === 'External') {
-                graphDef += `  style ${nodeId} fill:#15803d,stroke:#22c55e,color:white\n`;
-            } else if (n.healthy) {
-                graphDef += `  style ${nodeId} fill:#2563eb,stroke:#3b82f6,color:white\n`;
-            } else {
-                graphDef += `  style ${nodeId} fill:#991b1b,stroke:#ef4444,color:white\n`;
-            }
-        });
-
-        // Append link styles at the very end
-        linkStyles.forEach(styleDef => {
-            graphDef += styleDef;
-        });
-
         try {
-            mermaidRef.current.innerHTML = '';
-            const renderId = `m${Math.random().toString(36).substring(7)}`;
-            const { svg } = await mermaid.render(renderId, graphDef);
-            mermaidRef.current.innerHTML = svg;
+            if (mermaidRef.current) {
+                mermaidRef.current.innerHTML = '';
+                const { svg } = await mermaid.render(`mermaid-svg-${Math.random().toString(36).substring(7)}`, graphDef);
+                mermaidRef.current.innerHTML = svg;
+            }
         } catch (e) {
-            console.error("Mermaid error:", e);
-            const escapeHtml = (unsafe) => unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-            mermaidRef.current.innerHTML = `
-                <div class='p-4 text-sm border border-red-900/50 bg-red-950/20 rounded text-red-400'>
-                  <p class='font-bold mb-1'>Diagram Trace Error</p>
-                  <pre class='text-xs mt-2 bg-black/40 p-2 overflow-auto whitespace-pre-wrap'>${escapeHtml(graphDef)}</pre>
-                </div>`;
+            console.error("Mermaid rendering failed:", e, graphDef);
+            if (mermaidRef.current) {
+                mermaidRef.current.innerHTML = `
+                    <div class='p-6 text-sm bg-red-950/20 border border-red-900/50 rounded-xl text-red-400 font-mono'>
+                        <div class='font-black uppercase mb-2 flex items-center gap-2'>
+                            <span class='bg-red-500 text-black px-2 py-0.5 rounded text-[10px]'>Mermaid Syntax Error</span>
+                        </div>
+                        <div class='mb-4 text-xs opacity-80'>${e.message || e}</div>
+                        <div class='text-[10px] opacity-50 mb-1 uppercase font-bold'>Raw Definition:</div>
+                        <pre class='bg-black/40 p-3 rounded-lg overflow-x-auto text-[9px] leading-tight'>${graphDef.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </div>
+                `;
+            }
         }
     };
 
+    const copyToClipboard = () => {
+        const text = Object.entries(tooltip.data || {}).map(([k, v]) => `${k}: ${v}`).join('\n');
+        navigator.clipboard.writeText(text);
+    };
+
     return (
-        <div className="flex flex-col flex-1">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-[var(--bg-sidebar)]/60 backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-900/30 text-blue-400 rounded-lg">
-                        {icons.activity && <icons.activity size={18} />}
+        <div className="flex flex-col flex-1 gap-4" onClick={() => setTooltip({ ...tooltip, visible: false })}>
+            <div className="detail-section-header rounded-2xl overflow-hidden shadow-xl flex-none">
+                <div className="px-6 py-2.5 flex items-center justify-center relative">
+                    <div className="flex items-center gap-3">
+                        <icons.activity size={18} className="text-white" />
+                        <h3 className="text-[13px] font-bold text-white uppercase tracking-widest">Network Flow Trace</h3>
                     </div>
-                    <div>
-                        <h2 className="text-sm font-bold text-[var(--text-white)] uppercase tracking-wider">Network Flow Trace</h2>
-                        <p className="text-xs text-text-muted font-mono">
-                            {kind.toUpperCase()} • {namespace ? `${namespace}/` : ''}{name}
-                        </p>
-                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); fetchTrace(); }} className="absolute right-4 p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all" title="Refresh Trace">
+                        {icons.refresh && <icons.refresh size={16} className={loading ? "animate-spin" : ""} />}
+                    </button>
                 </div>
-                <button onClick={fetchTrace} className="p-2 text-secondary hover:text-white hover:bg-[var(--bg-muted)] rounded transition-colors" title="Refresh Trace">
-                    {icons.refresh && <icons.refresh size={16} className={loading ? "animate-spin" : ""} />}
-                </button>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-auto bg-[var(--bg-sidebar)]/20 backdrop-blur-md p-6">
+            <div className="flex-1 flex flex-col min-h-[500px]">
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center p-20 text-text-muted h-full min-h-[300px]">
+                    <div className="flex-1 flex flex-col items-center justify-center p-20 text-text-muted">
                         {icons.activity && <icons.activity size={32} className="animate-pulse mb-4 text-blue-500/50" />}
                         <p>Analyzing network topology...</p>
                     </div>
                 ) : error ? (
                     <div className="flex items-start gap-3 p-4 bg-error/10 border border-error/30 rounded-lg text-error">
                         {icons.alert && <icons.alert size={20} className="shrink-0 mt-0.5" />}
-                        <div>
-                            <h3 className="font-bold mb-1">Trace Failed</h3>
-                            <p className="text-sm opacity-90">{error}</p>
-                        </div>
+                        <div><h3 className="font-bold mb-1">Trace Failed</h3><p className="text-sm opacity-90">{error}</p></div>
                     </div>
                 ) : traceData ? (
-                    <div className="space-y-6">
-                        {/* Validation Badges */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            {traceData.nodes.map((n, i) => (
-                                <div key={i} className={`flex items-start gap-2.5 p-2.5 rounded-lg border ${n.healthy ? 'bg-success/10 border-success/20 shadow-sm' : 'bg-error/10 border-error/20 shadow-sm'}`}>
-                                    <div className="mt-0.5 text-text-muted">
-                                        {kindIconMap[n.type.toLowerCase()] || (icons.pod && <icons.pod size={14} />)}
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-xs font-bold leading-tight ${n.healthy ? 'text-success' : 'text-error'}`}>
-                                                {n.type}: {n.name}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-primary mt-0.5 font-medium leading-relaxed line-clamp-2">{n.message}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Diagram Container */}
-                        <div className="mt-8 bg-[var(--bg-sidebar)]/40 border border-border rounded-2xl p-6 overflow-x-auto relative flex items-center justify-center glass shadow-inner">
-                            <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold font-mono text-primary">
-                                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success"></div> Healthy</span>
-                                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-error"></div> Error</span>
+                    <div className="space-y-6 flex-1 flex flex-col">
+                        <div className="flex-1 bg-sidebar/40 border border-border rounded-2xl p-8 overflow-x-auto relative flex items-center justify-center glass shadow-inner">
+                            <div className="absolute top-4 left-6 flex gap-10 text-lg font-bold font-mono text-primary p-2">
+                                <span className="flex items-center gap-3"><div className="w-5 h-5 rounded-full bg-success shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div> Healthy</span>
+                                <span className="flex items-center gap-3"><div className="w-4 h-4 rounded-full bg-error shadow-[0_0_10px_rgba(239,68,68,0.6)]"></div> Error</span>
                             </div>
                             <div ref={mermaidRef} className="w-full flex justify-center mermaid-container" />
                         </div>
                     </div>
                 ) : null}
             </div>
+
+            {tooltip.visible && createPortal(
+                <div 
+                    style={{ position: 'fixed', top: tooltip.coords.y, left: tooltip.coords.x, transform: 'translateY(-100%)', zIndex: 9999 }}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseLeave={() => setTooltip({ ...tooltip, visible: false })}
+                    className="mb-2 bg-tooltip border border-border-tooltip rounded-xl shadow-2xl p-5 min-w-[320px] glass animate-in fade-in zoom-in duration-200 backdrop-blur-2xl"
+                >
+                    <div className="flex flex-col gap-1 mb-4 relative">
+                        <h4 className="text-[15px] font-black text-primary pr-6 leading-tight">{tooltip.type}</h4>
+                        <div className="text-[10px] font-bold text-accent uppercase tracking-widest opacity-70">Properties</div>
+                        <button onClick={() => setTooltip({ ...tooltip, visible: false })} className="absolute top-0 right-0 text-text-muted hover:text-primary transition-colors">
+                            <icons.close size={14}/>
+                        </button>
+                    </div>
+                    
+                    <div className="bg-black/20 rounded-lg p-3 border border-white/5 relative group">
+                        <pre className="text-[11px] font-mono text-secondary whitespace-pre-wrap break-all leading-relaxed">
+                            {Object.entries(tooltip.data || {}).map(([k, v]) => (
+                                <div key={k} className="mb-1 last:mb-0">
+                                    <span className="text-accent font-bold">{k}:</span> <span className="text-primary/90">{v}</span>
+                                </div>
+                            ))}
+                        </pre>
+                        <button 
+                            onClick={copyToClipboard}
+                            className="absolute top-2 right-2 p-1.5 bg-accent/20 hover:bg-accent/40 rounded-md text-accent opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                            title="Copy all"
+                        >
+                            <icons.clipboard size={12} />
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 }
