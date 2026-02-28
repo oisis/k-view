@@ -147,7 +147,7 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 		if err != nil {
 			return nil, err
 		}
-		
+
 		hosts := []string{}
 		protocol := "HTTP"
 		if len(ing.Spec.TLS) > 0 {
@@ -158,7 +158,7 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 				hosts = append(hosts, rule.Host)
 			}
 		}
-		
+
 		entryName := "Internet / External User"
 		entryDetails := fmt.Sprintf("Protocol: %s\nHosts: %s", protocol, strings.Join(hosts, ", "))
 		if len(hosts) == 0 {
@@ -166,9 +166,9 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 		}
 
 		res.Nodes = append(res.Nodes, TraceNode{
-			Type:    "External", 
-			Name:    entryName, 
-			Healthy: true, 
+			Type:    "External",
+			Name:    entryName,
+			Healthy: true,
 			Message: "Traffic Injection",
 			Details: entryDetails,
 		})
@@ -177,10 +177,12 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 		res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
 
 		for _, rule := range ing.Spec.Rules {
-			if rule.HTTP == nil { continue }
+			if rule.HTTP == nil {
+				continue
+			}
 			for _, path := range rule.HTTP.Paths {
 				svcName := path.Backend.Service.Name
-				svcPort := path.Backend.Service.Port.Number // Simplify to just number logic
+				svcPort := path.Backend.Service.Port.Number
 
 				svc, err := client.GetService(ctx, namespace, svcName)
 				if err != nil {
@@ -190,27 +192,41 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 				}
 
 				res.Nodes = append(res.Nodes, TraceNode{
-					Type: "Service", 
-					Name: svcName, 
-					Healthy: true, 
-					Message: "Found",
+					Type:      "Service",
+					Name:      svcName,
+					Healthy:   true,
+					Message:   "Found",
 					Selectors: svc.Spec.Selector,
 				})
-				
-				// Calculate port message
+
 				targetPort := ""
+				details := make(map[string]string)
+				details["Ingress Path"] = path.Path
+				if rule.Host != "" {
+					details["Ingress Host"] = rule.Host
+				}
+
 				for _, p := range svc.Spec.Ports {
 					if p.Port == svcPort {
 						targetPort = p.TargetPort.String()
+						details["Protocol"] = string(p.Protocol)
+						details["Service Port"] = fmt.Sprintf("%d", p.Port)
+						details["Target Port"] = targetPort
 						break
 					}
 				}
 				portMsg := fmt.Sprintf("Port %d", svcPort)
 				if targetPort != "" {
-					portMsg += " -> " + targetPort
+					portMsg += " \u2192 " + targetPort
 				}
 
-				res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svcName, Healthy: true, Message: portMsg})
+				res.Edges = append(res.Edges, TraceEdge{
+					From:    "Ingress:" + ing.Name,
+					To:      "Service:" + svcName,
+					Healthy: true,
+					Message: portMsg,
+					Details: details,
+				})
 
 				traceServiceToPods(ctx, client, namespace, svc, res)
 			}
@@ -222,43 +238,59 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 			return nil, err
 		}
 		res.Nodes = append(res.Nodes, TraceNode{
-			Type: "Service", 
-			Name: svc.Name, 
-			Healthy: true, 
-			Message: "Found",
+			Type:      "Service",
+			Name:      svc.Name,
+			Healthy:   true,
+			Message:   "Found",
 			Selectors: svc.Spec.Selector,
 		})
-		
-		// Find Ingresses pointing here
+
 		ings, err := client.ListIngresses(ctx, namespace)
 		if err != nil {
 			log.Printf("Warning: failed to list ingresses for service trace: %v", err)
 		}
 		for _, ing := range ings {
 			for _, rule := range ing.Spec.Rules {
-				if rule.HTTP == nil { continue }
+				if rule.HTTP == nil {
+					continue
+				}
 				for _, path := range rule.HTTP.Paths {
 					if path.Backend.Service.Name == svc.Name {
 						protocol := "HTTP"
-						if len(ing.Spec.TLS) > 0 { protocol = "HTTPS" }
-						
-						entryName := "External User"
+						if len(ing.Spec.TLS) > 0 {
+							protocol = "HTTPS"
+						}
+
+						entryName := "Internet / External User"
 						res.Nodes = append(res.Nodes, TraceNode{
-							Type: "External",
-							Name: entryName,
+							Type:    "External",
+							Name:    entryName,
 							Healthy: true,
 							Message: "Traffic Source",
 							Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
 						})
-						
+
 						res.Nodes = append(res.Nodes, TraceNode{
-							Type: "Ingress", 
-							Name: ing.Name, 
-							Healthy: true, 
+							Type:    "Ingress",
+							Name:    ing.Name,
+							Healthy: true,
 							Message: "Found",
 						})
+
+						details := map[string]string{
+							"Protocol":     protocol,
+							"Ingress Path": path.Path,
+							"Ingress Host": rule.Host,
+						}
+
 						res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
-						res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svc.Name, Healthy: true, Message: "Points to Service"})
+						res.Edges = append(res.Edges, TraceEdge{
+							From:    "Ingress:" + ing.Name,
+							To:      "Service:" + svc.Name,
+							Healthy: true,
+							Message: "Points to Service",
+							Details: details,
+						})
 					}
 				}
 			}
@@ -272,14 +304,13 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 			return nil, err
 		}
 		res.Nodes = append(res.Nodes, TraceNode{
-			Type: "Pod", 
-			Name: pod.Name, 
-			Healthy: true, 
+			Type:    "Pod",
+			Name:    pod.Name,
+			Healthy: true,
 			Message: string(pod.Status.Phase),
-			Labels: pod.Labels,
+			Labels:  pod.Labels,
 		})
 
-		// Find Services picking this pod
 		svcs, err := client.ListServices(ctx, namespace)
 		if err != nil {
 			log.Printf("Warning: failed to list services for pod trace: %v", err)
@@ -287,14 +318,13 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 		for _, svc := range svcs {
 			if matchesSelector(svc.Spec.Selector, pod.Labels) {
 				res.Nodes = append(res.Nodes, TraceNode{
-					Type: "Service", 
-					Name: svc.Name, 
-					Healthy: true, 
-					Message: "Selects Pod",
+					Type:      "Service",
+					Name:      svc.Name,
+					Healthy:   true,
+					Message:   "Selects Pod",
 					Selectors: svc.Spec.Selector,
 				})
 
-				// Put target port on the edge instead of selector
 				portInfo := ""
 				details := make(map[string]string)
 				if len(svc.Spec.Ports) > 0 {
@@ -315,30 +345,46 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 					Message: portInfo,
 					Details: details,
 				})
-				
-				// Trace up to Ingresses
+
 				ings, err := client.ListIngresses(ctx, namespace)
 				if err != nil {
 					log.Printf("Warning: failed to list ingresses for pod trace: %v", err)
 				}
 				for _, ing := range ings {
 					for _, rule := range ing.Spec.Rules {
-						if rule.HTTP == nil { continue }
+						if rule.HTTP == nil {
+							continue
+						}
 						for _, path := range rule.HTTP.Paths {
 							if path.Backend.Service.Name == svc.Name {
 								protocol := "HTTP"
-								if len(ing.Spec.TLS) > 0 { protocol = "HTTPS" }
-								entryName := "External User"
+								if len(ing.Spec.TLS) > 0 {
+									protocol = "HTTPS"
+								}
+								entryName := "Internet / External User"
 								res.Nodes = append(res.Nodes, TraceNode{
-									Type: "External",
-									Name: entryName,
+									Type:    "External",
+									Name:    entryName,
 									Healthy: true,
 									Message: "Traffic Source",
 									Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
 								})
 								res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+
+								edgeDetails := map[string]string{
+									"Protocol":     protocol,
+									"Ingress Path": path.Path,
+									"Ingress Host": rule.Host,
+								}
+
 								res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
-								res.Edges = append(res.Edges, TraceEdge{From: "Ingress:" + ing.Name, To: "Service:" + svc.Name, Healthy: true, Message: "Points to Service"})
+								res.Edges = append(res.Edges, TraceEdge{
+									From:    "Ingress:" + ing.Name,
+									To:      "Service:" + svc.Name,
+									Healthy: true,
+									Message: "Points to Service",
+									Details: edgeDetails,
+								})
 							}
 						}
 					}
@@ -359,25 +405,32 @@ func traceServiceToPods(ctx context.Context, client KubernetesProvider, namespac
 	for _, pod := range pods {
 		if matchesSelector(svc.Spec.Selector, pod.Labels) {
 			matched++
-			// Pod is healthy if it's Running or Succeeded (for Jobs)
 			healthy := pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded
 			res.Nodes = append(res.Nodes, TraceNode{
-				Type: "Pod", 
-				Name: pod.Name, 
-				Healthy: healthy, 
+				Type:    "Pod",
+				Name:    pod.Name,
+				Healthy: healthy,
 				Message: string(pod.Status.Phase),
-				Labels: pod.Labels,
+				Labels:  pod.Labels,
 			})
-			
-			// Put target port on the edge instead of selector
+
 			portInfo := ""
+			details := make(map[string]string)
 			if len(svc.Spec.Ports) > 0 {
 				p := svc.Spec.Ports[0]
-				portInfo = fmt.Sprintf("%d -> %s", p.Port, p.TargetPort.String())
+				portInfo = fmt.Sprintf("%d \u2192 %s", p.Port, p.TargetPort.String())
+				details["Protocol"] = string(p.Protocol)
+				details["Service Port"] = fmt.Sprintf("%d", p.Port)
+				details["Target Port"] = p.TargetPort.String()
 			}
 
-			// The EDGE is healthy if it matches
-			res.Edges = append(res.Edges, TraceEdge{From: "Service:" + svc.Name, To: "Pod:" + pod.Name, Healthy: true, Message: portInfo})
+			res.Edges = append(res.Edges, TraceEdge{
+				From:    "Service:" + svc.Name,
+				To:      "Pod:" + pod.Name,
+				Healthy: true,
+				Message: portInfo,
+				Details: details,
+			})
 		}
 	}
 	if matched == 0 {
@@ -408,7 +461,7 @@ func deduplicateTrace(res *TraceResponse) *TraceResponse {
 			uniqueNodes = append(uniqueNodes, n)
 		}
 	}
-	
+
 	edgeSet := make(map[string]bool)
 	var uniqueEdges []TraceEdge
 	for _, e := range res.Edges {
@@ -418,7 +471,7 @@ func deduplicateTrace(res *TraceResponse) *TraceResponse {
 			uniqueEdges = append(uniqueEdges, e)
 		}
 	}
-	
+
 	res.Nodes = uniqueNodes
 	res.Edges = uniqueEdges
 	return res
