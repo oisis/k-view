@@ -270,7 +270,7 @@ export default function ResourceList({ kind }) {
                                     let widthCls = "";
                                     
                                     if (col.key === 'name') widthCls = kind === 'cronjobs' ? "w-1/6" : "w-1/4";
-                                    else if (col.key === 'extra.labels') widthCls = "w-40";
+                                    else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-40";
                                     else if (col.key === 'extra.images') widthCls = "w-48";
                                     else if (col.key === 'extra.suspend') widthCls = "w-24";
                                     else if (col.key === 'extra.type') widthCls = "w-32";
@@ -325,7 +325,7 @@ export default function ResourceList({ kind }) {
                                             cellClass += " px-2";
                                         }
 
-                                        const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
+                                        const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if (expandableKeys.includes(col.key)) {
                                             cellClass = "py-1.5 overflow-hidden min-w-0 pl-1 pr-2 text-left";
                                             content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
