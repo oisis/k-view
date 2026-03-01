@@ -475,6 +475,14 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 	}
 
+	if kind == "services" || kind == "service" {
+		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
+		gvr := getGVR("endpoints")
+		if ep, err := dynClient.Resource(gvr).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{}); err == nil {
+			response["relatedEndpoints"] = ep.Object
+		}
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
