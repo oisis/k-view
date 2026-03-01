@@ -31,34 +31,36 @@ export default function RulesTable({ rules = [], t }) {
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.resources?.map((r, i) => (
-                                            <span key={i} className="px-1.5 py-0.5 bg-black/30 text-primary rounded text-xs font-mono">{r}</span>
+                                            <span key={i} className="px-1.5 py-0.5 bg-success/10 text-success rounded text-xs font-mono font-bold">{r}</span>
                                         )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.nonResourceURLs?.map((n, i) => (
-                                            <span key={i} className="px-1.5 py-0.5 bg-black/30 text-emerald-400 rounded text-xs font-mono">{n}</span>
+                                            <span key={i} className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-xs font-mono">{n}</span>
                                         )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.resourceNames?.map((n, i) => (
-                                            <span key={i} className="px-1.5 py-0.5 bg-black/30 text-amber-300 rounded text-xs font-mono">{n}</span>
+                                            <span key={i} className="px-1.5 py-0.5 bg-amber-500/10 text-amber-300 rounded text-xs font-mono">{n}</span>
                                         )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.verbs?.map((v, i) => (
-                                                                                         <span key={i} className="px-1.5 py-0.5 bg-info/10 text-info rounded text-xs font-bold uppercase">{v}</span>                                        )) || <span className="text-text-muted italic">—</span>}
+                                            <span key={i} className="px-1.5 py-0.5 bg-info/10 text-info rounded text-xs font-bold uppercase">{v}</span>
+                                        )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                         {rule.apiGroups?.map((g, i) => (
-                                                                                         <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-xs font-black">{g === '' ? 'core' : g}</span>                                        )) || <span className="text-text-muted italic">—</span>}
+                                            <span key={i} className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 rounded text-xs font-black">{g === '' ? 'core' : g}</span>
+                                        )) || <span className="text-text-muted italic">—</span>}
                                     </div>
                                 </td>
                             </tr>
