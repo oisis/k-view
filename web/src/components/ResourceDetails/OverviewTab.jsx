@@ -17,6 +17,7 @@ import SecretOverview from './templates/SecretOverview';
 import StorageClassOverview from './templates/StorageClassOverview';
 import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
 import PvOverview from './templates/PvOverview';
+import RbacBindingOverview from './templates/RbacBindingOverview';
 
 export default function OverviewTab({ 
     data, kind, namespace, name, quotas, limits, 
@@ -76,7 +77,7 @@ export default function OverviewTab({
             />
 
             {/* Do not show generic Resource Info for resources where it's redundant/incorrect */}
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
@@ -103,6 +104,7 @@ export default function OverviewTab({
             {isPvc && <PvcOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} t={t} />}
+            {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} t={t} />}
             {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
