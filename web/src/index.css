@@ -210,9 +210,13 @@
     width: 100%;
   }
 
-  table, thead, tbody, tfoot, tr, td, th {
+  table, tbody, tfoot, tr, td {
     background-color: transparent !important;
     background-image: none !important;
+  }
+
+  th {
+    text-align: center !important;
   }
 }
 

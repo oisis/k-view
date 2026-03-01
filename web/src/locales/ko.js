@@ -165,7 +165,7 @@ export const ko = {
     rolling_update_strategy: '롤링 업데이트 전략',
     max_surge: '최대 서지',
     max_unavailable: '최대 불가',
-    pods_status: '포드 상태',
+    pod_status: 'Status',
     new_replica_set: '새 복제본 세트',
     min_ready_seconds: '최소 준비 시간(초)',
     revision_history_limit: '기록 제한',

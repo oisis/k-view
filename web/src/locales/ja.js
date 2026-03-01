@@ -165,7 +165,7 @@ export const ja = {
     rolling_update_strategy: 'ローリング更新戦略',
     max_surge: '最大サージ',
     max_unavailable: '最大利用不可',
-    pods_status: 'ポッドの状態',
+    pod_status: 'Status',
     new_replica_set: '新しいレプリカセット',
     min_ready_seconds: '最小準備秒数',
     revision_history_limit: '履歴制限',

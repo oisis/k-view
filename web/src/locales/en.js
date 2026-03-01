@@ -166,7 +166,7 @@ export const en = {
     rolling_update_strategy: 'Rolling update strategy',
     max_surge: 'Max surge',
     max_unavailable: 'Max unavailable',
-    pods_status: 'Pods status',
+    pod_status: 'Status',
     new_replica_set: 'New replica set',
     min_ready_seconds: 'Min ready seconds',
     revision_history_limit: 'Revision history limit',

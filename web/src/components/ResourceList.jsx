@@ -85,7 +85,6 @@ function StatusBadge({ value }) {
     const cls = map[v] || 'bg-slate-500/10 text-slate-400';
     return (
         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider ${cls}`}>
-            <div className={`w-1 h-1 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {translatedValue}
         </span>
     );
@@ -221,8 +220,8 @@ export default function ResourceList({ kind }) {
     const supportsTrace = false;
 
     return (
-        <div className="p-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="p-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-primary mb-1">{t(kind) || schema.title}</h2>
                     <p className="text-secondary text-sm">
@@ -263,28 +262,30 @@ export default function ResourceList({ kind }) {
             <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
-                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider">
+                        <thead className="text-[11px] text-[var(--text-white)] uppercase tracking-wider font-black" style={{ backgroundColor: 'var(--accent)' }}>
                             <tr>
                                 {schema.cols.map(col => {
                                     let widthCls = "";
+                                    
                                     if (col.key === 'name') widthCls = "w-1/4";
                                     else if (col.key === 'extra.labels') widthCls = "w-40";
                                     else if (col.key === 'extra.images') widthCls = "w-48";
                                     else if (col.key === 'age') widthCls = "w-24";
-                                    else if (col.key === 'status') widthCls = "w-32";
+                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-28";
                                     else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-20";
-                                    else if (col.key === 'extra.restarts' || col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-24";
+                                    else if (col.key === 'extra.restarts') widthCls = "w-24";
+                                    else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
                                     else if (col.key === 'namespace') widthCls = "w-32";
 
                                     return (
                                         <th
                                             key={col.key}
                                             onClick={() => requestSort(col.key)}
-                                            className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${widthCls} ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
+                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer hover:bg-[var(--accent-hover)] transition-colors group select-none ${widthCls} text-center border-r border-white/10 last:border-r-0`}
                                         >
-                                            <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
+                                            <div className="flex items-center justify-center gap-2">
                                                 {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
-                                                <span className="text-text-muted group-hover:text-secondary transition-colors">
+                                                <span className="text-white/50 group-hover:text-white transition-colors">
                                                     {sortConfig.key === col.key ? (
                                                         sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                     ) : (
@@ -295,8 +296,8 @@ export default function ResourceList({ kind }) {
                                         </th>
                                     );
                                 })}
-                                {supportsTrace && <th className="px-3 py-2.5 whitespace-nowrap w-10"></th>}
-                                <th className="px-3 py-2.5 whitespace-nowrap w-16 text-right">{t('actions')}</th>
+                                {supportsTrace && <th className="px-2 py-3 whitespace-nowrap w-10 border-r border-white/10"></th>}
+                                <th className="px-2 py-3 whitespace-nowrap w-12 text-right"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -310,18 +311,27 @@ export default function ResourceList({ kind }) {
 
                                         // Conditional rendering based on column key
                                         let content;
-                                        let cellClass = "px-3 py-1.5 overflow-hidden";
+                                        let cellClass = "py-1.5 overflow-hidden";
+
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status'].includes(col.key)) {
+                                            cellClass += " text-center px-2";
+                                        } else if (col.key === 'name') {
+                                            cellClass += " text-left px-3";
+                                        } else {
+                                            cellClass += " px-2";
+                                        }
 
                                         const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if (expandableKeys.includes(col.key)) {
-                                            cellClass = "px-3 py-1.5 min-w-0";
+                                            cellClass = "py-1.5 overflow-hidden min-w-0 pl-1 pr-2 text-left";
                                             content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
                                         } else if (col.key === 'extra.active') {
-                                            cellClass = "px-3 py-1.5 whitespace-nowrap w-20 text-center";
+                                            cellClass += " whitespace-nowrap w-16 text-center";
                                             content = <span className="text-primary font-bold">{val}</span>;
                                         } else if (col.badge) {
+                                            cellClass = "py-1.5 overflow-hidden text-center px-2";
                                             content = <StatusBadge value={val} />;
                                         } else if (col.key === 'name') {
                                             content = (
@@ -337,7 +347,17 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/namespaces/-/${val}`}
-                                                    className="text-info hover:underline truncate block"
+                                                    className="text-info hover:underline truncate block text-center"
+                                                    title={val}
+                                                >
+                                                    {val}
+                                                </Link>
+                                            );
+                                        } else if (col.key === 'extra.node') {
+                                            content = (
+                                                <Link
+                                                    to={`/nodes/-/${val}`}
+                                                    className="text-info hover:underline truncate block font-mono text-xs text-center"
                                                     title={val}
                                                 >
                                                     {val}
@@ -354,7 +374,7 @@ export default function ResourceList({ kind }) {
                                         );
                                     })}
                                     {supportsTrace && (
-                                        <td className="px-4 py-2 whitespace-nowrap text-right">
+                                        <td className="px-2 py-2 whitespace-nowrap text-center">
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -367,13 +387,15 @@ export default function ResourceList({ kind }) {
                                             </button>
                                         </td>
                                     )}
-                                    <td className="px-4 py-2 whitespace-nowrap text-right">
-                                        <ResourceActionMenu
-                                            kind={kind}
-                                            namespace={item.namespace}
-                                            name={item.name}
-                                            onRefresh={refresh}
-                                        />
+                                    <td className="px-2 py-2 whitespace-nowrap text-center">
+                                        <div className="flex justify-center">
+                                            <ResourceActionMenu
+                                                kind={kind}
+                                                namespace={item.namespace}
+                                                name={item.name}
+                                                onRefresh={refresh}
+                                            />
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

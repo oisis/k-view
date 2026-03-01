@@ -165,7 +165,7 @@ export const fr = {
     rolling_update_strategy: 'Stratégie de mise à jour',
     max_surge: 'Surplus max',
     max_unavailable: 'Indispo. max',
-    pods_status: 'Statut des pods',
+    pod_status: 'Status',
     new_replica_set: 'Nouveau replica set',
     min_ready_seconds: 'Délai mini de disponibilité',
     revision_history_limit: 'Limite d\'historique des révisions',

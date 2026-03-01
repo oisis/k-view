@@ -110,8 +110,8 @@ function LabelsCell({ labels }) {
     const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
 
     return (
-        <div className="flex flex-col gap-1 max-w-[250px] overflow-y-hidden">
-            <div className="flex flex-wrap gap-1 min-w-0 overflow-y-hidden">
+        <div className="flex flex-col gap-1 max-w-[250px] overflow-y-hidden mx-auto">
+            <div className="flex flex-wrap gap-1 min-w-0 overflow-y-hidden justify-center">
                 {visibleLabels.map(([k, v]) => (
                     <span key={k} className="text-xs bg-slate-500/10 px-1 rounded overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide max-w-full inline-block" title={`${k}: ${v}`}>
                         {k.split('/').pop()}: {v}
@@ -121,7 +121,7 @@ function LabelsCell({ labels }) {
             {hasMore && (
                 <button
                     onClick={() => setExpanded(!expanded)}
-                    className="text-xs font-semibold w-fit transition-colors active:scale-95"
+                    className="text-xs font-semibold w-fit transition-colors active:scale-95 mx-auto"
                     style={{ color: expanded ? hideColor : 'var(--accent)' }}
                 >
                     {expanded ? 'Hide' : `Show all (${labelEntries.length})`}
@@ -145,7 +145,7 @@ export default function Nodes() {
     const workers = nodes.filter(n => n.role === 'worker').length;
 
     return (
-        <div className="p-8">
+        <div className="p-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
                     <h2 className="text-2xl font-bold text-primary mb-1">Nodes</h2>
@@ -184,20 +184,20 @@ export default function Nodes() {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-primary">
-                        <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider border-b border-border">
+                        <thead className="text-[11px] text-[var(--text-white)] uppercase tracking-wider font-black" style={{ backgroundColor: 'var(--accent)' }}>
                             <tr>
-                                <th className="px-4 py-3">Name</th>
-                                <th className="px-4 py-3">Labels</th>
-                                <th className="px-4 py-3">Ready</th>
-                                <th className="px-4 py-3">CPU requests (cores)</th>
-                                <th className="px-4 py-3">CPU limits (cores)</th>
-                                <th className="px-4 py-3">CPU capacity (cores)</th>
-                                <th className="px-4 py-3">RAM requests</th>
-                                <th className="px-4 py-3">RAM limits</th>
-                                <th className="px-4 py-3">RAM capacity</th>
-                                <th className="px-4 py-3">Pods</th>
-                                <th className="px-4 py-3">Create</th>
-                                <th className="px-4 py-3 w-10 text-right">Actions</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Name</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Labels</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Ready</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU requests (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU limits (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU capacity (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM requests</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM limits</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM capacity</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Pods</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Create</th>
+                                <th className="px-4 py-3 w-10 text-right"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -209,7 +209,7 @@ export default function Nodes() {
                                 filteredNodes.map((node, i) => (
                                     <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2 font-mono font-medium text-primary">
+                                            <div className="flex items-center gap-2 font-mono font-medium text-primary justify-center">
                                                 <Link
                                                     to={`/nodes/-/${node.name}`}
                                                     className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
@@ -218,32 +218,34 @@ export default function Nodes() {
                                                 </Link>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-4 py-3 text-center">
                                             <LabelsCell labels={node.labels} />
                                         </td>
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-1.5 justify-center">
                                                 <StatusIcon status={node.status} />
                                                 <span className={node.status === 'Ready' ? 'text-success' : 'text-error'}>
                                                     {node.status === 'Ready' ? 'True' : 'False'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-xs font-mono">{formatCores(node.cpuRequests, node.cpuCapacity)}</td>
-                                        <td className="px-4 py-3 text-xs font-mono">{formatCores(node.cpuLimits, node.cpuCapacity)}</td>
-                                        <td className="px-4 py-3 text-xs font-mono">{node.cpuCapacity}</td>
-                                        <td className="px-4 py-3 text-xs font-mono text-right">{formatRAM(node.ramRequests, node.memoryCapacity)}</td>
-                                        <td className="px-4 py-3 text-xs font-mono text-right">{formatRAM(node.ramLimits, node.memoryCapacity)}</td>
-                                        <td className="px-4 py-3 text-xs font-mono text-right">{bytesToGiB(node.memoryCapacity)}</td>
-                                        <td className="px-4 py-3 text-info font-bold">{node.podsCount}</td>
-                                        <td className="px-4 py-3 text-text-muted text-xs">{new Date(node.age).toLocaleDateString()}</td>
-                                        <td className="px-4 py-3 text-right">
-                                            <ResourceActionMenu
-                                                kind="nodes"
-                                                namespace="-"
-                                                name={node.name}
-                                                onRefresh={refresh}
-                                            />
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatCores(node.cpuRequests, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatCores(node.cpuLimits, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{node.cpuCapacity}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatRAM(node.ramRequests, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatRAM(node.ramLimits, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{bytesToGiB(node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-info font-bold text-center">{node.podsCount}</td>
+                                        <td className="px-4 py-3 text-text-muted text-xs text-center">{new Date(node.age).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            <div className="flex justify-center">
+                                                <ResourceActionMenu
+                                                    kind="nodes"
+                                                    namespace="-"
+                                                    name={node.name}
+                                                    onRefresh={refresh}
+                                                />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

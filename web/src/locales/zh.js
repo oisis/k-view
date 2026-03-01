@@ -165,7 +165,7 @@ export const zh = {
     rolling_update_strategy: '滚动更新策略',
     max_surge: '最大激增',
     max_unavailable: '最大不可用',
-    pods_status: '容器组状态',
+    pod_status: 'Status',
     new_replica_set: '新副本集',
     min_ready_seconds: '最小就绪秒数',
     revision_history_limit: '版本历史限制',

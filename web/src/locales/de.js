@@ -177,7 +177,7 @@ export const de = {
     rolling_update_strategy: 'Rolling-Update-Strategie',
     max_surge: 'Max. Surge',
     max_unavailable: 'Max. Unavailable',
-    pods_status: 'Pod-Status',
+    pod_status: 'Status',
     new_replica_set: 'Neues Replica-Set',
     min_ready_seconds: 'Min. Ready Seconds',
     revision_history_limit: 'Revision History Limit',
