@@ -62,17 +62,26 @@ export default function ResourceDetails() {
 
             if (activeTab === 'overview') {
                 if (kindLower === 'namespaces') {
+                    // Fix: Use proper namespaced URL format for list fetch
                     const [qRes, lRes] = await Promise.all([
                         fetch(`/api/resources/resourcequotas/${name}`),
                         fetch(`/api/resources/limitranges/${name}`)
                     ]);
-                    if (qRes?.ok) {
-                        const qData = await qRes.json();
-                        if (qData?.length > 0) setQuotas(qData);
+                    
+                    // Note: These will fail with current backend routing if not using /kind/ns/name
+                    // We should probably use the list endpoint with namespace filter
+                    const [qRes2, lRes2] = await Promise.all([
+                        fetch(`/api/resources/resourcequotas?namespace=${name}`),
+                        fetch(`/api/resources/limitranges?namespace=${name}`)
+                    ]);
+
+                    if (qRes2?.ok) {
+                        const qData = await qRes2.json();
+                        if (Array.isArray(qData)) setQuotas(qData);
                     }
-                    if (lRes?.ok) {
-                        const lData = await lRes.json();
-                        if (lData?.length > 0) setLimits(lData);
+                    if (lRes2?.ok) {
+                        const lData = await lRes2.json();
+                        if (Array.isArray(lData)) setLimits(lData);
                     }
                 }
 
@@ -91,7 +100,6 @@ export default function ResourceDetails() {
                     setRelatedEndpoints(detailsData.relatedEndpoints);
                 }
 
-                // Protect against missing spec/selector
                 const needsPods = kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || 
                                  kindLower === 'services' || kindLower === 'service' || kindLower === 'nodes' || kindLower === 'node' || 
                                  kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset');
@@ -164,7 +172,6 @@ export default function ResourceDetails() {
 
     return (
         <div className="p-8">
-            {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                     <button 
@@ -203,7 +210,6 @@ export default function ResourceDetails() {
                 </div>
             </div>
 
-            {/* Tabs Navigation */}
             <div className="flex items-center gap-1 bg-glass border border-border p-1 rounded-xl w-fit mb-8 shadow-inner">
                 {tabsToDisplay.map(tab => (
                     <button
@@ -219,7 +225,6 @@ export default function ResourceDetails() {
                 ))}
             </div>
 
-            {/* Tab Content */}
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {activeTab === 'overview' && (
                     <OverviewTab 

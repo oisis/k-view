@@ -4,7 +4,7 @@ import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
 export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower, status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
-    const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv;
+    const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNetworkPolicy || isNode || isPv;
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '—';

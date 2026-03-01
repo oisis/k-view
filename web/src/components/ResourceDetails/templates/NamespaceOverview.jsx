@@ -4,6 +4,9 @@ import ResourceQuotasTable from '../ResourceQuotasTable';
 import LimitRangesTable from '../LimitRangesTable';
 
 export default function NamespaceOverview({ data, metadata, status, quotas, limits, t, icons }) {
+    // Namespace status is typically in status.phase (Active/Terminating)
+    const phase = data?.status?.phase || status?.phase || 'Unknown';
+
     return (
         <>
             <DetailSection title={t('resource_info')}>
@@ -12,9 +15,12 @@ export default function NamespaceOverview({ data, metadata, status, quotas, limi
                         <tr className="border-b border-border">
                             <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Status</td>
                             <td className="px-4 py-3">
-                                <span className={`font-bold ${status?.phase === 'Active' ? 'text-success' : 'text-warning'}`}>
-                                    {status?.phase || 'Unknown'}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${phase === 'Active' ? 'bg-success animate-pulse' : 'bg-warning'}`} />
+                                    <span className={`font-bold uppercase tracking-wider ${phase === 'Active' ? 'text-success' : 'text-warning'}`}>
+                                        {t(phase.toLowerCase()) || phase}
+                                    </span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

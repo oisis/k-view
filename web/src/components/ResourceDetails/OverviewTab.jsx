@@ -72,7 +72,8 @@ export default function OverviewTab({
                 isDaemonSet={isDaemonSet}
             />
 
-            {!isIngress && !isIngressClass && (
+            {/* Do not show generic Resource Info for Ingress, IngressClass or Namespace */}
+            {!isIngress && !isIngressClass && !isNamespace && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
