@@ -73,5 +73,11 @@ func (h *ResourceHandler) mapStorage(item unstructured.Unstructured, kind string
 		if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "storageclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
 			resItem.Status = "Default"
 		}
+
+	case "secrets":
+		if sType, ok, _ := unstructured.NestedString(item.Object, "type"); ok {
+			extra["type"] = sType
+		}
+		extra["labels"] = k8sutils.GetLabels(item.Object)
 	}
 }
