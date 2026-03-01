@@ -249,8 +249,8 @@ export const en = {
     label_path: 'Path',
     label_resource_name: 'Resource name',
     label_quantity: 'Quantity',
-    label_cpu_usage: 'CPU usage',
-    label_ram_usage: 'RAM usage',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     loading: 'Loading...',
 

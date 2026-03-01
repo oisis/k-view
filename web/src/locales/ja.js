@@ -248,8 +248,8 @@ export const ja = {
     label_path: 'パス',
     label_resource_name: 'リソース名',
     label_quantity: '量',
-    label_cpu_usage: 'CPU使用率',
-    label_ram_usage: 'RAM使用率',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: '実行中',

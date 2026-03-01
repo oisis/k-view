@@ -260,8 +260,8 @@ export const de = {
     label_path: 'Pfad',
     label_resource_name: 'Ressourcenname',
     label_quantity: 'Menge',
-    label_cpu_usage: 'CPU-Nutzung',
-    label_ram_usage: 'RAM-Nutzung',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: 'Laufend',

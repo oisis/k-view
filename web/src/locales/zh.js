@@ -248,8 +248,8 @@ export const zh = {
     label_path: '路径',
     label_resource_name: '资源名称',
     label_quantity: '数量',
-    label_cpu_usage: 'CPU 使用',
-    label_ram_usage: 'RAM 使用',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: '运行中',

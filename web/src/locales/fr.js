@@ -248,8 +248,8 @@ export const fr = {
     label_path: 'Chemin',
     label_resource_name: 'Nom de ressource',
     label_quantity: 'Quantité',
-    label_cpu_usage: 'Usage CPU',
-    label_ram_usage: 'Usage RAM',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: 'En cours',

@@ -256,8 +256,8 @@ export const pl = {
     label_path: 'Ścieżka',
     label_resource_name: 'Nazwa zasobu',
     label_quantity: 'Ilość',
-    label_cpu_usage: 'Użycie CPU',
-    label_ram_usage: 'Użycie RAM',
+    cpu_usage: 'CPU (użycie)',
+    ram_usage: 'RAM (użycie)',
 
     loading: 'Ładowanie...',
 

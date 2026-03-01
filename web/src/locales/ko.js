@@ -248,8 +248,8 @@ export const ko = {
     label_path: '경로',
     label_resource_name: '리소스 이름',
     label_quantity: '수량',
-    label_cpu_usage: 'CPU 사용량',
-    label_ram_usage: 'RAM 사용량',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: '실행 중',

@@ -248,8 +248,8 @@ export const es = {
     label_path: 'Ruta',
     label_resource_name: 'Nombre del recurso',
     label_quantity: 'Cantidad',
-    label_cpu_usage: 'Uso de CPU',
-    label_ram_usage: 'Uso de RAM',
+    cpu_usage: 'CPU (usage)',
+    ram_usage: 'RAM (usage)',
 
     // Statuses
     running: 'En ejecución',

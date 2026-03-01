@@ -265,26 +265,38 @@ export default function ResourceList({ kind }) {
                     <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
                         <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider">
                             <tr>
-                                {schema.cols.map(col => (
-                                    <th
-                                        key={col.key}
-                                        onClick={() => requestSort(col.key)}
-                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${col.key === 'name' ? 'w-1/4' : ''} ${col.key === 'extra.labels' ? 'w-1/3' : ''}`}
-                                    >
-                                        <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
-                                            {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
-                                            <span className="text-text-muted group-hover:text-secondary transition-colors">
-                                                {sortConfig.key === col.key ? (
-                                                    sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
-                                                ) : (
-                                                    <icons.sort size={12} className="opacity-0 group-hover:opacity-100" />
-                                                )}
-                                            </span>
-                                        </div>
-                                    </th>
-                                ))}
+                                {schema.cols.map(col => {
+                                    let widthCls = "";
+                                    if (col.key === 'name') widthCls = "w-1/4";
+                                    else if (col.key === 'extra.labels') widthCls = "w-40";
+                                    else if (col.key === 'extra.images') widthCls = "w-48";
+                                    else if (col.key === 'age') widthCls = "w-24";
+                                    else if (col.key === 'status') widthCls = "w-32";
+                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-20";
+                                    else if (col.key === 'extra.restarts' || col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-24";
+                                    else if (col.key === 'namespace') widthCls = "w-32";
+
+                                    return (
+                                        <th
+                                            key={col.key}
+                                            onClick={() => requestSort(col.key)}
+                                            className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${widthCls} ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
+                                        >
+                                            <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
+                                                {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
+                                                <span className="text-text-muted group-hover:text-secondary transition-colors">
+                                                    {sortConfig.key === col.key ? (
+                                                        sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
+                                                    ) : (
+                                                        <icons.sort size={12} className="opacity-0 group-hover:opacity-100" />
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </th>
+                                    );
+                                })}
                                 {supportsTrace && <th className="px-3 py-2.5 whitespace-nowrap w-10"></th>}
-                                <th className="px-3 py-2.5 whitespace-nowrap w-20 text-right">{t('actions')}</th>
+                                <th className="px-3 py-2.5 whitespace-nowrap w-16 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
