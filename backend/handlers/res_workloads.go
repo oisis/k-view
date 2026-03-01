@@ -10,6 +10,16 @@ import (
 )
 
 func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem) {
+	// Common for all workloads: extract images and labels
+	if kind != "nodes" && kind != "namespaces" {
+		if imgs := k8sutils.GetImages(item.Object); imgs != "" {
+			extra["images"] = imgs
+		}
+		if lbls := k8sutils.GetLabels(item.Object); lbls != "" {
+			extra["labels"] = lbls
+		}
+	}
+
 	switch kind {
 	case "pods":
 		if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
@@ -40,9 +50,6 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 			extra["ready"] = "0/0"
 			extra["restarts"] = "0"
 		}
-
-		extra["images"] = k8sutils.GetImages(item.Object)
-		extra["labels"] = k8sutils.GetLabels(item.Object)
 
 		// Resource Requests (CPU/RAM)
 		if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
@@ -96,8 +103,6 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		extra["ready"] = fmt.Sprintf("%d", ready)
 		extra["available"] = fmt.Sprintf("%d", avail)
 		extra["pods"] = fmt.Sprintf("%d/%d", ready, desired)
-		extra["images"] = k8sutils.GetImages(item.Object)
-		extra["labels"] = k8sutils.GetLabels(item.Object)
 
 	case "replicasets", "replicationcontrollers":
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
@@ -109,9 +114,5 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		if avail > 0 {
 			extra["available"] = fmt.Sprintf("%d", avail)
 		}
-
-	case "jobs":
-		extra["images"] = k8sutils.GetImages(item.Object)
-		extra["labels"] = k8sutils.GetLabels(item.Object)
 	}
 }
