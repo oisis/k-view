@@ -13,6 +13,7 @@ import RbacOverview from './templates/RbacOverview';
 import NamespaceOverview from './templates/NamespaceOverview';
 import CrdOverview from './templates/CrdOverview';
 import IngressClassOverview from './templates/IngressClassOverview';
+import SecretOverview from './templates/SecretOverview';
 
 export default function OverviewTab({ 
     data, kind, namespace, name, quotas, limits, 
@@ -70,7 +71,6 @@ export default function OverviewTab({
                 isDaemonSet={isDaemonSet}
             />
 
-            {/* Do not show generic Resource Info for Ingress or IngressClass */}
             {!isIngress && !isIngressClass && (
                 <ResourceInfoSection 
                     isPod={isPod}
@@ -92,7 +92,7 @@ export default function OverviewTab({
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} />}
             {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} />}
             {kindLower.includes('configmap') && <ConfigMapOverview data={data} metadata={metadata} t={t} />}
-            {kindLower.includes('secret') && <ConfigMapOverview data={data} metadata={metadata} t={t} isSecret={true} />}
+            {kindLower.includes('secret') && <SecretOverview data={data} kind={kind} namespace={namespace} name={name} t={t} />}
             {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {isIngressClass && <IngressClassOverview spec={spec} t={t} />}
             {isPvc && <PvcOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}

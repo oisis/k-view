@@ -94,8 +94,8 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                     <thead>
                         <tr>
                             <th className="px-4 py-3 w-1/4">Key</th>
-                            <th className="px-4 py-3">Value</th>
-                            <th className="px-4 py-3 w-32 text-right">Actions</th>
+                            <th className="px-4 py-3 text-center">Value</th>
+                            <th className="px-4 py-3 w-32 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
@@ -104,14 +104,14 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                         ) : (
                             Object.entries(secretData).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-primary font-mono">{key}</td>
+                                    <td className="px-4 py-3 font-bold text-primary font-mono align-top">{key}</td>
                                     <td className="px-4 py-3">
                                         {editingKey === key ? (
-                                            <div className="space-y-3">
+                                            <div className="space-y-3 text-left">
                                                 <textarea
                                                     value={editValue}
                                                     onChange={(e) => setEditValue(e.target.value)}
-                                                    className="w-full bg-black/40 border border-info/30 rounded p-2 font-mono text-sm text-info focus:outline-none focus:border-info/60 min-h-[80px]"
+                                                    className="w-full bg-black/40 border border-info/30 rounded p-2 font-mono text-sm text-info focus:outline-none focus:border-info/60 min-h-[200px]"
                                                     placeholder="Enter plain text value..."
                                                 />
                                                 <div className="flex items-center gap-2">
@@ -134,28 +134,32 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-3">
-                                                <span className={`font-mono text-sm break-all ${revealedKeys[key] ? 'text-info' : 'text-text-muted'}`}>
-                                                    {revealedKeys[key] ? decodeBase64(value) : '••••••••••••••••'}
-                                                </span>
+                                            <div className="flex flex-col items-start min-w-0">
+                                                {revealedKeys[key] ? (
+                                                    <pre className="font-mono text-sm text-info whitespace-pre-wrap break-all w-full bg-black/20 p-2 rounded border border-info/10 max-h-[400px] overflow-y-auto scrollbar-hide">
+                                                        {decodeBase64(value)}
+                                                    </pre>
+                                                ) : (
+                                                    <span className="font-mono text-sm text-text-muted opacity-50 px-2">••••••••••••••••</span>
+                                                )}
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-1">
+                                    <td className="px-4 py-3 text-center align-top">
+                                        <div className="flex items-center justify-center gap-1">
                                             <button
                                                 onClick={() => toggleReveal(key)}
-                                                className={`p-1.5 rounded transition-colors ${revealedKeys[key] ? 'text-info bg-info/10' : 'text-text-muted hover:bg-white/5'}`}
+                                                className={`p-1.5 rounded transition-all active:scale-90 ${revealedKeys[key] ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-primary hover:bg-white/5'}`}
                                                 title={revealedKeys[key] ? "Hide Value" : "Show Value"}
                                             >
-                                                {revealedKeys[key] ? <icons.lock size={16} /> : <icons.manifest size={16} />}
+                                                {revealedKeys[key] ? <icons.eye_off size={18} /> : <icons.eye size={18} />}
                                             </button>
                                             <button
                                                 onClick={() => startEdit(key, value)}
-                                                className="p-1.5 text-text-muted hover:text-accent hover:bg-white/5 rounded transition-colors"
+                                                className="p-1.5 text-text-muted hover:text-accent hover:bg-white/5 rounded transition-all active:scale-90"
                                                 title="Edit Value"
                                             >
-                                                <icons.edit size={16} />
+                                                <icons.edit size={18} />
                                             </button>
                                         </div>
                                     </td>

@@ -8,7 +8,7 @@ import {
     Layers, Repeat, ShieldCheck, Plus, Zap, Heart, Search, X, AlertCircle, ExternalLink, Edit3, Download,
     ChevronLeft, Check, Fingerprint, List, Languages, Cpu, Hash, Box, MemoryStick, CheckCircle,
     XCircle, MoreVertical, ChevronUp, ArrowUpDown, Clipboard, CheckCircle2, ChevronsLeft, ChevronsRight, Trash2,
-    ShieldOff, HardDrive, Layout, FileCode2, SquareCode
+    ShieldOff, HardDrive, Layout, FileCode2, SquareCode, Eye, EyeOff
 } from 'lucide-react';
 
 const commonIcons = {
@@ -62,6 +62,8 @@ const commonIcons = {
     trash: Trash2,
     shield: Shield,
     lock: Lock,
+    eye: Eye,
+    eye_off: EyeOff,
     globe: Globe,
     database: Database,
     puzzle: Puzzle,
