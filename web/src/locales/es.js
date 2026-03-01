@@ -29,6 +29,7 @@ export const es = {
     cronjob: 'CronJob',
     replicasets: 'ReplicaSets',
     replicaset: 'ReplicaSet',
+    replica_set: 'Replica Set',
     replicationcontrollers: 'Controladores de replicación',
     replicationcontroller: 'Controlador de replicación',
     network: 'Red',
@@ -128,7 +129,6 @@ export const es = {
     used: 'Usado',
     metrics_update_info: 'Métricas actualizadas cada {sec} segundos',
     cluster_health_stable: 'Salud del clúster: Estable',
-
     // Resource List
     items: 'elementos',
     item: 'elemento',
@@ -202,7 +202,6 @@ export const es = {
     timeout: 'Tiempo agotado',
     period: 'Periodo',
     not_defined: 'No definido',
-
     // Resource Details
     overview: 'Resumen',
     yaml: 'YAML',
@@ -220,7 +219,6 @@ export const es = {
     limit_ranges: 'Rangos de límites',
     status_conditions: 'Estado y Condiciones',
     resource_events: 'Eventos del recurso',
-
     // About
     about_kview: 'Acerca de K-View',
     about_desc: 'Información sobre la aplicación.',
@@ -228,7 +226,6 @@ export const es = {
     version_info_desc: 'Versión actual de la imagen.',
     image_version: 'Versión de imagen',
     homepage: 'Página de inicio',
-
     // Resource Columns & Labels
     label_name: 'Nombre',
     label_namespace: 'Namespace',
@@ -267,7 +264,6 @@ export const es = {
     label_quantity: 'Cantidad',
     cpu_usage: 'CPU (usage)',
     ram_usage: 'RAM (usage)',
-
     // Statuses
     running: 'En ejecución',
     pending: 'Pendiente',

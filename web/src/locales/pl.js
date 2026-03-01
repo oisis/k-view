@@ -51,6 +51,7 @@ export const pl = {
     cronjob: 'Harmonogram',
     replicasets: 'ReplicaSets',
     replicaset: 'ReplicaSet',
+    replica_set: 'Replica Set',
     replicationcontrollers: 'Kontrolery replikacji',
     replicationcontroller: 'Kontroler replikacji',
     network: 'Sieć (Network)',
@@ -125,7 +126,6 @@ export const pl = {
     resources: 'Zasoby',
     allowed_verbs: 'Dozwolone akcje',
     loading_settings: 'Ładowanie ustawień...',
-
     // Dashboard
     analyzing_cluster: 'Analizowanie stanu klastra...',
     metrics_server_missing: 'Brak Metrics Server',
@@ -148,7 +148,6 @@ export const pl = {
     used: 'Użyte',
     metrics_update_info: 'Metryki odświeżane co {sec} sekund',
     cluster_health_stable: 'Stan klastra: Stabilny',
-
     // Resource List
     items: 'elementy',
     item: 'element',
@@ -191,14 +190,8 @@ export const pl = {
     annotations_hint: 'np. managed-by: k-view',
     secret: 'Secret',
     ingress: 'Ingress',
-    rolling_update_strategy: 'Strategia rolling update',
-    max_surge: 'Max surge',
-    max_unavailable: 'Max unavailable',
-    pod_status: 'Status',
-    new_replica_set: 'Nowy replica set',
     min_ready_seconds: 'Min ready seconds',
     revision_history_limit: 'Revision history limit',
-
     // Resource Details
     overview: 'Przegląd',
     yaml: 'YAML',
@@ -216,7 +209,6 @@ export const pl = {
     limit_ranges: 'Zalecane limity (LimitRanges)',
     status_conditions: 'Status i Warunki',
     resource_events: 'Zdarzenia zasobu',
-
     // About
     about_kview: 'O K-View',
     about_desc: 'Informacje o aplikacji.',
@@ -224,7 +216,6 @@ export const pl = {
     version_info_desc: 'Aktualna wersja obrazu aplikacji.',
     image_version: 'Wersja obrazu',
     homepage: 'Strona domowa',
-
     // Resource Columns & Labels
     label_name: 'Nazwa',
     label_namespace: 'Namespace',
@@ -234,8 +225,6 @@ export const pl = {
     label_available: 'Dostępne',
     label_up_to_date: 'Aktualne',
     label_status: 'Status',
-    label_restarts: 'Restarty',
-    last_run: 'Ostatnie uruchomienie',
     label_age: 'Wiek',
     label_created: 'Utworzono',
     label_uid: 'UID',
@@ -259,16 +248,13 @@ export const pl = {
     label_reason: 'Przyczyna',
     label_claim: 'Żądanie',
     label_mount_options: 'Opcje montowania',
-    label_source: 'Źródło',
     label_server: 'Serwer',
     label_path: 'Ścieżka',
     label_resource_name: 'Nazwa zasobu',
     label_quantity: 'Ilość',
     cpu_usage: 'CPU (użycie)',
     ram_usage: 'RAM (użycie)',
-
     loading: 'Ładowanie...',
-
     // Resource Details & Logs
     resource_info: 'Informacje o zasobie',
     selectors: 'Selektory',
@@ -321,7 +307,6 @@ export const pl = {
     none: 'Brak',
     read_only: 'TYLKO DO ODCZYTU',
     read_write: 'ODCZYT-ZAPIS',
-
     // Statuses
     running: 'Uruchomione',
     pending: 'Oczekiwanie',

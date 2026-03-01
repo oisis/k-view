@@ -29,6 +29,7 @@ export const de = {
     cronjob: 'CronJob',
     replicasets: 'ReplicaSets',
     replicaset: 'ReplicaSet',
+    replica_set: 'Replica-Set',
     replicationcontrollers: 'Replication Controllers',
     replicationcontroller: 'Replication Controller',
     network: 'Netzwerk',
@@ -140,7 +141,6 @@ export const de = {
     used: 'Verwendet',
     metrics_update_info: 'Metriken werden alle {sec} Sekunden aktualisiert',
     cluster_health_stable: 'Clusterzustand: Stabil',
-
     // Resource List
     items: 'Elemente',
     item: 'Element',
@@ -214,7 +214,6 @@ export const de = {
     timeout: 'Zeitüberschreitung',
     period: 'Zeitraum',
     not_defined: 'Nicht definiert',
-
     // Resource Details
     overview: 'Übersicht',
     yaml: 'YAML',
@@ -232,7 +231,6 @@ export const de = {
     limit_ranges: 'Limit-Bereiche',
     status_conditions: 'Status & Bedingungen',
     resource_events: 'Ressourcen-Ereignisse',
-
     // About
     about_kview: 'Über K-View',
     about_desc: 'Informationen über die Anwendung.',
@@ -240,7 +238,6 @@ export const de = {
     version_info_desc: 'Aktuelle Build-Version des Anwendungs-Images.',
     image_version: 'Image-Version',
     homepage: 'Homepage',
-
     // Resource Columns & Labels
     label_name: 'Name',
     label_namespace: 'Namespace',
@@ -279,7 +276,6 @@ export const de = {
     label_quantity: 'Menge',
     cpu_usage: 'CPU (usage)',
     ram_usage: 'RAM (usage)',
-
     // Statuses
     running: 'Laufend',
     pending: 'Ausstehend',

@@ -29,6 +29,7 @@ export const zh = {
     cronjob: '定时任务',
     replicasets: '副本集',
     replicaset: '副本集',
+    replica_set: '副本集',
     replicationcontrollers: '复制控制器',
     replicationcontroller: '复制控制器',
     network: '网络',
@@ -105,7 +106,6 @@ export const zh = {
     effective_permissions_desc: '您在集群中被授权的操作。',
     resources: '资源',
     allowed_verbs: '允许的操作',
-
     // Dashboard
     analyzing_cluster: '正在分析集群状态...',
     metrics_server_missing: '未找到 Metrics Server',
@@ -128,7 +128,6 @@ export const zh = {
     used: '已用',
     metrics_update_info: '指标每 {sec} 秒更新一次',
     cluster_health_stable: '集群状态: 稳定',
-
     // Resource List
     items: '条目',
     item: '条目',
@@ -202,7 +201,6 @@ export const zh = {
     timeout: '超时',
     period: '周期',
     not_defined: '未定义',
-
     // Resource Details
     overview: '概览',
     yaml: 'YAML',
@@ -220,7 +218,6 @@ export const zh = {
     limit_ranges: '限制范围',
     status_conditions: '状态与条件',
     resource_events: '资源事件',
-
     // About
     about_kview: '关于 K-View',
     about_desc: '关于应用程序的信息。',
@@ -228,7 +225,6 @@ export const zh = {
     version_info_desc: '应用程序镜像的当前构建版本。',
     image_version: '镜像版本',
     homepage: '主页',
-
     // Resource Columns & Labels
     label_name: '名称',
     label_namespace: '命名空间',
@@ -267,7 +263,6 @@ export const zh = {
     label_quantity: '数量',
     cpu_usage: 'CPU (usage)',
     ram_usage: 'RAM (usage)',
-
     // Statuses
     running: '运行中',
     pending: '等待中',

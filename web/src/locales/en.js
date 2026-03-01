@@ -29,6 +29,7 @@ export const en = {
     cronjob: 'CronJob',
     replicasets: 'ReplicaSets',
     replicaset: 'ReplicaSet',
+    replica_set: 'Replica Set',
     replicationcontrollers: 'Replication Controllers',
     replicationcontroller: 'Replication Controller',
     network: 'Network',
@@ -106,7 +107,6 @@ export const en = {
     resources: 'Resources',
     allowed_verbs: 'Allowed Verbs',
     loading_settings: 'Loading settings...',
-
     // Dashboard
     analyzing_cluster: 'Analyzing cluster state...',
     metrics_server_missing: 'Metrics Server Missing',
@@ -129,7 +129,6 @@ export const en = {
     used: 'Used',
     metrics_update_info: 'Metrics update every {sec} seconds',
     cluster_health_stable: 'Cluster Health: Stable',
-
     // Resource List
     items: 'items',
     item: 'item',
@@ -203,7 +202,6 @@ export const en = {
     timeout: 'Timeout',
     period: 'Period',
     not_defined: 'Not defined',
-
     // Resource Details
     overview: 'Overview',
     yaml: 'YAML',
@@ -221,7 +219,6 @@ export const en = {
     limit_ranges: 'Limit Ranges',
     status_conditions: 'Status & Conditions',
     resource_events: 'Resource Events',
-
     // About
     about_kview: 'About K-View',
     about_desc: 'Information about the application.',
@@ -229,7 +226,6 @@ export const en = {
     version_info_desc: 'Current build version of the application image.',
     image_version: 'Image Version',
     homepage: 'Homepage',
-
     // Resource Columns & Labels
     label_name: 'Name',
     label_namespace: 'Namespace',
@@ -268,9 +264,7 @@ export const en = {
     label_quantity: 'Quantity',
     cpu_usage: 'CPU (usage)',
     ram_usage: 'RAM (usage)',
-
     loading: 'Loading...',
-
     // Resource Details & Logs
     resource_info: 'Resource Info',
     selectors: 'Selectors',
@@ -323,7 +317,6 @@ export const en = {
     none: 'None',
     read_only: 'READ-ONLY',
     read_write: 'READ-WRITE',
-
     // Statuses
     running: 'Running',
     pending: 'Pending',

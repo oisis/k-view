@@ -34,7 +34,7 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
             </DetailSection>
 
             <PodsTable pods={pods} t={t} title={t('pods') || "Pods"} />
-            <ReplicaSetsTable replicaSets={rss} t={t} title={t('replica_sets') || "Replica Sets"} />
+            <ReplicaSetsTable replicaSets={rss} t={t} title={t('replica_set') || "Replica Set"} />
             <HpaTable hpas={hpas} t={t} />
             
             {status?.conditions && Array.isArray(status.conditions) && (
