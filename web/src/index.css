@@ -227,6 +227,23 @@ h1, h2, h3, h4 {
     backdrop-filter: blur(12px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
   }
+  .scrollbar-hide {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgb(var(--color-bg-sidebar) / 0.1);
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-hide::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-hide::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    background-clip: padding-box;
+  }
 }
 
 /* --- Global Table & Border Styles --- */

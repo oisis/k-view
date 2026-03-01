@@ -6,6 +6,7 @@ import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
+import ExpandableCell from './ResourceDetails/ExpandableCell'; // Use global component
 
 import { PodListSchema } from './ResourceList/templates/PodList';
 import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
@@ -51,9 +52,6 @@ const SCHEMAS = {
     crds: CrdListSchema,
 };
 
-// ... existing code ...
-
-
 // Get a possibly-nested value like "extra.ready"
 function getVal(item, key) {
     if (key.startsWith('extra.')) {
@@ -90,91 +88,6 @@ function StatusBadge({ value }) {
             <div className={`w-1 h-1 rounded-full ${cls.split(' ')[1].replace('text-', 'bg-')}`}></div>
             {translatedValue}
         </span>
-    );
-}
-
-function ExpandableCell({ value, type }) {
-    const [expanded, setExpanded] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0 });
-    const { activeTheme } = useTheme();
-    const buttonRef = useRef(null);
-
-    if (!value || value === '—') return <span className="text-text-muted">—</span>;
-
-    const items = typeof value === 'string' ? value.split(',').map(s => s.trim()) : (Array.isArray(value) ? value : [String(value)]);
-    if (items.length === 0) return <span className="text-text-muted">—</span>;
-
-    const handleMouseEnter = () => {
-        if (buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            setCoords({
-                top: rect.top - 10,
-                left: rect.left
-            });
-        }
-        setIsHovered(true);
-    };
-
-    const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
-
-    return (
-        <div className="relative group/expandable">
-            <div className="flex flex-col gap-1 py-1 max-w-[300px]">
-                {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-secondary truncate" title={it}>
-                        {it}
-                    </div>
-                ))}
-
-                {items.length > 2 && (
-                    !expanded ? (
-                        <button
-                            ref={buttonRef}
-                            onMouseEnter={handleMouseEnter}
-                            onMouseLeave={() => setIsHovered(false)}
-                            onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-xs font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95"
-                        >
-                            Show all ({items.length})
-                        </button>
-                    ) : (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                            className="text-xs font-bold mt-1 text-left px-1 underline active:scale-95"
-                            style={{ color: hideColor }}
-                        >
-                            Hide
-                        </button>
-                    )
-                )}
-            </div>
-
-            {isHovered && !expanded && createPortal(
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: coords.top,
-                        left: coords.left,
-                        transform: 'translateY(-100%)',
-                        zIndex: 9999
-                    }}
-                    className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
-                >
-                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
-                        {type === 'labels' ? 'Labels' : 'Images'}
-                    </div>
-                    <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
-                        {items.map((it, idx) => (
-                            <div key={idx} className="text-[12px] font-mono text-[var(--text-tooltip)] break-all leading-tight">
-                                {it}
-                            </div>
-                        ))}
-                    </div>
-                </div>,
-                document.body
-            )}
-        </div>
     );
 }
 
@@ -230,8 +143,6 @@ function ScheduleCell({ value, nextRun }) {
 }
 
 import { useResourceData } from '../hooks/useResourceData';
-
-// ... other imports ...
 
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
@@ -351,14 +262,14 @@ export default function ResourceList({ kind }) {
 
             <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-primary border-collapse">
+                    <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
                         <thead className="text-xs text-text-muted bg-[var(--bg-sidebar)]/10 uppercase tracking-wider">
                             <tr>
                                 {schema.cols.map(col => (
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${col.key === 'extra.active' ? 'w-20 text-center' : ''}`}
+                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold ${col.key === 'name' ? 'w-1/4' : ''} ${col.key === 'extra.labels' ? 'w-1/3' : ''}`}
                                     >
                                         <div className={`flex items-center gap-2 ${col.key === 'extra.active' ? 'justify-center' : ''}`}>
                                             {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
@@ -387,10 +298,11 @@ export default function ResourceList({ kind }) {
 
                                         // Conditional rendering based on column key
                                         let content;
-                                        let cellClass = "px-3 py-1.5 whitespace-nowrap";
+                                        let cellClass = "px-3 py-1.5 overflow-hidden";
 
                                         const expandableKeys = ['extra.labels', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if (expandableKeys.includes(col.key)) {
+                                            cellClass = "px-3 py-1.5 min-w-0";
                                             content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
@@ -403,7 +315,8 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                    className="font-bold text-accent hover:text-primary transition-colors"
+                                                    className="font-bold text-accent hover:text-primary transition-colors truncate block"
+                                                    title={val}
                                                 >
                                                     {val}
                                                 </Link>
@@ -412,13 +325,14 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/namespaces/-/${val}`}
-                                                    className="text-info hover:underline"
+                                                    className="text-info hover:underline truncate block"
+                                                    title={val}
                                                 >
                                                     {val}
                                                 </Link>
                                             );
                                         } else {
-                                            content = <span className="text-secondary font-medium">{val}</span>;
+                                            content = <span className="text-secondary font-medium truncate block" title={val}>{val}</span>;
                                         }
 
                                         return (

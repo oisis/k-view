@@ -10,7 +10,7 @@ export default function NetworkPolicyOverview({ data, metadata, spec, t }) {
                     <span className="text-xs font-bold text-text-muted uppercase block mb-2">Pod Selector</span>
                     <div className="flex flex-wrap gap-1.5">
                         {Object.entries(spec.podSelector?.matchLabels || {}).map(([k, v]) => (
-                            <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-border rounded text-xs text-secondary font-mono">
+                            <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-border rounded text-xs text-secondary font-mono inline-block max-w-full overflow-x-auto whitespace-nowrap scrollbar-hide">
                                 {k}: {v}
                             </span>
                         )) || <span className="text-text-muted italic">Match all</span>}

@@ -61,7 +61,7 @@ export default function ResourceInfoSection({
                                         <span className="text-xs text-text-muted uppercase font-bold block mb-2">{t('label_selector')}</span>
                                         <div className="flex flex-wrap gap-1.5">
                                             {Object.entries(spec.selector?.matchLabels || spec.selector || {}).map(([k, v]) => (
-                                                <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-border rounded text-sm text-secondary font-mono">
+                                                <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] border border-border rounded text-sm text-secondary font-mono inline-block max-w-full overflow-x-auto whitespace-nowrap scrollbar-hide">
                                                     {k}: {v}
                                                 </span>
                                             ))}

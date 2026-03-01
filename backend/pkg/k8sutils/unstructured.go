@@ -1,8 +1,11 @@
 package k8sutils
 
 import (
+	"fmt"
+	"sort"
 	"strings"
 	"time"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -18,7 +21,7 @@ func ParseK8sTime(t string) time.Time {
 	return time.Now()
 }
 
-// GetLabels returns labels as a comma-separated string from an unstructured object.
+// GetLabels returns alphabetically sorted labels as a comma-separated string from an unstructured object.
 func GetLabels(obj map[string]interface{}) string {
 	labels, ok, _ := unstructured.NestedMap(obj, "metadata", "labels")
 	if !ok {
@@ -26,10 +29,23 @@ func GetLabels(obj map[string]interface{}) string {
 	}
 	var ls []string
 	for k, v := range labels {
-		if vs, ok := v.(string); ok {
-			ls = append(ls, k+"="+vs)
-		}
+		ls = append(ls, fmt.Sprintf("%s=%v", k, v))
 	}
+	sort.Strings(ls)
+	return strings.Join(ls, ", ")
+}
+
+// GetAnnotations returns alphabetically sorted annotations as a comma-separated string from an unstructured object.
+func GetAnnotations(obj map[string]interface{}) string {
+	annotations, ok, _ := unstructured.NestedMap(obj, "metadata", "annotations")
+	if !ok {
+		return ""
+	}
+	var ls []string
+	for k, v := range annotations {
+		ls = append(ls, fmt.Sprintf("%s=%v", k, v))
+	}
+	sort.Strings(ls)
 	return strings.Join(ls, ", ")
 }
 

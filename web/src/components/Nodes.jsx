@@ -14,8 +14,6 @@ function formatCores(valStr, capStr) {
     const cap = parseToMilliCores(capStr);
     const perc = cap > 0 ? (val / cap) * 100 : 0;
 
-    // Always show in 'm' if small, or follow user's 850.00m request
-    // If str already has 'm', keep it.
     let display = val.toFixed(2) + 'm';
     if (!valStr.endsWith('m') && val >= 1000) {
         display = (val / 1000).toFixed(2);
@@ -44,9 +42,8 @@ function formatRAM(valStr, capStr) {
 
     let display = mib.toFixed(2) + ' MiB';
     if (gib >= 1) display = gib.toFixed(2) + ' GiB';
-    else if (valStr.endsWith('Mi')) display = mib.toFixed(2) + ' Mi'; // Match user's "240.00Mi" format
+    else if (valStr.endsWith('Mi')) display = mib.toFixed(2) + ' Mi'; 
 
-    // Actually, user requested "240.00Mi" and "850.00m"
     if (valStr.endsWith('Mi')) display = mib.toFixed(2) + 'Mi';
     if (valStr.endsWith('Gi')) display = gib.toFixed(2) + 'Gi';
 
@@ -105,7 +102,7 @@ function StatCard({ label, value, sub, iconKey, color }) {
 function LabelsCell({ labels }) {
     const [expanded, setExpanded] = React.useState(false);
     const { activeTheme } = useTheme();
-    const labelEntries = Object.entries(labels || {});
+    const labelEntries = Object.entries(labels || {}).sort(([a], [b]) => a.localeCompare(b));
     if (labelEntries.length === 0) return <span className="text-text-muted italic">none</span>;
 
     const visibleLabels = expanded ? labelEntries : labelEntries.slice(0, 2);
@@ -113,10 +110,10 @@ function LabelsCell({ labels }) {
     const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
 
     return (
-        <div className="flex flex-col gap-1 max-w-[250px]">
-            <div className="flex flex-wrap gap-1">
+        <div className="flex flex-col gap-1 max-w-[250px] overflow-y-hidden">
+            <div className="flex flex-wrap gap-1 min-w-0 overflow-y-hidden">
                 {visibleLabels.map(([k, v]) => (
-                    <span key={k} className="text-xs bg-slate-500/10 px-1 rounded truncate max-w-full" title={`${k}: ${v}`}>
+                    <span key={k} className="text-xs bg-slate-500/10 px-1 rounded overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide max-w-full inline-block" title={`${k}: ${v}`}>
                         {k.split('/').pop()}: {v}
                     </span>
                 ))}
@@ -135,8 +132,6 @@ function LabelsCell({ labels }) {
 }
 
 import { useResourceData } from '../hooks/useResourceData';
-
-// ... helper functions remain ...
 
 export default function Nodes() {
     const { icons } = useTheme();
@@ -174,7 +169,6 @@ export default function Nodes() {
                 <div className="mb-6 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
             )}
 
-            {/* Stats cards */}
             {!loading && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     <StatCard label="Total Nodes" value={nodes.length} iconKey="nodes" color="bg-info/10 text-info" />
@@ -184,7 +178,6 @@ export default function Nodes() {
                 </div>
             )}
 
-            {/* Nodes table */}
             <div className="glass rounded-2xl border border-border shadow-xl overflow-hidden">
                 <div className="p-4 border-b border-border bg-transparent">
                     <h3 className="font-semibold text-secondary">Node Details</h3>

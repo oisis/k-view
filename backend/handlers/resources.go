@@ -316,6 +316,10 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			extra["owner-uid"] = string(item.GetOwnerReferences()[0].UID)
 		}
 
+		// Always extract and sort labels/annotations at the start of mapping
+		extra["labels"] = k8sutils.GetLabels(item.Object)
+		extra["annotations"] = k8sutils.GetAnnotations(item.Object)
+
 		resItem := ResourceItem{
 			Name:      name,
 			Namespace: namespace,

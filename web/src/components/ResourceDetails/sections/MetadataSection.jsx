@@ -12,6 +12,9 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
         return isNaN(d.getTime()) ? dateStr : d.toLocaleString();
     };
 
+    const sortedLabels = Object.entries(metadata.labels || {}).sort(([a], [b]) => a.localeCompare(b));
+    const sortedAnnotations = Object.entries(metadata.annotations || {}).sort(([a], [b]) => a.localeCompare(b));
+
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
@@ -102,18 +105,18 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
 
             <div className="grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-border">
                 <div className="overflow-hidden">
-                    <table className="w-full text-sm text-left border-collapse">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
                         <tbody className="divide-y divide-border">
                             <DetailRow label={t('label_labels')}>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {Object.entries(metadata.labels || {}).slice(0, settings.labelsLimit).map(([k, v]) => (
-                                        <span key={k} className="px-2 py-0.5 bg-info/10 rounded text-sm text-info font-mono">
+                                <div className="flex flex-wrap gap-1.5 min-w-0 w-full overflow-y-hidden">
+                                    {sortedLabels.slice(0, settings.labelsLimit).map(([k, v]) => (
+                                        <span key={k} className="px-2 py-0.5 bg-info/10 rounded text-sm text-info font-mono block max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide">
                                             {k}: {v}
                                         </span>
                                     ))}
-                                    {Object.entries(metadata.labels || {}).length > settings.labelsLimit && (
-                                        <span className="text-xs text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center">
-                                            + {Object.entries(metadata.labels || {}).length - settings.labelsLimit} {t('more')}
+                                    {sortedLabels.length > settings.labelsLimit && (
+                                        <span className="text-xs text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center whitespace-nowrap">
+                                            + {sortedLabels.length - settings.labelsLimit} {t('more')}
                                         </span>
                                     )}
                                 </div>
@@ -122,7 +125,7 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                     </table>
                 </div>
                 <div className="overflow-hidden">
-                    <table className="w-full text-sm text-left border-collapse">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
                         <tbody className="divide-y divide-border">
                             {status?.loadBalancer?.ingress?.length > 0 && (
                                 <DetailRow label={t('label_ip_external')}>
@@ -132,9 +135,9 @@ export default function MetadataSection({ metadata, namespace, t, settings, data
                                 </DetailRow>
                             )}
                             <DetailRow label={t('label_annotations')}>
-                                <div className="space-y-1">
-                                    {Object.entries(metadata.annotations || {}).map(([k, v]) => (
-                                        <div key={k} className="text-sm font-mono text-secondary">
+                                <div className="space-y-1 min-w-0 w-full overflow-y-hidden">
+                                    {sortedAnnotations.map(([k, v]) => (
+                                        <div key={k} className="text-sm font-mono text-secondary w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide bg-sidebar/10 px-2 py-1 rounded">
                                             <span className="text-info">{k}</span>: {v}
                                         </div>
                                     ))}
