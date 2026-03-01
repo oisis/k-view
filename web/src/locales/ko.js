@@ -175,6 +175,7 @@ export const ko = {
     available: '사용 가능',
     label_service_account: '서비스 계정',
     label_restarts: '재시작 횟수',
+    last_run: '마지막 실행',
     label_pod_ip: '포드 IP',
     label_qos_class: 'QoS 클래스',
     label_env_variables: '환경 변수',

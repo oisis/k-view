@@ -175,6 +175,7 @@ export const es = {
     available: 'Disponible',
     label_service_account: 'Cuenta de servicio',
     label_restarts: 'Reinicios',
+    last_run: 'Última ejecución',
     label_pod_ip: 'IP del Pod',
     label_qos_class: 'Clase QoS',
     label_env_variables: 'Variables de ent.',

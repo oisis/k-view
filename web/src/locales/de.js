@@ -187,6 +187,7 @@ export const de = {
     available: 'Verfügbar',
     label_service_account: 'Service-Konto',
     label_restarts: 'Neustarts',
+    last_run: 'Letzter Lauf',
     label_pod_ip: 'Pod-IP',
     label_qos_class: 'QoS-Klasse',
     label_env_variables: 'Umgebungsvariablen',

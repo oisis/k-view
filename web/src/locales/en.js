@@ -176,6 +176,7 @@ export const en = {
     available: 'Available',
     label_service_account: 'Service Account',
     label_restarts: 'Restarts',
+    last_run: 'Last Run',
     label_pod_ip: 'Pod IP',
     label_qos_class: 'QoS Class',
     label_env_variables: 'Environment Variables',

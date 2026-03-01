@@ -8,7 +8,7 @@ export const CronJobListSchema = {
         { key: 'extra.schedule', label: 'Schedule' },
         { key: 'extra.suspend', label: 'Suspend' },
         { key: 'extra.active', label: 'Active' },
-        { key: 'extra.last-schedule', label: 'Last Run' },
+        { key: 'extra.last-schedule', label: 'Last run' },
         { key: 'age', label: 'Age' },
     ],
 };

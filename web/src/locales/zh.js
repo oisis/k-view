@@ -175,6 +175,7 @@ export const zh = {
     available: '可用',
     label_service_account: '服务账户',
     label_restarts: '重启次数',
+    last_run: '最近运行',
     label_pod_ip: '容器组 IP',
     label_qos_class: 'QoS 类别',
     label_env_variables: '环境变量',

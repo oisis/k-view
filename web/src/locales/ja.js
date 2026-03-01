@@ -175,6 +175,7 @@ export const ja = {
     available: '利用可能',
     label_service_account: 'サービスアカウント',
     label_restarts: '再起動回数',
+    last_run: '前回の実行',
     label_pod_ip: 'ポッドIP',
     label_qos_class: 'QoSクラス',
     label_env_variables: '環境変数',

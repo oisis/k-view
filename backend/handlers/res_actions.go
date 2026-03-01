@@ -145,30 +145,43 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 }
 
 func (h *ResourceHandler) Trigger(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
 
 	dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
-	gvr := getGVR("jobs")
-	
-	job, err := dynClient.Resource(gvr).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{})
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Job not found"})
+
+	if kind == "cronjobs" {
+		cronjobGVR := getGVR("cronjobs")
+		jobGVR := getGVR("jobs")
+
+		cj, err := dynClient.Resource(cronjobGVR).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{})
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "CronJob not found"})
+			return
+		}
+
+		jobTemplate, found, err := unstructured.NestedMap(cj.Object, "spec", "jobTemplate")
+		if !found || err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Job template not found in CronJob"})
+			return
+		}
+
+		newJob := &unstructured.Unstructured{Object: jobTemplate}
+		newJob.SetKind("Job")
+		newJob.SetAPIVersion("batch/v1")
+		newJob.SetName(fmt.Sprintf("%s-manual-%d", name, time.Now().Unix()))
+		newJob.SetNamespace(ns)
+
+		_, err = dynClient.Resource(jobGVR).Namespace(ns).Create(c.Request.Context(), newJob, metav1.CreateOptions{})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.Status(http.StatusCreated)
 		return
 	}
 
-	// Create a new job based on this one
-	newJob := job.DeepCopy()
-	newJob.SetName(fmt.Sprintf("%s-manual-%d", name, time.Now().Unix()))
-	newJob.SetResourceVersion("")
-	newJob.SetUID("")
-	unstructured.RemoveNestedField(newJob.Object, "status")
-	unstructured.RemoveNestedField(newJob.Object, "metadata", "creationTimestamp")
-
-	_, err = dynClient.Resource(gvr).Namespace(ns).Create(c.Request.Context(), newJob, metav1.CreateOptions{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.Status(http.StatusCreated)
+	// Default fallback for triggering other resources (if applicable)
+	c.JSON(http.StatusBadRequest, gin.H{"error": "Trigger not supported for this resource type"})
 }

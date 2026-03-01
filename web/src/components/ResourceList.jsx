@@ -270,7 +270,7 @@ export default function ResourceList({ kind }) {
                                     if (col.key === 'name') widthCls = "w-1/4";
                                     else if (col.key === 'extra.labels') widthCls = "w-40";
                                     else if (col.key === 'extra.images') widthCls = "w-48";
-                                    else if (col.key === 'age') widthCls = "w-24";
+                                    else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
                                     else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-28";
                                     else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-20";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
