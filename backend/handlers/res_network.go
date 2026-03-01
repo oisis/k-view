@@ -58,20 +58,44 @@ func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string
 			extra["class"] = class
 		}
 
+		var hosts []string
+		var backends []string
+
+		// Default backend
+		if db, found, _ := unstructured.NestedMap(item.Object, "spec", "defaultBackend"); found {
+			if svc, ok, _ := unstructured.NestedString(db, "service", "name"); ok {
+				backends = append(backends, svc)
+			}
+		}
+
 		if rules, ok, _ := unstructured.NestedSlice(item.Object, "spec", "rules"); ok {
-			var hosts []string
 			for _, r := range rules {
 				if rule, ok := r.(map[string]interface{}); ok {
 					if host, ok := rule["host"].(string); ok {
 						hosts = append(hosts, host)
 					}
+					if http, ok, _ := unstructured.NestedMap(rule, "http"); ok {
+						if paths, ok, _ := unstructured.NestedSlice(http, "paths"); ok {
+							for _, p := range paths {
+								if path, ok := p.(map[string]interface{}); ok {
+									// Support both new (service.name) and old (backend.serviceName) formats
+									if svc, ok, _ := unstructured.NestedString(path, "backend", "service", "name"); ok {
+										backends = append(backends, svc)
+									} else if svc, ok, _ := unstructured.NestedString(path, "backend", "serviceName"); ok {
+										backends = append(backends, svc)
+									}
+								}
+							}
+						}
+					}
 				}
 			}
-			extra["hosts"] = strings.Join(hosts, ", ")
 		}
+		extra["hosts"] = strings.Join(hosts, ", ")
+		extra["endpoints"] = strings.Join(backends, ", ")
 
+		var addrs []string
 		if ingresses, ok, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress"); ok && len(ingresses) > 0 {
-			var addrs []string
 			for _, ing := range ingresses {
 				if i, ok := ing.(map[string]interface{}); ok {
 					if ip, ok := i["ip"].(string); ok {
@@ -81,7 +105,12 @@ func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string
 					}
 				}
 			}
+		}
+		
+		if len(addrs) > 0 {
 			extra["address"] = strings.Join(addrs, ", ")
+		} else {
+			extra["address"] = "pending"
 		}
 
 	case "ingress-classes", "ingressclasses":

@@ -275,7 +275,7 @@ export default function ResourceList({ kind }) {
                                     
                                     if (col.key === 'name') widthCls = kind === 'cronjobs' ? "w-1/6" : "w-1/4";
                                     else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-40";
-                                    else if (col.key === 'extra.images') widthCls = "w-48";
+                                    else if (col.key === 'extra.images' || col.key === 'extra.address') widthCls = "w-48";
                                     else if (col.key === 'extra.suspend') widthCls = "w-24";
                                     else if (col.key === 'extra.type' || col.key === 'extra.controller') widthCls = "w-32";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
