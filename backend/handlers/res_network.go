@@ -84,6 +84,12 @@ func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string
 			extra["address"] = strings.Join(addrs, ", ")
 		}
 
+	case "ingress-classes", "ingressclasses":
+		if ctrl, ok, _ := unstructured.NestedString(item.Object, "spec", "controller"); ok {
+			extra["controller"] = ctrl
+		}
+		extra["labels"] = k8sutils.GetLabels(item.Object)
+
 	case "network-policies", "networkpolicies":
 		if podSel, ok, _ := unstructured.NestedMap(item.Object, "spec", "podSelector", "matchLabels"); ok && len(podSel) > 0 {
 			extra["pod-selector"] = fmt.Sprintf("%v", podSel)

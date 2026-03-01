@@ -114,5 +114,15 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		if avail > 0 {
 			extra["available"] = fmt.Sprintf("%d", avail)
 		}
+
+	case "jobs":
+		succeeded, _, _ := unstructured.NestedInt64(item.Object, "status", "succeeded")
+		active, _, _ := unstructured.NestedInt64(item.Object, "status", "active")
+		completions, found, _ := unstructured.NestedInt64(item.Object, "spec", "completions")
+		if !found { completions = 1 }
+		extra["succeeded"] = fmt.Sprintf("%d", succeeded)
+		extra["active"] = fmt.Sprintf("%d", active)
+		extra["completions"] = fmt.Sprintf("%d", completions)
+		extra["pods"] = fmt.Sprintf("%d/%d", succeeded, completions)
 	}
 }
