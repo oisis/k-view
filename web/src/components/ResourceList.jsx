@@ -111,7 +111,7 @@ function ScheduleCell({ value, nextRun }) {
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={() => setIsHovered(false)}
-                className="text-sm font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4"
+                className="text-sm font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4 tracking-tighter"
             >
                 {value}
             </span>
@@ -262,17 +262,18 @@ export default function ResourceList({ kind }) {
             <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
-                        <thead>
+                        <thead className="border-b-2 border-border">
                             <tr>
                                 {schema.cols.map(col => {
                                     let widthCls = "";
                                     
-                                    if (col.key === 'name') widthCls = "w-1/4";
+                                    if (col.key === 'name') widthCls = kind === 'cronjobs' ? "w-1/6" : "w-1/4";
                                     else if (col.key === 'extra.labels') widthCls = "w-40";
                                     else if (col.key === 'extra.images') widthCls = "w-48";
+                                    else if (col.key === 'extra.suspend') widthCls = "w-24";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
                                     else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-28";
-                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-20";
+                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-16";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
                                     else if (col.key === 'namespace') widthCls = "w-32";
@@ -281,7 +282,7 @@ export default function ResourceList({ kind }) {
                                         <th
                                             key={col.key}
                                             onClick={() => requestSort(col.key)}
-                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer group select-none ${widthCls} text-center border-r border-white/10 last:border-r-0`}
+                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer group select-none font-bold ${widthCls} text-center border-r border-white/10 last:border-r-0`}
                                         >
                                             <div className="flex items-center justify-center gap-2">
                                                 {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
@@ -313,7 +314,7 @@ export default function ResourceList({ kind }) {
                                         let content;
                                         let cellClass = "py-1.5 overflow-hidden";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status'].includes(col.key)) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend'].includes(col.key)) {
                                             cellClass += " text-center px-2";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-3";
