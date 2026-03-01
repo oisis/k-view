@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -159,6 +160,60 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 	}
 
+	if kind == "nodes" || kind == "node" {
+		// Calculate node allocation for pie charts
+		allocatable, _, _ := unstructured.NestedMap(item.Object, "status", "allocatable")
+		capacity, _, _ := unstructured.NestedMap(item.Object, "status", "capacity")
+		
+		cpuCap := k8sutils.ParseCPU(capacity["cpu"])
+		cpuAlloc := k8sutils.ParseCPU(allocatable["cpu"])
+		memCap := k8sutils.ParseMemory(capacity["memory"])
+		memAlloc := k8sutils.ParseMemory(allocatable["memory"])
+		podsCap := k8sutils.ParseQuantity(capacity["pods"])
+		podsAlloc := k8sutils.ParseQuantity(allocatable["pods"])
+
+		// Get all pods on this node to calculate actual allocation
+		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
+		podGVR := getGVR("pods")
+		podList, err := dynClient.Resource(podGVR).List(c.Request.Context(), metav1.ListOptions{
+			FieldSelector: "spec.nodeName=" + name,
+		})
+
+		var cpuReq, memReq float64
+		podCount := 0
+		if err == nil {
+			podCount = len(podList.Items)
+			for _, p := range podList.Items {
+				containers, _, _ := unstructured.NestedSlice(p.Object, "spec", "containers")
+				for _, c := range containers {
+					if cm, ok := c.(map[string]interface{}); ok {
+						reqs, _, _ := unstructured.NestedMap(cm, "resources", "requests")
+						cpuReq += k8sutils.ParseCPU(reqs["cpu"])
+						memReq += k8sutils.ParseMemory(reqs["memory"])
+					}
+				}
+			}
+		}
+
+		response["allocation"] = gin.H{
+			"cpu": gin.H{
+				"requests": cpuReq,
+				"allocatable": cpuAlloc,
+				"capacity": cpuCap,
+			},
+			"memory": gin.H{
+				"requests": memReq,
+				"allocatable": memAlloc,
+				"capacity": memCap,
+			},
+			"pods": gin.H{
+				"allocation": podCount,
+				"allocatable": podsAlloc,
+				"capacity": podsCap,
+			},
+		}
+	}
+
 	if kind == "services" || kind == "service" {
 		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 		gvr := getGVR("endpoints")
@@ -174,6 +229,7 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
+	format := c.DefaultQuery("format", "yaml")
 	if ns == "-" { ns = "" }
 
 	var item *unstructured.Unstructured
@@ -203,15 +259,25 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 		return
 	}
 
-	y, err := yaml.Marshal(item.Object)
+	var output []byte
+	var err error
+	contentType := "text/yaml"
+
+	if format == "json" {
+		output, err = json.MarshalIndent(item.Object, "", "  ")
+		contentType = "application/json"
+	} else {
+		output, err = yaml.Marshal(item.Object)
+		contentType = "text/yaml"
+	}
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate YAML"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate manifest"})
 		return
 	}
 
-	// Set header explicitly to avoid interpretation as JSON
-	c.Header("Content-Type", "text/yaml; charset=utf-8")
-	c.String(http.StatusOK, string(y))
+	c.Header("Content-Type", contentType+"; charset=utf-8")
+	c.String(http.StatusOK, string(output))
 }
 
 func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, kind string, resItem *ResourceItem) {

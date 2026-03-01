@@ -4,71 +4,62 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
+	"strconv"
 
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// ParseK8sTime parses RFC3339 time string to time.Time
-func ParseK8sTime(t string) time.Time {
-	// Try multiple common K8s time formats
-	for _, format := range []string{time.RFC3339, "2006-01-02T15:04:05Z"} {
-		parsed, err := time.Parse(format, t)
-		if err == nil {
-			return parsed
-		}
-	}
-	return time.Now()
-}
-
-// GetLabels returns alphabetically sorted labels as a comma-separated string from an unstructured object.
+// GetLabels extracts and sorts labels into a comma-separated string
 func GetLabels(obj map[string]interface{}) string {
-	labels, ok, _ := unstructured.NestedMap(obj, "metadata", "labels")
+	metadata, ok := obj["metadata"].(map[string]interface{})
 	if !ok {
 		return ""
 	}
-	var ls []string
+	labels, ok := metadata["labels"].(map[string]interface{})
+	if !ok {
+		return ""
+	}
+
+	var res []string
 	for k, v := range labels {
-		ls = append(ls, fmt.Sprintf("%s=%v", k, v))
+		res = append(res, fmt.Sprintf("%s=%v", k, v))
 	}
-	sort.Strings(ls)
-	return strings.Join(ls, ", ")
+	sort.Strings(res)
+	return strings.Join(res, ", ")
 }
 
-// GetAnnotations returns alphabetically sorted annotations as a comma-separated string from an unstructured object.
+// GetAnnotations extracts and sorts annotations into a comma-separated string
 func GetAnnotations(obj map[string]interface{}) string {
-	annotations, ok, _ := unstructured.NestedMap(obj, "metadata", "annotations")
+	metadata, ok := obj["metadata"].(map[string]interface{})
 	if !ok {
 		return ""
 	}
-	var ls []string
-	for k, v := range annotations {
-		ls = append(ls, fmt.Sprintf("%s=%v", k, v))
+	ann, ok := metadata["annotations"].(map[string]interface{})
+	if !ok {
+		return ""
 	}
-	sort.Strings(ls)
-	return strings.Join(ls, ", ")
+
+	var res []string
+	for k, v := range ann {
+		res = append(res, fmt.Sprintf("%s=%v", k, v))
+	}
+	sort.Strings(res)
+	return strings.Join(res, ", ")
 }
 
-// GetImages returns container images as a comma-separated string from an unstructured workload object.
+// GetImages extracts container images from a pod or workload spec
 func GetImages(obj map[string]interface{}) string {
 	var containers []interface{}
-	var ok bool
-
-	// CronJob nesting
-	if jobTemplate, found, _ := unstructured.NestedMap(obj, "spec", "jobTemplate"); found {
-		containers, ok, _ = unstructured.NestedSlice(jobTemplate, "spec", "template", "spec", "containers")
-	} else {
-		// Standard workload (Deployment, StatefulSet, DaemonSet, Job)
-		containers, ok, _ = unstructured.NestedSlice(obj, "spec", "template", "spec", "containers")
-		if !ok {
-			// Pod direct spec
-			containers, ok, _ = unstructured.NestedSlice(obj, "spec", "containers")
-		}
+	
+	// Pod spec location
+	if c, ok, _ := unstructured.NestedSlice(obj, "spec", "containers"); ok {
+		containers = c
+	} else if c, ok, _ := unstructured.NestedSlice(obj, "spec", "template", "spec", "containers"); ok {
+		// Deployment/StatefulSet/Job spec location
+		containers = c
 	}
 
-	if !ok || len(containers) == 0 {
-		return ""
-	}
 	var images []string
 	for _, c := range containers {
 		if container, ok := c.(map[string]interface{}); ok {
@@ -77,5 +68,37 @@ func GetImages(obj map[string]interface{}) string {
 			}
 		}
 	}
+	
+	sort.Strings(images)
 	return strings.Join(images, ", ")
+}
+
+// ParseCPU converts K8s CPU quantity (e.g., "500m", "2") to float64 cores
+func ParseCPU(val interface{}) float64 {
+	if val == nil { return 0 }
+	s := fmt.Sprintf("%v", val)
+	q, err := resource.ParseQuantity(s)
+	if err != nil { return 0 }
+	return float64(q.MilliValue()) / 1000.0
+}
+
+// ParseMemory converts K8s memory quantity (e.g., "512Mi", "2Gi") to float64 bytes
+func ParseMemory(val interface{}) float64 {
+	if val == nil { return 0 }
+	s := fmt.Sprintf("%v", val)
+	q, err := resource.ParseQuantity(s)
+	if err != nil { return 0 }
+	return float64(q.Value())
+}
+
+// ParseQuantity converts a generic K8s quantity to float64
+func ParseQuantity(val interface{}) float64 {
+	if val == nil { return 0 }
+	s := fmt.Sprintf("%v", val)
+	q, err := resource.ParseQuantity(s)
+	if err != nil {
+		f, _ := strconv.ParseFloat(s, 64)
+		return f
+	}
+	return float64(q.Value())
 }
