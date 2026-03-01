@@ -14,6 +14,7 @@ import NamespaceOverview from './templates/NamespaceOverview';
 import CrdOverview from './templates/CrdOverview';
 import IngressClassOverview from './templates/IngressClassOverview';
 import SecretOverview from './templates/SecretOverview';
+import StorageClassOverview from './templates/StorageClassOverview';
 
 export default function OverviewTab({ 
     data, kind, namespace, name, quotas, limits, 
@@ -99,6 +100,7 @@ export default function OverviewTab({
             {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} t={t} />}
             {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} t={t} />}
+            {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
 
             {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">

@@ -18,7 +18,7 @@ const TABS = [
 ];
 
 export default function ResourceDetails() {
-    const { kind, namespace, name } = useParams(); // Get kind from URL params
+    const { kind, namespace, name } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'overview';
     const isEditing = searchParams.get('edit') === 'true';
@@ -60,27 +60,26 @@ export default function ResourceDetails() {
             const detailsData = await res.json();
             setData(detailsData);
 
-            // Related resources fetching
             if (activeTab === 'overview') {
                 if (kindLower === 'namespaces') {
                     const [qRes, lRes] = await Promise.all([
                         fetch(`/api/resources/resourcequotas/${name}`),
                         fetch(`/api/resources/limitranges/${name}`)
                     ]);
-                    if (qRes && qRes.ok) {
+                    if (qRes?.ok) {
                         const qData = await qRes.json();
-                        if (qData && qData.length > 0) setQuotas(qData);
+                        if (qData?.length > 0) setQuotas(qData);
                     }
-                    if (lRes && lRes.ok) {
+                    if (lRes?.ok) {
                         const lData = await lRes.json();
-                        if (lData && lData.length > 0) setLimits(lData);
+                        if (lData?.length > 0) setLimits(lData);
                     }
                 }
 
                 const nsQuery = namespace === '-' ? '' : namespace;
                 if (kindLower.includes('cronjob')) {
                     const jobsRes = await fetch(`/api/resources/jobs?namespace=${nsQuery}`);
-                    if (jobsRes && jobsRes.ok) {
+                    if (jobsRes?.ok) {
                         const jobsData = await jobsRes.json();
                         if (Array.isArray(jobsData)) {
                             setRelatedJobs(jobsData.filter(j => j.extra?.['owner-uid'] === detailsData.metadata?.uid));
@@ -88,19 +87,18 @@ export default function ResourceDetails() {
                     }
                 }
 
-                // Service Endpoints from backend response
                 if (detailsData.relatedEndpoints) {
                     setRelatedEndpoints(detailsData.relatedEndpoints);
                 }
 
-                // Related Pods and Services matching logic
-                if (kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || kindLower.includes('service') || kindLower === 'nodes' || kindLower === 'node' || kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset')) {
-                    const [podsRes, svcsRes] = await Promise.all([
-                        fetch(`/api/resources/pods?namespace=${nsQuery}`),
-                        kindLower.includes('daemonset') ? fetch(`/api/resources/services?namespace=${nsQuery}`) : Promise.resolve(null)
-                    ]);
-                    
-                    if (podsRes && podsRes.ok) {
+                // Protect against missing spec/selector
+                const needsPods = kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || 
+                                 kindLower === 'services' || kindLower === 'service' || kindLower === 'nodes' || kindLower === 'node' || 
+                                 kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset');
+
+                if (needsPods) {
+                    const podsRes = await fetch(`/api/resources/pods?namespace=${nsQuery}`);
+                    if (podsRes?.ok) {
                         const podsData = await podsRes.json();
                         if (Array.isArray(podsData)) {
                             const selector = detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector || null;
@@ -108,28 +106,18 @@ export default function ResourceDetails() {
 
                             setRelatedPods(podsData.filter(p => {
                                 if (!p) return false;
-                                
-                                // Node matching
                                 if (kindLower === 'nodes' || kindLower === 'node') return p?.extra?.node === name;
-
-                                // Selector matching (Deployments, Services, etc.)
                                 if (selector && Object.keys(selector).length > 0) {
-                                    // Parse comma-separated labels string from backend
                                     const rawLabelsStr = p.extra?.labels || "";
                                     const podLabels = {};
                                     rawLabelsStr.split(',').forEach(pair => {
                                         const [k, v] = pair.trim().split('=');
                                         if (k) podLabels[k] = v;
                                     });
-
                                     return Object.entries(selector).every(([k, v]) => podLabels[k] === String(v));
                                 }
-
-                                // Owner UID matching (fallback)
                                 const ownerUid = p?.extra?.['owner-uid'];
                                 if (ownerUid && uid && ownerUid === uid) return true;
-
-                                // ownerReferences check
                                 return (p.metadata?.ownerReferences || []).some(o => o.uid === uid);
                             }));
                         }

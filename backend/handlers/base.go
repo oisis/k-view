@@ -10,6 +10,7 @@ import (
 
 	"k-view/k8s"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type ResourceItem struct {
@@ -60,115 +61,93 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	}
 }
 
-var clusterScopedKinds = map[string]bool{
-	"namespaces":            true,
-	"nodes":                 true,
-	"pvs":                   true,
-	"storage-classes":       true,
-	"crds":                  true,
-	"cluster-roles":         true,
-	"cluster-role-bindings": true,
-	"ingress-classes":       true,
-}
-
 func isClusterScoped(kind string) bool {
-	return clusterScopedKinds[strings.ToLower(kind)]
+	kind = strings.ToLower(kind)
+	clusterScoped := []string{"nodes", "node", "namespaces", "namespace", "persistentvolumes", "pvs", "storage-classes", "storageclass", "cluster-roles", "clusterrole", "cluster-role-bindings", "clusterrolebinding", "crds", "customresourcedefinitions", "ingress-classes", "ingressclass"}
+	for _, s := range clusterScoped {
+		if s == kind { return true }
+	}
+	return false
 }
 
-func filterUnstructured(items []unstructured.Unstructured, ns string) []unstructured.Unstructured {
-	if ns == "" {
-		return items
-	}
-	var res []unstructured.Unstructured
-	for _, it := range items {
-		if it.GetNamespace() == "" || it.GetNamespace() == ns {
-			res = append(res, it)
-		}
-	}
-	return res
+func isDevMode() bool {
+	return os.Getenv("DEV_MODE") == "true"
 }
 
-func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
-	// Possible locations for the mocks directory
+func getGVR(kind string) schema.GroupVersionResource {
+	kind = strings.ToLower(kind)
+	switch kind {
+	case "pods", "pod": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
+	case "deployments", "deployment": return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+	case "statefulsets", "statefulset": return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+	case "daemonsets", "daemonset": return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
+	case "replicasets", "replicaset": return schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "replicasets"}
+	case "services", "service": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
+	case "ingresses", "ingress": return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingresses"}
+	case "ingress-classes", "ingressclass": return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "ingressclasses"}
+	case "configmaps", "configmap": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "configmaps"}
+	case "secrets", "secret": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
+	case "pvcs", "persistentvolumeclaims": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumeclaims"}
+	case "pvs", "persistentvolumes": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "persistentvolumes"}
+	case "storage-classes", "storageclass": return schema.GroupVersionResource{Group: "storage.k8s.io", Version: "v1", Resource: "storageclasses"}
+	case "namespaces", "namespace": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "namespaces"}
+	case "nodes", "node": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
+	case "jobs", "job": return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
+	case "cronjobs", "cronjob": return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
+	case "roles": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
+	case "cluster-roles", "clusterrole": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
+	case "role-bindings", "rolebinding": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}
+	case "cluster-role-bindings", "clusterrolebinding": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterrolebindings"}
+	case "network-policies", "networkpolicy": return schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
+	case "service-accounts", "serviceaccount": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "serviceaccounts"}
+	case "endpoints": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
+	case "crds", "customresourcedefinitions": return schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
+	default: return schema.GroupVersionResource{Group: "", Version: "v1", Resource: kind}
+	}
+}
+
+func (h *ResourceHandler) getMockResources(kind, ns string) ([]unstructured.Unstructured, error) {
+	mockKind := kind
+	if !strings.HasSuffix(kind, "s") && kind != "ingress" && kind != "storageclass" && kind != "networkpolicy" {
+		mockKind = kind + "s"
+	}
+	if kind == "ingress" { mockKind = "ingresses" }
+	if kind == "storageclass" { mockKind = "storage-classes" }
+	if kind == "networkpolicy" { mockKind = "network-policies" }
+
 	wd, _ := os.Getwd()
-	locations := []string{
-		filepath.Join(wd, "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "backend", "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "..", "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "..", "backend", "mocks", "resources", kind+".json"),
-		filepath.Join("mocks", "resources", kind+".json"),
-		filepath.Join("/app/mocks", "resources", kind+".json"),
-	}
+	path := filepath.Join(wd, "mocks", "resources", mockKind+".json")
+	
+	data, err := os.ReadFile(path)
+	if err != nil { return nil, err }
 
-	for _, mockPath := range locations {
-		if _, err := os.Stat(mockPath); err == nil {
-			data, err := os.ReadFile(mockPath)
-			if err == nil {
-				var items []ResourceItem
-				if err := json.Unmarshal(data, &items); err == nil {
-					fmt.Printf("[Mock Legacy] Loaded %d items for %s from %s\n", len(items), kind, mockPath)
-					return filter(items, ns)
-				}
-			}
+	var list struct {
+		Items []map[string]interface{} `json:"items"`
+	}
+	if err := json.Unmarshal(data, &list); err != nil { return nil, err }
+
+	var result []unstructured.Unstructured
+	for _, item := range list.Items {
+		u := unstructured.Unstructured{Object: item}
+		if ns != "" && u.GetNamespace() != "" && u.GetNamespace() != ns {
+			continue
 		}
+		result = append(result, u)
 	}
-
-	fmt.Printf("[Mock] No JSON mockup found for %s. (wd: %s). Falling back to internal.\n", kind, wd)
-	return h.internalMockResourceList(kind, ns)
+	return result, nil
 }
 
-func filter(items []ResourceItem, ns string) []ResourceItem {
-	if ns == "" {
-		return items
-	}
-	var res []ResourceItem
+func (h *ResourceHandler) getMockResource(kind, ns, name string) (*unstructured.Unstructured, error) {
+	items, err := h.getMockResources(kind, ns)
+	if err != nil { return nil, err }
 	for _, it := range items {
-		if it.Namespace == "" || it.Namespace == ns {
-			res = append(res, it)
-		}
+		if it.GetName() == name { return &it, nil }
 	}
-	return res
-}
-
-func (h *ResourceHandler) internalMockResourceList(kind, ns string) []ResourceItem {
-	return []ResourceItem{
-		{Name: "mock-" + kind + "-1", Namespace: "default", Age: "1h", Status: "Active"},
-		{Name: "mock-" + kind + "-2", Namespace: "kube-system", Age: "2h", Status: "Active"},
-	}
+	return nil, fmt.Errorf("mock not found")
 }
 
 func (h *ResourceHandler) mockRawResourceList(kind, ns string) []unstructured.Unstructured {
-	// Possible locations for the mocks directory
-	wd, _ := os.Getwd()
-	locations := []string{
-		filepath.Join(wd, "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "backend", "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "..", "mocks", "resources", kind+".json"),
-		filepath.Join(wd, "..", "backend", "mocks", "resources", kind+".json"),
-		filepath.Join("mocks", "resources", kind+".json"),
-		filepath.Join("/app/mocks", "resources", kind+".json"),
-	}
-
-	for _, mockPath := range locations {
-		if _, err := os.Stat(mockPath); err == nil {
-			data, err := os.ReadFile(mockPath)
-			if err == nil {
-				var list unstructured.UnstructuredList
-				if err := json.Unmarshal(data, &list); err == nil {
-					fmt.Printf("[Mock] Loaded %d items for %s from %s\n", len(list.Items), kind, mockPath)
-					return filterUnstructured(list.Items, ns)
-				}
-				// If not a List format, try single array (fallback for old mocks)
-				var items []unstructured.Unstructured
-				if err := json.Unmarshal(data, &items); err == nil {
-					fmt.Printf("[Mock] Loaded %d items (legacy array) for %s from %s\n", len(items), kind, mockPath)
-					return filterUnstructured(items, ns)
-				}
-				fmt.Printf("[Mock] Error unmarshaling %s: %v\n", mockPath, err)
-			}
-		}
-	}
-
-	fmt.Printf("[Mock] No JSON mockup found for %s. (wd: %s). Falling back to internal.\n", kind, wd)
-	return nil // Should be handled by internal fallback in resources.go
+	res, err := h.getMockResources(kind, ns)
+	if err != nil { return nil }
+	return res
 }
