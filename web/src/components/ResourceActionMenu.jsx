@@ -231,46 +231,46 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="w-56 bg-[var(--bg-dropdown)] border border-border rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                    <div className="w-56 bg-[var(--bg-dropdown)]/80 backdrop-blur-xl glass border border-border rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                         {(isPod || isWorkload) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-wider group border-b border-border/30 mb-1 pb-2">
+                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-wider group">
                                 {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
                             </button>
                         )}
                         {isCronJob && (
-                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-wider group border-b border-border/30 mb-1 pb-2">
+                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-wider group">
                                 {icons.zap && <icons.zap size={14} className="group-hover:scale-125 transition-transform" />} {t('run_now')}
                             </button>
                         )}
-                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-secondary hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                             {icons.edit && <icons.edit size={14} />} {t('edit')}
                         </button>
-                        <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors border-b border-border/30 mb-1 pb-2">
+                        <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors group">
                             {icons.trash && <icons.trash size={14} />} {t('delete')}
                         </button>
 
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                                 {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
                             </button>
                         )}
                         {isScalable && (
-                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                                 {icons.activity && <icons.activity size={14} />} {t('scale_replicas')}
                             </button>
                         )}
                         {(isPod || isDaemonSet || isJob || isReplicaSet || isStatefulSet || isReplicationController) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('view_logs')}
                             </button>
                         )}
                         {isPod && (
-                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                             </button>
                         )}
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-text-muted hover:text-primary hover:bg-[var(--accent)]/10 transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
                                 {icons.download && <icons.download size={14} />} {t('export_yaml')}
                             </button>
                         )}
