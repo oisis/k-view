@@ -62,26 +62,34 @@ export default function ResourceDetails() {
 
             if (activeTab === 'overview') {
                 if (kindLower === 'namespaces') {
-                    // Fix: Use proper namespaced URL format for list fetch
-                    const [qRes, lRes] = await Promise.all([
-                        fetch(`/api/resources/resourcequotas/${name}`),
-                        fetch(`/api/resources/limitranges/${name}`)
-                    ]);
-                    
-                    // Note: These will fail with current backend routing if not using /kind/ns/name
-                    // We should probably use the list endpoint with namespace filter
-                    const [qRes2, lRes2] = await Promise.all([
+                    // Fetch list of quotas and limits first
+                    const [qListRes, lListRes] = await Promise.all([
                         fetch(`/api/resources/resourcequotas?namespace=${name}`),
                         fetch(`/api/resources/limitranges?namespace=${name}`)
                     ]);
 
-                    if (qRes2?.ok) {
-                        const qData = await qRes2.json();
-                        if (Array.isArray(qData)) setQuotas(qData);
+                    if (qListRes?.ok) {
+                        const qItems = await qListRes.json();
+                        if (Array.isArray(qItems) && qItems.length > 0) {
+                            // Fetch full details for each quota to get spec/status
+                            const fullQuotas = await Promise.all(qItems.map(async item => {
+                                const r = await fetch(`/api/resources/resourcequotas/${name}/${item.name}`);
+                                return r.ok ? await r.json() : null;
+                            }));
+                            setQuotas(fullQuotas.filter(Boolean));
+                        }
                     }
-                    if (lRes2?.ok) {
-                        const lData = await lRes2.json();
-                        if (Array.isArray(lData)) setLimits(lData);
+
+                    if (lListRes?.ok) {
+                        const lItems = await lListRes.json();
+                        if (Array.isArray(lItems) && lItems.length > 0) {
+                            // Fetch full details for each limit range
+                            const fullLimits = await Promise.all(lItems.map(async item => {
+                                const r = await fetch(`/api/resources/limitranges/${name}/${item.name}`);
+                                return r.ok ? await r.json() : null;
+                            }));
+                            setLimits(fullLimits.filter(Boolean));
+                        }
                     }
                 }
 
