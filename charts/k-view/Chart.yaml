@@ -1,6 +1,19 @@
 apiVersion: v2
 name: k-view
-description: A Kubernetes Dashboard with OIDC and Internal RBAC
+description: A modern, lightweight Kubernetes dashboard with Google SSO and declarative RBAC.
 type: application
-version: 0.43.0
-appVersion: "0.43.0"
+version: 0.44.0
+appVersion: "0.44.0"
+icon: https://raw.githubusercontent.com/oisis/k-view/main/web/src/assets/k-view-logo.png
+keywords:
+  - kubernetes
+  - dashboard
+  - rbac
+  - oidc
+  - sso
+home: https://github.com/oisis/k-view
+sources:
+  - https://github.com/oisis/k-view
+maintainers:
+  - name: oisis
+    email: oisis@k-view.io
