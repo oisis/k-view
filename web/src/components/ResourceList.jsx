@@ -280,7 +280,9 @@ export default function ResourceList({ kind }) {
                                     else if (col.key === 'extra.suspend') widthCls = "w-24";
                                     else if (col.key === 'extra.type' || col.key === 'extra.controller') widthCls = "w-32";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
-                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-28";
+                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-36";
+                                    else if (col.key === 'extra.scope') widthCls = "w-32";
+                                    else if (col.key === 'extra.version') widthCls = "w-20";
                                     else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas') widthCls = "w-20";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
