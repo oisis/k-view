@@ -22,6 +22,8 @@ import { EventListSchema } from './ResourceList/templates/EventList';
 import { NamespaceListSchema } from './ResourceList/templates/NamespaceList';
 import { CrdListSchema } from './ResourceList/templates/CrdList';
 import { RbacListSchema } from './ResourceList/templates/RbacList';
+import { StorageClassListSchema } from './ResourceList/templates/StorageClassList';
+import { ClusterRbacListSchema } from './ResourceList/templates/ClusterRbacList';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -40,9 +42,9 @@ const SCHEMAS = {
     secrets: SecretListSchema,
     pvcs: PvcListSchema,
     pvs: PvListSchema,
-    'storage-classes': ConfigMapListSchema,
-    'cluster-role-bindings': RbacListSchema,
-    'cluster-roles': RbacListSchema,
+    'storage-classes': StorageClassListSchema,
+    'cluster-role-bindings': ClusterRbacListSchema,
+    'cluster-roles': ClusterRbacListSchema,
     events: EventListSchema,
     namespaces: NamespaceListSchema,
     'network-policies': ConfigMapListSchema,
@@ -271,9 +273,10 @@ export default function ResourceList({ kind }) {
                                     else if (col.key === 'extra.labels') widthCls = "w-40";
                                     else if (col.key === 'extra.images') widthCls = "w-48";
                                     else if (col.key === 'extra.suspend') widthCls = "w-24";
+                                    else if (col.key === 'extra.type') widthCls = "w-32";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
                                     else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-28";
-                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-16";
+                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods') widthCls = "w-20";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
                                     else if (col.key === 'namespace') widthCls = "w-32";
@@ -314,7 +317,7 @@ export default function ResourceList({ kind }) {
                                         let content;
                                         let cellClass = "py-1.5 overflow-hidden";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend'].includes(col.key)) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type'].includes(col.key)) {
                                             cellClass += " text-center px-2";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-3";

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -112,17 +113,27 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	ns := c.Param("namespace")
 	if ns == "-" { ns = "" }
 
-	var body struct {
-		YAML string `json:"yaml"`
-	}
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
+	// Read raw body
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
 
+	yamlStr := string(body)
+	// If it's a JSON body, we might need to extract the "yaml" field
+	if strings.HasPrefix(strings.TrimSpace(yamlStr), "{") {
+		var bodyObj struct {
+			YAML string `json:"yaml"`
+		}
+		if err := yaml.Unmarshal(body, &bodyObj); err == nil && bodyObj.YAML != "" {
+			yamlStr = bodyObj.YAML
+		}
+	}
+
 	var obj map[string]interface{}
-	if err := yaml.Unmarshal([]byte(body.YAML), &obj); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML: " + err.Error()})
+	if err := yaml.Unmarshal([]byte(yamlStr), &obj); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON format: " + err.Error()})
 		return
 	}
 
@@ -130,7 +141,6 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	gvr := getGVR(kind)
 	unstructuredObj := &unstructured.Unstructured{Object: obj}
 
-	var err error
 	if ns != "" {
 		_, err = dynClient.Resource(gvr).Namespace(ns).Update(c.Request.Context(), unstructuredObj, metav1.UpdateOptions{})
 	} else {
@@ -138,7 +148,7 @@ func (h *ResourceHandler) UpdateYAML(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Kubernetes API error: " + err.Error()})
 		return
 	}
 	c.Status(http.StatusOK)
