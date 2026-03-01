@@ -91,7 +91,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
         <DetailSection title="Data" className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-left">
+                    <thead>
                         <tr>
                             <th className="px-4 py-3 w-1/4">Key</th>
                             <th className="px-4 py-3">Value</th>

@@ -30,7 +30,7 @@ export default function CrdOverview({ data, metadata, spec, status, t }) {
             <DetailSection title="Versions" className="mt-4">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
-                        <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                        <thead>
                             <tr>
                                 <th className="px-4 py-3 text-left">Version</th>
                                 <th className="px-4 py-3 text-center">Served</th>

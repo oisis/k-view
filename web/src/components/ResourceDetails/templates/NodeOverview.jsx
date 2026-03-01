@@ -121,7 +121,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
                         <thead>
-                            <tr className="bg-[var(--bg-sidebar)]/10 uppercase text-xs font-black tracking-wider text-text-muted border-b border-border">
+                            <tr>
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Last probe time</th>

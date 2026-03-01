@@ -10,7 +10,7 @@ export default function LimitRangesTable({ limits, t, icons }) {
                             {icons?.about && <icons.about size={14} />} {l.metadata?.name || l.name}
                         </h4>
                         <table className="w-full text-xs">
-                            <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-black/20 border-b-2 border-border text-center">
+                            <thead>
                                 <tr>
                                     <th className="px-3 py-2">{t('type')}</th>
                                     <th className="px-3 py-2">{t('usage_metrics')}</th>

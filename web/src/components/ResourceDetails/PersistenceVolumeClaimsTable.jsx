@@ -7,7 +7,7 @@ export default function PersistenceVolumeClaimsTable({ pvcNames, namespace, t })
         <DetailSection title="Persistence Volume Claims" className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                    <thead>
                         <tr>
                             <th className="px-4 py-3 text-left">{t('label_name')}</th>
                             <th className="px-4 py-3 text-left">{t('label_namespace')}</th>

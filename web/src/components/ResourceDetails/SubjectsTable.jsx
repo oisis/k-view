@@ -12,7 +12,7 @@ export default function SubjectsTable({ subjects, t }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                     <thead>
-                        <tr className="bg-[var(--bg-sidebar)]/10 text-text-muted border-b border-border">
+                        <tr className="">
                             <th className="px-4 py-3 text-left">Name</th>
                             <th className="px-4 py-3 text-left">Namespace</th>
                             <th className="px-4 py-3 text-left">Kind</th>

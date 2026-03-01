@@ -36,7 +36,7 @@ export default function EventsTab({ kind, namespace, name, t }) {
     return (
         <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
             <table className="w-full text-sm border-collapse">
-                <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border text-left">
+                <thead>
                     <tr>
                         <th className="px-6 py-3">{t('label_name')}</th>
                         <th className="px-6 py-3">{t('reason')}</th>

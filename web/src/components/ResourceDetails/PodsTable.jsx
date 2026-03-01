@@ -12,7 +12,7 @@ export default function PodsTable({ pods, onRefresh }) {
         <DetailSection title="Pods" className="mt-4">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
-                    <thead className="text-xs text-[var(--text-table-header)] uppercase tracking-wider bg-[var(--bg-sidebar)]/10 border-b-2 border-border">
+                    <thead>
                         <tr className="text-left">
                             <th className="px-4 py-3 text-center">{t('label_name')}</th>
                             <th className="px-4 py-3 text-center">{t('label_namespace')}</th>

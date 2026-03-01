@@ -262,7 +262,7 @@ export default function ResourceList({ kind }) {
             <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
-                        <thead className="text-[11px] text-[var(--text-white)] uppercase tracking-wider font-black" style={{ backgroundColor: 'var(--accent)' }}>
+                        <thead>
                             <tr>
                                 {schema.cols.map(col => {
                                     let widthCls = "";
@@ -281,11 +281,11 @@ export default function ResourceList({ kind }) {
                                         <th
                                             key={col.key}
                                             onClick={() => requestSort(col.key)}
-                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer hover:bg-[var(--accent-hover)] transition-colors group select-none ${widthCls} text-center border-r border-white/10 last:border-r-0`}
+                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer group select-none ${widthCls} text-center border-r border-white/10 last:border-r-0`}
                                         >
                                             <div className="flex items-center justify-center gap-2">
                                                 {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
-                                                <span className="text-white/50 group-hover:text-white transition-colors">
+                                                <span className="opacity-50 group-hover:opacity-100 transition-colors" style={{ color: 'var(--text-table-header)' }}>
                                                     {sortConfig.key === col.key ? (
                                                         sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                     ) : (

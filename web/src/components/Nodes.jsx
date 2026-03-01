@@ -184,7 +184,7 @@ export default function Nodes() {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-primary">
-                        <thead className="text-[11px] text-[var(--text-white)] uppercase tracking-wider font-black" style={{ backgroundColor: 'var(--accent)' }}>
+                        <thead>
                             <tr>
                                 <th className="px-4 py-3 text-center border-r border-white/10">Name</th>
                                 <th className="px-4 py-3 text-center border-r border-white/10">Labels</th>
