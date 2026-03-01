@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../../ThemeContext';
 import MetadataSection from './sections/MetadataSection';
 import ResourceInfoSection from './sections/ResourceInfoSection';
 import PodOverview from './templates/PodOverview';
@@ -18,12 +19,14 @@ import StorageClassOverview from './templates/StorageClassOverview';
 import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
 import PvOverview from './templates/PvOverview';
 import RbacBindingOverview from './templates/RbacBindingOverview';
+import DaemonSetOverview from './templates/DaemonSetOverview';
 
 export default function OverviewTab({ 
     data, kind, namespace, name, quotas, limits, 
     relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs, 
     t, settings 
 }) {
+    const { icons } = useTheme();
     const { metadata, spec = {}, status = {} } = data;
     const kindLower = kind?.toLowerCase() || '';
 
@@ -76,8 +79,7 @@ export default function OverviewTab({
                 isDaemonSet={isDaemonSet}
             />
 
-            {/* Do not show generic Resource Info for resources where it's redundant/incorrect */}
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
@@ -89,14 +91,16 @@ export default function OverviewTab({
                     spec={spec}
                     status={status}
                     t={t}
+                    icons={icons}
                 />
             )}
 
             {isPod && <PodOverview data={data} spec={spec} status={status} t={t} />}
-            {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} />}
+            {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
+            {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
-            {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} />}
-            {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} />}
+            {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
+            {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {kindLower.includes('configmap') && <ConfigMapOverview data={data} metadata={metadata} t={t} />}
             {kindLower.includes('secret') && <SecretOverview data={data} kind={kind} namespace={namespace} name={name} t={t} />}
             {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
@@ -105,7 +109,7 @@ export default function OverviewTab({
             {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} t={t} />}
             {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} t={t} />}
-            {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} />}
+            {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} icons={icons} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
