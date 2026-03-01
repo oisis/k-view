@@ -20,3 +20,12 @@ func GetAge(t time.Time) string {
 	}
 	return fmt.Sprintf("%ds", int(d.Seconds()))
 }
+
+// ParseK8sTime parses a Kubernetes timestamp string (RFC3339) into time.Time
+func ParseK8sTime(s string) time.Time {
+	t, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		return time.Time{}
+	}
+	return t
+}

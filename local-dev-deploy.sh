@@ -27,7 +27,11 @@ fi
 echo "🚀 Starting deployment to namespace: $NAMESPACE"
 echo "📦 Version transition: ${LAST_TAG:-none} -> $NEW_TAG"
 
-# 3. Handle stuck Helm releases
+# 3. Backend Verification
+echo "🧪 Running backend unit tests..."
+(cd backend && go test ./handlers/... -v) || { echo "❌ Backend tests failed! Aborting deployment."; exit 1; }
+
+# 4. Handle stuck Helm releases
 STATUS=$(helm status k-view -n "$NAMESPACE" 2>/dev/null | grep "STATUS:" | awk '{print $2}')
 if [[ "$STATUS" == "pending-upgrade" ]]; then
     echo "🧹 Release is stuck in $STATUS. Performing rollback..."
@@ -37,19 +41,19 @@ elif [[ "$STATUS" == "pending-install" ]]; then
     helm uninstall k-view -n "$NAMESPACE" || echo "Uninstall failed, proceeding anyway..."
 fi
 
-# 4. Local Docker Build
+# 5. Local Docker Build
 echo "🏗️  Building local image $IMAGE_NAME:$NEW_TAG..."
 docker build -t "$IMAGE_NAME:$NEW_TAG" . || exit 1
 
-# 5. Namespace Preparation
+# 6. Namespace Preparation
 echo "🌐 Ensuring namespace $NAMESPACE exists..."
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
-# 6. Helm Validation
+# 7. Helm Validation
 echo "🔍 Linting Helm chart..."
 helm lint "$CHART_PATH" || exit 1
 
-# 7. Helm Deployment (Removed --force to avoid conflicts with Server-Side Apply)
+# 8. Helm Deployment
 echo "☸️  Upgrading release k-view..."
 helm upgrade --install k-view "$CHART_PATH" \
   -n "$NAMESPACE" \
@@ -58,11 +62,11 @@ helm upgrade --install k-view "$CHART_PATH" \
   --set image.tag="$NEW_TAG" \
   --wait --timeout 3m || exit 1
 
-# 8. Rollout Verification
+# 9. Rollout Verification
 echo "✅ Verifying deployment health..."
 kubectl rollout status deployment/k-view -n "$NAMESPACE" || exit 1
 
-# 9. Surgical Image Cleanup
+# 10. Surgical Image Cleanup
 echo "🧼 Cleanup: Removing old local images..."
 docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "k-view(-dev)?:v" | grep -v "$IMAGE_NAME:$NEW_TAG" | xargs -I {} docker rmi {} 2>/dev/null || true
 

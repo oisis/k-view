@@ -13,13 +13,9 @@ import (
 // GetLabels extracts and sorts labels into a comma-separated string
 func GetLabels(obj map[string]interface{}) string {
 	metadata, ok := obj["metadata"].(map[string]interface{})
-	if !ok {
-		return ""
-	}
+	if !ok { return "" }
 	labels, ok := metadata["labels"].(map[string]interface{})
-	if !ok {
-		return ""
-	}
+	if !ok { return "" }
 
 	var res []string
 	for k, v := range labels {
@@ -32,13 +28,9 @@ func GetLabels(obj map[string]interface{}) string {
 // GetAnnotations extracts and sorts annotations into a comma-separated string
 func GetAnnotations(obj map[string]interface{}) string {
 	metadata, ok := obj["metadata"].(map[string]interface{})
-	if !ok {
-		return ""
-	}
+	if !ok { return "" }
 	ann, ok := metadata["annotations"].(map[string]interface{})
-	if !ok {
-		return ""
-	}
+	if !ok { return "" }
 
 	var res []string
 	for k, v := range ann {
@@ -52,11 +44,14 @@ func GetAnnotations(obj map[string]interface{}) string {
 func GetImages(obj map[string]interface{}) string {
 	var containers []interface{}
 	
-	// Pod spec location
+	// Pod
 	if c, ok, _ := unstructured.NestedSlice(obj, "spec", "containers"); ok {
 		containers = c
 	} else if c, ok, _ := unstructured.NestedSlice(obj, "spec", "template", "spec", "containers"); ok {
-		// Deployment/StatefulSet/Job spec location
+		// Deployment/StatefulSet/DaemonSet/Job
+		containers = c
+	} else if c, ok, _ := unstructured.NestedSlice(obj, "spec", "jobTemplate", "spec", "template", "spec", "containers"); ok {
+		// CronJob
 		containers = c
 	}
 
@@ -73,7 +68,7 @@ func GetImages(obj map[string]interface{}) string {
 	return strings.Join(images, ", ")
 }
 
-// ParseCPU converts K8s CPU quantity (e.g., "500m", "2") to float64 cores
+// ParseCPU converts K8s CPU quantity to float64 cores
 func ParseCPU(val interface{}) float64 {
 	if val == nil { return 0 }
 	s := fmt.Sprintf("%v", val)
@@ -82,7 +77,7 @@ func ParseCPU(val interface{}) float64 {
 	return float64(q.MilliValue()) / 1000.0
 }
 
-// ParseMemory converts K8s memory quantity (e.g., "512Mi", "2Gi") to float64 bytes
+// ParseMemory converts K8s memory quantity to float64 bytes
 func ParseMemory(val interface{}) float64 {
 	if val == nil { return 0 }
 	s := fmt.Sprintf("%v", val)

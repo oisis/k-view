@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 
 	"k-view/pkg/k8sutils"
+	"k-view/pkg/utils"
 
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -20,15 +22,15 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		}
 	}
 
+	kind = strings.ToLower(kind)
 	switch kind {
-	case "pods":
+	case "pods", "pod":
 		if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {
 			resItem.Status = phase
 		}
 		node, _, _ := unstructured.NestedString(item.Object, "spec", "nodeName")
 		extra["node"] = node
 
-		// Dynamic Pod Ready & Restarts
 		if containerStatuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
 			readyCount := 0
 			restartCount := int64(0)
@@ -46,12 +48,8 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 			}
 			extra["ready"] = fmt.Sprintf("%d/%d", readyCount, len(containerStatuses))
 			extra["restarts"] = fmt.Sprintf("%d", restartCount)
-		} else {
-			extra["ready"] = "0/0"
-			extra["restarts"] = "0"
 		}
 
-		// Resource Requests (CPU/RAM)
 		if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
 			var totalCPU, totalMem int64
 			for _, c := range containers {
@@ -72,15 +70,11 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 					}
 				}
 			}
-			if totalCPU > 0 {
-				extra["cpu"] = fmt.Sprintf("%dm", totalCPU)
-			}
-			if totalMem > 0 {
-				extra["ram"] = fmt.Sprintf("%dMi", totalMem)
-			}
+			if totalCPU > 0 { extra["cpu"] = fmt.Sprintf("%dm", totalCPU) }
+			if totalMem > 0 { extra["ram"] = fmt.Sprintf("%dMi", totalMem) }
 		}
 
-	case "deployments":
+	case "deployments", "deployment":
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 		avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
@@ -89,40 +83,33 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		extra["available"] = fmt.Sprintf("%d", avail)
 		extra["up-to-date"] = fmt.Sprintf("%d", up)
 
-	case "statefulsets":
+	case "statefulsets", "statefulset":
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 		extra["ready"] = fmt.Sprintf("%d/%d", ready, replicas)
 		extra["replicas"] = fmt.Sprintf("%d", replicas)
 
-	case "daemonsets":
+	case "daemonsets", "daemonset":
 		desired, _, _ := unstructured.NestedInt64(item.Object, "status", "desiredNumberScheduled")
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "numberReady")
-		avail, _, _ := unstructured.NestedInt64(item.Object, "status", "numberAvailable")
 		extra["desired"] = fmt.Sprintf("%d", desired)
 		extra["ready"] = fmt.Sprintf("%d", ready)
-		extra["available"] = fmt.Sprintf("%d", avail)
 		extra["pods"] = fmt.Sprintf("%d/%d", ready, desired)
 
-	case "replicasets", "replicationcontrollers":
-		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
-		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-		avail, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
-		extra["desired"] = fmt.Sprintf("%d", replicas)
-		extra["current"] = fmt.Sprintf("%d", replicas)
-		extra["ready"] = fmt.Sprintf("%d", ready)
-		if avail > 0 {
-			extra["available"] = fmt.Sprintf("%d", avail)
+	case "cronjobs", "cronjob":
+		schedule, _, _ := unstructured.NestedString(item.Object, "spec", "schedule")
+		extra["schedule"] = schedule
+		if suspend, ok, _ := unstructured.NestedBool(item.Object, "spec", "suspend"); ok {
+			extra["suspend"] = fmt.Sprintf("%v", suspend)
+		}
+		if lastSchedule, ok, _ := unstructured.NestedString(item.Object, "status", "lastScheduleTime"); ok {
+			extra["last-schedule"] = utils.GetAge(utils.ParseK8sTime(lastSchedule))
 		}
 
-	case "jobs":
+	case "jobs", "job":
 		succeeded, _, _ := unstructured.NestedInt64(item.Object, "status", "succeeded")
-		active, _, _ := unstructured.NestedInt64(item.Object, "status", "active")
 		completions, found, _ := unstructured.NestedInt64(item.Object, "spec", "completions")
 		if !found { completions = 1 }
-		extra["succeeded"] = fmt.Sprintf("%d", succeeded)
-		extra["active"] = fmt.Sprintf("%d", active)
-		extra["completions"] = fmt.Sprintf("%d", completions)
 		extra["pods"] = fmt.Sprintf("%d/%d", succeeded, completions)
 	}
 }

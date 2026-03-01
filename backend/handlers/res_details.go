@@ -14,62 +14,6 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func (h *ResourceHandler) List(c *gin.Context) {
-	kind := strings.ToLower(c.Param("kind"))
-	ns := c.Query("namespace")
-
-	var items []unstructured.Unstructured
-
-	if isDevMode() {
-		items, _ = h.getMockResources(kind, ns)
-	}
-
-	if items == nil {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
-		gvr := getGVR(kind)
-		var list *unstructured.UnstructuredList
-		if ns != "" && !isClusterScoped(kind) {
-			list, err = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		} else {
-			list, err = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
-		}
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		items = list.Items
-	}
-
-	// Prepare result
-	result := make([]ResourceItem, 0)
-	for _, item := range items {
-		resItem := ResourceItem{
-			Name:      item.GetName(),
-			Namespace: item.GetNamespace(),
-			Age:       utils.GetAge(item.GetCreationTimestamp().Time),
-			Status:    "Active",
-			Extra:     map[string]string{"kind": item.GetKind()},
-		}
-
-		if len(item.GetOwnerReferences()) > 0 {
-			resItem.Extra["owner-uid"] = string(item.GetOwnerReferences()[0].UID)
-		}
-
-		// Use centralized mapping with the full item pointer
-		h.mapResourceSpecifics(item, kind, &resItem)
-
-		result = append(result, resItem)
-	}
-
-	c.JSON(http.StatusOK, result)
-}
-
 func (h *ResourceHandler) GetStats(c *gin.Context) {
 	if isDevMode() {
 		c.JSON(http.StatusOK, gin.H{
@@ -147,6 +91,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"data":     item.Object["data"],
 	}
 
+	// For cluster-scoped resources like StorageClass, many fields are at the root
 	for k, v := range item.Object {
 		if k != "metadata" && k != "status" && k != "spec" {
 			response[k] = v
@@ -161,7 +106,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	}
 
 	if kind == "nodes" || kind == "node" {
-		// Calculate node allocation for pie charts
+		// Node allocation stats logic
 		allocatable, _, _ := unstructured.NestedMap(item.Object, "status", "allocatable")
 		capacity, _, _ := unstructured.NestedMap(item.Object, "status", "capacity")
 		
@@ -172,7 +117,6 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		podsCap := k8sutils.ParseQuantity(capacity["pods"])
 		podsAlloc := k8sutils.ParseQuantity(allocatable["pods"])
 
-		// Get all pods on this node to calculate actual allocation
 		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 		podGVR := getGVR("pods")
 		podList, err := dynClient.Resource(podGVR).List(c.Request.Context(), metav1.ListOptions{
@@ -196,21 +140,9 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 
 		response["allocation"] = gin.H{
-			"cpu": gin.H{
-				"requests": cpuReq,
-				"allocatable": cpuAlloc,
-				"capacity": cpuCap,
-			},
-			"memory": gin.H{
-				"requests": memReq,
-				"allocatable": memAlloc,
-				"capacity": memCap,
-			},
-			"pods": gin.H{
-				"allocation": podCount,
-				"allocatable": podsAlloc,
-				"capacity": podsCap,
-			},
+			"cpu": gin.H{"requests": cpuReq, "allocatable": cpuAlloc, "capacity": cpuCap},
+			"memory": gin.H{"requests": memReq, "allocatable": memAlloc, "capacity": memCap},
+			"pods": gin.H{"allocation": podCount, "allocatable": podsAlloc, "capacity": podsCap},
 		}
 	}
 
@@ -278,52 +210,4 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 
 	c.Header("Content-Type", contentType+"; charset=utf-8")
 	c.String(http.StatusOK, string(output))
-}
-
-func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, kind string, resItem *ResourceItem) {
-	resItem.Extra["labels"] = k8sutils.GetLabels(item.Object)
-	resItem.Extra["annotations"] = k8sutils.GetAnnotations(item.Object)
-
-	switch kind {
-	case "pods", "pod", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "replicasets", "replicaset", "replicationcontrollers":
-		h.mapWorkload(item, kind, resItem.Extra, resItem)
-	case "services", "service", "ingresses", "ingress", "ingress-classes", "ingressclass", "network-policies", "networkpolicy":
-		h.mapNetwork(item, kind, resItem.Extra, resItem, nil)
-	case "persistentvolumeclaims", "pvcs", "persistentvolumes", "pvs", "storage-classes", "storageclass", "secrets", "secret":
-		h.mapStorage(item, kind, resItem.Extra, resItem)
-	case "crds", "customresourcedefinitions":
-		h.mapCRD(item, resItem.Extra, resItem)
-	}
-}
-
-func (h *ResourceHandler) mapCRD(item unstructured.Unstructured, extra map[string]string, resItem *ResourceItem) {
-	if group, ok, _ := unstructured.NestedString(item.Object, "spec", "group"); ok {
-		extra["group"] = group
-	}
-	if scope, ok, _ := unstructured.NestedString(item.Object, "spec", "scope"); ok {
-		extra["scope"] = scope
-	}
-	if versions, ok, _ := unstructured.NestedSlice(item.Object, "spec", "versions"); ok && len(versions) > 0 {
-		var vs []string
-		for _, v := range versions {
-			if vm, ok := v.(map[string]interface{}); ok {
-				if name, ok := vm["name"].(string); ok {
-					vs = append(vs, name)
-				}
-			}
-		}
-		extra["version"] = strings.Join(vs, ", ")
-	}
-
-	if conds, ok, _ := unstructured.NestedSlice(item.Object, "status", "conditions"); ok {
-		for _, c := range conds {
-			if cm, ok := c.(map[string]interface{}); ok {
-				if cType, ok := cm["type"].(string); ok && cType == "Established" {
-					if status, ok := cm["status"].(string); ok && status == "True" {
-						resItem.Status = "Established"
-					}
-				}
-			}
-		}
-	}
 }

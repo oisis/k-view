@@ -9,10 +9,12 @@ import (
 	"sync"
 
 	"k-view/k8s"
+	"k-view/pkg/utils"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+// Shared Types
 type ResourceItem struct {
 	Name      string                 `json:"name"`
 	Namespace string                 `json:"namespace,omitempty"`
@@ -27,29 +29,10 @@ type MetricHistory struct {
 	Value     float64 `json:"value"`
 }
 
-type ClusterStats struct {
-	K8sVersion     string          `json:"k8sVersion"`
-	NodeCount      int             `json:"nodeCount"`
-	NodeCountReady int             `json:"nodeCountReady"`
-	PodCount       int             `json:"podCount"`
-	PodCountFailed int             `json:"podCountFailed"`
-	CPUUsage       float64         `json:"cpuUsage"` // Percentage
-	CPUTotal       string          `json:"cpuTotal"` // e.g., "32 Cores"
-	RAMUsage       float64         `json:"ramUsage"` // Percentage
-	RAMTotal       string          `json:"ramTotal"` // e.g., "128 GiB"
-	ClusterName    string          `json:"clusterName"`
-	ETCDHealth     string          `json:"etcdHealth"`
-	MetricsServer  bool            `json:"metricsServer"`
-	CPUHistory     []MetricHistory `json:"cpuHistory"`
-	RAMHistory     []MetricHistory `json:"ramHistory"`
-}
-
 type ResourceHandler struct {
 	devMode       bool
 	k8sClient     k8s.KubernetesProvider
 	mu            sync.Mutex
-	cpuHistory    []MetricHistory
-	ramHistory    []MetricHistory
 	mockResources map[string][]unstructured.Unstructured
 }
 
@@ -61,6 +44,7 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	}
 }
 
+// Global Helpers
 func isClusterScoped(kind string) bool {
 	kind = strings.ToLower(kind)
 	clusterScoped := []string{"nodes", "node", "namespaces", "namespace", "persistentvolumes", "pvs", "storage-classes", "storageclass", "cluster-roles", "clusterrole", "cluster-role-bindings", "clusterrolebinding", "crds", "customresourcedefinitions", "ingress-classes", "ingressclass"}
@@ -115,10 +99,19 @@ func (h *ResourceHandler) getMockResources(kind, ns string) ([]unstructured.Unst
 	if kind == "storageclass" { mockKind = "storage-classes" }
 	if kind == "networkpolicy" { mockKind = "network-policies" }
 
-	wd, _ := os.Getwd()
-	path := filepath.Join(wd, "mocks", "resources", mockKind+".json")
-	
-	data, err := os.ReadFile(path)
+	locations := []string{
+		filepath.Join("mocks", "resources", mockKind+".json"),
+		filepath.Join("..", "mocks", "resources", mockKind+".json"),
+		filepath.Join("..", "..", "mocks", "resources", mockKind+".json"),
+	}
+
+	var data []byte
+	var err error
+	for _, path := range locations {
+		data, err = os.ReadFile(path)
+		if err == nil { break }
+	}
+
 	if err != nil { return nil, err }
 
 	var list struct {
@@ -147,7 +140,23 @@ func (h *ResourceHandler) getMockResource(kind, ns, name string) (*unstructured.
 }
 
 func (h *ResourceHandler) mockRawResourceList(kind, ns string) []unstructured.Unstructured {
-	res, err := h.getMockResources(kind, ns)
-	if err != nil { return nil }
+	res, _ := h.getMockResources(kind, ns)
 	return res
+}
+
+func (h *ResourceHandler) mockResourceList(kind, ns string) []ResourceItem {
+	items, _ := h.getMockResources(kind, ns)
+	var result []ResourceItem
+	for _, it := range items {
+		res := ResourceItem{
+			Name:      it.GetName(),
+			Namespace: it.GetNamespace(),
+			Age:       utils.GetAge(it.GetCreationTimestamp().Time),
+			Status:    "Active",
+			Extra:     make(map[string]string),
+		}
+		h.mapResourceSpecifics(it, kind, &res)
+		result = append(result, res)
+	}
+	return result
 }
