@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
+	"sigs.k8s.io/yaml"
 )
 
 func (h *ResourceHandler) List(c *gin.Context) {
@@ -177,7 +177,6 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	if ns == "-" { ns = "" }
 
 	var item *unstructured.Unstructured
-	var err error
 
 	if isDevMode() {
 		item, _ = h.getMockResource(kind, ns, name)
@@ -199,12 +198,12 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 		item, err = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
 	}
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if item == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
 		return
 	}
 
-	y, err := json.Marshal(item.Object)
+	y, err := yaml.Marshal(item.Object)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate YAML"})
 		return
@@ -221,8 +220,6 @@ func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, k
 	case "pods", "pod", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "replicasets", "replicaset", "replicationcontrollers":
 		h.mapWorkload(item, kind, resItem.Extra, resItem)
 	case "services", "service", "ingresses", "ingress", "ingress-classes", "ingressclass", "network-policies", "networkpolicy":
-		// For network, some need endpoints map which is not available here easily without extra fetch
-		// For lists, we'll keep it simple or pass empty
 		h.mapNetwork(item, kind, resItem.Extra, resItem, nil)
 	case "persistentvolumeclaims", "pvcs", "persistentvolumes", "pvs", "storage-classes", "storageclass", "secrets", "secret":
 		h.mapStorage(item, kind, resItem.Extra, resItem)
