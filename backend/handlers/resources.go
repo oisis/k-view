@@ -209,6 +209,8 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 		return
 	}
 
+	// Set header explicitly to avoid interpretation as JSON
+	c.Header("Content-Type", "text/yaml; charset=utf-8")
 	c.String(http.StatusOK, string(y))
 }
 
@@ -247,7 +249,6 @@ func (h *ResourceHandler) mapCRD(item unstructured.Unstructured, extra map[strin
 		extra["version"] = strings.Join(vs, ", ")
 	}
 
-	// Status mapping from conditions
 	if conds, ok, _ := unstructured.NestedSlice(item.Object, "status", "conditions"); ok {
 		for _, c := range conds {
 			if cm, ok := c.(map[string]interface{}); ok {
