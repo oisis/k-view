@@ -20,6 +20,7 @@ import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
 import PvOverview from './templates/PvOverview';
 import RbacBindingOverview from './templates/RbacBindingOverview';
 import DaemonSetOverview from './templates/DaemonSetOverview';
+import JobOverview from './templates/JobOverview';
 
 export default function OverviewTab({ 
     data, kind, namespace, name, quotas, limits, 
@@ -79,7 +80,7 @@ export default function OverviewTab({
                 isDaemonSet={isDaemonSet}
             />
 
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
@@ -98,6 +99,7 @@ export default function OverviewTab({
             {isPod && <PodOverview data={data} spec={spec} status={status} t={t} />}
             {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
             {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
