@@ -23,7 +23,6 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const isClusterScoped = isNode || isPv || isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isCrd;
     
     // Resources that should only show the basic metadata row (Name, NS, Created, Age)
-    // because their status is either non-existent or redundant.
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNode || isPv || isRbacBinding || isCrd || isNetworkPolicy || 
                                   isDeployment || isStatefulSet || isJob || isCronJob || isReplicaSet || isReplicationController || isHpa || isService || isIngress || isConfigMap || isSecret;
 
@@ -39,8 +38,8 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
 
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
-            {/* First Row: Name, Namespace, Created, Age */}
-            <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-4' : (isClusterScoped ? 'md:grid-cols-3' : 'md:grid-cols-4')} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+            {/* First Row: Name, Namespace (optional), Created, Age */}
+            <div className={`grid grid-cols-1 ${isClusterScoped ? 'md:grid-cols-3' : 'md:grid-cols-4'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                 <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                     <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                     <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
