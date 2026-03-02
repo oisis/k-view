@@ -9,13 +9,16 @@ export default function CronJobOverview({ data, metadata, spec, status, relatedJ
     const concurrencyPolicy = spec?.concurrencyPolicy || 'Allow';
     const restartPolicy = spec?.jobTemplate?.spec?.template?.spec?.restartPolicy || '—';
 
+    const activeJobs = (relatedJobs || []).filter(j => parseInt(j.extra?.active || '0', 10) > 0);
+    const inactiveJobs = (relatedJobs || []).filter(j => parseInt(j.extra?.active || '0', 10) === 0);
+
     return (
         <>
             <DetailSection title={t('resource_info')}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5">
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs text-text-muted uppercase font-bold mb-1">Schedule</span>
-                        <span className="text-sm font-mono text-info font-bold">{spec?.schedule}</span>
+                        <span className="text-sm font-mono text-info font-bold">{spec?.schedule || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs text-text-muted uppercase font-bold mb-1">Suspend</span>
@@ -46,9 +49,20 @@ export default function CronJobOverview({ data, metadata, spec, status, relatedJ
                 />
             )}
 
-            {relatedJobs && relatedJobs.length > 0 && (
-                <JobsTable jobs={relatedJobs} t={t} icons={icons} title="Recent Jobs" />
-            )}
+            <div className="space-y-6">
+                <JobsTable 
+                    jobs={activeJobs} 
+                    t={t} 
+                    icons={icons} 
+                    title="Active Jobs" 
+                />
+                <JobsTable 
+                    jobs={inactiveJobs} 
+                    t={t} 
+                    icons={icons} 
+                    title="Inactive Jobs" 
+                />
+            </div>
         </>
     );
 }
