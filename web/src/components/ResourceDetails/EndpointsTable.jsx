@@ -8,7 +8,7 @@ export default function EndpointsTable({ endpoints, t }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                     <thead>
-                        <tr>
+                        <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
                             <th className="px-4 py-3 text-left">Host</th>
                             <th className="px-4 py-3 text-left">Ports</th>
                             <th className="px-4 py-3 text-left">Node</th>
@@ -17,21 +17,23 @@ export default function EndpointsTable({ endpoints, t }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {(!endpoints || endpoints.length === 0) ? (
-                            <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic">No endpoints found.</td></tr>
+                            <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No endpoints found.</td></tr>
                         ) : (
                             endpoints.map((ep, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-4 py-2 font-mono text-xs text-info">{ep.host}</td>
-                                    <td className="px-4 py-2 text-xs font-mono">
+                                <tr key={i} className="hover:bg-white/5 transition-colors group">
+                                    <td className="px-4 py-3 font-mono text-xs text-info font-bold">{ep.host}</td>
+                                    <td className="px-4 py-3 text-xs font-mono text-secondary">
                                         {ep.ports?.map(p => `${p.name || '-'}: ${p.port}/${p.protocol}`).join(', ')}
                                     </td>
-                                    <td className="px-4 py-2">
-                                        <Link to={`/nodes/-/${ep.node}`} className="text-xs text-accent hover:underline font-mono">
-                                            {ep.node}
-                                        </Link>
+                                    <td className="px-4 py-3">
+                                        {ep.node ? (
+                                            <Link to={`/nodes/${ep.node}`} className="text-xs text-accent hover:underline font-mono font-bold">
+                                                {ep.node}
+                                            </Link>
+                                        ) : '—'}
                                     </td>
-                                    <td className="px-4 py-2 text-center">
-                                        <span className={`px-2 py-0.5 rounded text-xs font-black uppercase border ${ep.ready === 'True' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
+                                    <td className="px-4 py-3 text-center">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${ep.ready === 'True' ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}`}>
                                             {ep.ready === 'True' ? 'Ready' : 'Not Ready'}
                                         </span>
                                     </td>

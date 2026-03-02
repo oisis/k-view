@@ -147,6 +147,16 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	statusData, _, _ := unstructured.NestedMap(item.Object, "status")
 	metaData, _, _ := unstructured.NestedMap(item.Object, "metadata")
 
+	extra := make(map[string]string)
+	resItem := ResourceItem{
+		Name:      item.GetName(),
+		Namespace: item.GetNamespace(),
+		Age:       utils.GetAge(item.GetCreationTimestamp().Time),
+		Status:    "Active",
+		Extra:     extra,
+	}
+	h.mapResourceSpecifics(*item, kind, &resItem)
+
 	response := gin.H{
 		"resource": gin.H{
 			"name":      item.GetName(),
@@ -158,6 +168,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		"spec":     item.Object["spec"],
 		"status":   statusData,
 		"data":     item.Object["data"],
+		"extra":    resItem.Extra,
 	}
 
 	// For cluster-scoped resources like StorageClass, many fields are at the root

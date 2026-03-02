@@ -29,7 +29,7 @@ import ReplicationControllerOverview from './templates/ReplicationControllerOver
 export default function OverviewTab({
  
     data, kind, namespace, name, quotas, limits, 
-    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs, 
+    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedIngresses, relatedEndpoints, relatedPvs, 
     t, settings 
 }) {
     const { icons } = useTheme();
@@ -115,12 +115,12 @@ export default function OverviewTab({
             {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isReplicationController && <ReplicationControllerOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {kindLower === 'hpas' && <HpaOverview spec={spec} status={status} t={t} />}
-            {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
+            {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} relatedIngresses={relatedIngresses} t={t} icons={icons} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
             {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {kindLower.includes('configmap') && <ConfigMapOverview data={data} metadata={metadata} t={t} />}
             {kindLower.includes('secret') && <SecretOverview data={data} kind={kind} namespace={namespace} name={name} t={t} />}
-            {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
+            {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} icons={icons} />}
             {isIngressClass && <IngressClassOverview spec={spec} t={t} />}
             {isPvc && <PvcOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}

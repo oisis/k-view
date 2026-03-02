@@ -38,6 +38,7 @@ export default function ResourceDetails() {
     const [relatedReplicaSets, setRelatedReplicaSets] = useState(null);
     const [relatedHpas, setRelatedHpas] = useState(null);
     const [relatedEndpoints, setRelatedEndpoints] = useState(null);
+    const [relatedIngresses, setRelatedIngresses] = useState(null);
     const [relatedPvs, setRelatedPvs] = useState(null);
 
     const kindLower = kind?.toLowerCase() || '';
@@ -50,6 +51,17 @@ export default function ResourceDetails() {
 
     const load = async () => {
         setLoading(true);
+        setRelatedJobs(null);
+        setRelatedPods(null);
+        setRelatedServices(null);
+        setRelatedIngresses(null);
+        setRelatedReplicaSets(null);
+        setRelatedHpas(null);
+        setRelatedEndpoints(null);
+        setRelatedPvs(null);
+        setQuotas(null);
+        setLimits(null);
+
         try {
             const url = namespace && namespace !== '-' 
                 ? `/api/resources/${kind}/${namespace}/${name}` 
@@ -179,6 +191,19 @@ export default function ResourceDetails() {
                                 const targetName = h.extra?.['target-name'];
                                 const targetKind = h.extra?.['target-kind']?.toLowerCase() || '';
                                 return targetName === name && (kindLower.includes(targetKind));
+                            }));
+                        }
+                    }
+                }
+
+                if (kindLower.includes('service')) {
+                    const ingRes = await fetch(`/api/resources/ingresses?namespace=${nsQuery}`);
+                    if (ingRes?.ok) {
+                        const ingData = await ingRes.json();
+                        if (Array.isArray(ingData)) {
+                            setRelatedIngresses(ingData.filter(ing => {
+                                const endpoints = ing.extra?.endpoints || "";
+                                return endpoints.split(',').some(svcName => svcName.trim() === name);
                             }));
                         }
                     }
@@ -316,6 +341,7 @@ export default function ResourceDetails() {
                         relatedServices={relatedServices}
                         relatedReplicaSets={relatedReplicaSets}
                         relatedHpas={relatedHpas}
+                        relatedIngresses={relatedIngresses}
                         relatedEndpoints={relatedEndpoints}
                         relatedPvs={relatedPvs}
                         t={t}

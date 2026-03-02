@@ -10,6 +10,8 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
     const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
     const isStatefulSet = kindLower.includes('statefulset');
+    const isIngress = kindLower === 'ingress' || kindLower === 'ingresses';
+    const isService = kindLower === 'service' || kindLower === 'services';
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNetworkPolicy || isNode || isPv;
 
 
@@ -41,7 +43,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                 </div>
             ) : (
                 <>
-                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet || isIngress || isService) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
@@ -60,7 +62,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                             <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                         </div>
-                        {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet) && (
+                        {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet || isIngress || isService) && (
                             <div className="px-6 py-4 flex flex-col items-center text-center border-l border-border">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
@@ -68,7 +70,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                         )}
                     </div>
 
-                    {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && !isCronJob && !isDeployment && !isHpa && !isReplicaSet && !isReplicationController && !isStatefulSet && (
+                    {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && !isCronJob && !isDeployment && !isHpa && !isReplicaSet && !isReplicationController && !isStatefulSet && !isIngress && !isService && (
                         <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
