@@ -40,6 +40,8 @@ func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unst
 		h.mapStorage(item, kind, resItem.Extra, resItem)
 	case "crds", "customresourcedefinitions":
 		h.mapCRD(item, resItem.Extra, resItem)
+	case "events":
+		h.mapEvent(item, resItem.Extra, resItem)
 	}
 }
 

@@ -426,6 +426,14 @@ export default function ResourceList({ kind }) {
                     <div className="flex items-center gap-2">
                         <button
                             disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(1)}
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            title="First Page"
+                        >
+                            <icons.chevrons_left size={18} />
+                        </button>
+                        <button
+                            disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
@@ -458,6 +466,14 @@ export default function ResourceList({ kind }) {
                             className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_right size={18} />
+                        </button>
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            title="Last Page"
+                        >
+                            <icons.chevrons_right size={18} />
                         </button>
                     </div>
                 </div>

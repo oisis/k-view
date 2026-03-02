@@ -136,6 +136,7 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 
 		events = append(events, gin.H{
 			"name":      name,
+			"namespace": item.GetNamespace(),
 			"reason":    reason,
 			"message":   message,
 			"source":    source,
@@ -151,4 +152,37 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 	})
 
 	c.JSON(http.StatusOK, events)
+}
+
+func (h *ResourceHandler) mapEvent(item unstructured.Unstructured, extra map[string]string, resItem *ResourceItem) {
+	reason, _, _ := unstructured.NestedString(item.Object, "reason")
+	message, _, _ := unstructured.NestedString(item.Object, "message")
+	source, _, _ := unstructured.NestedString(item.Object, "source", "component")
+	objectKind, _, _ := unstructured.NestedString(item.Object, "involvedObject", "kind")
+	objectName, _, _ := unstructured.NestedString(item.Object, "involvedObject", "name")
+	object := fmt.Sprintf("%s/%s", objectKind, objectName)
+	count, _, _ := unstructured.NestedInt64(item.Object, "count")
+	eType, _, _ := unstructured.NestedString(item.Object, "type")
+
+	firstSeen := "—"
+	if firstTimestamp, ok, _ := unstructured.NestedString(item.Object, "firstTimestamp"); ok && firstTimestamp != "" {
+		if ft, err := time.Parse(time.RFC3339, firstTimestamp); err == nil {
+			firstSeen = utils.GetAge(ft)
+		}
+	}
+	lastSeen := "—"
+	if lastTimestamp, ok, _ := unstructured.NestedString(item.Object, "lastTimestamp"); ok && lastTimestamp != "" {
+		if lt, err := time.Parse(time.RFC3339, lastTimestamp); err == nil {
+			lastSeen = utils.GetAge(lt)
+		}
+	}
+
+	resItem.Status = eType
+	extra["reason"] = reason
+	extra["message"] = message
+	extra["source"] = source
+	extra["object"] = object
+	extra["count"] = fmt.Sprintf("%d", count)
+	extra["first-seen"] = firstSeen
+	extra["last-seen"] = lastSeen
 }

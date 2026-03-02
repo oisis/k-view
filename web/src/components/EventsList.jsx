@@ -105,14 +105,15 @@ export default function EventsList() {
     }, [items, sortConfig]);
 
     const cols = [
-        { key: 'name', label: 'Name' },
+        { key: 'name', label: 'Name', width: 'w-64' },
+        { key: 'namespace', label: 'Namespace' },
         { key: 'reason', label: 'Reason' },
         { key: 'message', label: 'Message' },
-        { key: 'source', label: 'Source' },
-        { key: 'object', label: 'Object' },
-        { key: 'count', label: 'Count' },
-        { key: 'firstSeen', label: 'First Seen' },
-        { key: 'lastSeen', label: 'Last Seen' }
+        { key: 'source', label: 'Source', width: 'w-32', align: 'center' },
+        { key: 'object', label: 'Objects', width: 'w-64' },
+        { key: 'count', label: 'Count', width: 'w-20', align: 'center' },
+        { key: 'firstSeen', label: 'First Seen', width: 'w-28', align: 'center' },
+        { key: 'lastSeen', label: 'Last Seen', width: 'w-28', align: 'center' }
     ];
 
     const filteredItems = useMemo(() => {
@@ -185,9 +186,9 @@ export default function EventsList() {
                                     <th
                                         key={col.key}
                                         onClick={() => requestSort(col.key)}
-                                        className="px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-bold"
+                                        className={`px-3 py-2.5 whitespace-nowrap cursor-pointer hover:bg-[var(--sidebar-hover)] hover:text-primary transition-colors group select-none font-black text-center ${col.width || ''}`}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center justify-center gap-2">
                                             {t(`label_${col.label.toLowerCase().replace(' ', '_')}`) || col.label}
                                             <span className="text-text-muted group-hover:text-secondary transition-colors">
                                                 {sortConfig.key === col.key ? (
@@ -210,20 +211,22 @@ export default function EventsList() {
                                 <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors">
                                     {cols.map(col => {
                                         const val = getVal(item, col.key);
-                                        let cellClass = "px-4 py-2 whitespace-nowrap";
+                                        const isWrap = col.key === 'name' || col.key === 'message';
+                                        let cellClass = `px-4 py-2 ${isWrap ? '' : 'whitespace-nowrap'} ${col.align === 'center' ? 'text-center' : ''} ${col.width || ''}`;
                                         let content = <span className="text-secondary font-medium">{val}</span>;
 
                                         if (col.key === 'name') {
-                                            content = <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${item.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>{String(val)}</span>;
+                                            content = <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold break-words inline-block ${item.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>{String(val)}</span>;
                                         } else if (col.key === 'message') {
-                                            content = <span className="text-secondary max-w-sm block break-words whitespace-normal leading-tight">{String(val)}</span>;
+                                            cellClass = "px-4 py-2 max-w-md"; 
+                                            content = <span className="text-secondary block break-words whitespace-normal leading-tight text-xs">{String(val)}</span>;
                                         } else if (col.key === 'reason') {
-                                            content = <span className="text-primary font-bold">{String(val)}</span>;
-                                        } else if (col.key === 'count') {
-                                            cellClass = "px-4 py-2 whitespace-nowrap text-center";
-                                            content = <span className="text-primary font-bold">{String(val)}</span>;
+                                            content = <span className="text-primary">{String(val)}</span>;
+                                        }
+ else if (col.key === 'count') {
+                                            content = <span className="text-primary font-black">{String(val)}</span>;
                                         } else if (col.key === 'source' || col.key === 'object' || col.key === 'firstSeen' || col.key === 'lastSeen') {
-                                            content = <span className="text-text-muted text-xs font-mono">{String(val)}</span>;
+                                            content = <span className="text-text-muted text-[11px] font-mono">{String(val)}</span>;
                                         }
 
                                         return <td key={col.key} className={cellClass}>{content}</td>;
@@ -241,6 +244,14 @@ export default function EventsList() {
                         {t('showing') || 'Showing'} {Math.min(filteredItems.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(filteredItems.length, currentPage * settings.itemsPerPage)} {t('of') || 'of'} {filteredItems.length}
                     </div>
                     <div className="flex items-center gap-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(1)}
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            title="First Page"
+                        >
+                            <icons.chevrons_left size={18} />
+                        </button>
                         <button
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -275,6 +286,14 @@ export default function EventsList() {
                             className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                         >
                             <icons.chevron_right size={18} />
+                        </button>
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            title="Last Page"
+                        >
+                            <icons.chevrons_right size={18} />
                         </button>
                     </div>
                 </div>
