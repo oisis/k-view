@@ -196,6 +196,20 @@ export default function ResourceDetails() {
                     }
                 }
 
+                if (kindLower.includes('storageclass') || kindLower.includes('storage-class')) {
+                    const pvRes = await fetch(`/api/resources/pvs`);
+                    if (pvRes?.ok) {
+                        const pvData = await pvRes.json();
+                        if (Array.isArray(pvData)) {
+                            const filtered = pvData.filter(pv => {
+                                const scName = pv.extra?.['storage-class'] || "";
+                                return scName === name;
+                            });
+                            setRelatedPvs(filtered);
+                        }
+                    }
+                }
+
                 if (kindLower.includes('service')) {
                     const ingRes = await fetch(`/api/resources/ingresses?namespace=${nsQuery}`);
                     if (ingRes?.ok) {

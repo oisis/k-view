@@ -128,7 +128,7 @@ export default function OverviewTab({
             {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} t={t} />}
             {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} icons={icons} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} t={t} />}
-            {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
+            {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
 
             {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && !isReplicationController && (

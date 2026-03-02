@@ -58,18 +58,21 @@ func (h *ResourceHandler) mapStorage(item unstructured.Unstructured, kind string
 			extra["provisioner"] = provisioner
 		}
 		if reclaim, ok, _ := unstructured.NestedString(item.Object, "reclaimPolicy"); ok {
-			extra["reclaim-policy"] = reclaim
+			extra["reclaimPolicy"] = reclaim
 		}
 		if bindingMode, ok, _ := unstructured.NestedString(item.Object, "volumeBindingMode"); ok {
-			extra["volume-binding-mode"] = bindingMode
+			extra["volumeBindingMode"] = bindingMode
 		}
+
+		// Map all parameters to extra
 		if params, ok, _ := unstructured.NestedMap(item.Object, "parameters"); ok {
-			var ps []string
 			for k, v := range params {
-				ps = append(ps, fmt.Sprintf("%s=%s", k, v))
+				if vStr, ok := v.(string); ok {
+					extra[k] = vStr
+				}
 			}
-			extra["parameters"] = strings.Join(ps, ", ")
 		}
+
 		if isDef, ok, _ := unstructured.NestedString(item.Object, "metadata", "annotations", "storageclass.kubernetes.io/is-default-class"); ok && isDef == "true" {
 			resItem.Status = "Default"
 		}
