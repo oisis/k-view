@@ -247,6 +247,9 @@ export const ko = {
     version_info_desc: '애플리케이션 이미지의 현재 빌드 버전입니다.',
     image_version: '이미지 버전',
     homepage: '홈페이지',
+    project_description_title: '프로젝트 정보',
+    project_author: '작성자',
+    project_summary: 'K-View는 보안과 속도를 위해 설계된 고성능 쿠버네티스 대시보드입니다. 실시간 클러스터 시각화, 리소스 관리 및 시각적 네트워크 추적 기능을 제공합니다. 쿠버네티스 관리자를 위한 가장 가볍고 안전한 대시보드를 지향합니다.',
     // Resource Columns & Labels
     label_name: '이름',
     label_namespace: '네임스페이스',

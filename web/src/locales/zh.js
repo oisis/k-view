@@ -235,7 +235,10 @@ export const zh = {
     version_info: '版本信息',
     version_info_desc: '应用程序镜像的当前构建版本。',
     image_version: '镜像版本',
-    homepage: '主页',
+    homepage: '首页',
+    project_description_title: '项目信息',
+    project_author: '作者',
+    project_summary: 'K-View 是一款专为安全和速度设计的高性能 Kubernetes 仪表板。它提供实时集群可视化、资源管理和视觉网络追踪。旨在成为 Kubernetes 管理员最轻量、最安全的仪表板。',
     // Resource Columns & Labels
     label_name: '名称',
     label_namespace: '命名空间',

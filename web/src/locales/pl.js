@@ -229,6 +229,9 @@ export const pl = {
     version_info_desc: 'Aktualna wersja obrazu aplikacji.',
     image_version: 'Wersja obrazu',
     homepage: 'Strona domowa',
+    project_description_title: 'Informacje o projekcie',
+    project_author: 'Autor',
+    project_summary: 'K-View to wydajny pulpit nawigacyjny dla Kubernetes, zaprojektowany z myślą o bezpieczeństwie i szybkości. Zapewnia wizualizację klastra w czasie rzeczywistym, zarządzanie zasobami oraz wizualne śledzenie sieci. Ma na celu bycie najlżejszym i najbezpieczniejszym dashboardem dla administratorów Kubernetes.',
     // Resource Columns & Labels
     label_name: 'Nazwa',
     label_namespace: 'Namespace',

@@ -14,7 +14,7 @@ metadata:
     cluster: docker-desktop
     security-zone: trust
     compliance: hipaa-ready
-    owner: oisis
+    owner: OiSiS
   annotations:
     k-view.io/description: "Primary complex deployment for stress testing UI rendering and resource relationships"
     k-view.io/documentation: "https://github.com/oisis/k-view/docs/testing"

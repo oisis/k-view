@@ -237,6 +237,9 @@ export const en = {
     version_info_desc: 'Current build version of the application image.',
     image_version: 'Image Version',
     homepage: 'Homepage',
+    project_description_title: 'Project Information',
+    project_author: 'Author',
+    project_summary: 'K-View is a high-performance Kubernetes dashboard designed for security and speed. It provides real-time cluster visualization, resource management, and visual network tracing. It aims to be the lightest and most secure dashboard for Kubernetes administrators.',
     // Resource Columns & Labels
     label_name: 'Name',
     label_namespace: 'Namespace',

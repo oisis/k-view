@@ -237,6 +237,9 @@ export const es = {
     version_info_desc: 'Versión actual de la imagen.',
     image_version: 'Versión de imagen',
     homepage: 'Página de inicio',
+    project_description_title: 'Información del proyecto',
+    project_author: 'Autor',
+    project_summary: 'K-View es un panel de control de Kubernetes de alto rendimiento diseñado para la seguridad y la velocidad. Proporciona visualización del clúster en tiempo real, gestión de recursos y seguimiento visual de la red. Su objetivo es ser el panel más ligero y seguro para los administradores de Kubernetes.',
     // Resource Columns & Labels
     label_name: 'Nombre',
     label_namespace: 'Namespace',

@@ -237,6 +237,9 @@ export const fr = {
     version_info_desc: 'Version actuelle de l\'image de l\'application.',
     image_version: 'Version de l\'image',
     homepage: 'Page d\'accueil',
+    project_description_title: 'Informations sur le projet',
+    project_author: 'Auteur',
+    project_summary: 'K-View est un tableau de bord Kubernetes haute performance conçu pour la sécurité et la rapidité. Il offre une visualisation du cluster en temps réel, une gestion des ressources et un suivi visuel du réseau. Il vise à être le tableau de bord le plus léger et le plus sûr pour les administrateurs Kubernetes.',
     // Resource Columns & Labels
     label_name: 'Nom',
     label_namespace: 'Namespace',

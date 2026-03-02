@@ -238,6 +238,9 @@ export const ja = {
     version_info_desc: 'アプリケーションイメージの現在のビルドバージョン。',
     image_version: 'イメージバージョン',
     homepage: 'ホームページ',
+    project_description_title: 'プロジェクト情報',
+    project_author: '作成者',
+    project_summary: 'K-Viewは、セキュリティと速度を重視して設計された高性能なKubernetesダッシュボードです。リアルタイムのクラスター可視化、リソース管理、および視覚的なネットワークトレース機能を提供します。Kubernetes管理者にとって最も軽量で安全なダッシュボードを目指しています。',
     // Resource Columns & Labels
     label_name: '名前',
     label_namespace: '名前空間',
