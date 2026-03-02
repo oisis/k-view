@@ -13,7 +13,7 @@ ARG TARGETARCH
 COPY backend/go.mod backend/go.sum* ./
 COPY backend/ .
 RUN go mod tidy
-# Build purely static binary since we no longer use SQLite
+# Build purely static binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -a -o k-view-server .
 
 
@@ -29,7 +29,6 @@ RUN apk add --no-cache ca-certificates tzdata curl && \
 # Copy built artifacts
 COPY --from=backend-builder /app/backend/k-view-server /app/
 COPY --from=frontend-builder /app/web/dist /app/web/dist
-COPY backend/mocks /app/mocks
 
 # Set user
 USER 1000:1000

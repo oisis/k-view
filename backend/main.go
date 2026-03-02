@@ -44,20 +44,13 @@ func main() {
 
 	// Stateless execution natively requires no DB init.
 
-	// Initialize Kubernetes Provider (real or mock based on DEV_MODE)
-	var k8sProvider k8s.KubernetesProvider
-	if devMode {
-		log.Println("Using mock Kubernetes provider")
-		k8sProvider = k8s.NewMockClient()
-	} else {
-		realClient, err := k8s.NewClient()
-		if err != nil {
-			log.Fatalf("Failed to initialize Kubernetes client: %v", err)
-		}
-		k8sProvider = realClient
+	// Initialize Kubernetes Provider (Real Client only)
+	k8sProvider, err := k8s.NewClient()
+	if err != nil {
+		log.Fatalf("Failed to initialize Kubernetes client: %v", err)
 	}
 
-	// Initialize Auth Handler (skips OIDC setup in DEV_MODE)
+	// Initialize Auth Handler
 	authHandler, err := handlers.NewAuthHandler()
 	if err != nil {
 		log.Fatalf("Failed to initialize Auth handler: %v", err)

@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem, endpointsMap map[string]string) {
+func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string, extra map[string]interface{}, resItem *ResourceItem, endpointsMap map[string]string) {
 	switch kind {
 	case "services":
 		if sType, ok, _ := unstructured.NestedString(item.Object, "spec", "type"); ok {

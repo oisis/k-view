@@ -9,7 +9,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 type TraceNode struct {
@@ -81,59 +80,6 @@ func (c *Client) ListIngresses(ctx context.Context, namespace string) ([]netv1.I
 		return nil, err
 	}
 	return res.Items, nil
-}
-
-// Add mock methods to MockClient
-func (m *MockClient) GetIngress(ctx context.Context, namespace, name string) (*netv1.Ingress, error) {
-	return nil, fmt.Errorf("ingress %s not found in mock", name)
-}
-func (m *MockClient) GetService(ctx context.Context, namespace, name string) (*corev1.Service, error) {
-	for _, s := range mockServices(namespace) {
-		if s.Name == name {
-			return &s, nil
-		}
-	}
-	return nil, fmt.Errorf("service %s not found in mock", name)
-}
-func (m *MockClient) GetPod(ctx context.Context, namespace, name string) (*corev1.Pod, error) {
-	for _, p := range allMockPods {
-		if p.Name == name && p.Namespace == namespace {
-			return &p, nil
-		}
-	}
-	return nil, fmt.Errorf("pod %s not found in mock", name)
-}
-func (m *MockClient) ListServices(ctx context.Context, namespace string) ([]corev1.Service, error) {
-	return mockServices(namespace), nil
-}
-func (m *MockClient) ListIngresses(ctx context.Context, namespace string) ([]netv1.Ingress, error) {
-	return []netv1.Ingress{}, nil
-}
-
-func mockServices(namespace string) []corev1.Service {
-	return []corev1.Service{
-		{
-			ObjectMeta: metav1.ObjectMeta{Name: "frontend-svc", Namespace: "default"},
-			Spec: corev1.ServiceSpec{
-				Selector: map[string]string{"app": "frontend"},
-				Ports:    []corev1.ServicePort{{Port: 80, TargetPort: intstr.FromInt(8080)}},
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{Name: "backend-svc", Namespace: "default"},
-			Spec: corev1.ServiceSpec{
-				Selector: map[string]string{"app": "backend"},
-				Ports:    []corev1.ServicePort{{Port: 8080, TargetPort: intstr.FromInt(8080)}},
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{Name: "k-view-service", Namespace: "k-view"},
-			Spec: corev1.ServiceSpec{
-				Selector: map[string]string{"app": "k"},
-				Ports:    []corev1.ServicePort{{Port: 80, TargetPort: intstr.FromInt(8080)}},
-			},
-		},
-	}
 }
 
 // TraceFlow provides a unified entrypoint for tracing network connections

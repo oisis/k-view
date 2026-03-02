@@ -23,22 +23,18 @@ func (h *ResourceHandler) GetEvents(c *gin.Context) {
 
 	var unstructuredItems []unstructured.Unstructured
 
-	if h.devMode {
-		unstructuredItems = h.mockRawResourceList("events", ns)
-	} else {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
-			return
-		}
-		gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-		list, err := dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		unstructuredItems = list.Items
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+		return
 	}
+	gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	list, err := dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	unstructuredItems = list.Items
 
 	var filtered []gin.H
 	for _, item := range unstructuredItems {
@@ -93,22 +89,18 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 
 	var unstructuredItems []unstructured.Unstructured
 
-	if h.devMode {
-		unstructuredItems = h.mockRawResourceList("events", ns)
-	} else {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
-			return
-		}
-		gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-		list, err := dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		unstructuredItems = list.Items
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+		return
 	}
+	gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	list, err := dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	unstructuredItems = list.Items
 
 	var events []gin.H
 	for _, item := range unstructuredItems {
@@ -154,7 +146,7 @@ func (h *ResourceHandler) GetClusterEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
-func (h *ResourceHandler) mapEvent(item unstructured.Unstructured, extra map[string]string, resItem *ResourceItem) {
+func (h *ResourceHandler) mapEvent(item unstructured.Unstructured, extra map[string]interface{}, resItem *ResourceItem) {
 	reason, _, _ := unstructured.NestedString(item.Object, "reason")
 	message, _, _ := unstructured.NestedString(item.Object, "message")
 	source, _, _ := unstructured.NestedString(item.Object, "source", "component")

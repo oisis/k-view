@@ -117,27 +117,20 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 
 	var item *unstructured.Unstructured
 
-	if isDevMode() {
-		item, _ = h.getMockResource(kind, ns, name)
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+		return
+	}
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" && !isClusterScoped(kind) {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
 	}
 
-	if item == nil {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
-			return
-		}
-		gvr := getGVR(kind)
-		var resInterface dynamic.ResourceInterface
-		if ns != "" && !isClusterScoped(kind) {
-			resInterface = dynClient.Resource(gvr).Namespace(ns)
-		} else {
-			resInterface = dynClient.Resource(gvr)
-		}
-
-		raw, err := resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
-		if err == nil { item = raw }
-	}
+	item, _ = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
 
 	if item == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
@@ -147,7 +140,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	statusData, _, _ := unstructured.NestedMap(item.Object, "status")
 	metaData, _, _ := unstructured.NestedMap(item.Object, "metadata")
 
-	extra := make(map[string]string)
+	extra := make(map[string]interface{})
 	resItem := ResourceItem{
 		Name:      item.GetName(),
 		Namespace: item.GetNamespace(),
@@ -197,7 +190,6 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		podsCap := k8sutils.ParseQuantity(capacity["pods"])
 		podsAlloc := k8sutils.ParseQuantity(allocatable["pods"])
 
-		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 		podGVR := getGVR("pods")
 		podList, err := dynClient.Resource(podGVR).List(c.Request.Context(), metav1.ListOptions{
 			FieldSelector: "spec.nodeName=" + name,
@@ -227,15 +219,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	}
 
 	if kind == "services" || kind == "service" {
-		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
-		gvr := getGVR("endpoints")
-		if ep, err := dynClient.Resource(gvr).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{}); err == nil {
+		gvrEp := getGVR("endpoints")
+		if ep, err := dynClient.Resource(gvrEp).Namespace(ns).Get(c.Request.Context(), name, metav1.GetOptions{}); err == nil {
 			response["relatedEndpoints"] = ep.Object
 		}
 	}
 
 	if kind == "service-accounts" || kind == "serviceaccount" {
-		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 		secretGVR := getGVR("secrets")
 		
 		// 1. Fetch regular secrets
@@ -250,7 +240,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 							Namespace: sObj.GetNamespace(),
 							Age:       utils.GetAge(sObj.GetCreationTimestamp().Time),
 							Status:    "Active",
-							Extra:     make(map[string]string),
+							Extra:     make(map[string]interface{}),
 						}
 						h.mapResourceSpecifics(*sObj, "secrets", &res)
 						fullSecrets = append(fullSecrets, res)
@@ -272,7 +262,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 							Namespace: sObj.GetNamespace(),
 							Age:       utils.GetAge(sObj.GetCreationTimestamp().Time),
 							Status:    "Active",
-							Extra:     make(map[string]string),
+							Extra:     make(map[string]interface{}),
 						}
 						h.mapResourceSpecifics(*sObj, "secrets", &res)
 						fullIps = append(fullIps, res)
@@ -295,25 +285,19 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 
 	var item *unstructured.Unstructured
 
-	if isDevMode() {
-		item, _ = h.getMockResource(kind, ns, name)
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
-
-	if item == nil {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		gvr := getGVR(kind)
-		var resInterface dynamic.ResourceInterface
-		if ns != "" && !isClusterScoped(kind) {
-			resInterface = dynClient.Resource(gvr).Namespace(ns)
-		} else {
-			resInterface = dynClient.Resource(gvr)
-		}
-		item, err = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" && !isClusterScoped(kind) {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
 	}
+	item, _ = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
 
 	if item == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
@@ -321,20 +305,14 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	}
 
 	var output []byte
-	var err error
 	contentType := "text/yaml"
 
 	if format == "json" {
-		output, err = json.MarshalIndent(item.Object, "", "  ")
+		output, _ = json.MarshalIndent(item.Object, "", "  ")
 		contentType = "application/json"
 	} else {
-		output, err = yaml.Marshal(item.Object)
+		output, _ = yaml.Marshal(item.Object)
 		contentType = "text/yaml"
-	}
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate manifest"})
-		return
 	}
 
 	c.Header("Content-Type", contentType+"; charset=utf-8")

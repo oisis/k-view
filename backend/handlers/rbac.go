@@ -77,10 +77,8 @@ func (h *RBACHandler) GetStatus(c *gin.Context) {
 	}
 
 	allAssignments := h.config.Assignments
-	if !h.devMode {
-		live := h.fetchLiveAssignments(c.Request.Context())
-		allAssignments = deduplicateAssignments(append(allAssignments, live...))
-	}
+	live := h.fetchLiveAssignments(c.Request.Context())
+	allAssignments = deduplicateAssignments(append(allAssignments, live...))
 
 	c.JSON(http.StatusOK, StatusResponse{
 		Email:       email.(string),
@@ -170,26 +168,6 @@ func deduplicateAssignments(assignments []rbac.Assignment) []rbac.Assignment {
 
 // ListRoles returns all ClusterRoles labeled as part of k-view.
 func (h *RBACHandler) ListRoles(c *gin.Context) {
-	if h.devMode {
-		// Mock roles for development
-		mockRoles := []gin.H{
-			{
-				"name": "kview-cluster-admin",
-				"rules": []gin.H{
-					{"apiGroups": []string{"*"}, "resources": []string{"*"}, "verbs": []string{"*"}},
-				},
-			},
-			{
-				"name": "kview-cluster-viewer",
-				"rules": []gin.H{
-					{"apiGroups": []string{""}, "resources": []string{"pods", "services"}, "verbs": []string{"get", "list", "watch"}},
-				},
-			},
-		}
-		c.JSON(http.StatusOK, mockRoles)
-		return
-	}
-
 	dyn, err := h.k8sProvider.GetDynamicClient(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get kubernetes client: " + err.Error()})

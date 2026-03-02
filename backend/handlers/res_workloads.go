@@ -11,11 +11,11 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem) {
+func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind string, extra map[string]interface{}, resItem *ResourceItem) {
 	h.mapWorkloadWithMetrics(item, kind, extra, resItem, nil)
 }
 
-func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem, metricsMap map[string]unstructured.Unstructured) {
+func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured, kind string, extra map[string]interface{}, resItem *ResourceItem, metricsMap map[string]unstructured.Unstructured) {
 	// Common for all workloads: extract images and labels
 	if kind != "nodes" && kind != "namespaces" {
 		if imgs := k8sutils.GetImages(item.Object); imgs != "" {
@@ -157,7 +157,6 @@ func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured,
 			extra["revision"] = rev
 		}
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-		// ReplicationController uses "readyReplicas" but also "replicas" in spec/status
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 		if replicas == 0 {
 			replicas, _, _ = unstructured.NestedInt64(item.Object, "spec", "replicas")
@@ -179,7 +178,6 @@ func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured,
 		extra["current"] = fmt.Sprintf("%d", current)
 		extra["replicas"] = fmt.Sprintf("%d/%d", current, max)
 
-		// Aggregate metrics summary
 		var metricsSummary []string
 		metrics, _, _ := unstructured.NestedSlice(item.Object, "spec", "metrics")
 		for _, m := range metrics {

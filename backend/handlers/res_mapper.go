@@ -13,7 +13,7 @@ func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, k
 
 func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unstructured, kind string, resItem *ResourceItem, metricsMap map[string]unstructured.Unstructured) {
 	if resItem.Extra == nil {
-		resItem.Extra = make(map[string]string)
+		resItem.Extra = make(map[string]interface{})
 	}
 
 	resItem.Extra["labels"] = k8sutils.GetLabels(item.Object)
@@ -25,7 +25,7 @@ func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unst
 	}
 
 	kind = strings.ToLower(kind)
-	// Check if we are fetching custom objects (kind is crds/customresourcedefinitions, but the item is the actual custom resource)
+	// Check if we are fetching custom objects
 	if (kind == "crds" || kind == "customresourcedefinitions") && item.GetKind() != "CustomResourceDefinition" {
 		h.mapWorkloadWithMetrics(item, "custom-object", resItem.Extra, resItem, metricsMap)
 		return
@@ -45,7 +45,7 @@ func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unst
 	}
 }
 
-func (h *ResourceHandler) mapCRD(item unstructured.Unstructured, extra map[string]string, resItem *ResourceItem) {
+func (h *ResourceHandler) mapCRD(item unstructured.Unstructured, extra map[string]interface{}, resItem *ResourceItem) {
 	if group, ok, _ := unstructured.NestedString(item.Object, "spec", "group"); ok {
 		extra["group"] = group
 	}

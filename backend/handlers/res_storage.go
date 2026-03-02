@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func (h *ResourceHandler) mapStorage(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem) {
+func (h *ResourceHandler) mapStorage(item unstructured.Unstructured, kind string, extra map[string]interface{}, resItem *ResourceItem) {
 	switch kind {
 	case "persistentvolumeclaims", "pvcs":
 		if phase, ok, _ := unstructured.NestedString(item.Object, "status", "phase"); ok {

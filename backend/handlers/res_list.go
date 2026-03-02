@@ -22,50 +22,44 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 	var items []unstructured.Unstructured
 
-	if isDevMode() {
-		items, _ = h.getMockResources(kind, ns)
+	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	if items == nil {
-		dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
+	var gvr schema.GroupVersionResource
+	if group != "" && version != "" && plural != "" {
+		gvr = schema.GroupVersionResource{Group: group, Version: version, Resource: plural}
+	} else {
+		gvr = getGVR(kind)
+	}
 
-		var gvr schema.GroupVersionResource
-		if group != "" && version != "" && plural != "" {
-			gvr = schema.GroupVersionResource{Group: group, Version: version, Resource: plural}
-		} else {
-			gvr = getGVR(kind)
-		}
+	if gvr.Resource == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unknown resource kind"})
+		return
+	}
 
-		if gvr.Resource == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "unknown resource kind"})
-			return
-		}
-
-		var list *unstructured.UnstructuredList
-		var errList error
-		if ns != "" && !isClusterScoped(kind) && group == "" { // Standard resources check
-			list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-		} else if ns != "" && group != "" { // Custom resources might be namespaced
-			// We try namespaced first for custom resources if namespace is provided
-			list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-			if errList != nil {
-				// Fallback to cluster-scoped if namespaced fails
-				list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
-			}
-		} else {
+	var list *unstructured.UnstructuredList
+	var errList error
+	if ns != "" && !isClusterScoped(kind) && group == "" { // Standard resources check
+		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+	} else if ns != "" && group != "" { // Custom resources might be namespaced
+		// We try namespaced first for custom resources if namespace is provided
+		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+		if errList != nil {
+			// Fallback to cluster-scoped if namespaced fails
 			list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
 		}
-
-		if errList != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": errList.Error()})
-			return
-		}
-		items = list.Items
+	} else {
+		list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
 	}
+
+	if errList != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errList.Error()})
+		return
+	}
+	items = list.Items
 
 	result := make([]ResourceItem, 0)
 
