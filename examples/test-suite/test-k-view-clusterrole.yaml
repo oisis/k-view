@@ -2,7 +2,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: test-k-view-clusterrole
+  labels:
+    app: test-k-view
+    scope: cluster
+  annotations:
+    k-view.io/description: "Global reader permissions for cluster-wide resources"
+    rbac.authorization.k8s.io/autoupdate: "true"
 rules:
 - apiGroups: [""]
-  resources: ["pods"]
+  resources: ["nodes", "namespaces", "persistentvolumes"]
   verbs: ["get", "list", "watch"]

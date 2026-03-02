@@ -3,14 +3,24 @@ kind: CronJob
 metadata:
   name: test-k-view-cronjob
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    schedule: every-5-min
+    component: janitor
+  annotations:
+    k-view.io/description: "Recurring maintenance job for cleaning temporary data"
+    k-view.io/alert-on-failure: "true"
+    k-view.io/documentation: "https://wiki.k-view.local/maintenance"
+    kubernetes.io/description: "Janitor CronJob"
 spec:
   schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: main
-            image: busybox
-            command: ["echo", "K-View CronJob Run"]
+          - name: worker
+            image: busybox:1.36
+            command: ["sh", "-c", "echo Hello from K-View"]
           restartPolicy: OnFailure

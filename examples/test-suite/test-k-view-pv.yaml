@@ -2,12 +2,31 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: test-k-view-pv
+  labels:
+    app: test-k-view
+    tier: platinum
+    environment: test
+    physical-disk: ssd-01
+  annotations:
+    k-view.io/hardware-id: "DISK-SN-998877"
+    k-view.io/last-health-check: "2026-03-02T20:00:00Z"
+    k-view.io/provisioned-manually: "true"
+    pv.kubernetes.io/bound-by-controller: "yes"
 spec:
   capacity:
     storage: 5Gi
+  volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: "/mnt/data"
   storageClassName: test-k-view-storageclass
+  hostPath:
+    path: "/tmp/k-view-data"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - docker-desktop

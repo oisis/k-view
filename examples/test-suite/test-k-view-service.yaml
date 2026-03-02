@@ -3,6 +3,16 @@ kind: Service
 metadata:
   name: test-k-view-service
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: networking
+    visibility: internal
+    load-balancer: "false"
+  annotations:
+    k-view.io/description: "Primary backend service for internal communication"
+    k-view.io/exposed-port: "80"
+    k-view.io/health-check-path: "/healthz"
+    prometheus.io/scrape: "true"
 spec:
   selector:
     app: test-k-view-deploy

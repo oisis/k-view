@@ -3,8 +3,16 @@ kind: Ingress
 metadata:
   name: test-k-view-ingress
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: edge
+    ssl: enabled
   annotations:
+    k-view.io/description: "External entry point for testing routing and TLS"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   rules:
   - host: test.k-view.local

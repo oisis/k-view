@@ -3,6 +3,13 @@ kind: NetworkPolicy
 metadata:
   name: test-k-view-networkpolicy
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    security: strict
+  annotations:
+    k-view.io/description: "Isolation policy for backend services"
+    k-view.io/security-level: "high"
+    kubernetes.io/description: "Allow only test-deploy traffic"
 spec:
   podSelector:
     matchLabels:
@@ -17,3 +24,5 @@ spec:
     ports:
     - protocol: TCP
       port: 80
+    - protocol: TCP
+      port: 8080

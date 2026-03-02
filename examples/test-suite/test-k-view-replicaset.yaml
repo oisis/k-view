@@ -3,6 +3,14 @@ kind: ReplicaSet
 metadata:
   name: test-k-view-replicaset
   namespace: k-view-test-data
+  labels:
+    app: test-k-view-rs
+    tier: test
+    managed-by: manual-intervention
+  annotations:
+    k-view.io/description: "Standalone ReplicaSet for UI scaling verification"
+    k-view.io/revision: "42"
+    k-view.io/manual-override: "true"
 spec:
   replicas: 1
   selector:

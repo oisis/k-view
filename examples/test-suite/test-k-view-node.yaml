@@ -1,3 +1,3 @@
-# Node resources cannot be created via YAML manifests as they are registered by kubelet.
-# This file serves as a placeholder for the 27th resource in the test suite.
-# Your Docker Desktop cluster already has at least one node: docker-desktop.
+# Node resources are cluster-level and managed by kubelet.
+# This file is a placeholder for the test-suite.
+# Name of your node: docker-desktop

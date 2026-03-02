@@ -8,34 +8,78 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 NAMESPACE="k-view-test-data"
+DIR="examples/test-suite"
 
 function show_help() {
     echo "Usage: ./deploy-test-suite.sh [OPTION]"
-    echo "Deploy or cleanup the K-View unified test suite."
+    echo "Deploy or cleanup the K-View unified test suite (27 resources)."
     echo ""
     echo "Options:"
-    echo "  --deploy    Create namespace and apply all manifests (default)"
-    echo "  --cleanup   Delete all manifests and the test namespace"
+    echo "  --deploy    Install Ingress-Nginx, create namespace and apply all manifests (default)"
+    echo "  --cleanup   Delete all manifests, the test namespace, and Ingress-Nginx"
+    echo "  --dry-run   Validate all manifests against the cluster API without applying changes"
     echo "  --help      Show this help message"
 }
 
 function deploy() {
-    echo -e "${BLUE}🚀 Deploying K-View Unified Test Suite...${NC}"
+    local dry_run_flag=""
+    if [ "$1" == "dry-run" ]; then
+        dry_run_flag="--dry-run=server"
+        echo -e "${YELLOW}🔍 Running in DRY-RUN mode (Server-side validation)${NC}"
+    fi
+
+    echo -e "${BLUE}🚀 Preparing Infrastructure...${NC}"
     
-    # Create namespace
-    kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+    # 1. Install Ingress Nginx (Standard for Docker Desktop)
+    if [ "$1" != "dry-run" ]; then
+        echo -e "${BLUE}📦 Installing Ingress Nginx Controller...${NC}"
+        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+    fi
     
-    # Apply all manifests
-    kubectl apply -f examples/test-suite/
+    # 2. Create Namespace
+    kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply $dry_run_flag -f -
     
-    echo -e "\n${GREEN}✅ Test suite deployed successfully to namespace: $NAMESPACE${NC}"
+    # 3. Apply CRDs first (Crucial!)
+    echo -e "${BLUE}⚙️  Applying Custom Resource Definitions...${NC}"
+    kubectl apply $dry_run_flag -f $DIR/test-k-view-crd.yaml
+    
+    if [ "$1" != "dry-run" ]; then
+        echo -e "Waiting for CRDs to be established..."
+        sleep 5
+    fi
+    
+    # 4. Apply all other manifests
+    echo -e "${BLUE}🚀 Deploying/Validating remaining 26 resources...${NC}"
+    # Use a loop for dry-run to see individual file results, or direct apply for real deploy
+    if [ "$1" == "dry-run" ]; then
+        for file in $DIR/*.yaml; do
+            if [[ "$file" == *"test-k-view-node.yaml"* ]]; then continue; fi
+            echo -n "Validating $(basename $file)... "
+            if kubectl apply --dry-run=server -f "$file" > /dev/null 2>&1; then
+                echo -e "${GREEN}OK${NC}"
+            else
+                echo -e "${RED}FAILED${NC}"
+                kubectl apply --dry-run=server -f "$file"
+            fi
+        done
+    else
+        kubectl apply -f $DIR/
+    fi
+    
+    if [ "$1" == "dry-run" ]; then
+        echo -e "\n${GREEN}✅ Dry-run validation complete.${NC}"
+    else
+        echo -e "\n${GREEN}✅ Test suite deployed successfully!${NC}"
+        echo -e "Resources created: $(ls $DIR/*.yaml | wc -l | xargs)"
+        echo -e "Namespace: $NAMESPACE"
+    fi
 }
 
 function cleanup() {
     echo -e "${YELLOW}🧹 Cleaning up K-View Test Suite...${NC}"
     
     # Delete manifests
-    kubectl delete -f examples/test-suite/ --ignore-not-found=true
+    kubectl delete -f $DIR/ --ignore-not-found=true
     
     # Delete namespace
     echo -e "${YELLOW}Deleting namespace $NAMESPACE...${NC}"
@@ -48,6 +92,9 @@ function cleanup() {
 case "$1" in
     --cleanup|--delete)
         cleanup
+        ;;
+    --dry-run)
+        deploy "dry-run"
         ;;
     --deploy|--apply|"")
         deploy

@@ -2,6 +2,18 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: test-k-view-storageclass
+  labels:
+    app: test-k-view
+    storage-type: local-manual
+    tier: infrastructure
+    managed-by: gemini-cli
+  annotations:
+    k-view.io/description: "High-performance manual storage class for testing"
+    k-view.io/performance-profile: "low-latency-ssd"
+    k-view.io/backup-policy: "hourly-snapshot"
+    storageclass.kubernetes.io/is-default-class: "false"
+    kubernetes.io/description: "Manual static provisioning class"
 provisioner: kubernetes.io/no-provisioner
-reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: true

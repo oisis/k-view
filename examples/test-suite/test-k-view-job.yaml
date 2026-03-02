@@ -3,11 +3,24 @@ kind: Job
 metadata:
   name: test-k-view-job
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    type: batch
+    task: database-migration
+  annotations:
+    k-view.io/description: "One-time database migration job"
+    k-view.io/ticket-id: "JIRA-1234"
+    k-view.io/max-execution-time: "300s"
+    batch.kubernetes.io/job-tracking: "true"
 spec:
   template:
+    metadata:
+      labels:
+        app: test-k-view
     spec:
       containers:
       - name: main
         image: busybox
         command: ["echo", "K-View Test Job Complete"]
       restartPolicy: Never
+  backoffLimit: 2

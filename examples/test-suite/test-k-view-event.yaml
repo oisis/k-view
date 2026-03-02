@@ -3,15 +3,20 @@ kind: Event
 metadata:
   name: test-k-view-event
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+  annotations:
+    k-view.io/description: "Manually created event for UI verification"
+    k-view.io/event-type: "test-notification"
 involvedObject:
   kind: Pod
-  name: test-k-view-pod
+  name: test-k-view-standalone-pod
   namespace: k-view-test-data
 reason: TestReason
-message: "This is a manually created test event for K-View"
+message: "Detailed test event for K-View dashboard verification"
 type: Normal
 firstTimestamp: "2024-01-01T00:00:00Z"
 lastTimestamp: "2024-01-01T00:00:00Z"
 count: 1
 source:
-  component: k-view-test-suite
+  component: k-view-tester

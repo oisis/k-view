@@ -3,9 +3,24 @@ kind: StatefulSet
 metadata:
   name: test-k-view-statefulset
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: database
+    component: redis
+    environment: integration
+    version: "7.2"
+    managed-by: gemini-cli
+  annotations:
+    k-view.io/description: "High-availability Redis cluster for stateful testing"
+    k-view.io/backup-enabled: "true"
+    k-view.io/backup-schedule: "0 2 * * *"
+    k-view.io/recovery-priority: "1"
+    k-view.io/monitoring-path: "/metrics"
+    k-view.io/cluster-mode: "sharded"
+    kubernetes.io/change-cause: "Initial deployment for UI testing"
 spec:
-  serviceName: "test-svc"
-  replicas: 1
+  serviceName: "test-k-view-service"
+  replicas: 2
   selector:
     matchLabels:
       app: test-k-view-sts
@@ -15,5 +30,21 @@ spec:
         app: test-k-view-sts
     spec:
       containers:
-      - name: nginx
-        image: nginx:alpine
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+      annotations:
+        k-view.io/provision-type: "dynamic-sts"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "test-k-view-storageclass"
+      resources:
+        requests:
+          storage: 1Gi

@@ -3,8 +3,31 @@ kind: Deployment
 metadata:
   name: test-k-view-deployment
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: application
+    version: v1.2.3
+    environment: test-suite
+    team: devops
+    project: k-view
+    managed-by: gemini-cli
+    cluster: docker-desktop
+    security-zone: trust
+    compliance: hipaa-ready
+    owner: oisis
+  annotations:
+    k-view.io/description: "Primary complex deployment for stress testing UI rendering and resource relationships"
+    k-view.io/documentation: "https://github.com/oisis/k-view/docs/testing"
+    k-view.io/contact: "platform-alerts@k-view.local"
+    k-view.io/last-audit: "2026-03-02"
+    k-view.io/test-id: "TX-9988-ABC"
+    k-view.io/importance: "critical"
+    k-view.io/changelog: "Updated probes and added 15+ annotations for UI testing"
+    deployment.kubernetes.io/revision: "1"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: test-k-view-deploy
@@ -12,7 +35,24 @@ spec:
     metadata:
       labels:
         app: test-k-view-deploy
+        tier: application
+      annotations:
+        k-view.io/pod-annotation: "verified"
     spec:
+      serviceAccountName: test-k-view-serviceaccount
       containers:
-      - name: nginx
-        image: nginx:alpine
+      - name: main-app
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/nginx/html/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: test-k-view-pvc

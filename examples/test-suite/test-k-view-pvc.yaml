@@ -3,10 +3,19 @@ kind: PersistentVolumeClaim
 metadata:
   name: test-k-view-pvc
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: platinum
+    billing-code: test-data
+  annotations:
+    k-view.io/request-reason: "Stress testing metadata rendering"
+    k-view.io/owner-team: "Platform Engineering"
+    k-view.io/auto-expand: "enabled"
+    volume.beta.kubernetes.io/storage-provisioner: "kubernetes.io/no-provisioner"
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: test-k-view-storageclass
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: test-k-view-storageclass
+      storage: 2Gi

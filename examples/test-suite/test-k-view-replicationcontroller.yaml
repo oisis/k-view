@@ -3,6 +3,12 @@ kind: ReplicationController
 metadata:
   name: test-k-view-replicationcontroller
   namespace: k-view-test-data
+  labels:
+    app: test-k-view-rc
+    legacy: "true"
+  annotations:
+    k-view.io/description: "Legacy workload test for backward compatibility"
+    k-view.io/migration-status: "pending"
 spec:
   replicas: 1
   selector:
@@ -13,5 +19,5 @@ spec:
         app: test-k-view-rc
     spec:
       containers:
-      - name: main
+      - name: nginx
         image: nginx:alpine

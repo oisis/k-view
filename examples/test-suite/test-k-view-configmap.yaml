@@ -3,6 +3,9 @@ kind: ConfigMap
 metadata:
   name: test-k-view-configmap
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: config
 data:
   app.properties: |
     debug=true

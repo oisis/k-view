@@ -3,6 +3,18 @@ kind: DaemonSet
 metadata:
   name: test-k-view-daemonset
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    component: monitoring
+    tier: infrastructure
+    agent: fluent-bit
+  annotations:
+    k-view.io/description: "Global log collection agent for cluster-wide visibility"
+    k-view.io/security-context: "host-access-required"
+    k-view.io/log-destination: "elasticsearch"
+    k-view.io/update-strategy: "on-delete"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "2020"
 spec:
   selector:
     matchLabels:
@@ -13,5 +25,9 @@ spec:
         app: test-k-view-ds
     spec:
       containers:
-      - name: nginx
-        image: nginx:alpine
+      - name: fluent-bit
+        image: fluent/fluent-bit:latest
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi

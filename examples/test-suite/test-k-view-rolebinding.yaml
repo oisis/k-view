@@ -3,6 +3,12 @@ kind: RoleBinding
 metadata:
   name: test-k-view-rolebinding
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: security
+  annotations:
+    k-view.io/description: "Binding for application roles"
+    k-view.io/last-review: "2026-03-02"
 subjects:
 - kind: ServiceAccount
   name: test-k-view-serviceaccount

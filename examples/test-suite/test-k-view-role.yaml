@@ -3,7 +3,13 @@ kind: Role
 metadata:
   name: test-k-view-role
   namespace: k-view-test-data
+  labels:
+    app: test-k-view
+    tier: security
+  annotations:
+    k-view.io/description: "Minimal permissions for application pod visibility"
+    k-view.io/granted-by: "Gemini CLI"
 rules:
 - apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list"]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list", "watch"]

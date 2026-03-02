@@ -3,4 +3,11 @@ kind: Namespace
 metadata:
   name: k-view-test-data
   labels:
-    app.kubernetes.io/name: k-view-test
+    app.kubernetes.io/name: k-view-test-suite
+    environment: integration-test
+    team: devops-core
+    security-zone: trust
+    managed-by: gemini-cli
+  annotations:
+    k-view.io/description: "Main namespace for complex integration tests"
+    k-view.io/owner: "Gemini CLI Senior Developer"

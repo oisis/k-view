@@ -2,5 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: IngressClass
 metadata:
   name: test-k-view-ingressclass
+  labels:
+    app: test-k-view
+    controller: nginx
+  annotations:
+    k-view.io/description: "Global class for Nginx controllers"
+    k-view.io/is-primary: "true"
+    ingressclass.kubernetes.io/is-default-class: "false"
 spec:
   controller: k8s.io/ingress-nginx
