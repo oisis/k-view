@@ -108,6 +108,18 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
     const { t } = useTranslation();
     const { icons } = useTheme();
 
+    const isPathActive = (href) => {
+        if (p === href) return true;
+        if (href === '/') return p === '/';
+        
+        // Handle resource detail paths (e.g. /pods/ns/name should highlight /workloads/pods)
+        const parts = href.split('/');
+        const kind = parts[parts.length - 1]; // e.g. "pods", "deployments"
+        
+        // Check if current path starts with /kind/ or matches /workloads/kind etc.
+        return p.startsWith(`/${kind}/`) || p.startsWith(`/workloads/${kind}`) || p.startsWith(`/network/${kind}`) || p.startsWith(`/config/${kind}`) || p.startsWith(`/cluster/${kind}`);
+    };
+
     return (
         <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-border flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
             {/* Logo + Toggle */}
@@ -132,52 +144,52 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
 
                 {/* Dashboard — standalone, no section */}
                 <div className={`pb-1 ${isCollapsed ? 'flex flex-col items-center gap-0.5 mb-1' : 'space-y-0.5'}`}>
-                    <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={p === '/'} isCollapsed={isCollapsed} />
+                    <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={isPathActive('/')} isCollapsed={isCollapsed} />
                 </div>
 
                 <Section id="workloads" label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={p === '/workloads/cronjobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={p === '/workloads/daemonsets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={p === '/workloads/deployments'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/jobs" iconKey="job" label={t('jobs')} active={p === '/workloads/jobs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/pods" iconKey="pod" label={t('pods')} active={p === '/workloads/pods'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicasets" iconKey="replicaset" label={t('replicasets')} active={p === '/workloads/replicasets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicationcontrollers" iconKey="replicationcontroller" label={t('replicationcontrollers')} active={p === '/workloads/replicationcontrollers'} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={p === '/workloads/statefulsets'} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={isPathActive('/workloads/cronjobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={isPathActive('/workloads/daemonsets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={isPathActive('/workloads/deployments')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/jobs" iconKey="job" label={t('jobs')} active={isPathActive('/workloads/jobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/pods" iconKey="pod" label={t('pods')} active={isPathActive('/workloads/pods')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicasets" iconKey="replicaset" label={t('replicasets')} active={isPathActive('/workloads/replicasets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/replicationcontrollers" iconKey="replicationcontroller" label={t('replicationcontrollers')} active={isPathActive('/workloads/replicationcontrollers')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={isPathActive('/workloads/statefulsets')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="network" label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={p === '/cluster/ingress-classes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={p === '/network/ingresses'} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/services" iconKey="service" label={t('services')} active={p === '/network/services'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={isPathActive('/cluster/ingress-classes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={isPathActive('/network/ingresses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/services" iconKey="service" label={t('services')} active={isPathActive('/network/services')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={p === '/config/configmaps'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={p === '/config/pvcs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={p === '/config/secrets'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={p === '/config/storage-classes'} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={isPathActive('/config/configmaps')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={isPathActive('/config/pvcs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={isPathActive('/config/secrets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={isPathActive('/config/storage-classes')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={p === '/cluster/cluster-role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={p === '/cluster/cluster-roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/crd" iconKey="crd" label={t('crd')} active={p === '/crd'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/events" iconKey="event" label={t('events')} active={p === '/cluster/events'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/namespaces" iconKey="namespace" label={t('namespaces')} active={p === '/cluster/namespaces'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/network-policies" iconKey="networkpolicy" label={t('network_policies')} active={p === '/cluster/network-policies'} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" iconKey="nodes" label={t('nodes')} active={p === '/nodes'} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvs" iconKey="pv" label={t('pv')} active={p === '/config/pvs'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/role-bindings" iconKey="rolebinding" label={t('rolebindings')} active={p === '/cluster/role-bindings'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/roles" iconKey="role" label={t('roles')} active={p === '/cluster/roles'} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={p === '/cluster/service-accounts'} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={isPathActive('/cluster/cluster-role-bindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={isPathActive('/cluster/cluster-roles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/crd" iconKey="crd" label={t('crd')} active={isPathActive('/crd')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/events" iconKey="event" label={t('events')} active={isPathActive('/cluster/events')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/namespaces" iconKey="namespace" label={t('namespaces')} active={isPathActive('/cluster/namespaces')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/network-policies" iconKey="networkpolicy" label={t('network_policies')} active={isPathActive('/cluster/network-policies')} isCollapsed={isCollapsed} />
+                    <NavItem href="/nodes" iconKey="nodes" label={t('nodes')} active={isPathActive('/nodes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/pvs" iconKey="pv" label={t('pv')} active={isPathActive('/config/pvs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/role-bindings" iconKey="rolebinding" label={t('rolebindings')} active={isPathActive('/cluster/role-bindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/roles" iconKey="role" label={t('roles')} active={isPathActive('/cluster/roles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={isPathActive('/cluster/service-accounts')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
-                    <NavItem href="/about" iconKey="about" label={t('about')} active={p === '/about'} isCollapsed={isCollapsed} />
-                    <NavItem href="/console" iconKey="console" label={t('console')} active={p === '/console'} isCollapsed={isCollapsed} />
-                    <NavItem href="/settings" iconKey="settings" label={t('settings')} active={p === '/settings'} isCollapsed={isCollapsed} />
+                    <NavItem href="/about" iconKey="about" label={t('about')} active={isPathActive('/about')} isCollapsed={isCollapsed} />
+                    <NavItem href="/console" iconKey="console" label={t('console')} active={isPathActive('/console')} isCollapsed={isCollapsed} />
+                    <NavItem href="/settings" iconKey="settings" label={t('settings')} active={isPathActive('/settings')} isCollapsed={isCollapsed} />
                 </Section>
 
             </nav>
