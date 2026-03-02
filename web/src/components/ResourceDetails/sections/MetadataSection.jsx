@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
+// Metadata section for resource details
 export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower, status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
     const isCronJob = kindLower.includes('cronjob');
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
