@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# Exit on error
+set -e
+
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
+
+PATCH_FILE="/tmp/metrics-server-patch-$(date +%s).yaml"
+
+# Cleanup function
+cleanup() {
+    rm -f "$PATCH_FILE" > /dev/null 2>&1 || true
+}
+trap cleanup EXIT
 
 echo -e "${BLUE}🚀 Installing Metrics Server...${NC}"
 
@@ -14,8 +25,6 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/late
 # 2. Apply patch for local cluster (insecure TLS)
 echo -e "${YELLOW}🔧 Patching Metrics Server for local cluster (insecure TLS)...${NC}"
 
-# We use a temporary file for the patch to be shell-agnostic
-PATCH_FILE="/tmp/metrics-server-patch.yaml"
 cat <<EOF > "$PATCH_FILE"
 spec:
   template:
@@ -32,7 +41,6 @@ spec:
 EOF
 
 kubectl patch deployment metrics-server -n kube-system --patch-file "$PATCH_FILE"
-rm "$PATCH_FILE"
 
 # 3. Wait for readiness
 echo -e "${BLUE}⏳ Waiting for Metrics Server to be ready...${NC}"

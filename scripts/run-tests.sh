@@ -11,6 +11,12 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+cleanup() {
+    # Silence cleanup
+    rm -rf "$PROJECT_ROOT/web/coverage" > /dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
 echo -e "${BLUE}🚀 Starting K-View Test Suite from $PROJECT_ROOT...${NC}"
 
 # 1. Backend Tests (Go)

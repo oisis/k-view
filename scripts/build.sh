@@ -13,8 +13,17 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-IMAGE_NAME="k-view-local-build"
-CONTAINER_NAME="k-view-extract"
+IMAGE_NAME="k-view-local-build-temp"
+CONTAINER_NAME="k-view-extract-temp"
+
+# Cleanup function to be called on exit
+cleanup() {
+    echo -e "\n${BLUE}🧹 Cleaning up build artifacts...${NC}"
+    docker rm -f $CONTAINER_NAME > /dev/null 2>&1 || true
+    docker rmi -f $IMAGE_NAME > /dev/null 2>&1 || true
+}
+# Execute cleanup even on error or interrupt
+trap cleanup EXIT
 
 # Default architecture is amd64, but can be overridden
 ARCH=${1:-$(uname -m)}
@@ -34,6 +43,5 @@ echo -e "${BLUE}📦 Extracting binary from image...${NC}"
 docker create --name $CONTAINER_NAME $IMAGE_NAME
 mkdir -p "$PROJECT_ROOT/bin"
 docker cp $CONTAINER_NAME:/app/k-view-server "$PROJECT_ROOT/bin/k-view-server-$ARCH"
-docker rm -f $CONTAINER_NAME
 
 echo -e "${GREEN}✅ Build successful! Binary is at bin/k-view-server-$ARCH${NC}"
