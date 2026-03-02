@@ -56,6 +56,7 @@ export default function OverviewTab({
     const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinition');
     const isNetworkPolicy = kindLower.includes('network') && (kindLower.includes('policy') || kindLower.includes('policies'));
     const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
+    const isHpa = kindLower === 'hpas' || kindLower === 'hpa' || kindLower === 'horizontalpodautoscalers';
 
     return (
         <div className="space-y-4">
@@ -119,7 +120,7 @@ export default function OverviewTab({
             {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
 
-            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && (
+            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}).
                 </div>
