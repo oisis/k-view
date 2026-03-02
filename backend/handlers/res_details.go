@@ -2,12 +2,16 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"k-view/pkg/k8sutils"
 	"k-view/pkg/utils"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
@@ -15,28 +19,93 @@ import (
 )
 
 func (h *ResourceHandler) GetStats(c *gin.Context) {
-	if isDevMode() {
-		c.JSON(http.StatusOK, gin.H{
-			"pods":       12,
-			"nodes":      3,
-			"namespaces": 5,
-		})
-		return
+	ctx := c.Request.Context()
+
+	// 1. Get Core Resources
+	pods, _ := h.k8sClient.ListAllPods(ctx)
+	nodes, _ := h.k8sClient.ListAllNodes(ctx)
+	namespaces, _ := h.k8sClient.ListNamespaces(ctx)
+
+	// 2. Metrics Logic
+	nodeMetrics, _ := h.k8sClient.ListNodeMetrics(ctx)
+	metricsAvailable := nodeMetrics != nil && len(nodeMetrics) > 0
+
+	var totalCPUUsage, totalRAMUsage int64
+	var totalCPUCapacity, totalRAMCapacity int64
+
+	// Calculate Capacity from Nodes
+	for _, node := range nodes {
+		totalCPUCapacity += node.Status.Capacity.Cpu().MilliValue()
+		totalRAMCapacity += node.Status.Capacity.Memory().Value()
 	}
 
-	dyn, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
-	podGVR := getGVR("pods")
-	nodeGVR := getGVR("nodes")
-	nsGVR := getGVR("namespaces")
+	// Calculate Usage from Metrics
+	if metricsAvailable {
+		for _, m := range nodeMetrics {
+			usage, found, _ := unstructured.NestedMap(m.Object, "usage")
+			if found {
+				cpuStr := usage["cpu"].(string)
+				memStr := usage["memory"].(string)
 
-	pods, _ := dyn.Resource(podGVR).List(c.Request.Context(), metav1.ListOptions{})
-	nodes, _ := dyn.Resource(nodeGVR).List(c.Request.Context(), metav1.ListOptions{})
-	nss, _ := dyn.Resource(nsGVR).List(c.Request.Context(), metav1.ListOptions{})
+				if q, err := resource.ParseQuantity(cpuStr); err == nil {
+					totalCPUUsage += q.MilliValue()
+				}
+				if q, err := resource.ParseQuantity(memStr); err == nil {
+					totalRAMUsage += q.Value()
+				}
+			}
+		}
+	}
 
+	// Calculate percentages
+	cpuPercent := 0.0
+	if totalCPUCapacity > 0 {
+		cpuPercent = (float64(totalCPUUsage) / float64(totalCPUCapacity)) * 100
+	}
+	ramPercent := 0.0
+	if totalRAMCapacity > 0 {
+		ramPercent = (float64(totalRAMUsage) / float64(totalRAMCapacity)) * 100
+	}
+
+	// 3. Status Counts
+	nodesReady := 0
+	for _, n := range nodes {
+		for _, cond := range n.Status.Conditions {
+			if cond.Type == corev1.NodeReady && cond.Status == corev1.ConditionTrue {
+				nodesReady++
+				break
+			}
+		}
+	}
+
+	podsFailed := 0
+	for _, p := range pods {
+		if p.Status.Phase == corev1.PodFailed || p.Status.Phase == corev1.PodUnknown {
+			podsFailed++
+		}
+	}
+
+	// 4. Response
+	now := time.Now().Format("15:04:05")
 	c.JSON(http.StatusOK, gin.H{
-		"pods":       len(pods.Items),
-		"nodes":      len(nodes.Items),
-		"namespaces": len(nss.Items),
+		"metricsServer":   metricsAvailable,
+		"nodeCount":       len(nodes),
+		"nodeCountReady":  nodesReady,
+		"podCount":        len(pods),
+		"podCountFailed":  podsFailed,
+		"namespaceCount": len(namespaces),
+		"cpuUsage":        cpuPercent,
+		"ramUsage":        ramPercent,
+		"cpuTotal":        fmt.Sprintf("%.1f cores", float64(totalCPUCapacity)/1000),
+		"ramTotal":        fmt.Sprintf("%.1f Gi", float64(totalRAMCapacity)/(1024*1024*1024)),
+		"clusterName":     "Local Cluster",
+		"k8sVersion":      "v1.29+",
+		"cpuHistory": []MetricHistory{
+			{Timestamp: now, Value: cpuPercent},
+		},
+		"ramHistory": []MetricHistory{
+			{Timestamp: now, Value: ramPercent},
+		},
 	})
 }
 

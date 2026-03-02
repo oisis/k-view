@@ -15,6 +15,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 // UserContext represents the impersonation context for a request.
@@ -31,8 +32,11 @@ type KubernetesProvider interface {
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
 	GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error)
 	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
+	ListNodeMetrics(ctx context.Context) ([]unstructured.Unstructured, error)
+	ListAllPods(ctx context.Context) ([]corev1.Pod, error)
+	ListAllNodes(ctx context.Context) ([]corev1.Node, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
-	
+
 	// Network related methods
 	GetPod(ctx context.Context, namespace, name string) (*corev1.Pod, error)
 	GetService(ctx context.Context, namespace, name string) (*corev1.Service, error)
@@ -118,6 +122,50 @@ func (c *Client) ListNodes(ctx context.Context) ([]corev1.Node, error) {
 	return nodes.Items, nil
 }
 
+func (c *Client) ListAllPods(ctx context.Context) ([]corev1.Pod, error) {
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	pods, err := clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return pods.Items, nil
+}
+
+func (c *Client) ListAllNodes(ctx context.Context) ([]corev1.Node, error) {
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	nodes, err := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return nodes.Items, nil
+}
+
+func (c *Client) ListNodeMetrics(ctx context.Context) ([]unstructured.Unstructured, error) {
+	dyn, err := c.GetDynamicClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "metrics.k8s.io",
+		Version:  "v1beta1",
+		Resource: "nodes",
+	}
+
+	list, err := dyn.Resource(gvr).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, nil // Return nil if Metrics Server not available
+	}
+
+	return list.Items, nil
+}
+
 func (c *Client) GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error) {
 	clientset, err := c.getClientset(ctx)
 	if err != nil {
@@ -195,6 +243,26 @@ func (m *MockClient) ListPods(ctx context.Context, namespace string) ([]corev1.P
 		}
 	}
 	return filtered, nil
+}
+
+func (m *MockClient) ListAllPods(_ context.Context) ([]corev1.Pod, error) {
+	return allMockPods, nil
+}
+
+func (m *MockClient) ListAllNodes(_ context.Context) ([]corev1.Node, error) {
+	return allMockNodes, nil
+}
+
+func (m *MockClient) ListNodeMetrics(_ context.Context) ([]unstructured.Unstructured, error) {
+	// Return some mock data for development
+	return []unstructured.Unstructured{
+		{
+			Object: map[string]interface{}{
+				"metadata": map[string]interface{}{"name": "node-1"},
+				"usage":    map[string]interface{}{"cpu": "500m", "memory": "2Gi"},
+			},
+		},
+	}, nil
 }
 
 func (m *MockClient) ListNamespaces(_ context.Context) ([]string, error) {
