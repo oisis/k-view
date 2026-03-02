@@ -124,5 +124,42 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
 		extra["pods"] = fmt.Sprintf("%d/%d", ready, replicas)
+
+	case "hpas", "horizontalpodautoscalers":
+		targetName, _, _ := unstructured.NestedString(item.Object, "spec", "scaleTargetRef", "name")
+		targetKind, _, _ := unstructured.NestedString(item.Object, "spec", "scaleTargetRef", "kind")
+		extra["target-name"] = targetName
+		extra["target-kind"] = targetKind
+		extra["reference"] = fmt.Sprintf("%s/%s", targetKind, targetName)
+
+		min, _, _ := unstructured.NestedInt64(item.Object, "spec", "minReplicas")
+		max, _, _ := unstructured.NestedInt64(item.Object, "spec", "maxReplicas")
+		current, _, _ := unstructured.NestedInt64(item.Object, "status", "currentReplicas")
+		extra["min"] = fmt.Sprintf("%d", min)
+		extra["max"] = fmt.Sprintf("%d", max)
+		extra["current"] = fmt.Sprintf("%d", current)
+		extra["replicas"] = fmt.Sprintf("%d/%d", current, max)
+
+		// Aggregate metrics summary
+		var metricsSummary []string
+		metrics, _, _ := unstructured.NestedSlice(item.Object, "spec", "metrics")
+		for _, m := range metrics {
+			if mm, ok := m.(map[string]interface{}); ok {
+				mType, _, _ := unstructured.NestedString(mm, "type")
+				if mType == "Resource" {
+					resName, _, _ := unstructured.NestedString(mm, "resource", "name")
+					if targetVal, ok, _ := unstructured.NestedInt64(mm, "resource", "target", "averageUtilization"); ok {
+						metricsSummary = append(metricsSummary, fmt.Sprintf("%s: %d%%", resName, targetVal))
+					} else if targetVal, ok, _ := unstructured.NestedString(mm, "resource", "target", "averageValue"); ok {
+						metricsSummary = append(metricsSummary, fmt.Sprintf("%s: %s", resName, targetVal))
+					}
+				}
+			}
+		}
+		if len(metricsSummary) > 0 {
+			extra["target"] = strings.Join(metricsSummary, ", ")
+		} else {
+			extra["target"] = "—"
+		}
 	}
 }

@@ -32,6 +32,7 @@ export const zh = {
     replica_set: '副本集',
     replicationcontrollers: '复制控制器',
     replicationcontroller: '复制控制器',
+    hpas: '水平 Pod 自动扩缩器',
     network: '网络',
     services: '服务 (Services)',
     ingresses: '入口 (Ingress)',

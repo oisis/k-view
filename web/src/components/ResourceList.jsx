@@ -28,6 +28,7 @@ import { ReplicaSetListSchema } from './ResourceList/templates/ReplicaSetList';
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
 import { IngressClassListSchema } from './ResourceList/templates/IngressClassList';
+import { HpaListSchema } from './ResourceList/templates/HpaList';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -39,6 +40,7 @@ const SCHEMAS = {
     cronjobs: CronJobListSchema,
     replicasets: ReplicaSetListSchema,
     replicationcontrollers: ReplicaSetListSchema,
+    hpas: HpaListSchema,
     services: ServiceListSchema,
     ingresses: IngressListSchema,
     'ingress-classes': IngressClassListSchema,

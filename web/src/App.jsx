@@ -156,6 +156,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/workloads/replicasets" iconKey="replicaset" label={t('replicasets')} active={isPathActive('/workloads/replicasets')} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/replicationcontrollers" iconKey="replicationcontroller" label={t('replicationcontrollers')} active={isPathActive('/workloads/replicationcontrollers')} isCollapsed={isCollapsed} />
                     <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={isPathActive('/workloads/statefulsets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/hpas" iconKey="hpa" label={t('hpas')} active={isPathActive('/workloads/hpas')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="network" label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
@@ -405,6 +406,7 @@ function App() {
                         <Route path="/workloads/cronjobs" element={protect(<ResourceList kind="cronjobs" />)} />
                         <Route path="/workloads/replicasets" element={protect(<ResourceList kind="replicasets" />)} />
                         <Route path="/workloads/replicationcontrollers" element={protect(<ResourceList kind="replicationcontrollers" />)} />
+                        <Route path="/workloads/hpas" element={protect(<ResourceList kind="hpas" />)} />
 
                         {/* Services / Networking */}
                         <Route path="/network/services" element={protect(<ResourceList kind="services" />)} />

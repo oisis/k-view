@@ -155,6 +155,20 @@ export default function ResourceDetails() {
                     }
                 }
 
+                if (kindLower.includes('deployment') || kindLower.includes('statefulset')) {
+                    const hpaRes = await fetch(`/api/resources/hpas?namespace=${nsQuery}`);
+                    if (hpaRes?.ok) {
+                        const hpaData = await hpaRes.json();
+                        if (Array.isArray(hpaData)) {
+                            setRelatedHpas(hpaData.filter(h => {
+                                const targetName = h.extra?.['target-name'];
+                                const targetKind = h.extra?.['target-kind']?.toLowerCase() || '';
+                                return targetName === name && (kindLower.includes(targetKind));
+                            }));
+                        }
+                    }
+                }
+
                 if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset')) {
                     const svcsRes = await fetch(`/api/resources/services?namespace=${nsQuery}`);
                     if (svcsRes?.ok) {

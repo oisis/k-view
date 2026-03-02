@@ -21,8 +21,10 @@ import PvOverview from './templates/PvOverview';
 import RbacBindingOverview from './templates/RbacBindingOverview';
 import DaemonSetOverview from './templates/DaemonSetOverview';
 import JobOverview from './templates/JobOverview';
+import HpaOverview from './templates/HpaOverview';
 
-export default function OverviewTab({ 
+export default function OverviewTab({
+ 
     data, kind, namespace, name, quotas, limits, 
     relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedEndpoints, relatedPvs, 
     t, settings 
@@ -100,6 +102,7 @@ export default function OverviewTab({
             {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {kindLower === 'hpas' && <HpaOverview spec={spec} status={status} t={t} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
             {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}

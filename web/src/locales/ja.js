@@ -31,8 +31,10 @@ export const ja = {
     replicaset: 'ReplicaSet',
     replica_set: 'レプリカセット',
     replicationcontrollers: 'レプリケーションコントローラ',
-    replicationcontroller: 'レプリケーションコントローラ',
+    replicationcontroller: 'レプリケーションコントローラー',
+    hpas: '水平ポッド自動スケーラー',
     network: 'ネットワーク',
+
     services: 'サービス',
     ingresses: 'Ingress',
     ingress_classes: 'Ingress Classes',

@@ -32,6 +32,7 @@ export const ko = {
     replica_set: '복제본 세트',
     replicationcontrollers: '복제 컨트롤러',
     replicationcontroller: '복제 컨트롤러',
+    hpas: '수평 포드 자동 스케일러',
     network: '네트워크',
     services: '서비스',
     ingresses: 'Ingress',

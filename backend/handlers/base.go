@@ -78,6 +78,7 @@ func getGVR(kind string) schema.GroupVersionResource {
 	case "nodes", "node": return schema.GroupVersionResource{Group: "", Version: "v1", Resource: "nodes"}
 	case "jobs", "job": return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "jobs"}
 	case "cronjobs", "cronjob": return schema.GroupVersionResource{Group: "batch", Version: "v1", Resource: "cronjobs"}
+	case "hpas", "horizontalpodautoscalers": return schema.GroupVersionResource{Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers"}
 	case "roles": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}
 	case "cluster-roles", "clusterrole": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}
 	case "role-bindings", "rolebinding": return schema.GroupVersionResource{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "rolebindings"}

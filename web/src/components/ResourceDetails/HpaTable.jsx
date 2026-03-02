@@ -9,12 +9,12 @@ export default function HpaTable({ hpas, t }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                     <thead>
-                        <tr>
+                        <tr className="text-secondary border-b border-border bg-white/5 uppercase text-[10px] tracking-widest font-bold">
                             <th className="px-4 py-3 text-left">{t('label_name')}</th>
                             <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
                             <th className="px-4 py-3 text-center">Min</th>
                             <th className="px-4 py-3 text-center">Max</th>
-                            <th className="px-4 py-3 text-center">Current</th>
+                            <th className="px-4 py-3 text-center">Replicas</th>
                             <th className="px-4 py-3 text-left">Target</th>
                             <th className="px-4 py-3 text-left">Age</th>
                             <th className="px-4 py-3 text-right"></th>

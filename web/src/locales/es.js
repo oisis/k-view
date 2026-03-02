@@ -32,6 +32,7 @@ export const es = {
     replica_set: 'Replica Set',
     replicationcontrollers: 'Controladores de replicación',
     replicationcontroller: 'Controlador de replicación',
+    hpas: 'Horizontal Pod Autoscalers',
     network: 'Red',
     services: 'Servicios',
     ingresses: 'Ingress',
