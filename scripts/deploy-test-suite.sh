@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Project root is one level up from scripts/
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -8,10 +13,10 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 NAMESPACE="k-view-test-data"
-DIR="examples/test-suite"
+DIR="$PROJECT_ROOT/examples/test-suite"
 
 function show_help() {
-    echo "Usage: ./deploy-test-suite.sh [OPTION]"
+    echo "Usage: $0 [OPTION]"
     echo "Deploy or cleanup the K-View unified test suite (27 resources)."
     echo ""
     echo "Options:"
@@ -28,7 +33,7 @@ function deploy() {
         echo -e "${YELLOW}🔍 Running in DRY-RUN mode (Server-side validation)${NC}"
     fi
 
-    echo -e "${BLUE}🚀 Preparing Infrastructure...${NC}"
+    echo -e "${BLUE}🚀 Preparing Infrastructure from $PROJECT_ROOT...${NC}"
     
     # 1. Install Ingress Nginx
     if [ "$1" != "dry-run" ]; then
@@ -47,7 +52,7 @@ function deploy() {
     
     # 3. Apply CRDs first
     echo -e "${BLUE}⚙️  Applying Custom Resource Definitions...${NC}"
-    kubectl apply $dry_run_flag -f $DIR/test-k-view-crd.yaml
+    kubectl apply $dry_run_flag -f "$DIR/test-k-view-crd.yaml"
     
     if [ "$1" != "dry-run" ]; then
         echo -e "Waiting for CRDs to be established..."
@@ -57,9 +62,9 @@ function deploy() {
     # 4. Apply all other manifests
     echo -e "${BLUE}🚀 Deploying/Validating remaining resources...${NC}"
     if [ "$1" == "dry-run" ]; then
-        for file in $DIR/*.yaml; do
+        for file in "$DIR"/*.yaml; do
             if [[ "$file" == *"test-k-view-node.yaml"* ]]; then continue; fi
-            echo -n "Validating $(basename $file)... "
+            echo -n "Validating $(basename "$file")... "
             if kubectl apply --dry-run=server -f "$file" > /dev/null 2>&1; then
                 echo -e "${GREEN}OK${NC}"
             else
@@ -68,8 +73,7 @@ function deploy() {
             fi
         done
     else
-        # Apply all files in the directory
-        kubectl apply -f $DIR/
+        kubectl apply -f "$DIR/"
     fi
     
     if [ "$1" == "dry-run" ]; then
@@ -82,7 +86,7 @@ function deploy() {
 
 function cleanup() {
     echo -e "${YELLOW}🧹 Cleaning up K-View Test Suite...${NC}"
-    kubectl delete -f $DIR/ --ignore-not-found=true
+    kubectl delete -f "$DIR/" --ignore-not-found=true
     kubectl delete namespace $NAMESPACE --ignore-not-found=true
     echo -e "\n${RED}✅ Cleanup complete.${NC}"
 }
