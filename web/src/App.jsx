@@ -61,17 +61,31 @@ function Section({ id, label, children, defaultOpen = false, isCollapsed, userEm
 function NavItem({ href, iconKey, label, active, isCollapsed }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
+    
+    // Identify cluster-scoped resources to apply a subtle highlight
+    const clusterScopedPaths = [
+        '/nodes', 
+        '/config/pvs', 
+        '/config/storage-classes', 
+        '/cluster/cluster-role-bindings', 
+        '/cluster/cluster-roles', 
+        '/cluster/crds', 
+        '/cluster/namespaces', 
+        '/cluster/ingress-classes'
+    ];
+    const isClusterResource = clusterScopedPaths.some(p => href === p);
+
     return (
         <Link
             to={href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
-        ${active
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group relative
+                ${active
                     ? 'bg-accent text-white shadow-lg shadow-indigo-500/20'
-                    : 'text-secondary hover:bg-[var(--sidebar-hover)] hover:text-primary'}
+                    : `text-secondary hover:bg-[var(--sidebar-hover)] hover:text-primary ${isClusterResource ? 'bg-green-500/10 !bg-opacity-10 border-l-2 border-green-500/40 rounded-l-none' : ''}`}
                 ${isCollapsed ? 'justify-center w-11 h-11 px-0' : 'w-full'}`}
             title={isCollapsed ? label : ''}
         >
-            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : 'text-text-muted group-hover:text-primary'} transition-colors shrink-0`} />
+            <Icon size={isCollapsed ? 20 : 16} className={`${active ? 'text-white' : (isClusterResource ? 'text-green-400' : 'text-text-muted')} group-hover:text-primary transition-colors shrink-0`} />
             {!isCollapsed && (
                 <>
                     <span className="flex-1 truncate tracking-tight">{label}</span>
