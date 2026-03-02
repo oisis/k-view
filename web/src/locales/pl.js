@@ -71,7 +71,7 @@ export const pl = {
     rolebindings: 'Powiązania ról',
     clusterroles: 'Role klastra',
     clusterrolebindings: 'Powiązania ról klastra',
-    crd: 'Definicje zasobów (CRDs)',
+    crd: 'Definicje zasobów (Custom Resource Definitions)',
     events: 'Zdarzenia',
     namespaces: 'Przestrzenie nazw',
     network_policies: 'Polityki sieciowe',

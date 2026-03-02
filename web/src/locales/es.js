@@ -51,7 +51,7 @@ export const es = {
     rolebindings: 'Vinculaciones de roles',
     clusterroles: 'Roles de clúster',
     clusterrolebindings: 'Vinculaciones de roles de clúster',
-    crd: 'Definiciones de recursos (CRDs)',
+    crd: 'Definiciones de recursos (Custom Resource Definitions)',
     events: 'Eventos',
     namespaces: 'Namespaces',
     network_policies: 'Políticas de red',

@@ -348,7 +348,12 @@ export default function ResourceDetails() {
                     <div>
                         <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
                         <p className="text-sm font-bold uppercase tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
-                            <span>Kind: {kindLower === 'pods' ? 'pod' : (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)}</span>
+                            <span>Kind: {
+                                kindLower === 'pods' ? 'pod' : 
+                                kindLower === 'crds' ? 'Custom Resource Definition' :
+                                kindLower === 'pvs' ? 'Persistent Volume' :
+                                (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)
+                            }</span>
                             <span className="font-mono text-[var(--text-green)] opacity-100">UID: {data.metadata?.uid || '—'}</span>
                         </p>
                     </div>

@@ -51,7 +51,7 @@ export const en = {
     rolebindings: 'Role Bindings',
     clusterroles: 'Cluster Roles',
     clusterrolebindings: 'Cluster Role Bindings',
-    crd: 'Custom Resources Def',
+    crd: 'Custom Resource Definitions',
     events: 'Events',
     namespaces: 'Namespaces',
     network_policies: 'Network Policies',

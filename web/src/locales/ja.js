@@ -52,7 +52,7 @@ export const ja = {
     rolebindings: 'ロールバインディング',
     clusterroles: 'クラスターロール',
     clusterrolebindings: 'クラスターロールバインディング',
-    crd: 'Custom Resources Def',
+    crd: 'Custom Resource Definitions',
     events: 'イベント',
     namespaces: '名前空間',
     network_policies: 'ネットワークポリシー',

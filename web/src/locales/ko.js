@@ -51,7 +51,7 @@ export const ko = {
     rolebindings: '역할 바인딩',
     clusterroles: '클러스터 역할',
     clusterrolebindings: '클러스터 역할 바인딩',
-    crd: 'Custom Resources Def',
+    crd: 'Custom Resource Definitions',
     events: '이벤트',
     namespaces: '네임스페이스',
     network_policies: '네트워크 정책',
