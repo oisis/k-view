@@ -32,7 +32,7 @@ func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unst
 	}
 
 	switch kind {
-	case "pods", "pod", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "cronjobs", "cronjob", "replicasets", "replicaset", "replicationcontrollers", "hpas", "horizontalpodautoscalers":
+	case "pods", "pod", "nodes", "node", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "cronjobs", "cronjob", "replicasets", "replicaset", "replicationcontrollers", "hpas", "horizontalpodautoscalers":
 		h.mapWorkloadWithMetrics(item, kind, resItem.Extra, resItem, metricsMap)
 	case "services", "service", "ingresses", "ingress", "ingress-classes", "ingressclass", "network-policies", "networkpolicy":
 		h.mapNetwork(item, kind, resItem.Extra, resItem, nil)

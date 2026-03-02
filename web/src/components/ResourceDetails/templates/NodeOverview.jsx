@@ -6,10 +6,13 @@ import CapacityTable from '../CapacityTable';
 import PodsTable from '../PodsTable';
 import PieChart from '../PieChart';
 
+import ExpandableCell from '../ExpandableCell';
+
 export default function NodeOverview({ data, metadata, spec, status, relatedPods, t, icons }) {
     const nodeStatus = status || data?.status || {};
     const nodeInfo = nodeStatus.nodeInfo || spec?.nodeInfo || {};
     const allocation = data?.allocation || {};
+    const extra = data?.extra || {};
     
     // In v0.37.0 addresses were sometimes in data.addresses or status.addresses
     const addresses = data?.addresses || nodeStatus?.addresses || [];
@@ -17,13 +20,35 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
 
     return (
         <>
-            <DetailSection title="Addresses" className="mt-4">
-                {addresses.length === 0 ? (
-                    <div className="p-4 text-center text-text-muted italic">No addresses found.</div>
-                ) : (
-                    <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {addresses.map((addr, idx) => (
-                            <div key={idx} className="bg-[var(--bg-sidebar)]/20 p-4 rounded border border-border/50 flex flex-col">
+            <DetailSection title="Resource Info" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10">
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Pod CIDR</span>
+                        <span className="text-sm font-mono font-bold text-accent">{extra['pod-cidr'] || '—'}</span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center overflow-hidden">
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Taints</span>
+                        <div className="max-w-full">
+                            <ExpandableCell value={extra.taints} />
+                        </div>
+                    </div>
+                    {addresses.slice(0, 2).map((addr, idx) => (
+                        <div key={idx} className="px-6 py-4 flex flex-col items-center text-center">
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
+                            <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
+                        </div>
+                    ))}
+                    {addresses.length < 2 && (
+                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">—</span>
+                            <span className="text-sm text-text-muted italic">—</span>
+                        </div>
+                    )}
+                </div>
+                {addresses.length > 2 && (
+                    <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--bg-sidebar)]/5 border-b border-border">
+                        {addresses.slice(2).map((addr, idx) => (
+                            <div key={idx} className="bg-white/5 p-3 rounded border border-border/50 flex flex-col items-center">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
                                 <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
                             </div>
@@ -80,10 +105,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
             </DetailSection>
 
             <DetailSection title="Allocation">
-                <div className="p-4 bg-[var(--bg-sidebar)]/5 border-b border-border">
-                    <CapacityTable capacity={nodeStatus.capacity || {}} allocatable={nodeStatus.allocatable || {}} t={t} />
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 rounded border border-border/30">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 border-b border-border">
                     <PieChart
                         percent={allocation.cpu?.capacity > 0 ? (allocation.cpu.requests / allocation.cpu.capacity) * 100 : 0}
                         label="CPU Requests"

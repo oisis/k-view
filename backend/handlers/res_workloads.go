@@ -200,5 +200,26 @@ func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured,
 		} else {
 			extra["target"] = "—"
 		}
+
+	case "nodes", "node":
+		if podCidr, ok, _ := unstructured.NestedString(item.Object, "spec", "podCIDR"); ok {
+			extra["pod-cidr"] = podCidr
+		}
+		if taints, ok, _ := unstructured.NestedSlice(item.Object, "spec", "taints"); ok {
+			var ts []string
+			for _, t := range taints {
+				if tm, ok := t.(map[string]interface{}); ok {
+					key := tm["key"]
+					value := tm["value"]
+					effect := tm["effect"]
+					if value != nil {
+						ts = append(ts, fmt.Sprintf("%v=%v:%v", key, value, effect))
+					} else {
+						ts = append(ts, fmt.Sprintf("%v:%v", key, effect))
+					}
+				}
+			}
+			extra["taints"] = strings.Join(ts, ", ")
+		}
 	}
 }
