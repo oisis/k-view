@@ -139,21 +139,36 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
     };
     return (
         <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-border flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
-            {/* Logo + Toggle */}
-            <div className={`border-b border-border flex items-center transition-all duration-300 min-h-[64px] py-2 ${isCollapsed ? 'px-0 justify-center' : 'px-4 justify-between gap-2'}`}>
-                {!isCollapsed ? (
+            {/* Header: Logo (left) + Buttons (right stack) */}
+            <div className={`border-b border-border flex items-center transition-all duration-300 py-4 ${isCollapsed ? 'flex-col gap-6 px-0' : 'flex-row justify-between px-4 gap-2'}`}>
+                
+                {/* Logo Area */}
+                {!isCollapsed && (
                     <div className="flex-1 flex justify-center overflow-hidden">
                         <img src={logo} alt="K-View Logo" className="w-44 h-auto opacity-95 transition-all duration-300 transform origin-left" />
                     </div>
-                ) : null}
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={`p-2 rounded-xl text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)] transition-all active:scale-90 shrink-0
-                        ${isCollapsed ? 'hover:bg-[var(--accent)]/10 text-accent' : ''}`}
-                    title={isCollapsed ? t('expand_menu') : t('collapse_menu')}
-                >
-                    {isCollapsed ? <icons.expand_menu size={20} /> : <icons.collapse_menu size={20} />}
-                </button>
+                )}
+
+                {/* Buttons Vertical Stack */}
+                <div className={`flex flex-col ${isCollapsed ? 'gap-6' : 'gap-10'} items-center`}>
+                    {/* Logout Button (Red) */}
+                    <button
+                        onClick={onLogout}
+                        className="p-2 rounded-xl bg-red-600/10 text-red-500 border border-red-600/20 hover:bg-red-600/20 hover:text-red-400 transition-all active:scale-90 flex items-center justify-center shadow-sm w-10 h-10"
+                        title={t('logout')}
+                    >
+                        <icons.logout size={20} />
+                    </button>
+
+                    {/* Toggle Button (Green) */}
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="p-2 rounded-xl bg-[var(--text-green)]/10 text-[var(--text-green)] border border-[var(--text-green)]/20 hover:bg-[var(--text-green)]/20 transition-all active:scale-90 shrink-0 w-10 h-10"
+                        title={isCollapsed ? t('expand_menu') : t('collapse_menu')}
+                    >
+                        {isCollapsed ? <icons.expand_menu size={20} /> : <icons.collapse_menu size={20} />}
+                    </button>
+                </div>
             </div>
 
             {/* Scrollable nav */}
@@ -205,6 +220,9 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
 
                 <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
+                    {user.role === 'kview-cluster-admin' && (
+                        <NavItem href="/access" iconKey="admin_panel" label={t('admin_panel')} active={isPathActive('/access')} isCollapsed={isCollapsed} />
+                    )}
                     <NavItem href="/about" iconKey="about" label={t('about')} active={isPathActive('/about')} isCollapsed={isCollapsed} />
                     <NavItem href="/console" iconKey="console" label={t('console')} active={isPathActive('/console')} isCollapsed={isCollapsed} />
                     <NavItem href="/settings" iconKey="settings" label={t('settings')} active={isPathActive('/settings')} isCollapsed={isCollapsed} />
@@ -212,40 +230,8 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
 
             </nav>
 
-            {/* Bottom: admin + mode label + logout */}
-            <div className={`border-t border-border transition-all duration-300 ${isCollapsed ? 'py-3 px-2 flex flex-col items-center gap-4' : 'px-3 py-3 space-y-2'}`}>
-                {!isCollapsed && (user.role === 'kview-cluster-admin' || user.role === 'admin') && (
-                    <a
-                        href="/access"
-                        className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold transition-all w-full
-                ${p === '/access'
-                                ? 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-sm'
-                                : 'text-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors'}`}
-                    >
-                        <icons.admin_panel size={16} /> {t('admin_panel')}
-                    </a>
-                )}
-
-                <div className={`flex items-center justify-between gap-2 px-1 ${isCollapsed ? 'flex-col gap-4 w-full items-center' : ''}`}>
-                    {user.devMode ? (
-                        <div className={`flex items-center gap-1.5 text-xs font-black text-green-500 tracking-tight uppercase ${isCollapsed ? 'flex-col items-center' : ''}`}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                            {!isCollapsed ? t('development') : <span className="text-[8px]">DEV</span>}
-                        </div>
-                    ) : (
-                        <div className={`flex items-center gap-1.5 text-xs font-black text-red-600 tracking-tight uppercase ${isCollapsed ? 'flex-col items-center' : ''}`}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_6px_rgba(220,38,38,0.4)]" />
-                            {!isCollapsed ? t('production') : <span className="text-[8px]">PROD</span>}
-                        </div>
-                    )}
-                    <button
-                        onClick={onLogout}
-                        className={`p-1.5 rounded-xl bg-red-600/20 text-red-500 border border-red-600/40 hover:bg-red-600/30 hover:text-red-400 hover:border-red-600/60 transition-all active:scale-90 flex items-center justify-center group shadow-sm ${isCollapsed ? 'w-10 h-10' : ''}`}
-                        title={t('logout')}
-                    >
-                        <icons.logout size={18} className="group-hover:translate-x-0.5 transition-transform" />
-                    </button>
-                </div>
+            {/* Bottom spacer or empty */}
+            <div className={`transition-all duration-300 ${isCollapsed ? 'py-1' : 'py-2'}`}>
             </div>
         </aside>
     );
