@@ -56,7 +56,7 @@ export const pl = {
     replicationcontroller: 'Kontroler replikacji',
     hpas: 'Horizontal Pod Autoscalers',
     horizontal_pod_autoscalers: 'Horizontal Pod Autoscalers',
-    network: 'Sieć (Network)',
+    network: 'Service',
     services: 'Usługi (Services)',
     ingresses: 'Ingressy',
     ingress_classes: 'Klasy Ingress',

@@ -159,7 +159,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/workloads/hpas" iconKey="hpa" label={t('hpas')} active={isPathActive('/workloads/hpas')} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section id="network" label={t('network')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                <Section id="network" label={t('services')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={isPathActive('/cluster/ingress-classes')} isCollapsed={isCollapsed} />
                     <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={isPathActive('/network/ingresses')} isCollapsed={isCollapsed} />
                     <NavItem href="/network/services" iconKey="service" label={t('services')} active={isPathActive('/network/services')} isCollapsed={isCollapsed} />

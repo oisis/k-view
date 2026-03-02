@@ -33,7 +33,7 @@ export const ja = {
     replicationcontrollers: 'レプリケーションコントローラ',
     replicationcontroller: 'レプリケーションコントローラー',
     hpas: '水平ポッド自動スケーラー',
-    network: 'ネットワーク',
+    network: 'サービス',
 
     services: 'サービス',
     ingresses: 'Ingress',

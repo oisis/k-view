@@ -33,7 +33,7 @@ export const fr = {
     replicationcontrollers: 'Contrôleurs de réplication',
     replicationcontroller: 'Contrôleur de réplication',
     hpas: 'Horizontal Pod Autoscalers',
-    network: 'Réseau',
+    network: 'Service',
     services: 'Services',
     ingresses: 'Ingress',
     ingress_classes: 'Classes d\'Ingress',

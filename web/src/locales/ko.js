@@ -33,7 +33,7 @@ export const ko = {
     replicationcontrollers: '복제 컨트롤러',
     replicationcontroller: '복제 컨트롤러',
     hpas: '수평 포드 자동 스케일러',
-    network: '네트워크',
+    network: '서비스',
     services: '서비스',
     ingresses: 'Ingress',
     ingress_classes: 'Ingress Classes',
