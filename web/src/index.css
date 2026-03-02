@@ -233,12 +233,16 @@
 
   thead {
     background-color: var(--bg-table-header) !important;
-    color: var(--text-table-header) !important;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 900;
     border-bottom: 2px solid var(--border-color) !important;
+  }
+
+  thead th {
+    color: var(--text-table-header) !important;
+    background-color: var(--bg-table-header) !important;
   }
 }
 

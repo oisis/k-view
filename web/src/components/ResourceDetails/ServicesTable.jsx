@@ -10,7 +10,7 @@ export default function ServicesTable({ title, services, t, icons }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                     <thead>
-                        <tr className="text-secondary border-b border-border bg-white/5 uppercase text-[10px] tracking-widest font-bold">
+                        <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
                             <th className="px-4 py-3 text-left">{t('label_name')}</th>
                             <th className="px-4 py-3 text-left">{t('label_namespace')}</th>
                             <th className="px-4 py-3 text-left">Type</th>
@@ -32,7 +32,7 @@ export default function ServicesTable({ title, services, t, icons }) {
                             services.map((svc, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
-                                        <Link to={`/network/services/${svc.namespace}/${svc.name}`} className="font-bold text-accent hover:underline font-mono">
+                                        <Link to={`/services/${svc.namespace}/${svc.name}`} className="font-bold text-accent hover:underline font-mono">
                                             {svc.name}
                                         </Link>
                                     </td>

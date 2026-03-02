@@ -49,6 +49,16 @@ func (h *ResourceHandler) mapNetwork(item unstructured.Unstructured, kind string
 		} else {
 			extra["external"] = "—"
 		}
+		
+		// Map Selector for filtering
+		if selector, ok, _ := unstructured.NestedMap(item.Object, "spec", "selector"); ok {
+			var pairs []string
+			for k, v := range selector {
+				pairs = append(pairs, fmt.Sprintf("%s=%v", k, v))
+			}
+			extra["selector"] = strings.Join(pairs, ",")
+		}
+
 		extra["labels"] = k8sutils.GetLabels(item.Object)
 
 	case "ingresses":

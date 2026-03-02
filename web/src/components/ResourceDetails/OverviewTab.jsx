@@ -22,6 +22,7 @@ import RbacBindingOverview from './templates/RbacBindingOverview';
 import DaemonSetOverview from './templates/DaemonSetOverview';
 import JobOverview from './templates/JobOverview';
 import HpaOverview from './templates/HpaOverview';
+import ReplicaSetOverview from './templates/ReplicaSetOverview';
 
 export default function OverviewTab({
  
@@ -81,14 +82,16 @@ export default function OverviewTab({
                 isNamespace={isNamespace}
                 isNetworkPolicy={isNetworkPolicy}
                 isDaemonSet={isDaemonSet}
+                isReplicaSet={isReplicaSet}
             />
 
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
                     isCronJob={isCronJob}
                     isJob={isJob}
+                    isReplicaSet={isReplicaSet}
                     isNode={isNode}
                     isStorageClass={isStorageClass}
                     data={data}
@@ -103,6 +106,7 @@ export default function OverviewTab({
             {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {kindLower === 'hpas' && <HpaOverview spec={spec} status={status} t={t} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}

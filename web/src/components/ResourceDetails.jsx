@@ -169,25 +169,41 @@ export default function ResourceDetails() {
                     }
                 }
 
-                if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset')) {
+                if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset')) {
                     const svcsRes = await fetch(`/api/resources/services?namespace=${nsQuery}`);
                     if (svcsRes?.ok) {
                         const svcsData = await svcsRes.json();
                         if (Array.isArray(svcsData)) {
-                            // Find services whose selector matches the labels of the pod template
+                            // Find services whose selector matches the labels of the pod template or resource itself
                             const templateLabels = detailsData?.spec?.template?.metadata?.labels || {};
+                            const metadataLabels = detailsData?.metadata?.labels || {};
+                            
                             setRelatedServices(svcsData.filter(svc => {
                                 const svcSelectorStr = svc.extra?.selector || "";
                                 if (!svcSelectorStr) return false;
                                 
                                 const svcSelector = {};
                                 svcSelectorStr.split(',').forEach(pair => {
-                                    const [k, v] = pair.trim().split('=');
-                                    if (k) svcSelector[k] = v;
+                                    const parts = pair.trim().split('=');
+                                    if (parts.length === 2) {
+                                        svcSelector[parts[0]] = parts[1];
+                                    }
                                 });
 
-                                return Object.keys(svcSelector).length > 0 && 
-                                       Object.entries(svcSelector).every(([k, v]) => templateLabels[k] === String(v));
+                                const selectorKeys = Object.keys(svcSelector);
+                                if (selectorKeys.length === 0) return false;
+
+                                // Helper to check if ALL selector keys match given labels
+                                const labelsMatch = (labels) => {
+                                    if (!labels) return false;
+                                    return selectorKeys.every(k => String(labels[k]) === String(svcSelector[k]));
+                                };
+
+                                const matchesTemplate = labelsMatch(detailsData?.spec?.template?.metadata?.labels);
+                                const matchesMetadata = labelsMatch(detailsData?.metadata?.labels);
+                                const matchesSelector = labelsMatch(detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector);
+
+                                return matchesTemplate || matchesMetadata || matchesSelector;
                             }));
                         }
                     }

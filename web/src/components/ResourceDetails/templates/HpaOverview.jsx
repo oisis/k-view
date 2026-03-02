@@ -14,7 +14,7 @@ export default function HpaOverview({ spec, status, t }) {
                     <div className="flex items-center gap-4">
                         <div className="px-4 py-2 bg-accent/10 border border-accent/20 rounded-lg">
                             <span className="text-xs font-bold text-text-muted uppercase block mb-1">Target Resource</span>
-                            <Link to={`/workloads/${scaleTarget.kind?.toLowerCase()}s/${scaleTarget.name}`} className="text-sm font-bold text-accent hover:underline font-mono">
+                            <Link to={`/${scaleTarget.kind?.toLowerCase()}s/${scaleTarget.name}`} className="text-sm font-bold text-accent hover:underline font-mono">
                                 {scaleTarget.kind}/{scaleTarget.name}
                             </Link>
                         </div>
