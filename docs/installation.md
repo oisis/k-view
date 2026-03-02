@@ -4,11 +4,11 @@ K-View can be installed in several ways depending on your environment (local dev
 
 ## Prerequisites
 - **Kubernetes**: v1.22+
-- **Helm**: v3.0+ (for cluster deployment)
-- **Docker**: (optional, for custom builds)
+- **Helm**: v3.0+
+- **Docker**: For building and local cluster execution.
 
 ## 1. Quick Install (Helm OCI)
-The fastest way to deploy K-View is using our pre-built charts from GHCR.
+The fastest way to deploy K-View is using pre-built charts from GHCR.
 
 ```bash
 helm install k-view oci://ghcr.io/oisis/charts/k-view \
@@ -19,42 +19,54 @@ helm install k-view oci://ghcr.io/oisis/charts/k-view \
   -n k-view --create-namespace
 ```
 
-## 2. Manual Installation (Local Clone)
-If you want to customize the chart or use a local `values.yaml`:
+## 2. Local Development (Docker Desktop / MiniKube)
+The development environment is natively integrated with Kubernetes. Legacy mockups and Docker Compose have been removed.
 
+### 1. Initial Setup
 1. Clone the repository:
    ```bash
    git clone https://github.com/oisis/k-view.git
    cd k-view
    ```
-2. Adjust `charts/k-view/values.yaml`.
-3. Install:
-   ```bash
-   helm install k-view ./charts/k-view -n k-view --create-namespace
-   ```
+2. Configure your local settings in `tmp-gemini/my-values.yaml`.
 
-## 3. Local Development (Docker Compose)
-For testing features locally without a real Kubernetes cluster:
+### 2. Streamlined Deployment
+Use our automation script to build, deploy, and start a port-forward tunnel:
+```bash
+./scripts/local-deploy.sh
+```
+The application will be available at **http://localhost:8081**.
 
-1. Enable `DEV_MODE` in the backend.
-2. Run via Docker Compose:
-   ```bash
-   docker-compose up -d
-   ```
-   This will start a mock backend and a proxied frontend on `http://localhost:8080`.
+### 3. Deploying Metrics Server
+To see CPU/RAM charts locally, ensure Metrics Server is installed:
+```bash
+./scripts/metrics-server.sh
+```
 
-## 4. Building from Source
-K-View uses a multi-stage Docker build to keep the final image lightweight.
+### 4. Deploying Test Data
+To populate the dashboard with 27 example resources:
+```bash
+./scripts/deploy-test-suite.sh --deploy
+```
 
+## 3. Building from Source
+K-View uses a multi-stage Docker build supporting multiple architectures.
+
+### Local Image Build
 ```bash
 docker build -t k-view:latest .
 ```
 
-To build for a specific architecture (e.g., Apple Silicon):
+### Build & Extract Binary
+To build the Go binary for a specific architecture (e.g., `arm64` for Mac M1/M2):
 ```bash
-docker build --build-arg TARGETARCH=arm64 -t k-view:arm64 .
+./scripts/build.sh arm64
 ```
-or use our build script:
+The binary will be saved in the `bin/` directory.
+
+## 4. Running Tests
+Ensure UI stability and backend correctness before contributing:
 ```bash
-./build.sh
+./scripts/run-tests.sh
 ```
+This script runs both Go backend tests and Vitest frontend tests (Frozen Views).

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0] - 2026-03-02
+
+### Added
+- **Automated Testing Suite**: Implemented "Frozen Views" verification using Vitest and React Testing Library to ensure UI stability.
+- **Unified Test Data**: Created a comprehensive set of 27 interconnected resource manifests in `/examples/test-suite`.
+- **Scripts Directory**: Consolidated all automation (build, test, deploy) into a dedicated `/scripts` directory with dynamic path resolution.
+- **Local Deployment Script**: Added `local-deploy.sh` with automatic versioning, port-forwarding, and cleanup.
+- **Metrics Automation**: Added `metrics-server.sh` for easy installation of the Metrics Server on local clusters.
+
+### Changed & Refactored
+- **Native Kubernetes Integration**: Completely removed `MockClient` and all static JSON mock data. The application now relies exclusively on the native Kubernetes API.
+- **Navigation**: Migrated `Sidebar` to use React Router `Link` components for smoother, reload-free navigation.
+- **Project Structure**: Removed obsolete `docker-compose.yaml` and legacy RBAC configuration files.
+- **Dockerfile**: Optimized final image by removing mock data copying and refining build arguments.
+
+### Fixed
+- **CRD Highlighting**: Fixed sidebar active state when viewing Custom Resource Definitions.
+- **Test Integrity**: Fixed backend utility tests and unified ResourceItem typing across all handlers.
+
 ## [0.45.1] - 2026-03-02
 
 ### Fixed
