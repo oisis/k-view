@@ -1,0 +1,139 @@
+{
+  "resources": {
+    "pods": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Pod status", "Restarts", "Created"],
+      "detail_tabs": ["overview", "yaml", "logs", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "deployments": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Pods", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "statefulsets": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Annotations", "Ready", "Replicas", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "daemonsets": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Pods", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "jobs": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Status", "Pods", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "cronjobs": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Schedule", "Suspend", "Active", "Last run", "Age"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "replicasets": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Ready", "Current", "Desired", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "replicationcontrollers": {
+      "list_columns": ["Name", "Namespace", "Images", "Labels", "Ready", "Current", "Desired", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "hpas": {
+      "list_columns": ["label_name", "label_namespace", "Reference", "Targets", "Min", "Max", "Replicas", "label_age"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Scaling Target", "Replicas & Range", "Metrics"]
+    },
+    "services": {
+      "list_columns": ["Name", "Namespace", "Labels", "Type", "cluster ip", "int endpoints", "ext endpoints", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "ingresses": {
+      "list_columns": ["Name", "Namespace", "Labels", "Hosts", "Address", "Endpoints", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "ingress-classes": {
+      "list_columns": ["Name", "Labels", "Controller", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "configmaps": {
+      "list_columns": ["Name", "Namespace", "Labels", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "secrets": {
+      "list_columns": ["Name", "Namespace", "Labels", "Type", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "pvcs": {
+      "list_columns": ["Name", "Namespace", "Labels", "Status", "Volume", "Capacity", "Access Modes", "Storage Class", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "pvs": {
+      "list_columns": ["Name", "Capacity", "access modes", "reclaim policy", "Status", "Claim", "storage class", "Reason", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "resource_info"]
+    },
+    "storage-classes": {
+      "list_columns": ["Name", "Labels", "Provisioner", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "cluster-role-bindings": {
+      "list_columns": ["Name", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Subjects", "Role References"]
+    },
+    "cluster-roles": {
+      "list_columns": ["Name", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Rules"]
+    },
+    "events": {
+      "list_columns": ["Name", "Namespace", "Reason", "Message", "Source", "Objects", "Count", "First Seen", "Last Seen"],
+      "detail_tabs": ["overview", "yaml"],
+      "detail_sections": ["metadata", "status"]
+    },
+    "namespaces": {
+      "list_columns": ["Name", "Labels", "Phase", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    },
+    "network-policies": {
+      "list_columns": ["Name", "Namespace", "Labels", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Resource Info"]
+    },
+    "role-bindings": {
+      "list_columns": ["Name", "Namespace", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Subjects", "Role References"]
+    },
+    "roles": {
+      "list_columns": ["Name", "Namespace", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Rules"]
+    },
+    "service-accounts": {
+      "list_columns": ["Name", "Namespace", "Labels", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata", "Secrets", "Image Pull Secrets"]
+    },
+    "nodes": {
+      "list_columns": ["Name", "Age"],
+      "detail_tabs": ["overview", "yaml"],
+      "detail_sections": ["metadata", "status"]
+    },
+    "crds": {
+      "list_columns": ["Name", "Group", "Full Name", "Namespaced", "Created"],
+      "detail_tabs": ["overview", "yaml", "recent_events"],
+      "detail_sections": ["metadata"]
+    }
+  }
+}

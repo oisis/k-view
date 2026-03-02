@@ -33,7 +33,7 @@ func TestGetImages(t *testing.T) {
 	}
 
 	got := GetImages(pod)
-	expected := "nginx:1.21, busybox"
+	expected := "busybox, nginx:1.21"
 	if got != expected {
 		t.Errorf("GetImages() = %v, want %v", got, expected)
 	}
