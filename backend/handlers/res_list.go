@@ -44,6 +44,20 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	}
 
 	result := make([]ResourceItem, 0)
+
+	// Fetch metrics if listing pods
+	var metricsMap map[string]unstructured.Unstructured
+	if kind == "pods" || kind == "pod" {
+		mList, _ := h.k8sClient.ListPodMetrics(c.Request.Context(), ns)
+		if mList != nil {
+			metricsMap = make(map[string]unstructured.Unstructured)
+			for _, m := range mList {
+				key := m.GetNamespace() + "/" + m.GetName()
+				metricsMap[key] = m
+			}
+		}
+	}
+
 	for _, item := range items {
 		resItem := ResourceItem{
 			Name:      item.GetName(),
@@ -52,7 +66,8 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			Status:    "Active",
 		}
 
-		h.mapResourceSpecifics(item, kind, &resItem)
+		// Pass metrics to mapper if available
+		h.mapResourceSpecificsWithMetrics(item, kind, &resItem, metricsMap)
 		result = append(result, resItem)
 	}
 

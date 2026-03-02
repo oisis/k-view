@@ -110,7 +110,7 @@ export default function ResourceDetails() {
 
                 const needsPods = kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || 
                                  kindLower === 'services' || kindLower === 'service' || kindLower === 'nodes' || kindLower === 'node' || 
-                                 kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset');
+                                 kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset') || kindLower.includes('replicationcontroller');
 
                 if (needsPods) {
                     const podsRes = await fetch(`/api/resources/pods?namespace=${nsQuery}`);
@@ -120,7 +120,7 @@ export default function ResourceDetails() {
                             const selector = detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector || null;
                             const uid = detailsData?.metadata?.uid;
 
-                            setRelatedPods(podsData.filter(p => {
+                            const filteredPods = podsData.filter(p => {
                                 if (!p) return false;
                                 if (kindLower === 'nodes' || kindLower === 'node') return p?.extra?.node === name;
                                 if (selector && Object.keys(selector).length > 0) {
@@ -135,7 +135,22 @@ export default function ResourceDetails() {
                                 const ownerUid = p?.extra?.['owner-uid'];
                                 if (ownerUid && uid && ownerUid === uid) return true;
                                 return (p.metadata?.ownerReferences || []).some(o => o.uid === uid);
-                            }));
+                            });
+
+                            setRelatedPods(filteredPods);
+
+                            // Fetch metrics for these pods
+                            filteredPods.forEach(async (pod) => {
+                                try {
+                                    const mRes = await fetch(`/api/resources/pods/${pod.namespace}/${pod.name}`);
+                                    if (mRes.ok) {
+                                        const mData = await mRes.json();
+                                        if (mData.status && Array.isArray(mData.status.containerStatuses)) {
+                                            // Handle pod details if needed
+                                        }
+                                    }
+                                } catch (e) {}
+                            });
                         }
                     }
                 }
@@ -169,7 +184,7 @@ export default function ResourceDetails() {
                     }
                 }
 
-                if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset')) {
+                if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset') || kindLower.includes('replicationcontroller')) {
                     const svcsRes = await fetch(`/api/resources/services?namespace=${nsQuery}`);
                     if (svcsRes?.ok) {
                         const svcsData = await svcsRes.json();
@@ -177,6 +192,7 @@ export default function ResourceDetails() {
                             // Find services whose selector matches the labels of the pod template or resource itself
                             const templateLabels = detailsData?.spec?.template?.metadata?.labels || {};
                             const metadataLabels = detailsData?.metadata?.labels || {};
+                            const resourceSelector = detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector || {};
                             
                             setRelatedServices(svcsData.filter(svc => {
                                 const svcSelectorStr = svc.extra?.selector || "";
@@ -186,7 +202,7 @@ export default function ResourceDetails() {
                                 svcSelectorStr.split(',').forEach(pair => {
                                     const parts = pair.trim().split('=');
                                     if (parts.length === 2) {
-                                        svcSelector[parts[0]] = parts[1];
+                                        svcSelector[parts[0].trim()] = parts[1].trim();
                                     }
                                 });
 
@@ -194,16 +210,12 @@ export default function ResourceDetails() {
                                 if (selectorKeys.length === 0) return false;
 
                                 // Helper to check if ALL selector keys match given labels
-                                const labelsMatch = (labels) => {
-                                    if (!labels) return false;
-                                    return selectorKeys.every(k => String(labels[k]) === String(svcSelector[k]));
+                                const labelsMatch = (targetLabels) => {
+                                    if (!targetLabels) return false;
+                                    return selectorKeys.every(k => String(targetLabels[k]) === String(svcSelector[k]));
                                 };
 
-                                const matchesTemplate = labelsMatch(detailsData?.spec?.template?.metadata?.labels);
-                                const matchesMetadata = labelsMatch(detailsData?.metadata?.labels);
-                                const matchesSelector = labelsMatch(detailsData?.spec?.selector?.matchLabels || detailsData?.spec?.selector);
-
-                                return matchesTemplate || matchesMetadata || matchesSelector;
+                                return labelsMatch(templateLabels) || labelsMatch(metadataLabels) || labelsMatch(resourceSelector);
                             }));
                         }
                     }

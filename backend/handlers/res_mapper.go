@@ -8,6 +8,10 @@ import (
 )
 
 func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, kind string, resItem *ResourceItem) {
+	h.mapResourceSpecificsWithMetrics(item, kind, resItem, nil)
+}
+
+func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unstructured, kind string, resItem *ResourceItem, metricsMap map[string]unstructured.Unstructured) {
 	if resItem.Extra == nil {
 		resItem.Extra = make(map[string]string)
 	}
@@ -23,7 +27,7 @@ func (h *ResourceHandler) mapResourceSpecifics(item unstructured.Unstructured, k
 	kind = strings.ToLower(kind)
 	switch kind {
 	case "pods", "pod", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "cronjobs", "cronjob", "replicasets", "replicaset", "replicationcontrollers", "hpas", "horizontalpodautoscalers":
-		h.mapWorkload(item, kind, resItem.Extra, resItem)
+		h.mapWorkloadWithMetrics(item, kind, resItem.Extra, resItem, metricsMap)
 	case "services", "service", "ingresses", "ingress", "ingress-classes", "ingressclass", "network-policies", "networkpolicy":
 		h.mapNetwork(item, kind, resItem.Extra, resItem, nil)
 	case "persistentvolumeclaims", "pvcs", "persistentvolumes", "pvs", "storage-classes", "storageclass", "secrets", "secret":

@@ -23,6 +23,7 @@ import DaemonSetOverview from './templates/DaemonSetOverview';
 import JobOverview from './templates/JobOverview';
 import HpaOverview from './templates/HpaOverview';
 import ReplicaSetOverview from './templates/ReplicaSetOverview';
+import ReplicationControllerOverview from './templates/ReplicationControllerOverview';
 
 export default function OverviewTab({
  
@@ -57,6 +58,7 @@ export default function OverviewTab({
     const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinition');
     const isNetworkPolicy = kindLower.includes('network') && (kindLower.includes('policy') || kindLower.includes('policies'));
     const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
+    const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
     const isHpa = kindLower === 'hpas' || kindLower === 'hpa' || kindLower === 'horizontalpodautoscalers';
 
     return (
@@ -83,15 +85,17 @@ export default function OverviewTab({
                 isNetworkPolicy={isNetworkPolicy}
                 isDaemonSet={isDaemonSet}
                 isReplicaSet={isReplicaSet}
+                isReplicationController={isReplicationController}
             />
 
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
                     isCronJob={isCronJob}
                     isJob={isJob}
                     isReplicaSet={isReplicaSet}
+                    isReplicationController={isReplicationController}
                     isNode={isNode}
                     isStorageClass={isStorageClass}
                     data={data}
@@ -107,6 +111,7 @@ export default function OverviewTab({
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
+            {isReplicationController && <ReplicationControllerOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {kindLower === 'hpas' && <HpaOverview spec={spec} status={status} t={t} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} t={t} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
@@ -124,7 +129,7 @@ export default function OverviewTab({
             {isStorageClass && <StorageClassOverview data={data} spec={spec} t={t} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
 
-            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && (
+            {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && !isReplicationController && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}).
                 </div>

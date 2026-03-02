@@ -12,6 +12,10 @@ import (
 )
 
 func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem) {
+	h.mapWorkloadWithMetrics(item, kind, extra, resItem, nil)
+}
+
+func (h *ResourceHandler) mapWorkloadWithMetrics(item unstructured.Unstructured, kind string, extra map[string]string, resItem *ResourceItem, metricsMap map[string]unstructured.Unstructured) {
 	// Common for all workloads: extract images and labels
 	if kind != "nodes" && kind != "namespaces" {
 		if imgs := k8sutils.GetImages(item.Object); imgs != "" {
@@ -50,28 +54,59 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 			extra["restarts"] = fmt.Sprintf("%d", restartCount)
 		}
 
-		if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
-			var totalCPU, totalMem int64
-			for _, c := range containers {
-				if container, ok := c.(map[string]interface{}); ok {
-					if res, ok := container["resources"].(map[string]interface{}); ok {
-						if reqs, ok := res["requests"].(map[string]interface{}); ok {
-							if cpu, ok := reqs["cpu"].(string); ok {
-								if q, err := resource.ParseQuantity(cpu); err == nil {
-									totalCPU += q.MilliValue()
+		// Try to get real-time metrics first
+		key := item.GetNamespace() + "/" + item.GetName()
+		if metricsMap != nil {
+			if m, ok := metricsMap[key]; ok {
+				if containers, ok, _ := unstructured.NestedSlice(m.Object, "containers"); ok {
+					var totalCPU, totalMem int64
+					for _, c := range containers {
+						if container, ok := c.(map[string]interface{}); ok {
+							if usage, ok := container["usage"].(map[string]interface{}); ok {
+								if cpu, ok := usage["cpu"].(string); ok {
+									if q, err := resource.ParseQuantity(cpu); err == nil {
+										totalCPU += q.MilliValue()
+									}
+								}
+								if mem, ok := usage["memory"].(string); ok {
+									if q, err := resource.ParseQuantity(mem); err == nil {
+										totalMem += q.Value() / (1024 * 1024)
+									}
 								}
 							}
-							if mem, ok := reqs["memory"].(string); ok {
-								if q, err := resource.ParseQuantity(mem); err == nil {
-									totalMem += q.Value() / (1024 * 1024)
+						}
+					}
+					if totalCPU >= 0 { extra["cpu"] = fmt.Sprintf("%dm", totalCPU) }
+					if totalMem >= 0 { extra["ram"] = fmt.Sprintf("%dMi", totalMem) }
+				}
+			}
+		}
+
+		// If metrics not available (cpu/ram still empty), fallback to requests
+		if extra["cpu"] == "" || extra["ram"] == "" {
+			if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok && len(containers) > 0 {
+				var reqCPU, reqMem int64
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if res, ok := container["resources"].(map[string]interface{}); ok {
+							if reqs, ok := res["requests"].(map[string]interface{}); ok {
+								if cpu, ok := reqs["cpu"].(string); ok {
+									if q, err := resource.ParseQuantity(cpu); err == nil {
+										reqCPU += q.MilliValue()
+									}
+								}
+								if mem, ok := reqs["memory"].(string); ok {
+									if q, err := resource.ParseQuantity(mem); err == nil {
+										reqMem += q.Value() / (1024 * 1024)
+									}
 								}
 							}
 						}
 					}
 				}
+				if extra["cpu"] == "" && reqCPU > 0 { extra["cpu"] = fmt.Sprintf("%dm", reqCPU) }
+				if extra["ram"] == "" && reqMem > 0 { extra["ram"] = fmt.Sprintf("%dMi", reqMem) }
 			}
-			if totalCPU > 0 { extra["cpu"] = fmt.Sprintf("%dm", totalCPU) }
-			if totalMem > 0 { extra["ram"] = fmt.Sprintf("%dMi", totalMem) }
 		}
 
 	case "deployments", "deployment":
@@ -117,12 +152,16 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		extra["succeeded"] = fmt.Sprintf("%d", succeeded)
 		extra["failed"] = fmt.Sprintf("%d", failed)
 
-	case "replicasets", "replicaset":
+	case "replicasets", "replicaset", "replicationcontrollers":
 		if rev, ok, _ := k8sutils.GetAnnotation(item.Object, "deployment.kubernetes.io/revision"); ok {
 			extra["revision"] = rev
 		}
 		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+		// ReplicationController uses "readyReplicas" but also "replicas" in spec/status
 		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+		if replicas == 0 {
+			replicas, _, _ = unstructured.NestedInt64(item.Object, "spec", "replicas")
+		}
 		extra["pods"] = fmt.Sprintf("%d/%d", ready, replicas)
 
 	case "hpas", "horizontalpodautoscalers":

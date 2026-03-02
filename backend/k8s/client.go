@@ -32,6 +32,7 @@ type KubernetesProvider interface {
 	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
 	GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error)
 	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
+	ListPodMetrics(ctx context.Context, namespace string) ([]unstructured.Unstructured, error)
 	ListNodeMetrics(ctx context.Context) ([]unstructured.Unstructured, error)
 	ListAllPods(ctx context.Context) ([]corev1.Pod, error)
 	ListAllNodes(ctx context.Context) ([]corev1.Node, error)
@@ -146,6 +147,32 @@ func (c *Client) ListAllNodes(ctx context.Context) ([]corev1.Node, error) {
 	return nodes.Items, nil
 }
 
+func (c *Client) ListPodMetrics(ctx context.Context, namespace string) ([]unstructured.Unstructured, error) {
+	dyn, err := c.GetDynamicClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "metrics.k8s.io",
+		Version:  "v1beta1",
+		Resource: "pods",
+	}
+
+	var list *unstructured.UnstructuredList
+	if namespace != "" {
+		list, err = dyn.Resource(gvr).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	} else {
+		list, err = dyn.Resource(gvr).List(ctx, metav1.ListOptions{})
+	}
+
+	if err != nil {
+		return nil, nil // Metrics Server not available
+	}
+
+	return list.Items, nil
+}
+
 func (c *Client) ListNodeMetrics(ctx context.Context) ([]unstructured.Unstructured, error) {
 	dyn, err := c.GetDynamicClient(ctx)
 	if err != nil {
@@ -251,6 +278,22 @@ func (m *MockClient) ListAllPods(_ context.Context) ([]corev1.Pod, error) {
 
 func (m *MockClient) ListAllNodes(_ context.Context) ([]corev1.Node, error) {
 	return allMockNodes, nil
+}
+
+func (m *MockClient) ListPodMetrics(_ context.Context, _ string) ([]unstructured.Unstructured, error) {
+	return []unstructured.Unstructured{
+		{
+			Object: map[string]interface{}{
+				"metadata": map[string]interface{}{"name": "pod-1", "namespace": "default"},
+				"containers": []interface{}{
+					map[string]interface{}{
+						"name": "main",
+						"usage": map[string]interface{}{"cpu": "10m", "memory": "20Mi"},
+					},
+				},
+			},
+		},
+	}, nil
 }
 
 func (m *MockClient) ListNodeMetrics(_ context.Context) ([]unstructured.Unstructured, error) {
