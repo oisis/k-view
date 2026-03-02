@@ -139,6 +139,30 @@ export default function ResourceDetails() {
                         }
                     }
                 }
+
+                if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset')) {
+                    const svcsRes = await fetch(`/api/resources/services?namespace=${nsQuery}`);
+                    if (svcsRes?.ok) {
+                        const svcsData = await svcsRes.json();
+                        if (Array.isArray(svcsData)) {
+                            // Find services whose selector matches the labels of the pod template
+                            const templateLabels = detailsData?.spec?.template?.metadata?.labels || {};
+                            setRelatedServices(svcsData.filter(svc => {
+                                const svcSelectorStr = svc.extra?.selector || "";
+                                if (!svcSelectorStr) return false;
+                                
+                                const svcSelector = {};
+                                svcSelectorStr.split(',').forEach(pair => {
+                                    const [k, v] = pair.trim().split('=');
+                                    if (k) svcSelector[k] = v;
+                                });
+
+                                return Object.keys(svcSelector).length > 0 && 
+                                       Object.entries(svcSelector).every(([k, v]) => templateLabels[k] === String(v));
+                            }));
+                        }
+                    }
+                }
             }
         } catch (err) {
             setError(err.message);

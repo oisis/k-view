@@ -1,10 +1,11 @@
 import React from 'react';
 import DetailSection from '../DetailSection';
 import PodsTable from '../PodsTable';
+import ServicesTable from '../ServicesTable';
 import ConditionsTable from '../ConditionsTable';
 import ContainerDetails from '../ContainerDetails';
 
-export default function DaemonSetOverview({ data, metadata, spec, status, relatedPods, t, icons }) {
+export default function DaemonSetOverview({ data, metadata, spec, status, relatedPods, relatedServices, t, icons }) {
     const containers = spec?.template?.spec?.containers || [];
     const pods = Array.isArray(relatedPods) ? relatedPods : [];
     const strategy = spec?.updateStrategy?.type || 'RollingUpdate';
@@ -72,6 +73,10 @@ export default function DaemonSetOverview({ data, metadata, spec, status, relate
             )}
 
             <PodsTable pods={pods} t={t} title={t('pods') || "Pods"} />
+            
+            {relatedServices && (
+                <ServicesTable services={relatedServices} t={t} icons={icons} title="Services" />
+            )}
             
             {status?.conditions && Array.isArray(status.conditions) && (
                 <ConditionsTable conditions={status.conditions} t={t} icons={icons} />
