@@ -3,8 +3,10 @@ import { translations } from './translations';
 
 const SettingsContext = createContext();
 
+const GLOBAL_CLUSTER_NAME_KEY = 'kview-global-cluster-name';
+
 const DEFAULT_SETTINGS = {
-    clusterName: '',
+    clusterName: localStorage.getItem(GLOBAL_CLUSTER_NAME_KEY) || '',
     defaultNamespace: '',
     itemsPerPage: 10,
     labelsLimit: 5,
@@ -20,7 +22,10 @@ export function SettingsProvider({ children }) {
     const [settings, setSettings] = useState(() => {
         try {
             const saved = localStorage.getItem(`kview-settings-anonymous`);
-            return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+            const base = saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+            // Always enforce global cluster name on init
+            base.clusterName = localStorage.getItem(GLOBAL_CLUSTER_NAME_KEY) || base.clusterName || '';
+            return base;
         } catch (e) {
             return DEFAULT_SETTINGS;
         }
@@ -30,12 +35,18 @@ export function SettingsProvider({ children }) {
     useEffect(() => {
         try {
             const saved = localStorage.getItem(settingsKey);
+            const globalName = localStorage.getItem(GLOBAL_CLUSTER_NAME_KEY) || '';
+            
             if (saved) {
-                setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(saved) });
+                const parsed = JSON.parse(saved);
+                setSettings({ ...DEFAULT_SETTINGS, ...parsed, clusterName: globalName || parsed.clusterName || '' });
             } else if (scope !== 'anonymous') {
                 const anonSaved = localStorage.getItem('kview-settings-anonymous');
-                if (anonSaved) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(anonSaved) });
-                else setSettings(DEFAULT_SETTINGS);
+                if (anonSaved) {
+                    const parsedAnon = JSON.parse(anonSaved);
+                    setSettings({ ...DEFAULT_SETTINGS, ...parsedAnon, clusterName: globalName || parsedAnon.clusterName || '' });
+                }
+                else setSettings({ ...DEFAULT_SETTINGS, clusterName: globalName });
             }
         } catch (e) {
             setSettings(DEFAULT_SETTINGS);
@@ -51,6 +62,9 @@ export function SettingsProvider({ children }) {
                     setSettings(prev => ({ ...prev, ...newSettings }));
                 } catch (err) { }
             }
+            if (e.key === GLOBAL_CLUSTER_NAME_KEY) {
+                setSettings(prev => ({ ...prev, clusterName: e.newValue || '' }));
+            }
         };
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
@@ -58,14 +72,25 @@ export function SettingsProvider({ children }) {
 
     useEffect(() => {
         localStorage.setItem(settingsKey, JSON.stringify(settings));
+        if (settings.clusterName !== undefined) {
+            localStorage.setItem(GLOBAL_CLUSTER_NAME_KEY, settings.clusterName);
+        }
     }, [settings, settingsKey]);
 
     const updateSettings = (newSettings) => {
-        setSettings(prev => ({ ...prev, ...newSettings }));
+        setSettings(prev => {
+            const updated = { ...prev, ...newSettings };
+            if (newSettings.clusterName !== undefined) {
+                localStorage.setItem(GLOBAL_CLUSTER_NAME_KEY, newSettings.clusterName);
+            }
+            return updated;
+        });
     };
 
     const resetSettings = () => {
-        setSettings(DEFAULT_SETTINGS);
+        const reset = { ...DEFAULT_SETTINGS, clusterName: '' };
+        localStorage.removeItem(GLOBAL_CLUSTER_NAME_KEY);
+        setSettings(reset);
     };
 
     return (

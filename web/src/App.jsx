@@ -120,7 +120,8 @@ function NavActionButton({ onClick, iconKey, label, isCollapsed }) {
 function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource }) {
     const { pathname: p } = useLocation();
     const { t } = useTranslation();
-    const { icons } = useTheme();
+    const { settings } = useSettings();
+    const { icons, activeTheme } = useTheme();
 
     const isPathActive = (href) => {
         if (p === href) return true;
@@ -233,6 +234,15 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
             {/* Bottom spacer or empty */}
             <div className={`transition-all duration-300 ${isCollapsed ? 'py-1' : 'py-2'}`}>
             </div>
+
+            {/* Custom Cluster Name (Background Watermark) */}
+            {settings.clusterName && (
+                <div className="mt-auto px-2 pb-4 pointer-events-none select-none">
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-cluster-name)] opacity-40 break-all text-center leading-tight">
+                        {settings.clusterName}
+                    </p>
+                </div>
+            )}
         </aside>
     );
 }

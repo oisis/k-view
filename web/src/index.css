@@ -54,6 +54,7 @@
   --color-text-green: 74 222 128;
   --color-text-warning: 251 191 36;
   --color-text-error: 248 113 113;
+  --color-text-cluster-name: 252 165 165; /* Light Red (Red-300) */
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
@@ -98,6 +99,7 @@
   --color-text-green: 74 222 128;
   --color-text-warning: 251 191 36;
   --color-text-error: 248 113 113;
+  --color-text-cluster-name: 252 165 165; /* Light Red (Red-300) */
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
@@ -142,6 +144,7 @@
   --color-text-green: 22 163 74;
   --color-text-warning: 217 119 6;
   --color-text-error: 220 38 38;
+  --color-text-cluster-name: 239 68 68;
   --color-text-purple: 124 58 237;
   --color-text-orange: 234 88 12;
   --color-text-cyan: 8 145 178;
@@ -195,6 +198,7 @@
   --text-green: rgb(var(--color-text-green));
   --text-warning: rgb(var(--color-text-warning));
   --text-error: rgb(var(--color-text-error));
+  --text-cluster-name: rgb(var(--color-text-cluster-name));
   --text-purple: rgb(var(--color-text-purple));
   --text-orange: rgb(var(--color-text-orange));
   --text-cyan: rgb(var(--color-text-cyan));
