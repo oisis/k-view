@@ -15,6 +15,10 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const isService = kindLower === 'service' || kindLower === 'services';
     const isCrd = kindLower === 'crd' || kindLower === 'crds' || kindLower === 'customresourcedefinitions';
     const isRbacBinding = kindLower.includes('rolebinding');
+    
+    // Check if resource is cluster-scoped
+    const isClusterScoped = isNode || isPv || isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isCrd;
+    
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNode || isPv || isRbacBinding || isCrd || isNetworkPolicy;
 
 
@@ -27,26 +31,36 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const sortedLabels = Object.entries(metadata?.labels || {}).sort(([a], [b]) => a.localeCompare(b));
     const sortedAnnotations = Object.entries(metadata?.annotations || {}).sort(([a], [b]) => a.localeCompare(b));
 
+    // Calculate grid columns for special metadata
+    const getSpecialGridCols = () => {
+        let cols = 2; // Name + Created (Age always shown)
+        if (!isClusterScoped) cols++; // Namespace
+        if (isServiceAccount) cols++; // Image Pull Secrets (handled elsewhere but keeping space)
+        return `md:grid-cols-${cols + 1}`; // +1 for Age which is outside the main ns logic
+    };
+
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
-                <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-4' : (isClusterScoped ? 'md:grid-cols-3' : 'md:grid-cols-4')} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                         <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
                     </div>
-                    <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
-                            {t('label_namespace')}
-                        </span>
-                        {metadata?.namespace ? (
-                            <Link to={`/namespaces/-/${metadata.namespace}`} className="text-sm text-accent font-bold hover:underline">
-                                {metadata.namespace}
-                            </Link>
-                        ) : (
-                            <span className="text-sm text-text-muted font-bold italic">—</span>
-                        )}
-                    </div>
+                    {!isClusterScoped && (
+                        <div className="px-6 py-4 flex flex-col items-center text-center">
+                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
+                                {t('label_namespace')}
+                            </span>
+                            {metadata?.namespace ? (
+                                <Link to={`/namespaces/-/${metadata.namespace}`} className="text-sm text-accent font-bold hover:underline">
+                                    {metadata.namespace}
+                                </Link>
+                            ) : (
+                                <span className="text-sm text-text-muted font-bold italic">—</span>
+                            )}
+                        </div>
+                    )}
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                         <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
@@ -58,21 +72,23 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                 </div>
             ) : (
                 <>
-                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet || isIngress || isService) ? 'md:grid-cols-3' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (isClusterScoped ? 'md:grid-cols-2' : 'md:grid-cols-3')} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
                         </div>
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_namespace')}</span>
-                            {namespace === '-' ? (
-                                <span className="text-sm text-text-muted font-bold italic">—</span>
-                            ) : (
-                                <Link to={`/namespaces/-/${namespace}`} className="text-sm text-accent font-bold hover:underline">
-                                    {namespace}
-                                </Link>
-                            )}
-                        </div>
+                        {!isClusterScoped && (
+                            <div className="px-6 py-4 flex flex-col items-center text-center">
+                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_namespace')}</span>
+                                {namespace === '-' ? (
+                                    <span className="text-sm text-text-muted font-bold italic">—</span>
+                                ) : (
+                                    <Link to={`/namespaces/-/${namespace}`} className="text-sm text-accent font-bold hover:underline">
+                                        {namespace}
+                                    </Link>
+                                )}
+                            </div>
+                        )}
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                             <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
@@ -86,7 +102,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                     </div>
 
                     {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && !isCronJob && !isDeployment && !isHpa && !isReplicaSet && !isReplicationController && !isStatefulSet && !isIngress && !isService && !isNetworkPolicy && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
+                        <div className={`grid grid-cols-1 ${isClusterScoped ? 'md:grid-cols-2' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border`}>
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
                                     {isDaemonSet ? 'Pods Running' : t('label_status')}
@@ -104,20 +120,22 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                                     </div>
                                 )}
                             </div>
-                            <div className="px-6 py-4 flex flex-col items-center text-center">
-                                <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
-                                    {isDaemonSet ? 'Pods Desired' : t('label_node')}
-                                </span>
-                                {isDaemonSet ? (
-                                    <span className="text-sm font-bold text-primary">{status?.desiredNumberScheduled || 0}</span>
-                                ) : spec?.nodeName ? (
-                                    <Link to={`/nodes/-/${spec?.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
-                                        {spec?.nodeName}
-                                    </Link>
-                                ) : (
-                                    <span className="text-sm text-text-muted font-bold italic">—</span>
-                                )}
-                            </div>
+                            {!isClusterScoped && (
+                                <div className="px-6 py-4 flex flex-col items-center text-center">
+                                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
+                                        {isDaemonSet ? 'Pods Desired' : t('label_node')}
+                                    </span>
+                                    {isDaemonSet ? (
+                                        <span className="text-sm font-bold text-primary">{status?.desiredNumberScheduled || 0}</span>
+                                    ) : spec?.nodeName ? (
+                                        <Link to={`/nodes/-/${spec?.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
+                                            {spec?.nodeName}
+                                        </Link>
+                                    ) : (
+                                        <span className="text-sm text-text-muted font-bold italic">—</span>
+                                    )}
+                                </div>
+                            )}
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
