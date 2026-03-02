@@ -140,6 +140,21 @@ export default function ResourceDetails() {
                     }
                 }
 
+                if (kindLower.includes('deployment')) {
+                    const rsRes = await fetch(`/api/resources/replicasets?namespace=${nsQuery}`);
+                    if (rsRes?.ok) {
+                        const rsData = await rsRes.json();
+                        if (Array.isArray(rsData)) {
+                            const uid = detailsData?.metadata?.uid;
+                            setRelatedReplicaSets(rsData.filter(rs => {
+                                const ownerUid = rs?.extra?.['owner-uid'];
+                                if (ownerUid && uid && ownerUid === uid) return true;
+                                return (rs.metadata?.ownerReferences || []).some(o => o.uid === uid);
+                            }));
+                        }
+                    }
+                }
+
                 if (kindLower.includes('daemonset') || kindLower.includes('deployment') || kindLower.includes('statefulset')) {
                     const svcsRes = await fetch(`/api/resources/services?namespace=${nsQuery}`);
                     if (svcsRes?.ok) {

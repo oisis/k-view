@@ -40,6 +40,21 @@ func GetAnnotations(obj map[string]interface{}) string {
 	return strings.Join(res, ", ")
 }
 
+// GetAnnotation extracts a single annotation by key
+func GetAnnotation(obj map[string]interface{}, key string) (string, bool, error) {
+	metadata, ok := obj["metadata"].(map[string]interface{})
+	if !ok { return "", false, nil }
+	ann, ok := metadata["annotations"].(map[string]interface{})
+	if !ok { return "", false, nil }
+
+	val, ok := ann[key]
+	if !ok { return "", false, nil }
+	
+	s, ok := val.(string)
+	if !ok { return fmt.Sprintf("%v", val), true, nil }
+	return s, true, nil
+}
+
 // GetImages extracts container images from a pod or workload spec
 func GetImages(obj map[string]interface{}) string {
 	var containers []interface{}

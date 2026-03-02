@@ -116,5 +116,13 @@ func (h *ResourceHandler) mapWorkload(item unstructured.Unstructured, kind strin
 		extra["active"] = fmt.Sprintf("%d", active)
 		extra["succeeded"] = fmt.Sprintf("%d", succeeded)
 		extra["failed"] = fmt.Sprintf("%d", failed)
+
+	case "replicasets", "replicaset":
+		if rev, ok, _ := k8sutils.GetAnnotation(item.Object, "deployment.kubernetes.io/revision"); ok {
+			extra["revision"] = rev
+		}
+		ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+		replicas, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+		extra["pods"] = fmt.Sprintf("%d/%d", ready, replicas)
 	}
 }

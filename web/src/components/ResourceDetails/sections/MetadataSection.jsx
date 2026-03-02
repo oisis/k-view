@@ -5,6 +5,7 @@ import DetailRow from '../DetailRow';
 
 export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower, status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
     const isCronJob = kindLower.includes('cronjob');
+    const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNetworkPolicy || isNode || isPv;
 
     const formatDate = (dateStr) => {
@@ -35,7 +36,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                 </div>
             ) : (
                 <>
-                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
@@ -54,7 +55,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
                             <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
                         </div>
-                        {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob) && (
+                        {(kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment) && (
                             <div className="px-6 py-4 flex flex-col items-center text-center border-l border-border">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                                 <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
@@ -62,7 +63,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                         )}
                     </div>
 
-                    {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && !isCronJob && (
+                    {!isNode && !kindLower.includes('configmap') && !kindLower.includes('pvc') && !kindLower.includes('secret') && !isCronJob && !isDeployment && (
                         <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border">
                             <div className="px-6 py-4 flex flex-col items-center text-center">
                                 <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">

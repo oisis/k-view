@@ -10,6 +10,10 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
     const rss = Array.isArray(relatedReplicaSets) ? relatedReplicaSets : [];
     const hpas = Array.isArray(relatedHpas) ? relatedHpas : [];
 
+    const deploymentRevision = metadata?.annotations?.['deployment.kubernetes.io/revision'];
+    const newRS = rss.filter(rs => rs.extra?.revision && rs.extra.revision === deploymentRevision);
+    const oldRS = rss.filter(rs => !rs.extra?.revision || rs.extra.revision !== deploymentRevision);
+
     return (
         <>
             <DetailSection title={t('resource_info') || "Resource Info"}>
@@ -34,7 +38,15 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
             </DetailSection>
 
             <PodsTable pods={pods} t={t} title={t('pods') || "Pods"} />
-            <ReplicaSetsTable replicaSets={rss} t={t} title={t('replica_set') || "Replica Set"} />
+            
+            {newRS.length > 0 && (
+                <ReplicaSetsTable replicaSets={newRS} t={t} title="New Replica Set" />
+            )}
+
+            {oldRS.length > 0 && (
+                <ReplicaSetsTable replicaSets={oldRS} t={t} title="Old Replica Set" />
+            )}
+
             <HpaTable hpas={hpas} t={t} />
             
             {status?.conditions && Array.isArray(status.conditions) && (
