@@ -51,6 +51,7 @@
   --color-accent-hover: 79 70 229;
   --color-text-info: 96 165 250;
   --color-text-success: 74 222 128;
+  --color-text-green: 74 222 128;
   --color-text-warning: 251 191 36;
   --color-text-error: 248 113 113;
   --color-text-purple: 167 139 250;
@@ -94,6 +95,7 @@
   --color-accent-hover: 37 99 235;
   --color-text-info: 96 165 250;
   --color-text-success: 74 222 128;
+  --color-text-green: 74 222 128;
   --color-text-warning: 251 191 36;
   --color-text-error: 248 113 113;
   --color-text-purple: 167 139 250;
@@ -137,6 +139,7 @@
   --color-accent-hover: 37 99 235;
   --color-text-info: 37 99 235;
   --color-text-success: 22 163 74;
+  --color-text-green: 22 163 74;
   --color-text-warning: 217 119 6;
   --color-text-error: 220 38 38;
   --color-text-purple: 124 58 237;
@@ -189,6 +192,7 @@
   --accent-hover: rgb(var(--color-accent-hover));
   --text-info: rgb(var(--color-text-info));
   --text-success: rgb(var(--color-text-success));
+  --text-green: rgb(var(--color-text-green));
   --text-warning: rgb(var(--color-text-warning));
   --text-error: rgb(var(--color-text-error));
   --text-purple: rgb(var(--color-text-purple));

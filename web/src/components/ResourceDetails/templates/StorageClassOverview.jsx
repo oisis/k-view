@@ -15,8 +15,7 @@ export default function StorageClassOverview({ data, spec, relatedPvs, t, icons 
         { key: 'fileSystemId', label: 'fileSystemId' },
         { key: 'gid', label: 'gid' },
         { key: 'provisioningMode', label: 'provisioningMode' },
-        { key: 'subPathPattern', label: 'subPathPattern' },
-        { key: 'uid', label: 'uid' }
+        { key: 'subPathPattern', label: 'subPathPattern' }
     ];
 
     return (

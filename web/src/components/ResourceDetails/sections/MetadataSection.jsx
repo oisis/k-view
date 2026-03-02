@@ -30,7 +30,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
-                <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-5' : 'md:grid-cols-4'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                         <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
@@ -55,14 +55,10 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                         <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
                     </div>
-                    <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_uid')}</span>
-                        <span className="text-[10px] font-mono text-secondary truncate w-full">{metadata?.uid || '—'}</span>
-                    </div>
                 </div>
             ) : (
                 <>
-                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet || isIngress || isService) ? 'md:grid-cols-4' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
+                    <div className={`grid grid-cols-1 ${isNode || isPv ? 'hidden' : (kindLower.includes('configmap') || kindLower.includes('pvc') || kindLower.includes('secret') || isCronJob || isDeployment || isHpa || isReplicaSet || isReplicationController || isStatefulSet || isIngress || isService) ? 'md:grid-cols-3' : 'md:grid-cols-3'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                             <span className="text-sm font-mono text-info font-bold break-all">{metadata?.name || '—'}</span>
