@@ -40,6 +40,8 @@ export default function ResourceDetails() {
     const [relatedEndpoints, setRelatedEndpoints] = useState(null);
     const [relatedIngresses, setRelatedIngresses] = useState(null);
     const [relatedCrdObjects, setRelatedCrdObjects] = useState(null);
+    const [relatedSecrets, setRelatedSecrets] = useState(null);
+    const [relatedImagePullSecrets, setRelatedImagePullSecrets] = useState(null);
     const [relatedPvs, setRelatedPvs] = useState(null);
 
     const kindLower = kind?.toLowerCase() || '';
@@ -57,6 +59,8 @@ export default function ResourceDetails() {
         setRelatedServices(null);
         setRelatedIngresses(null);
         setRelatedCrdObjects(null);
+        setRelatedSecrets(null);
+        setRelatedImagePullSecrets(null);
         setRelatedReplicaSets(null);
         setRelatedHpas(null);
         setRelatedEndpoints(null);
@@ -113,15 +117,22 @@ export default function ResourceDetails() {
                     if (jobsRes?.ok) {
                         const jobsData = await jobsRes.json();
                         if (Array.isArray(jobsData)) {
-                            setRelatedJobs(jobsData.filter(j => j.extra?.['owner-uid'] === detailsData.metadata?.uid));
+                            setRelatedJobs(jobsData.filter(j => j.extra?.['owner-uid'] === detailsData?.metadata?.uid));
                         }
                     }
                 }
 
-                if (detailsData.relatedEndpoints) {
+                if (detailsData?.relatedEndpoints) {
                     setRelatedEndpoints(detailsData.relatedEndpoints);
                 }
 
+                if (detailsData?.relatedSecrets) {
+                    setRelatedSecrets(detailsData.relatedSecrets);
+                }
+
+                if (detailsData?.relatedImagePullSecrets) {
+                    setRelatedImagePullSecrets(detailsData.relatedImagePullSecrets);
+                }
                 const needsPods = kindLower.includes('daemonset') || kindLower === 'job' || kindLower === 'jobs' || 
                                  kindLower === 'services' || kindLower === 'service' || kindLower === 'nodes' || kindLower === 'node' || 
                                  kindLower.includes('deployment') || kindLower.includes('statefulset') || kindLower.includes('replicaset') || kindLower.includes('replicationcontroller');
@@ -336,8 +347,9 @@ export default function ResourceDetails() {
                     </button>
                     <div>
                         <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
-                        <p className="text-sm font-bold uppercase tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80">
-                            Kind: {kindLower === 'pods' ? 'pod' : (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)}
+                        <p className="text-sm font-bold uppercase tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
+                            <span>Kind: {kindLower === 'pods' ? 'pod' : (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)}</span>
+                            <span className="font-mono">UID: {data.metadata?.uid || '—'}</span>
                         </p>
                     </div>
                 </div>
@@ -383,6 +395,8 @@ export default function ResourceDetails() {
                         relatedHpas={relatedHpas}
                         relatedIngresses={relatedIngresses}
                         relatedCrdObjects={relatedCrdObjects}
+                        relatedSecrets={relatedSecrets}
+                        relatedImagePullSecrets={relatedImagePullSecrets}
                         relatedEndpoints={relatedEndpoints}
                         relatedPvs={relatedPvs}
                         t={t}

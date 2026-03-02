@@ -18,17 +18,18 @@ import { ConfigMapListSchema } from './ResourceList/templates/ConfigMapList';
 import { SecretListSchema } from './ResourceList/templates/SecretList';
 import { PvcListSchema } from './ResourceList/templates/PvcList';
 import { PvListSchema } from './ResourceList/templates/PvList';
+import { IngressClassListSchema } from './ResourceList/templates/IngressClassList';
+import { HpaListSchema } from './ResourceList/templates/HpaList';
 import { EventListSchema } from './ResourceList/templates/EventList';
 import { NamespaceListSchema } from './ResourceList/templates/NamespaceList';
 import { CrdListSchema } from './ResourceList/templates/CrdList';
 import { RbacListSchema } from './ResourceList/templates/RbacList';
+import { ServiceAccountListSchema } from './ResourceList/templates/ServiceAccountList';
 import { StorageClassListSchema } from './ResourceList/templates/StorageClassList';
 import { ClusterRbacListSchema } from './ResourceList/templates/ClusterRbacList';
 import { ReplicaSetListSchema } from './ResourceList/templates/ReplicaSetList';
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
-import { IngressClassListSchema } from './ResourceList/templates/IngressClassList';
-import { HpaListSchema } from './ResourceList/templates/HpaList';
 
 // Column schema per resource kind
 const SCHEMAS = {
@@ -56,7 +57,7 @@ const SCHEMAS = {
     'network-policies': ConfigMapListSchema,
     'role-bindings': RbacListSchema,
     roles: RbacListSchema,
-    'service-accounts': ConfigMapListSchema,
+    'service-accounts': ServiceAccountListSchema,
     crds: CrdListSchema,
 };
 

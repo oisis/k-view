@@ -30,21 +30,21 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     return (
         <DetailSection title={t('metadata') || 'Metadata'}>
             {isSpecialMetadataOnly ? (
-                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10">
+                <div className={`grid grid-cols-1 ${isServiceAccount ? 'md:grid-cols-5' : 'md:grid-cols-4'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
                         <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
-                            {metadata?.namespace ? t('label_namespace') : t('label_uid')}
+                            {t('label_namespace')}
                         </span>
                         {metadata?.namespace ? (
                             <Link to={`/namespaces/-/${metadata.namespace}`} className="text-sm text-accent font-bold hover:underline">
                                 {metadata.namespace}
                             </Link>
                         ) : (
-                            <span className="text-xs font-mono text-secondary truncate w-full">{metadata?.uid || '—'}</span>
+                            <span className="text-sm text-text-muted font-bold italic">—</span>
                         )}
                     </div>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
@@ -54,6 +54,10 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
                         <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_uid')}</span>
+                        <span className="text-[10px] font-mono text-secondary truncate w-full">{metadata?.uid || '—'}</span>
                     </div>
                 </div>
             ) : (

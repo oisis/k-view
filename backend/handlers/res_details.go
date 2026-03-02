@@ -234,6 +234,55 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		}
 	}
 
+	if kind == "service-accounts" || kind == "serviceaccount" {
+		dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
+		secretGVR := getGVR("secrets")
+		
+		// 1. Fetch regular secrets
+		if secrets, ok, _ := unstructured.NestedSlice(item.Object, "secrets"); ok {
+			var fullSecrets []ResourceItem
+			for _, s := range secrets {
+				if sm, ok := s.(map[string]interface{}); ok {
+					sName, _ := sm["name"].(string)
+					if sObj, err := dynClient.Resource(secretGVR).Namespace(ns).Get(c.Request.Context(), sName, metav1.GetOptions{}); err == nil {
+						res := ResourceItem{
+							Name:      sObj.GetName(),
+							Namespace: sObj.GetNamespace(),
+							Age:       utils.GetAge(sObj.GetCreationTimestamp().Time),
+							Status:    "Active",
+							Extra:     make(map[string]string),
+						}
+						h.mapResourceSpecifics(*sObj, "secrets", &res)
+						fullSecrets = append(fullSecrets, res)
+					}
+				}
+			}
+			response["relatedSecrets"] = fullSecrets
+		}
+
+		// 2. Fetch image pull secrets
+		if ips, ok, _ := unstructured.NestedSlice(item.Object, "imagePullSecrets"); ok {
+			var fullIps []ResourceItem
+			for _, s := range ips {
+				if sm, ok := s.(map[string]interface{}); ok {
+					sName, _ := sm["name"].(string)
+					if sObj, err := dynClient.Resource(secretGVR).Namespace(ns).Get(c.Request.Context(), sName, metav1.GetOptions{}); err == nil {
+						res := ResourceItem{
+							Name:      sObj.GetName(),
+							Namespace: sObj.GetNamespace(),
+							Age:       utils.GetAge(sObj.GetCreationTimestamp().Time),
+							Status:    "Active",
+							Extra:     make(map[string]string),
+						}
+						h.mapResourceSpecifics(*sObj, "secrets", &res)
+						fullIps = append(fullIps, res)
+					}
+				}
+			}
+			response["relatedImagePullSecrets"] = fullIps
+		}
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 

@@ -18,6 +18,7 @@ import IngressClassOverview from './templates/IngressClassOverview';
 import SecretOverview from './templates/SecretOverview';
 import StorageClassOverview from './templates/StorageClassOverview';
 import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
+import ServiceAccountOverview from './templates/ServiceAccountOverview';
 import PvOverview from './templates/PvOverview';
 import RbacBindingOverview from './templates/RbacBindingOverview';
 import DaemonSetOverview from './templates/DaemonSetOverview';
@@ -30,6 +31,7 @@ export default function OverviewTab({
  
     data, kind, namespace, name, quotas, limits, 
     relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedIngresses, relatedCrdObjects, relatedEndpoints, relatedPvs, 
+    relatedSecrets, relatedImagePullSecrets,
     t, settings 
 }) {
     const { icons } = useTheme();
@@ -130,6 +132,7 @@ export default function OverviewTab({
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
+            {isServiceAccount && <ServiceAccountOverview data={data} metadata={metadata} spec={spec} namespace={namespace} relatedSecrets={relatedSecrets} relatedImagePullSecrets={relatedImagePullSecrets} t={t} icons={icons} />}
 
             {!isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && !isReplicationController && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
