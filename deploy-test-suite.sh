@@ -30,16 +30,22 @@ function deploy() {
 
     echo -e "${BLUE}🚀 Preparing Infrastructure...${NC}"
     
-    # 1. Install Ingress Nginx (Standard for Docker Desktop)
+    # 1. Install Ingress Nginx
     if [ "$1" != "dry-run" ]; then
         echo -e "${BLUE}📦 Installing Ingress Nginx Controller...${NC}"
         kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+        
+        echo -e "${YELLOW}⏳ Waiting for Ingress Nginx Controller to be ready (Webhook setup)...${NC}"
+        kubectl wait --namespace ingress-nginx \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/component=controller \
+          --timeout=120s
     fi
     
     # 2. Create Namespace
     kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply $dry_run_flag -f -
     
-    # 3. Apply CRDs first (Crucial!)
+    # 3. Apply CRDs first
     echo -e "${BLUE}⚙️  Applying Custom Resource Definitions...${NC}"
     kubectl apply $dry_run_flag -f $DIR/test-k-view-crd.yaml
     
@@ -49,8 +55,7 @@ function deploy() {
     fi
     
     # 4. Apply all other manifests
-    echo -e "${BLUE}🚀 Deploying/Validating remaining 26 resources...${NC}"
-    # Use a loop for dry-run to see individual file results, or direct apply for real deploy
+    echo -e "${BLUE}🚀 Deploying/Validating remaining resources...${NC}"
     if [ "$1" == "dry-run" ]; then
         for file in $DIR/*.yaml; do
             if [[ "$file" == *"test-k-view-node.yaml"* ]]; then continue; fi
@@ -63,6 +68,7 @@ function deploy() {
             fi
         done
     else
+        # Apply all files in the directory
         kubectl apply -f $DIR/
     fi
     
@@ -70,21 +76,14 @@ function deploy() {
         echo -e "\n${GREEN}✅ Dry-run validation complete.${NC}"
     else
         echo -e "\n${GREEN}✅ Test suite deployed successfully!${NC}"
-        echo -e "Resources created: $(ls $DIR/*.yaml | wc -l | xargs)"
         echo -e "Namespace: $NAMESPACE"
     fi
 }
 
 function cleanup() {
     echo -e "${YELLOW}🧹 Cleaning up K-View Test Suite...${NC}"
-    
-    # Delete manifests
     kubectl delete -f $DIR/ --ignore-not-found=true
-    
-    # Delete namespace
-    echo -e "${YELLOW}Deleting namespace $NAMESPACE...${NC}"
     kubectl delete namespace $NAMESPACE --ignore-not-found=true
-    
     echo -e "\n${RED}✅ Cleanup complete.${NC}"
 }
 
