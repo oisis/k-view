@@ -79,6 +79,10 @@ func main() {
 	// SPA catch-all: any path that is not an API route will serve index.html,
 	// allowing React Router to handle client-side routing (e.g. /admin, /login).
 	router.NoRoute(func(c *gin.Context) {
+		// Set headers to prevent caching of index.html
+		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
 		c.File("./web/dist/index.html")
 	})
 

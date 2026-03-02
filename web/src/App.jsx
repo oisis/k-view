@@ -258,6 +258,31 @@ function App() {
     const [namespaces, setNamespaces] = useState(['default']);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    // Version check for cache busting
+    useEffect(() => {
+        async function checkVersion() {
+            try {
+                const res = await fetch('/api/version');
+                if (res.ok) {
+                    const data = await res.json();
+                    const currentVersion = data.version;
+                    const storedVersion = localStorage.getItem('kview_app_version');
+
+                    if (storedVersion && storedVersion !== currentVersion) {
+                        console.log(`New version detected: ${currentVersion}. Refreshing...`);
+                        localStorage.setItem('kview_app_version', currentVersion);
+                        window.location.reload(true);
+                    } else if (!storedVersion) {
+                        localStorage.setItem('kview_app_version', currentVersion);
+                    }
+                }
+            } catch (err) {
+                console.error('Version check failed:', err);
+            }
+        }
+        checkVersion();
+    }, []);
+
     useEffect(() => {
         if (user?.email) {
             setScope(user.email);
