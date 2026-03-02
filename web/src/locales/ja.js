@@ -305,7 +305,7 @@ export const ja = {
     no_logs_match: '検索条件に一致するログはありません。',
     no_logs_found: 'このコンテナのログは見つかりませんでした。',
     mounted_pvc: 'マウントされたPVC',
-    admin_panel: '管理パネル',
+    admin_panel: '権限',
     expand_menu: 'メニューを展開',
     collapse_menu: 'メニューを閉じる',
     development: '開発',

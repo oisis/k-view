@@ -56,6 +56,7 @@ export const zh = {
     namespaces: '命名空间',
     network_policies: '网络策略',
     tools: '工具',
+    admin_panel: '权限',
     save_settings: '保存设置',
     reset_defaults: '恢复默认',
     reload: '重新加载',

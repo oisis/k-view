@@ -56,6 +56,7 @@ export const de = {
     namespaces: 'Namespaces',
     network_policies: 'Netzwerkrichtlinien',
     tools: 'Werkzeuge',
+    admin_panel: 'Berechtigungen',
     save_settings: 'Einstellungen speichern',
     reset_defaults: 'Standardeinstellungen',
     reload: 'Neu laden',

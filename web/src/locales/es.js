@@ -56,6 +56,7 @@ export const es = {
     namespaces: 'Namespaces',
     network_policies: 'Políticas de red',
     tools: 'Herramientas',
+    admin_panel: 'Permisos',
     save_settings: 'Guardar configuración',
     reset_defaults: 'Valores predeterminados',
     reload: 'Recargar',

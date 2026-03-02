@@ -304,7 +304,7 @@ export const en = {
     no_logs_match: 'No logs matching your search criteria.',
     no_logs_found: 'No logs found for this container.',
     mounted_pvc: 'Mounted PVC',
-    admin_panel: 'Admin Panel',
+    admin_panel: 'Permissions',
     expand_menu: 'Expand menu',
     collapse_menu: 'Collapse menu',
     development: 'DEVELOPMENT',

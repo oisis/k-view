@@ -296,7 +296,7 @@ export const pl = {
     no_logs_match: 'Brak logów pasujących do kryteriów.',
     no_logs_found: 'Nie znaleziono logów dla tego kontenera.',
     mounted_pvc: 'Zamontowany PVC',
-    admin_panel: 'Panel administratora',
+    admin_panel: 'Uprawnienia',
     expand_menu: 'Rozwiń menu',
     collapse_menu: 'Zwiń menu',
     development: 'DEWELOPERSKIE',

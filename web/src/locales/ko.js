@@ -314,7 +314,7 @@ export const ko = {
     no_logs_match: '검색 조건에 일치하는 로그가 없습니다.',
     no_logs_found: '이 컨테이너에 대한 로그가 없습니다.',
     mounted_pvc: '마운트된 PVC',
-    admin_panel: '관리 패널',
+    admin_panel: '권한',
     expand_menu: '메뉴 확장',
     collapse_menu: '메뉴 축소',
     development: '개발',

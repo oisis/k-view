@@ -385,12 +385,6 @@ export default function ResourceDetails() {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                    <ResourceActionMenu 
-                        kind={kind} 
-                        namespace={namespace} 
-                        name={name} 
-                        onRefresh={load} 
-                    />
                 </div>
             </div>
 

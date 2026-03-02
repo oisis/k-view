@@ -56,6 +56,7 @@ export const fr = {
     namespaces: 'Espaces de noms',
     network_policies: 'Politiques réseaux',
     tools: 'Outils',
+    admin_panel: 'Permissions',
     save_settings: 'Enregistrer les paramètres',
     reset_defaults: 'Réinitialiser par défaut',
     reload: 'Recharger',
