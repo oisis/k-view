@@ -9,6 +9,7 @@ import CronJobOverview from './templates/CronJobOverview';
 import NodeOverview from './templates/NodeOverview';
 import ConfigMapOverview from './templates/ConfigMapOverview';
 import IngressOverview from './templates/IngressOverview';
+import StatefulSetOverview from './templates/StatefulSetOverview';
 import PvcOverview from './templates/PvcOverview';
 import RbacOverview from './templates/RbacOverview';
 import NamespaceOverview from './templates/NamespaceOverview';
@@ -108,6 +109,7 @@ export default function OverviewTab({
 
             {isPod && <PodOverview data={data} spec={spec} status={status} t={t} />}
             {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
+            {isStatefulSet && <StatefulSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}

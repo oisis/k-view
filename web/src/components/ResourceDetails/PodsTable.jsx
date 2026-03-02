@@ -13,10 +13,12 @@ export default function PodsTable({ pods, onRefresh }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse table-fixed">
                     <thead>
-                        <tr className="bg-white/5 border-b border-border/20">
-                            <th className="px-4 py-3 text-center w-48">{t('label_name')}</th>
-                            <th className="px-4 py-3 text-center w-32">{t('label_namespace')}</th>
-                            <th className="px-4 py-3 text-center w-48">Images</th>
+                        <tr className="bg-white/5 border-b border-border/20 uppercase text-[10px] tracking-widest font-black">
+                            <th className="px-4 py-3 text-left w-48">{t('label_name')}</th>
+                            <th className="px-4 py-3 text-left w-32">{t('label_namespace')}</th>
+                            <th className="px-4 py-3 text-left w-48">Images</th>
+                            <th className="px-4 py-3 text-left w-48">Labels</th>
+                            <th className="px-4 py-3 text-left w-32">Node</th>
                             <th className="px-4 py-3 text-center w-28">Status</th>
                             <th className="px-4 py-3 text-center w-24">Restarts</th>
                             <th className="px-4 py-3 text-center w-24">CPU</th>
@@ -27,22 +29,28 @@ export default function PodsTable({ pods, onRefresh }) {
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
                         {pods.length === 0 ? (
-                            <tr><td colSpan="9" className="px-4 py-8 text-center text-text-muted italic">No pods found.</td></tr>
+                            <tr><td colSpan="11" className="px-4 py-8 text-center text-text-muted italic">No pods found.</td></tr>
                         ) : (
                             pods.map((pod, i) => (
-                                <tr key={i} className="hover:bg-[var(--bg-sidebar)]/10 transition-colors">
+                                <tr key={i} className="hover:bg-[var(--bg-sidebar)]/10 transition-colors group">
                                     <td className="px-4 py-3 font-mono font-bold text-accent truncate">
                                         <Link to={`/pods/${pod.namespace}/${pod.name}`} className="hover:underline block truncate" title={pod.name}>
                                             {pod.name}
                                         </Link>
                                     </td>
-                                    <td className="px-4 py-3 text-secondary text-center truncate">
+                                    <td className="px-4 py-3 text-secondary truncate">
                                         <Link to={`/namespaces/-/${pod.namespace}`} className="hover:underline block truncate" title={pod.namespace}>
                                             {pod.namespace}
                                         </Link>
                                     </td>
                                     <td className="px-4 py-3 text-secondary overflow-hidden">
                                         <ExpandableCell value={pod.extra?.images} type="images" />
+                                    </td>
+                                    <td className="px-4 py-3 text-secondary overflow-hidden">
+                                        <ExpandableCell value={pod.extra?.labels} type="labels" />
+                                    </td>
+                                    <td className="px-4 py-3 text-secondary truncate font-mono text-xs">
+                                        {pod.extra?.node || '—'}
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${pod.status === 'Running' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>
