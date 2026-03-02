@@ -25,6 +25,12 @@ func (h *ResourceHandler) mapResourceSpecificsWithMetrics(item unstructured.Unst
 	}
 
 	kind = strings.ToLower(kind)
+	// Check if we are fetching custom objects (kind is crds/customresourcedefinitions, but the item is the actual custom resource)
+	if (kind == "crds" || kind == "customresourcedefinitions") && item.GetKind() != "CustomResourceDefinition" {
+		h.mapWorkloadWithMetrics(item, "custom-object", resItem.Extra, resItem, metricsMap)
+		return
+	}
+
 	switch kind {
 	case "pods", "pod", "deployments", "deployment", "statefulsets", "statefulset", "daemonsets", "daemonset", "jobs", "job", "cronjobs", "cronjob", "replicasets", "replicaset", "replicationcontrollers", "hpas", "horizontalpodautoscalers":
 		h.mapWorkloadWithMetrics(item, kind, resItem.Extra, resItem, metricsMap)
@@ -43,8 +49,50 @@ func (h *ResourceHandler) mapCRD(item unstructured.Unstructured, extra map[strin
 	}
 	if scope, ok, _ := unstructured.NestedString(item.Object, "spec", "scope"); ok {
 		extra["scope"] = scope
+		extra["namespaced"] = "false"
+		if scope == "Namespaced" {
+			extra["namespaced"] = "true"
+		}
 	}
+	extra["fullname"] = item.GetName()
+
+	// Accepted Names
+	if names, ok, _ := unstructured.NestedMap(item.Object, "spec", "names"); ok {
+		if plural, ok := names["plural"].(string); ok {
+			extra["name"] = plural
+			extra["plural"] = plural
+		}
+		if singular, ok := names["singular"].(string); ok {
+			extra["singular"] = singular
+		}
+		if kind, ok := names["kind"].(string); ok {
+			extra["crd-kind"] = kind
+		}
+		if listKind, ok := names["listKind"].(string); ok {
+			extra["listKind"] = listKind
+		}
+		if shortNames, ok, _ := unstructured.NestedSlice(item.Object, "spec", "names", "shortNames"); ok {
+			var sn []string
+			for _, s := range shortNames {
+				if sStr, ok := s.(string); ok {
+					sn = append(sn, sStr)
+				}
+			}
+			extra["shortNames"] = strings.Join(sn, ", ")
+		}
+		if categories, ok, _ := unstructured.NestedSlice(item.Object, "spec", "names", "categories"); ok {
+			var cat []string
+			for _, c := range categories {
+				if cStr, ok := c.(string); ok {
+					cat = append(cat, cStr)
+				}
+			}
+			extra["categories"] = strings.Join(cat, ", ")
+		}
+	}
+
 	if versions, ok, _ := unstructured.NestedSlice(item.Object, "spec", "versions"); ok && len(versions) > 0 {
+
 		var vs []string
 		for _, v := range versions {
 			if vm, ok := v.(map[string]interface{}); ok {

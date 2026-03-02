@@ -8,43 +8,42 @@ export default function RbacBindingOverview({ data, t }) {
 
     return (
         <div className="space-y-6">
-            <DetailSection title="Role Reference">
+            <DetailSection title="Resource Info">
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
-                        <DetailRow label="Kind">
-                            <span className="font-bold text-primary">{roleRef.kind}</span>
-                        </DetailRow>
-                        <DetailRow label="Name">
-                            <span className="font-bold text-accent">{roleRef.name}</span>
-                        </DetailRow>
-                        <DetailRow label="API Group">
-                            <span className="font-mono text-secondary">{roleRef.apiGroup}</span>
+                        <DetailRow label="Role References">
+                            <span className="font-bold text-primary">
+                                {roleRef.kind}: 
+                                <span className="text-accent ml-1">{roleRef.name}</span>
+                            </span>
                         </DetailRow>
                     </tbody>
                 </table>
             </DetailSection>
 
-            <DetailSection title="Subjects (Users / Groups / SAs)">
+            <DetailSection title="Subjects">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="bg-white/5 border-b border-border/20 text-[10px] font-black uppercase tracking-widest">
-                                <th className="px-4 py-3 text-left text-white">Kind</th>
-                                <th className="px-4 py-3 text-left text-white">Name</th>
-                                <th className="px-4 py-3 text-center text-white">Namespace</th>
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                                <th className="px-4 py-3 text-left">Name</th>
+                                <th className="px-4 py-3 text-left">Namespaces</th>
+                                <th className="px-4 py-3 text-left">Kind</th>
+                                <th className="px-4 py-3 text-left">API Group</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/50">
+                        <tbody className="divide-y divide-border">
                             {subjects.length === 0 ? (
-                                <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No subjects defined.</td></tr>
+                                <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No subjects defined.</td></tr>
                             ) : (
                                 subjects.map((s, i) => (
-                                    <tr key={i} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-4 py-3">
-                                            <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-[10px] font-black uppercase">{s.kind}</span>
-                                        </td>
+                                    <tr key={i} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-primary">{s.name}</td>
-                                        <td className="px-4 py-3 text-center text-secondary">{s.namespace || '—'}</td>
+                                        <td className="px-4 py-3 text-secondary font-medium">{s.namespace || '—'}</td>
+                                        <td className="px-4 py-3">
+                                            <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">{s.kind}</span>
+                                        </td>
+                                        <td className="px-4 py-3 font-mono text-xs text-text-muted">{s.apiGroup || (s.kind === 'ServiceAccount' ? 'core' : 'rbac.authorization.k8s.io')}</td>
                                     </tr>
                                 ))
                             )}

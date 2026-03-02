@@ -8,11 +8,17 @@ import (
 	"k-view/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
+
+	// Dynamic GVR support for Custom Resources
+	group := c.Query("group")
+	version := c.Query("version")
+	plural := c.Query("plural")
 
 	var items []unstructured.Unstructured
 
@@ -27,11 +33,29 @@ func (h *ResourceHandler) List(c *gin.Context) {
 			return
 		}
 
-		gvr := getGVR(kind)
+		var gvr schema.GroupVersionResource
+		if group != "" && version != "" && plural != "" {
+			gvr = schema.GroupVersionResource{Group: group, Version: version, Resource: plural}
+		} else {
+			gvr = getGVR(kind)
+		}
+
+		if gvr.Resource == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unknown resource kind"})
+			return
+		}
+
 		var list *unstructured.UnstructuredList
 		var errList error
-		if ns != "" && !isClusterScoped(kind) {
+		if ns != "" && !isClusterScoped(kind) && group == "" { // Standard resources check
 			list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+		} else if ns != "" && group != "" { // Custom resources might be namespaced
+			// We try namespaced first for custom resources if namespace is provided
+			list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+			if errList != nil {
+				// Fallback to cluster-scoped if namespaced fails
+				list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
+			}
 		} else {
 			list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
 		}

@@ -29,7 +29,7 @@ import ReplicationControllerOverview from './templates/ReplicationControllerOver
 export default function OverviewTab({
  
     data, kind, namespace, name, quotas, limits, 
-    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedIngresses, relatedEndpoints, relatedPvs, 
+    relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedIngresses, relatedCrdObjects, relatedEndpoints, relatedPvs, 
     t, settings 
 }) {
     const { icons } = useTheme();
@@ -48,8 +48,8 @@ export default function OverviewTab({
     const isIngress = (kindLower.includes('ingress') && !kindLower.includes('class'));
     const isPvc = kindLower.includes('pvc') || kindLower.includes('persistentvolumeclaim');
     const isPv = kindLower === 'pv' || kindLower === 'pvs' || kindLower.includes('persistentvolume') && !kindLower.includes('claim');
-    const isRole = kindLower === 'role' || kindLower === 'roles';
-    const isClusterRole = kindLower.includes('clusterrole') || kindLower.includes('cluster-role');
+    const isRole = (kindLower === 'role' || kindLower === 'roles');
+    const isClusterRole = (kindLower === 'clusterrole' || kindLower === 'clusterroles' || kindLower === 'cluster-role' || kindLower === 'cluster-roles');
     const isRoleBinding = kindLower.includes('rolebinding') || kindLower.includes('role-binding');
     const isClusterRoleBinding = kindLower.includes('clusterrolebinding') || kindLower.includes('cluster-role-binding');
     const isServiceAccount = kindLower.includes('serviceaccount') || kindLower.includes('service-account');
@@ -127,7 +127,7 @@ export default function OverviewTab({
             {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} t={t} />}
             {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} t={t} />}
             {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} icons={icons} />}
-            {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} t={t} />}
+            {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
 

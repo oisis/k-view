@@ -39,6 +39,7 @@ export default function ResourceDetails() {
     const [relatedHpas, setRelatedHpas] = useState(null);
     const [relatedEndpoints, setRelatedEndpoints] = useState(null);
     const [relatedIngresses, setRelatedIngresses] = useState(null);
+    const [relatedCrdObjects, setRelatedCrdObjects] = useState(null);
     const [relatedPvs, setRelatedPvs] = useState(null);
 
     const kindLower = kind?.toLowerCase() || '';
@@ -55,6 +56,7 @@ export default function ResourceDetails() {
         setRelatedPods(null);
         setRelatedServices(null);
         setRelatedIngresses(null);
+        setRelatedCrdObjects(null);
         setRelatedReplicaSets(null);
         setRelatedHpas(null);
         setRelatedEndpoints(null);
@@ -192,6 +194,30 @@ export default function ResourceDetails() {
                                 const targetKind = h.extra?.['target-kind']?.toLowerCase() || '';
                                 return targetName === name && (kindLower.includes(targetKind));
                             }));
+                        }
+                    }
+                }
+
+                if (kindLower === 'crds' || kindLower === 'customresourcedefinitions') {
+                    const group = detailsData.extra?.group || detailsData.spec?.group;
+                    const plural = detailsData.extra?.plural || detailsData.spec?.names?.plural;
+                    const versions = detailsData.spec?.versions || [];
+                    const storageVersion = versions.find(v => v.storage)?.name || (versions.length > 0 ? versions[0].name : null);
+                    
+                    console.log(`CRD Debug: group=${group}, plural=${plural}, version=${storageVersion}`);
+
+                    if (group && plural && storageVersion) {
+                        const objUrl = `/api/resources/crds?group=${group}&version=${storageVersion}&plural=${plural}`;
+                        console.log(`Fetching CRD objects from: ${objUrl}`);
+                        const objRes = await fetch(objUrl);
+                        if (objRes?.ok) {
+                            const objData = await objRes.json();
+                            console.log(`CRD Objects received:`, objData);
+                            if (Array.isArray(objData)) {
+                                setRelatedCrdObjects(objData);
+                            }
+                        } else {
+                            console.error(`Failed to fetch CRD objects: ${objRes.status}`);
                         }
                     }
                 }
@@ -356,6 +382,7 @@ export default function ResourceDetails() {
                         relatedReplicaSets={relatedReplicaSets}
                         relatedHpas={relatedHpas}
                         relatedIngresses={relatedIngresses}
+                        relatedCrdObjects={relatedCrdObjects}
                         relatedEndpoints={relatedEndpoints}
                         relatedPvs={relatedPvs}
                         t={t}

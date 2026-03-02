@@ -1,11 +1,10 @@
 export const CrdListSchema = {
     title: 'Custom Resource Definitions',
     cols: [
-        { key: 'name', label: 'Name' },
-        { key: 'extra.group', label: 'Group' },
-        { key: 'extra.version', label: 'Version' },
-        { key: 'extra.scope', label: 'Scope' },
-        { key: 'status', label: 'Status', badge: true },
-        { key: 'age', label: 'Age' },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'extra.group', label: 'Group', sortable: true },
+        { key: 'extra.fullname', label: 'Full Name', sortable: true },
+        { key: 'extra.namespaced', label: 'Namespaced', align: 'center' },
+        { key: 'age', label: 'Created', sortable: true, align: 'right' },
     ],
 };
