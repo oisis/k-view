@@ -260,7 +260,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-text-muted gap-3 italic">
                         <icons.search size={32} className="opacity-20" />
-                        {logSearchTerm ? t('no_logs_matching') : t('no_logs_found')}
+                        {logSearchTerm ? t('no_logs_match') : t('no_logs_found')}
                     </div>
                 )}
             </div>

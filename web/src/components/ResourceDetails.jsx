@@ -415,8 +415,10 @@ export default function ResourceDetails() {
                 )}
                 {activeTab === 'logs' && (
                     <LogsTab 
+                        kind={kind}
                         namespace={namespace} 
-                        pod={name} 
+                        name={name} 
+                        containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
                         t={t} 
                     />
                 )}
