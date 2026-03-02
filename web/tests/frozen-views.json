@@ -3,137 +3,164 @@
     "pods": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Pod status", "Restarts", "Created"],
       "detail_tabs": ["overview", "yaml", "logs", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_status", "label_node", "label_labels", "label_annotations"]
     },
     "deployments": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Pods", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "statefulsets": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Annotations", "Ready", "Replicas", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "daemonsets": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Pods", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "Pods Running", "Pods Desired", "label_labels", "label_annotations"]
     },
     "jobs": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Status", "Pods", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "cronjobs": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Schedule", "Suspend", "Active", "Last run", "Age"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "replicasets": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Ready", "Current", "Desired", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "replicationcontrollers": {
       "list_columns": ["Name", "Namespace", "Images", "Labels", "Ready", "Current", "Desired", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "hpas": {
       "list_columns": ["label_name", "label_namespace", "Reference", "Targets", "Min", "Max", "Replicas", "label_age"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Scaling Target", "Replicas & Range", "Metrics"]
+      "detail_sections": ["metadata", "Scaling Target", "Replicas & Range", "Metrics"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "services": {
       "list_columns": ["Name", "Namespace", "Labels", "Type", "cluster ip", "int endpoints", "ext endpoints", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "ingresses": {
       "list_columns": ["Name", "Namespace", "Labels", "Hosts", "Address", "Endpoints", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "ingress-classes": {
       "list_columns": ["Name", "Labels", "Controller", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "configmaps": {
       "list_columns": ["Name", "Namespace", "Labels", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "secrets": {
       "list_columns": ["Name", "Namespace", "Labels", "Type", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "pvcs": {
       "list_columns": ["Name", "Namespace", "Labels", "Status", "Volume", "Capacity", "Access Modes", "Storage Class", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_status", "label_labels", "label_annotations"]
     },
     "pvs": {
       "list_columns": ["Name", "Capacity", "access modes", "reclaim policy", "Status", "Claim", "storage class", "Reason", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "resource_info"]
+      "detail_sections": ["metadata", "resource_info"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "storage-classes": {
       "list_columns": ["Name", "Labels", "Provisioner", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "cluster-role-bindings": {
       "list_columns": ["Name", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Subjects", "Role References"]
+      "detail_sections": ["metadata", "Subjects", "Role References"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "cluster-roles": {
       "list_columns": ["Name", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Rules"]
+      "detail_sections": ["metadata", "Rules"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "events": {
       "list_columns": ["Name", "Namespace", "Reason", "Message", "Source", "Objects", "Count", "First Seen", "Last Seen"],
       "detail_tabs": ["overview", "yaml"],
-      "detail_sections": ["metadata", "status"]
+      "detail_sections": ["metadata", "status"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_status", "label_labels", "label_annotations"]
     },
     "namespaces": {
       "list_columns": ["Name", "Labels", "Phase", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "network-policies": {
       "list_columns": ["Name", "Namespace", "Labels", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Resource Info"]
+      "detail_sections": ["metadata", "Resource Info"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "role-bindings": {
       "list_columns": ["Name", "Namespace", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Subjects", "Role References"]
+      "detail_sections": ["metadata", "Subjects", "Role References"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "roles": {
       "list_columns": ["Name", "Namespace", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Rules"]
+      "detail_sections": ["metadata", "Rules"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "service-accounts": {
       "list_columns": ["Name", "Namespace", "Labels", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata", "Secrets", "Image Pull Secrets"]
+      "detail_sections": ["metadata", "Secrets", "Image Pull Secrets"],
+      "metadata_fields": ["label_name", "label_namespace", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "nodes": {
       "list_columns": ["Name", "Age"],
       "detail_tabs": ["overview", "yaml"],
-      "detail_sections": ["metadata", "status"]
+      "detail_sections": ["metadata", "status"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     },
     "crds": {
       "list_columns": ["Name", "Group", "Full Name", "Namespaced", "Created"],
       "detail_tabs": ["overview", "yaml", "recent_events"],
-      "detail_sections": ["metadata"]
+      "detail_sections": ["metadata"],
+      "metadata_fields": ["label_name", "label_created", "label_age", "label_labels", "label_annotations"]
     }
   }
 }

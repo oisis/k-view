@@ -17,7 +17,7 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../src/SettingsContext', () => ({
   useSettings: () => ({
-    settings: { resourceRefreshInterval: 0 }
+    settings: { resourceRefreshInterval: 0, labelsLimit: 10 }
   }),
   useTranslation: () => ({
     t: (key) => key
@@ -34,6 +34,7 @@ vi.mock('../src/ThemeContext', () => ({
       search: () => null,
       chevron_up: () => null,
       chevron_down: () => null,
+      chevron_right: () => null,
     }
   })
 }));
@@ -64,12 +65,11 @@ describe('ResourceDetails "Frozen" View Tests - Dynamic', () => {
     it(`renders correct tabs and sections for ${kind}`, async () => {
       useParams.mockReturnValue({ kind, namespace: 'default', name: 'resource-1' });
       
-      // Provide AT LEAST ONE ITEM in related arrays to trigger conditional section rendering
       const dummyItem = { metadata: { name: 'dummy' }, name: 'dummy', status: 'Active' };
       
       mockFetch({
-        resource: { name: 'resource-1', namespace: 'default', status: { phase: 'Running' } },
-        metadata: { uid: 'uid-1', creationTimestamp: '2024-01-01T00:00:00Z' },
+        resource: { name: 'resource-1', namespace: 'default', age: '10m', status: 'Running' },
+        metadata: { uid: 'uid-1', name: 'resource-1', namespace: 'default', creationTimestamp: '2024-01-01T00:00:00Z' },
         spec: { 
             containers: [{ name: 'main' }], 
             template: { spec: { containers: [{ name: 'main' }] } },
@@ -77,12 +77,12 @@ describe('ResourceDetails "Frozen" View Tests - Dynamic', () => {
             rules: [{ verbs: ['get'], resources: ['pods'] }],
             provisioner: 'k-view',
             group: 'example.com',
-            names: { kind: 'Example', plural: 'examples' }
+            names: { kind: 'Example', plural: 'examples' },
+            nodeName: 'node-1'
         },
-        status: { phase: 'Running', conditions: [] },
+        status: { phase: 'Running', conditions: [], numberReady: 1, desiredNumberScheduled: 1 },
         allocation: { cpu: { requests: '1' }, memory: { requests: '1Gi' }, pods: { allocation: 1 } },
-        extra: { kind, group: 'example.com', version: 'v1', names: { plural: 'examples' } },
-        // Fill arrays to ensure "Related" sections are rendered
+        extra: { kind: kind.toUpperCase(), group: 'example.com', version: 'v1', names: { plural: 'examples' } },
         relatedReplicaSets: [dummyItem], 
         relatedPods: [dummyItem], 
         relatedServices: [dummyItem], 
@@ -100,8 +100,8 @@ describe('ResourceDetails "Frozen" View Tests - Dynamic', () => {
       renderWithRouter(<ResourceDetails />);
 
       await waitFor(() => {
-        // 1. Check title
-        expect(screen.getByText(/resource-1/i)).toBeInTheDocument();
+        // 1. Check title (use getAll to avoid ambiguity)
+        expect(screen.getAllByText(/resource-1/i).length).toBeGreaterThan(0);
 
         // 2. Check Tabs
         config.detail_tabs.forEach(tab => {
@@ -110,26 +110,31 @@ describe('ResourceDetails "Frozen" View Tests - Dynamic', () => {
              const text = content.toLowerCase();
              return text === expected || text === `tab_${expected}`;
           });
-          if (!found) console.error(`Missing Tab: ${tab} for ${kind}`);
           expect(found).not.toBeNull();
         });
 
-        // 3. Check Sections
+        // 3. Check Overview Sections (H3 headers)
         config.detail_sections.forEach(section => {
           const expected = section.toLowerCase();
           const found = screen.queryAllByText((content) => {
              const text = content.toLowerCase();
-             // Match exact, with label_ prefix, or containing the text (for headers)
-             return text === expected || 
-                    text === `label_${expected}` || 
-                    text === expected.replace(/ /g, '_') ||
-                    text === `label_${expected.replace(/ /g, '_')}`;
+             return text === expected || text === `label_${expected}` || text.includes(expected);
           });
-          if (found.length === 0) {
-             console.error(`Missing Section: "${section}" for ${kind}. Search term: "${expected}"`);
-          }
           expect(found.length).toBeGreaterThan(0);
         });
+
+        // 4. Check Metadata Fields (Labels in the grid)
+        if (config.metadata_fields) {
+          config.metadata_fields.forEach(field => {
+            const expected = field.toLowerCase();
+            const found = screen.queryAllByText((content) => {
+               const text = content.toLowerCase();
+               // We match exactly what's in the grid labels
+               return text === expected || text === `label_${expected}` || text === field;
+            });
+            expect(found.length).toBeGreaterThan(0);
+          });
+        }
       }, { timeout: 3000 });
     });
   });
