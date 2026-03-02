@@ -231,7 +231,7 @@ export default function ResourceList({ kind }) {
         <div className="p-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-primary mb-1">{t(kind) || schema.title}</h2>
+                    <h2 className="text-2xl font-black mb-1 text-[var(--text-resource-kind)]">{t(kind) || schema.title}</h2>
                     <p className="text-secondary text-sm">
                         {loading ? t('loading') : `${items.length} ${items.length === 1 ? t('item') : t('items')}`}
                         {namespace && ` ${t('in_ns')} "${namespace}"`}
@@ -350,7 +350,7 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                    className="font-bold text-accent hover:text-primary transition-colors truncate block"
+                                                    className="font-bold transition-colors truncate block text-[var(--text-resource-kind)] hover:text-primary"
                                                     title={val}
                                                 >
                                                     {val}

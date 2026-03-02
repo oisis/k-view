@@ -242,21 +242,9 @@ export default function ResourceDetails() {
                         <icons.chevron_left size={20} />
                     </button>
                     <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="px-2 py-0.5 bg-accent/10 border border-accent/20 rounded text-[10px] font-black text-accent uppercase tracking-widest">
-                                {kindLower === 'pods' ? 'pod' : kind}
-                            </span>
-                            <h2 className="text-2xl font-bold text-primary">{name}</h2>
-                        </div>
-                        <p className="text-sm text-text-muted flex items-center gap-2">
-                            {namespace && namespace !== '-' && (
-                                <>
-                                    <icons.namespace size={14} className="text-accent/60" />
-                                    <span className="font-bold text-secondary">{namespace}</span>
-                                    <span className="opacity-30">•</span>
-                                </>
-                            )}
-                            <span>{t('label_created')} {formatDate(data.metadata?.creationTimestamp)}</span>
+                        <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
+                        <p className="text-sm font-bold uppercase tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80">
+                            Kind: {kindLower === 'pods' ? 'pod' : (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)}
                         </p>
                     </div>
                 </div>

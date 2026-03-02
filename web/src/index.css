@@ -56,6 +56,7 @@
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
+  --color-text-resource-kind: 129 140 248;
   --color-bg-table-header: 30 41 59;
   --color-text-table-header: 255 255 255;
   
@@ -98,6 +99,7 @@
   --color-text-purple: 167 139 250;
   --color-text-orange: 251 146 60;
   --color-text-cyan: 34 211 238;
+  --color-text-resource-kind: 129 140 248;
   --color-bg-table-header: 30 41 59;
   --color-text-table-header: 250 250 250;
 
@@ -140,6 +142,7 @@
   --color-text-purple: 124 58 237;
   --color-text-orange: 234 88 12;
   --color-text-cyan: 8 145 178;
+  --color-text-resource-kind: 59 130 246;
   --color-bg-table-header: 59 130 246;
   --color-text-table-header: 255 255 255;
   
@@ -191,6 +194,7 @@
   --text-purple: rgb(var(--color-text-purple));
   --text-orange: rgb(var(--color-text-orange));
   --text-cyan: rgb(var(--color-text-cyan));
+  --text-resource-kind: rgb(var(--color-text-resource-kind));
   
   --sidebar-hover: rgb(var(--color-bg-card-hover) / 0.2);
 }
