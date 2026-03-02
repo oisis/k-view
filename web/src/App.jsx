@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Nodes from './components/Nodes';
@@ -62,8 +62,8 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
     return (
-        <a
-            href={href}
+        <Link
+            to={href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 group
         ${active
                     ? 'bg-accent text-white shadow-lg shadow-indigo-500/20'
@@ -78,7 +78,7 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
                     {active && <icons.chevron_right size={12} className="text-white/70" />}
                 </>
             )}
-        </a>
+        </Link>
     );
 }
 
@@ -111,15 +111,18 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
     const isPathActive = (href) => {
         if (p === href) return true;
         if (href === '/') return p === '/';
-        
-        // Handle resource detail paths (e.g. /pods/ns/name should highlight /workloads/pods)
+
         const parts = href.split('/');
-        const kind = parts[parts.length - 1]; // e.g. "pods", "deployments"
-        
-        // Check if current path starts with /kind/ or matches /workloads/kind etc.
+        const kind = parts[parts.length - 1]; // e.g. "pods", "crds"
+
+        // Handle CRD vs CRDS naming inconsistency and cluster prefix
+        const isCrd = kind === 'crds' || kind === 'crd';
+        if (isCrd) {
+            return p.startsWith('/crd/') || p.startsWith('/crds/') || p.startsWith('/cluster/crds') || p === '/crd';
+        }
+
         return p.startsWith(`/${kind}/`) || p.startsWith(`/workloads/${kind}`) || p.startsWith(`/network/${kind}`) || p.startsWith(`/config/${kind}`) || p.startsWith(`/cluster/${kind}`);
     };
-
     return (
         <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-[var(--bg-sidebar)] border-r border-border flex flex-col hidden md:flex h-full shrink-0 transition-all duration-300 ease-in-out shadow-2xl z-20 overflow-hidden`}>
             {/* Logo + Toggle */}
@@ -175,7 +178,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                 <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={isPathActive('/cluster/cluster-role-bindings')} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={isPathActive('/cluster/cluster-roles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/crd" iconKey="crd" label={t('crd')} active={isPathActive('/crd')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/crds" iconKey="crd" label={t('crd')} active={isPathActive('/cluster/crds')} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/events" iconKey="event" label={t('events')} active={isPathActive('/cluster/events')} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/namespaces" iconKey="namespace" label={t('namespaces')} active={isPathActive('/cluster/namespaces')} isCollapsed={isCollapsed} />
                     <NavItem href="/cluster/network-policies" iconKey="networkpolicy" label={t('network_policies')} active={isPathActive('/cluster/network-policies')} isCollapsed={isCollapsed} />
@@ -420,7 +423,8 @@ function App() {
                         <Route path="/config/storage-classes" element={protect(<ResourceList kind="storage-classes" />)} />
 
                         {/* CRD */}
-                        <Route path="/crd" element={protect(<ResourceList kind="crds" />)} />
+                        <Route path="/cluster/crds" element={protect(<ResourceList kind="crds" />)} />
+                        <Route path="/crd" element={<Navigate to="/cluster/crds" replace />} />
 
                         {/* Cluster */}
                         <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
