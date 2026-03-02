@@ -17,6 +17,36 @@ const TABS = [
     { id: 'events', label: 'recent_events' },
 ];
 
+const KIND_DISPLAY_MAP = {
+    'pods': 'Pod',
+    'deployments': 'Deployment',
+    'statefulsets': 'StatefulSet',
+    'daemonsets': 'DaemonSet',
+    'jobs': 'Job',
+    'cronjobs': 'CronJob',
+    'replicasets': 'ReplicaSet',
+    'replicationcontrollers': 'ReplicationController',
+    'hpas': 'HorizontalPodAutoscaler',
+    'services': 'Service',
+    'ingresses': 'Ingress',
+    'ingress-classes': 'IngressClass',
+    'configmaps': 'ConfigMap',
+    'secrets': 'Secret',
+    'pvcs': 'PersistentVolumeClaim',
+    'pvs': 'PersistentVolume',
+    'storage-classes': 'StorageClass',
+    'cluster-role-bindings': 'ClusterRoleBinding',
+    'cluster-roles': 'ClusterRole',
+    'crds': 'CustomResourceDefinition',
+    'events': 'Event',
+    'namespaces': 'Namespace',
+    'network-policies': 'NetworkPolicy',
+    'nodes': 'Node',
+    'role-bindings': 'RoleBinding',
+    'roles': 'Role',
+    'service-accounts': 'ServiceAccount'
+};
+
 export default function ResourceDetails() {
     const { kind, namespace, name } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -347,13 +377,8 @@ export default function ResourceDetails() {
                     </button>
                     <div>
                         <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
-                        <p className="text-sm font-bold uppercase tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
-                            <span>Kind: {
-                                kindLower === 'pods' ? 'pod' : 
-                                kindLower === 'crds' ? 'Custom Resource Definition' :
-                                kindLower === 'pvs' ? 'Persistent Volume' :
-                                (kindLower.endsWith('s') ? kind.slice(0, -1) : kind)
-                            }</span>
+                        <p className="text-sm font-bold tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
+                            <span>Kind: {KIND_DISPLAY_MAP[kindLower] || data?.extra?.kind || kind}</span>
                             <span className="font-mono text-[var(--text-green)] opacity-100">UID: {data.metadata?.uid || '—'}</span>
                         </p>
                     </div>
