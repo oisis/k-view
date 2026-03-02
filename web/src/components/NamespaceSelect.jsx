@@ -63,11 +63,13 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     style={{
                         position: 'fixed',
                         top: rect.bottom + 4,
-                        left: rect.left,
+                        left: (rect.left + Math.max(220, rect.width)) > window.innerWidth 
+                            ? rect.right - Math.max(220, rect.width) 
+                            : rect.left,
                         width: Math.max(220, rect.width),
                         zIndex: 9999
                     }}
-                    className="bg-[var(--bg-dropdown)] border border-border rounded-lg shadow-xl overflow-hidden"
+                    className="bg-[var(--bg-dropdown)]/80 backdrop-blur-md border border-border rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-100"
                 >
                     {/* Search input */}
                     <div className="p-2 border-b border-border">
@@ -102,21 +104,20 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                     <li
                                         key={ns}
                                         onClick={() => selectNs(ns)}
-                                        className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors rounded-md mx-1
-                      ${isSelected ? 'bg-accent text-white font-bold' : 'text-primary hover:bg-sidebar/20'}`}
+                                        className={`flex items-center gap-2 px-4 py-1 text-sm cursor-pointer transition-colors rounded-md mx-1
+                      ${isSelected ? 'bg-accent text-white font-bold' : 
+                        isSystem ? 'text-primary hover:bg-red-500/20 bg-red-500/5' : 'text-primary hover:bg-sidebar/20'}`}
                                     >
-                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-purple-400' : 'text-text-muted'} />}
+                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-red-400' : 'text-text-muted'} />}
                                         <span className="flex-1 text-left">{ns}</span>
-                                        {isSystem && (
-                                            <span className="text-xs text-purple-400 bg-purple-900/30 px-1.5 py-0.5 rounded border border-purple-800/30 uppercase font-bold tracking-wider">system</span>
-                                        )}
                                         {isSelected && <span className="text-accent text-xs text-right">✓</span>}
                                     </li>
                                 );
                             })
                         )}
                     </ul>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
