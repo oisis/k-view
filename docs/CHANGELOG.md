@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.0] - 2026-03-02
+
+### Added
+- **Horizontal Pod Autoscalers (HPA) Support**: New dedicated list and detailed views for HPA, including real-time metrics (Target vs Current) and scaling status.
+- **Service Accounts Enhancement**: Added a full overview for Service Accounts, showing related Secrets and ImagePullSecrets with detailed metadata.
+- **Custom Resource Objects Listing**: Implemented dynamic discovery and listing of objects for any Custom Resource Definition (CRD).
+- **Real-time Pod Metrics**: Backend now fetches actual CPU and RAM usage directly from Metrics Server for pods displayed in lists and details.
+- **Improved Pagination**: Added "First" and "Last" page navigation buttons to all resource lists.
+
+### Changed
+- **Optimized Resource Headers**: Redesigned detail view headers to show Kind and UID clearly, while removing redundant namespace info.
+- **Enhanced Metadata Layout**: Standardized metadata section to a compact 4-column (or 5-column for SA) grid, removing unnecessary Node/Status fields for non-pod resources.
+- **Modernized Resource Views**: Completely rebuilt detail templates for ReplicaSet, StatefulSet, Ingress, and Service with richer data and consistent styling.
+- **Navigation Highlighting**: Improved sidebar logic to keep the correct section highlighted when viewing resource details.
+- **Cache Busting**: Implemented Cache-Control headers and frontend version checking to force-reload assets after new releases.
+
+### Fixed
+- Fixed critical "white screen" errors in various detail views caused by missing data or circular references.
+- Corrected several broken navigation links in resource tables.
+- Fixed namespace selector positioning and portal rendering.
+
 ## [0.41.0] - 2026-02-27
 
 ### Added
