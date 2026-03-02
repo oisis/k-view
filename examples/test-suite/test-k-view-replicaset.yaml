@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: test-k-view-replicaset
+  namespace: k-view-test-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-k-view-rs
+  template:
+    metadata:
+      labels:
+        app: test-k-view-rs
+    spec:
+      containers:
+      - name: main
+        image: nginx:alpine

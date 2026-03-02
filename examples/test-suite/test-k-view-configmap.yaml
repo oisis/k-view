@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-k-view-configmap
+  namespace: k-view-test-data
+data:
+  app.properties: |
+    debug=true
+    env=test
+  ui.color: "blue"

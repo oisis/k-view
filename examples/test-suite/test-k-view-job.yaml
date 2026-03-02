@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-k-view-job
+  namespace: k-view-test-data
+spec:
+  template:
+    spec:
+      containers:
+      - name: main
+        image: busybox
+        command: ["echo", "K-View Test Job Complete"]
+      restartPolicy: Never

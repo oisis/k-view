@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test-k-view-cronjob
+  namespace: k-view-test-data
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: main
+            image: busybox
+            command: ["echo", "K-View CronJob Run"]
+          restartPolicy: OnFailure

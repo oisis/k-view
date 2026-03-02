@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: test-k-view-replicationcontroller
+  namespace: k-view-test-data
+spec:
+  replicas: 1
+  selector:
+    app: test-k-view-rc
+  template:
+    metadata:
+      labels:
+        app: test-k-view-rc
+    spec:
+      containers:
+      - name: main
+        image: nginx:alpine

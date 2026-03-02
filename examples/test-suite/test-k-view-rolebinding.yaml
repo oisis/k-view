@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: test-k-view-rolebinding
+  namespace: k-view-test-data
+subjects:
+- kind: ServiceAccount
+  name: test-k-view-serviceaccount
+  namespace: k-view-test-data
+roleRef:
+  kind: Role
+  name: test-k-view-role
+  apiGroup: rbac.authorization.k8s.io

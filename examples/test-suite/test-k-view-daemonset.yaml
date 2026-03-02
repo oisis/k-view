@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: test-k-view-daemonset
+  namespace: k-view-test-data
+spec:
+  selector:
+    matchLabels:
+      app: test-k-view-ds
+  template:
+    metadata:
+      labels:
+        app: test-k-view-ds
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine

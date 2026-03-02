@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-k-view-statefulset
+  namespace: k-view-test-data
+spec:
+  serviceName: "test-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-k-view-sts
+  template:
+    metadata:
+      labels:
+        app: test-k-view-sts
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
