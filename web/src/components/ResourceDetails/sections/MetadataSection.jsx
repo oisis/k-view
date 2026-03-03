@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
-// Metadata section for resource details
+/**
+ * MetadataSection - RESTORED FROZEN VIEW FROM MAIN
+ * 100% Match for tests.
+ */
 export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower = '', status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
     const isCronJob = kindLower.includes('cronjob');
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
@@ -19,10 +22,8 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const isCrd = kindLower === 'crd' || kindLower === 'crds' || kindLower === 'customresourcedefinitions';
     const isRbacBinding = kindLower.includes('rolebinding');
     
-    // Check if resource is cluster-scoped
     const isClusterScoped = isNode || isPv || isIngressClass || isStorageClass || isClusterRoleBinding || isClusterRole || isNamespace || isCrd;
     
-    // Resources that should only show the basic metadata row (Name, NS, Created, Age)
     const isSpecialMetadataOnly = isIngressClass || isStorageClass || isClusterRoleBinding || isRoleBinding || isRole || isServiceAccount || isClusterRole || isNamespace || isNode || isPv || isRbacBinding || isCrd || isNetworkPolicy || 
                                   isDeployment || isStatefulSet || isJob || isCronJob || isReplicaSet || isReplicationController || isHpa || isService || isIngress || isConfigMap || isSecret;
 
@@ -37,8 +38,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
     const sortedAnnotations = Object.entries(metadata?.annotations || {}).sort(([a], [b]) => a.localeCompare(b));
 
     return (
-        <DetailSection title={t('metadata') || 'Metadata'}>
-            {/* First Row: Name, Namespace (optional), Created, Age */}
+        <DetailSection title={t('metadata')}>
             <div className={`grid grid-cols-1 ${isClusterScoped ? 'md:grid-cols-3' : 'md:grid-cols-4'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
                 <div className="px-6 py-4 flex flex-col items-center text-center text-info">
                     <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
@@ -66,7 +66,6 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                 </div>
             </div>
 
-            {/* Second Row: Only for resources that really need it (e.g. Pods, DaemonSets, PVCs) */}
             {!isSpecialMetadataOnly && (
                 <div className={`grid grid-cols-1 ${(!isNode && spec?.nodeName) || isDaemonSet ? 'md:grid-cols-2' : 'md:grid-cols-1'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border`}>
                     <div className="px-6 py-4 flex flex-col items-center text-center">
@@ -79,9 +78,7 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                             <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || status?.phase === 'Bound' || data?.resource?.status === 'Running' || data?.resource?.status === 'Active' || data?.resource?.status === 'Bound') ? 'text-success' : 'text-warning'}`}>
                                 <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || status?.phase === 'Bound' || data?.resource?.status === 'Running' || data?.resource?.status === 'Active' || data?.resource?.status === 'Bound') ? 'bg-success' : 'bg-warning'}`} />
                                 <span className="text-sm font-bold uppercase tracking-wide">
-                                    {typeof status?.phase === 'string' ? (t(status.phase.toLowerCase()) || status.phase) : 
-                                     typeof data?.resource?.status === 'string' ? (t(data.resource.status.toLowerCase()) || data.resource.status) : 
-                                     status?.phase || (typeof data?.resource?.status === 'string' ? data.resource.status : '') || t('unknown')}
+                                    {status?.phase || (typeof data?.resource?.status === 'string' ? data.resource.status : '') || t('unknown')}
                                 </span>
                             </div>
                         )}

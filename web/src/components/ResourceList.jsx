@@ -6,7 +6,7 @@ import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
-import ExpandableCell from './ResourceDetails/ExpandableCell'; // Use global component
+import ExpandableCell from './ResourceDetails/ExpandableCell';
 
 import { PodListSchema } from './ResourceList/templates/PodList';
 import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
@@ -31,7 +31,7 @@ import { ReplicaSetListSchema } from './ResourceList/templates/ReplicaSetList';
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
 
-// Column schema per resource kind
+// Column schema per resource kind - RESTORED FROM MAIN
 const SCHEMAS = {
     pods: PodListSchema,
     deployments: DeploymentListSchema,
@@ -61,28 +61,27 @@ const SCHEMAS = {
     crds: CrdListSchema,
 };
 
-// Get a value from the DTO (name, namespace, status, age or extra fields)
+// DTO-Safe value accessor (Restored logic from main, but using new DTO paths)
 function getVal(item, key) {
-    // 1. Check top-level DTO fields
+    if (!item) return '—';
+    // 1. Map top-level DTO fields
     if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') {
         return item[key] ?? '—';
     }
-    
-    // 2. Check 'extra' object (backend maps specific resource fields here)
+    // 2. Map extra fields from DTO (backend uses 'extra' object)
     if (item.extra) {
-        // Handle both "extra.key" and "key" (if the key is intended to be in extra)
+        // Handle "extra.node", "extra.restarts", etc.
         const extraKey = key.startsWith('extra.') ? key.slice(6) : key;
         if (item.extra[extraKey] !== undefined) {
             return item.extra[extraKey] ?? '—';
         }
     }
-    
     return item[key] ?? '—';
 }
 
 function StatusBadge({ value }) {
     const { t } = useTranslation();
-    const v = String(value);
+    const v = String(value || '');
     const translatedValue = t(v.toLowerCase()) || v;
     const map = {
         Normal: 'bg-info/10 text-black',
@@ -163,6 +162,10 @@ function ScheduleCell({ value, nextRun }) {
 
 import { useResourceData } from '../hooks/useResourceData';
 
+/**
+ * ResourceList Component - Restores the exact layout from main branch
+ * while consuming backend DTOs.
+ */
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
     const { t } = useTranslation();
@@ -171,6 +174,7 @@ export default function ResourceList({ kind }) {
     
     const [namespaces, setNamespaces] = useState([]);
     const [user, setUser] = useState(null);
+    
     useEffect(() => {
         fetch('/api/auth/me')
             .then(r => r.ok ? r.json() : null)
@@ -221,10 +225,10 @@ export default function ResourceList({ kind }) {
         setCurrentPage(1);
     }, [searchTerm, namespace, kind]);
 
-    const totalPages = Math.ceil(items.length / settings.itemsPerPage);
+    const totalPages = Math.ceil((items || []).length / (settings?.itemsPerPage || 15)) || 1;
     const paginatedItems = useMemo(() => {
-        const start = (currentPage - 1) * settings.itemsPerPage;
-        return items.slice(start, start + settings.itemsPerPage);
+        const start = (currentPage - 1) * (settings?.itemsPerPage || 15);
+        return (items || []).slice(start, start + (settings?.itemsPerPage || 15));
     }, [items, currentPage, settings.itemsPerPage]);
 
     const requestSort = (key) => {
@@ -235,7 +239,6 @@ export default function ResourceList({ kind }) {
         setSortConfig({ key, direction });
     };
 
-    // Only show namespace selector for namespaced resources
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
     const supportsTrace = false;
 
@@ -245,7 +248,7 @@ export default function ResourceList({ kind }) {
                 <div>
                     <h2 className="text-2xl font-black mb-1 text-[var(--text-resource-kind)]">{t(kind) || schema.title}</h2>
                     <p className="text-secondary text-sm">
-                        {loading ? t('loading') : `${items.length} ${items.length === 1 ? t('item') : t('items')}`}
+                        {loading ? t('loading') : `${(items || []).length} ${(items || []).length === 1 ? t('item') : t('items')}`}
                         {namespace && ` ${t('in_ns')} "${namespace}"`}
                         {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
                     </p>
@@ -284,7 +287,7 @@ export default function ResourceList({ kind }) {
                     <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
                         <thead className="border-b-2 border-border">
                             <tr>
-                                {schema.cols.map(col => {
+                                {(schema.cols || []).map(col => {
                                     let widthCls = "";
                                     
                                     if (col.key === 'name') widthCls = kind === 'cronjobs' ? "w-1/6" : "w-1/4";
@@ -309,7 +312,7 @@ export default function ResourceList({ kind }) {
                                             className={`py-3 px-2 whitespace-nowrap cursor-pointer group select-none font-bold ${widthCls} text-center border-r border-white/10 last:border-r-0`}
                                         >
                                             <div className="flex items-center justify-center gap-2">
-                                                {t(col.label.toLowerCase().replace(' ', '_')) || col.label}
+                                                {t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label}
                                                 <span className="opacity-50 group-hover:opacity-100 transition-colors" style={{ color: 'var(--text-table-header)' }}>
                                                     {sortConfig.key === col.key ? (
                                                         sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
@@ -330,11 +333,10 @@ export default function ResourceList({ kind }) {
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
                                 <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
-                                                            ) : paginatedItems.map((item, i) => (
-                                                                <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/20 transition-colors">
-                                                                    {schema.cols.map(col => {                                        const val = getVal(item, col.key);
-
-                                        // Conditional rendering based on column key
+                            ) : paginatedItems.map((item, i) => (
+                                <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/20 transition-colors">
+                                    {(schema.cols || []).map(col => {                                        
+                                        const val = getVal(item, col.key);
                                         let content;
                                         let cellClass = "py-1.5 overflow-hidden";
 
@@ -349,7 +351,7 @@ export default function ResourceList({ kind }) {
                                         const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if ((expandableKeys || []).includes(col.key || '')) {
                                             cellClass = "py-1.5 overflow-hidden min-w-0 pl-1 pr-2 text-left";
-                                            content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
+                                            content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
                                         } else if (col.key === 'extra.active') {
@@ -429,11 +431,11 @@ export default function ResourceList({ kind }) {
                 </div>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination Controls - Restored exact style from main */}
             {totalPages > 1 && (
                 <div className="mt-6 flex items-center justify-between glass rounded-xl border border-border px-6 py-4">
                     <div className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                        {t('showing')} {Math.min(items.length, (currentPage - 1) * settings.itemsPerPage + 1)} - {Math.min(items.length, currentPage * settings.itemsPerPage)} {t('of')} {items.length}
+                        {t('showing')} {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} {t('of')} {(items || []).length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button
@@ -453,7 +455,7 @@ export default function ResourceList({ kind }) {
                         </button>
 
                         <div className="flex items-center gap-1">
-                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            {(Array.from({ length: totalPages }, (_, i) => i + 1) || [])
                                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                                 .map((p, i, arr) => (
                                     <React.Fragment key={p}>

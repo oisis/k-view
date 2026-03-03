@@ -1,62 +1,90 @@
 import React from 'react';
-import MetadataSection from '../sections/MetadataSection';
-import ResourceInfoSection from '../sections/ResourceInfoSection';
 import DetailSection from '../DetailSection';
+import DetailRow from '../DetailRow';
 import EndpointsTable from '../EndpointsTable';
+import PodsTable from '../PodsTable';
+import IngressTable from '../IngressTable';
 
 /**
- * Dumb Component for Service Details.
+ * ServiceOverview - RESTORED FROZEN VIEW FROM MAIN
+ * Cleanly rewritten to consume DTO structure.
  */
-export default function ServiceOverview({ data, t, settings }) {
+export default function ServiceOverview({ data, spec, status, relatedPods, relatedEndpoints, relatedIngresses, t, icons }) {
     if (!data) return null;
 
-    const { resource, metadata, spec, status, extra, relatedEndpoints } = data;
+    // Use relatedEndpoints from DTO (backend now sends this pre-fetched)
+    const endpointsSource = data.relatedEndpoints || relatedEndpoints;
+    const processedEndpoints = [];
+    
+    if (endpointsSource && (endpointsSource.subsets || endpointsSource.Object?.subsets)) {
+        const subsets = endpointsSource.subsets || endpointsSource.Object?.subsets || [];
+        subsets.forEach(subset => {
+            const ports = subset.ports || [];
+            
+            if (subset.addresses) {
+                subset.addresses.forEach(addr => {
+                    processedEndpoints.push({
+                        host: addr.ip,
+                        node: addr.nodeName,
+                        ready: 'True',
+                        ports: ports
+                    });
+                });
+            }
+            
+            if (subset.notReadyAddresses) {
+                subset.notReadyAddresses.forEach(addr => {
+                    processedEndpoints.push({
+                        host: addr.ip,
+                        node: addr.nodeName,
+                        ready: 'False',
+                        ports: ports
+                    });
+                });
+            }
+        });
+    }
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <MetadataSection metadata={metadata} t={t} />
-                <ResourceInfoSection 
-                    resource={resource} 
-                    extra={extra} 
-                    t={t} 
-                />
-            </div>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
+            <DetailSection title={t('resource_info')}>
+                <table className="w-full text-sm text-left border-collapse">
+                    <tbody className="divide-y divide-border">
+                        <DetailRow label="Type">
+                            <span className="px-2 py-0.5 rounded-md bg-info/10 text-info text-xs font-black uppercase">
+                                {spec?.type || '—'}
+                            </span>
+                        </DetailRow>
+                        <DetailRow label="Cluster IP">
+                            <span className="font-mono text-primary font-bold">{spec?.clusterIP || 'None'}</span>
+                        </DetailRow>
+                        <DetailRow label="Session Affinity">
+                            <span className={`text-sm font-bold ${spec?.sessionAffinity !== 'None' ? 'text-accent' : 'text-primary'}`}>
+                                {spec?.sessionAffinity || 'None'}
+                            </span>
+                        </DetailRow>
+                        {spec?.selector && (
+                            <DetailRow label="Selector">
+                                <div className="flex flex-wrap gap-1.5">
+                                    {Object.entries(spec.selector || {}).map(([k, v]) => (
+                                        <span key={k} className="px-2 py-0.5 bg-[var(--bg-muted)] rounded text-xs text-secondary font-mono border border-border/50">
+                                            {k}: {v}
+                                        </span>
+                                    ))}
+                                </div>
+                            </DetailRow>
+                        )}
+                    </tbody>
+                </table>
+            </DetailSection>
 
-            {spec?.ports && (
-                <DetailSection title={t('ports')} icon="network">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="text-text-muted text-xs uppercase font-black border-b border-border/50">
-                                    <th className="px-4 py-3">Name</th>
-                                    <th className="px-4 py-3">Protocol</th>
-                                    <th className="px-4 py-3">Port</th>
-                                    <th className="px-4 py-3">Target Port</th>
-                                    <th className="px-4 py-3">Node Port</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/30">
-                                {(spec?.ports || []).map((p, i) => (
-                                    <tr key={i} className="text-sm">
-                                        <td className="px-4 py-3 font-bold">{p.name || '—'}</td>
-                                        <td className="px-4 py-3">{p.protocol}</td>
-                                        <td className="px-4 py-3">{p.port}</td>
-                                        <td className="px-4 py-3">{p.targetPort}</td>
-                                        <td className="px-4 py-3">{p.nodePort || '—'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </DetailSection>
+            {processedEndpoints.length > 0 && <EndpointsTable endpoints={processedEndpoints} t={t} icons={icons} />}
+            
+            {relatedIngresses && relatedIngresses.length > 0 && (
+                <IngressTable title="Ingresses" ingresses={relatedIngresses} t={t} icons={icons} />
             )}
 
-            {relatedEndpoints?.subsets && (
-                <DetailSection title={t('endpoints')} icon="anchor">
-                    <EndpointsTable subsets={relatedEndpoints.subsets} t={t} />
-                </DetailSection>
-            )}
+            {relatedPods && <PodsTable pods={Array.isArray(relatedPods) ? relatedPods : []} t={t} icons={icons} />}
         </div>
     );
 }

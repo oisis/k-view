@@ -3,13 +3,21 @@ import { Link } from 'react-router-dom';
 import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
+/**
+ * ResourceInfoSection - RESTORED FROZEN VIEW FROM MAIN
+ * Cleanly rewritten to consume DTO while maintaining DOM structure.
+ */
 export default function ResourceInfoSection({ 
     isPod, isDaemonSet, isCronJob, isDeployment, isJob, isIngress, isService, isStorageClass,
     isClusterRoleBinding, isRoleBinding, isRole, isNamespace, isNetworkPolicy, isNode,
-    spec = {}, status = {}, restarts = 0, t, data = {}, kindLower, icons
+    spec = {}, status = {}, restarts = 0, t, data = {}, kindLower, icons, metrics
 }) {
+    // Shared kind detection logic
+    const kind = kindLower || data?.extra?.kind?.toLowerCase() || '';
+    const podRestarts = restarts || data?.extra?.restarts || 0;
+
     return (
-        <>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             {isPod && (
                 <DetailSection title={t('resource_info')}>
                     <table className="w-full text-sm text-left border-collapse">
@@ -25,11 +33,13 @@ export default function ResourceInfoSection({
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_status')}</span>
-                                            <span className={`font-bold ${status?.phase === 'Running' ? 'text-success' : 'text-warning'}`}>{status?.phase || '—'}</span>
+                                            <span className={`font-bold ${status?.phase === 'Running' || data?.resource?.status?.phase === 'Running' ? 'text-success' : 'text-warning'}`}>
+                                                {status?.phase || data?.resource?.status?.phase || data?.resource?.status || '—'}
+                                            </span>
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">IP</span>
-                                            <span className="font-mono text-primary font-bold">{status?.podIP || '—'}</span>
+                                            <span className="font-mono text-primary font-bold">{status?.podIP || data?.resource?.status?.podIP || '—'}</span>
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">QoS Class</span>
@@ -37,7 +47,7 @@ export default function ResourceInfoSection({
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_restarts')}</span>
-                                            <span className={`font-bold ${restarts > 0 ? 'text-warning' : 'text-primary'}`}>{restarts}</span>
+                                            <span className={`font-bold ${podRestarts > 0 ? 'text-warning' : 'text-primary'}`}>{podRestarts}</span>
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_service_account')}</span>
@@ -49,6 +59,20 @@ export default function ResourceInfoSection({
                         </tbody>
                     </table>
                 </DetailSection>
+            )}
+
+            {/* Metrics Sparkline Fallback (if applicable) */}
+            {isPod && metrics && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="bg-glass glass p-4 rounded-xl border border-border/30 flex justify-between items-center">
+                        <span className="text-xs font-bold text-text-muted uppercase">CPU Usage</span>
+                        <span className="text-sm font-black text-accent">{(metrics.cpu || 0).toFixed(3)} cores</span>
+                    </div>
+                    <div className="bg-glass glass p-4 rounded-xl border border-border/30 flex justify-between items-center">
+                        <span className="text-xs font-bold text-text-muted uppercase">RAM Usage</span>
+                        <span className="text-sm font-black text-accent">{(metrics.memory / (1024 * 1024)).toFixed(1)} MiB</span>
+                    </div>
+                </div>
             )}
 
             {isDaemonSet && (
@@ -86,6 +110,6 @@ export default function ResourceInfoSection({
                     </table>
                 </DetailSection>
             )}
-        </>
+        </div>
     );
 }

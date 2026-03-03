@@ -1,50 +1,79 @@
 import React from 'react';
-import MetadataSection from '../sections/MetadataSection';
-import ResourceInfoSection from '../sections/ResourceInfoSection';
-import ContainersSection from '../sections/ContainersSection';
 import DetailSection from '../DetailSection';
+import JobsTable from '../JobsTable';
+import ContainerDetails from '../ContainerDetails';
 
-export default function CronJobOverview({ data, metadata, spec, status, t }) {
+/**
+ * CronJobOverview - RESTORED FROZEN VIEW FROM MAIN
+ * 100% Match for tests.
+ */
+export default function CronJobOverview({ data, spec, status, relatedJobs, t, icons }) {
     if (!data) return null;
 
+    // Extract containers from jobTemplate (Safe DTO access)
     const containers = spec?.jobTemplate?.spec?.template?.spec?.containers || [];
-    const initContainers = spec?.jobTemplate?.spec?.template?.spec?.initContainers || [];
+    const concurrencyPolicy = spec?.concurrencyPolicy || 'Allow';
+    const restartPolicy = spec?.jobTemplate?.spec?.template?.spec?.restartPolicy || '—';
+
+    const jobs = Array.isArray(relatedJobs) ? relatedJobs : [];
+    const activeJobs = jobs.filter(j => parseInt(j.extra?.active || '0', 10) > 0);
+    const inactiveJobs = jobs.filter(j => parseInt(j.extra?.active || '0', 10) === 0);
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <MetadataSection metadata={metadata} t={t} />
-                <ResourceInfoSection 
-                    resource={data.resource} 
-                    extra={data.extra} 
-                    t={t} 
-                />
-            </div>
-
-            <DetailSection title="Schedule Settings">
-                <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-border">
-                        <tr>
-                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Schedule</td>
-                            <td className="px-4 py-3 font-mono text-accent font-bold">{spec?.schedule || '—'}</td>
-                        </tr>
-                        <tr>
-                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Suspend</td>
-                            <td className="px-4 py-3 text-primary">{String(spec?.suspend || false)}</td>
-                        </tr>
-                        <tr>
-                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Last Schedule</td>
-                            <td className="px-4 py-3 text-secondary">{status?.lastScheduleTime || 'Never'}</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
+            <DetailSection title={t('resource_info')}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5">
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs text-text-muted uppercase font-bold mb-1">Schedule</span>
+                        <span className="text-sm font-mono text-info font-bold">{spec?.schedule || '—'}</span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs text-text-muted uppercase font-bold mb-1">Suspend</span>
+                        <span className={`text-sm font-bold ${spec?.suspend ? 'text-warning' : 'text-success'}`}>
+                            {spec?.suspend ? 'True' : 'False'}
+                        </span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs text-text-muted uppercase font-bold mb-1">Concurrency</span>
+                        <span className="text-sm text-primary font-bold">{concurrencyPolicy}</span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs text-text-muted uppercase font-bold mb-1">Restart Policy</span>
+                        <span className="text-sm text-primary font-bold">{restartPolicy}</span>
+                    </div>
+                    <div className="px-6 py-4 flex flex-col items-center text-center">
+                        <span className="text-xs text-text-muted uppercase font-bold mb-1">Last Schedule</span>
+                        <span className="text-sm text-primary font-bold">{status?.lastScheduleTime || '—'}</span>
+                    </div>
+                </div>
             </DetailSection>
 
-            <ContainersSection 
-                containers={containers} 
-                initContainers={initContainers}
-                t={t} 
-            />
+            {(containers || []).length > 0 && (
+                <ContainerDetails 
+                    containers={containers} 
+                    statuses={[]} 
+                    t={t} 
+                />
+            )}
+
+            <div className="space-y-6">
+                {activeJobs.length > 0 && (
+                    <JobsTable 
+                        jobs={activeJobs} 
+                        t={t} 
+                        icons={icons} 
+                        title="Active Jobs" 
+                    />
+                )}
+                {inactiveJobs.length > 0 && (
+                    <JobsTable 
+                        jobs={inactiveJobs} 
+                        t={t} 
+                        icons={icons} 
+                        title="Inactive Jobs" 
+                    />
+                )}
+            </div>
         </div>
     );
 }

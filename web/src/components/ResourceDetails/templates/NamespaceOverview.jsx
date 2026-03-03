@@ -3,12 +3,20 @@ import DetailSection from '../DetailSection';
 import ResourceQuotasTable from '../ResourceQuotasTable';
 import LimitRangesTable from '../LimitRangesTable';
 
+/**
+ * NamespaceOverview - RESTORED FROZEN VIEW FROM MAIN
+ * Cleanly rewritten to consume DTO structure.
+ */
 export default function NamespaceOverview({ data, metadata, status, quotas, limits, t, icons }) {
-    // Namespace status is typically in status.phase (Active/Terminating)
-    const phase = data?.status?.phase || status?.phase || 'Unknown';
+    if (!data) return null;
+
+    // Use pre-fetched data from DTO if available
+    const nsQuotas = data.quotas || quotas || [];
+    const nsLimits = data.limits || limits || [];
+    const phase = data.resource?.status?.phase || status?.phase || data.status?.phase || 'Active';
 
     return (
-        <>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title={t('resource_info')}>
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
@@ -27,13 +35,13 @@ export default function NamespaceOverview({ data, metadata, status, quotas, limi
                 </table>
             </DetailSection>
 
-            {quotas && quotas.length > 0 && (
-                <ResourceQuotasTable quotas={quotas} t={t} icons={icons} />
+            {nsQuotas && nsQuotas.length > 0 && (
+                <ResourceQuotasTable quotas={nsQuotas} t={t} icons={icons} />
             )}
             
-            {limits && limits.length > 0 && (
-                <LimitRangesTable limits={limits} t={t} icons={icons} />
+            {nsLimits && nsLimits.length > 0 && (
+                <LimitRangesTable limits={nsLimits} t={t} icons={icons} />
             )}
-        </>
+        </div>
     );
 }

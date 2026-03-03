@@ -2,26 +2,30 @@ import React from 'react';
 import DetailSection from '../DetailSection';
 import SecretsTable from '../SecretsTable';
 
+/**
+ * ServiceAccountOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function ServiceAccountOverview({ data, metadata, spec, namespace, relatedSecrets, relatedImagePullSecrets, t, icons }) {
-    const secrets = Array.isArray(relatedSecrets) ? relatedSecrets : [];
-    const imagePullSecrets = Array.isArray(relatedImagePullSecrets) ? relatedImagePullSecrets : [];
+    if (!data) return null;
+    const secrets = Array.isArray(data.relatedSecrets || relatedSecrets) ? (data.relatedSecrets || relatedSecrets) : [];
+    const imagePullSecrets = Array.isArray(data.relatedImagePullSecrets || relatedImagePullSecrets) ? (data.relatedImagePullSecrets || relatedImagePullSecrets) : [];
 
     return (
-        <div className="space-y-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <SecretsTable title="Secrets" secrets={secrets} t={t} icons={icons} />
             
             <DetailSection title="Image Pull Secrets">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3 text-left">Name</th>
                                 <th className="px-4 py-3 text-left">Namespace</th>
                                 <th className="px-4 py-3 text-left">Type</th>
                                 <th className="px-4 py-3 text-right">Created</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
+                        <tbody className="divide-y divide-border/30">
                             {imagePullSecrets.length === 0 ? (
                                 <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No image pull secrets defined.</td></tr>
                             ) : (

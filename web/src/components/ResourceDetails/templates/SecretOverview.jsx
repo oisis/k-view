@@ -1,17 +1,23 @@
 import React from 'react';
 import SecretDataSection from '../SecretDataSection';
 
+/**
+ * SecretOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function SecretOverview({ data, kind, namespace, name, t, onRefresh }) {
-    if (!data || !data.data) return null;
+    if (!data) return null;
+    const secretData = data.data || data.resource?.data || {};
 
     return (
-        <SecretDataSection 
-            data={data.data} 
-            kind={kind} 
-            namespace={namespace} 
-            name={name} 
-            t={t} 
-            onRefresh={onRefresh} 
-        />
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <SecretDataSection 
+                data={secretData} 
+                kind={kind} 
+                namespace={namespace} 
+                name={name} 
+                t={t} 
+                onRefresh={onRefresh} 
+            />
+        </div>
     );
 }

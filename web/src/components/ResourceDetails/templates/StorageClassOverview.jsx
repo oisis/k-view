@@ -3,9 +3,13 @@ import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 import PersistentVolumesTable from '../PersistentVolumesTable';
 
+/**
+ * StorageClassOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function StorageClassOverview({ data, spec, relatedPvs, t, icons }) {
+    if (!data) return null;
     const extra = data.extra || {};
-    const pvs = Array.isArray(relatedPvs) ? relatedPvs : [];
+    const pvs = Array.isArray(data.relatedPvs || relatedPvs) ? (data.relatedPvs || relatedPvs) : [];
 
     const fields = [
         { key: 'provisioner', label: 'Provisioner' },
@@ -19,7 +23,7 @@ export default function StorageClassOverview({ data, spec, relatedPvs, t, icons 
     ];
 
     return (
-        <>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
@@ -34,7 +38,9 @@ export default function StorageClassOverview({ data, spec, relatedPvs, t, icons 
                 </table>
             </DetailSection>
 
-            <PersistentVolumesTable pvs={pvs} t={t} icons={icons} title="Persistent Volumes" />
-        </>
+            {pvs.length > 0 && (
+                <PersistentVolumesTable pvs={pvs} t={t} icons={icons} title="Persistent Volumes" />
+            )}
+        </div>
     );
 }

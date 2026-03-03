@@ -1,6 +1,9 @@
 import React from 'react';
 import DetailSection from '../DetailSection';
 
+/**
+ * NetworkPolicyOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 const VerbsList = ({ items, title, t }) => {
     if (!items || !Array.isArray(items) || items.length === 0) return null;
     return (
@@ -74,7 +77,7 @@ export default function NetworkPolicyOverview({ spec, t }) {
     const policyTypes = spec?.policyTypes || [];
 
     return (
-        <div className="space-y-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">

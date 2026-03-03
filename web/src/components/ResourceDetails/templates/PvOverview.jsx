@@ -3,11 +3,15 @@ import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 import SourceTable from '../SourceTable';
 
+/**
+ * PvOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function PvOverview({ data, metadata, spec, status, t }) {
+    if (!data) return null;
     const capacity = spec?.capacity || {};
 
     return (
-        <div className="space-y-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title={t('resource_info')}>
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
@@ -44,12 +48,12 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3 text-left">Resource name</th>
                                 <th className="px-4 py-3 text-left">Quantity</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
+                        <tbody className="divide-y divide-border/30">
                             {Object.entries(capacity || {}).length === 0 ? (
                                 <tr><td colSpan="2" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No capacity info available.</td></tr>
                             ) : (

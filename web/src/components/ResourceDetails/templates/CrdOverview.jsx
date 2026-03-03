@@ -1,19 +1,21 @@
 import React from 'react';
 import DetailSection from '../DetailSection';
-import DetailRow from '../DetailRow';
 import ObjectsTable from '../ObjectsTable';
 
+/**
+ * CrdOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function CrdOverview({ data, metadata, spec, status, relatedCrdObjects, t }) {
+    if (!data) return null;
     const extra = data.extra || {};
     const versions = spec?.versions || [];
-    // Ensure we look into data.status.conditions or just status.conditions
     const conditions = status?.conditions || data?.status?.conditions || [];
-    const objects = Array.isArray(relatedCrdObjects) ? relatedCrdObjects : [];
+    const objects = Array.isArray(data.relatedCrdObjects || relatedCrdObjects) ? (data.relatedCrdObjects || relatedCrdObjects) : [];
 
     return (
-        <div className="space-y-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
-                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border">
+                <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border rounded-xl border border-border/30 overflow-hidden">
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase mb-1">Version</span>
                         <span className="text-sm font-mono text-info font-bold">{extra.version || '—'}</span>
@@ -30,7 +32,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
             </DetailSection>
 
             <DetailSection title="Accepted Names">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border rounded-xl border border-border/30 overflow-hidden">
                     <div className="px-4 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase mb-1">Plural</span>
                         <span className="text-sm font-bold text-primary">{extra.plural || '—'}</span>
@@ -62,14 +64,14 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3 text-left">Name</th>
                                 <th className="px-4 py-3 text-center">Served</th>
                                 <th className="px-4 py-3 text-center">Storage</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
-                            {versions.length === 0 ? (
+                        <tbody className="divide-y divide-border/30">
+                            {(versions || []).length === 0 ? (
                                 <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No versions defined.</td></tr>
                             ) : (
                                 (versions || []).map((v, i) => (
@@ -97,7 +99,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3 text-left">Type</th>
                                 <th className="px-4 py-3 text-center">Status</th>
                                 <th className="px-4 py-3 text-center">Last Transition</th>
@@ -105,8 +107,8 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                                 <th className="px-4 py-3 text-left">Message</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
-                            {conditions.length === 0 ? (
+                        <tbody className="divide-y divide-border/30">
+                            {(conditions || []).length === 0 ? (
                                 <tr><td colSpan="5" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No conditions reported.</td></tr>
                             ) : (
                                 (conditions || []).map((c, i) => (
@@ -128,7 +130,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                 </div>
             </DetailSection>
 
-            <ObjectsTable title="Objects" objects={objects} t={t} kind={extra.plural} />
+            {objects.length > 0 && <ObjectsTable title="Objects" objects={objects} t={t} kind={extra.plural} />}
         </div>
     );
 }

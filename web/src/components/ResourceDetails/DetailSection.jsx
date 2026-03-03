@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * DetailSection - RESTORED FROZEN VIEW FROM MAIN
+ * Maintaining exact classes and tags for tests.
+ */
 export default function DetailSection({ title, children, className = "" }) {
     return (
         <div className={`bg-glass glass rounded-2xl border border-border overflow-hidden shadow-xl flex flex-col ${className}`}>

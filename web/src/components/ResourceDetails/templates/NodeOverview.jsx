@@ -2,26 +2,28 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
-import CapacityTable from '../CapacityTable';
 import PodsTable from '../PodsTable';
 import PieChart from '../PieChart';
-
 import ExpandableCell from '../ExpandableCell';
 
+/**
+ * NodeOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
 export default function NodeOverview({ data, metadata, spec, status, relatedPods, t, icons }) {
+    if (!data) return null;
+
     const nodeStatus = status || data?.status || {};
     const nodeInfo = nodeStatus.nodeInfo || spec?.nodeInfo || {};
     const allocation = data?.allocation || {};
     const extra = data?.extra || {};
     
-    // In v0.37.0 addresses were sometimes in data.addresses or status.addresses
     const addresses = data?.addresses || nodeStatus?.addresses || [];
     const conditions = nodeStatus?.conditions || [];
 
     return (
-        <>
-            <DetailSection title="Resource Info" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
+            <DetailSection title="Resource Info">
+                <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10 rounded-t-xl overflow-hidden">
                     <div className="px-6 py-4 flex flex-col items-center text-center">
                         <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Pod CIDR</span>
                         <span className="text-sm font-mono font-bold text-accent">{extra['pod-cidr'] || '—'}</span>
@@ -32,20 +34,20 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                             <ExpandableCell value={extra.taints} />
                         </div>
                     </div>
-                    {addresses.slice(0, 2).map((addr, idx) => (
+                    {(addresses || []).slice(0, 2).map((addr, idx) => (
                         <div key={idx} className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{addr.type}</span>
                             <span className="text-sm font-mono font-bold text-info">{addr.address}</span>
                         </div>
                     ))}
-                    {addresses.length < 2 && (
+                    {(addresses || []).length < 2 && (
                         <div className="px-6 py-4 flex flex-col items-center text-center">
                             <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">—</span>
                             <span className="text-sm text-text-muted italic">—</span>
                         </div>
                     )}
                 </div>
-                {addresses.length > 2 && (
+                {(addresses || []).length > 2 && (
                     <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--bg-sidebar)]/5 border-b border-border">
                         {addresses.slice(2).map((addr, idx) => (
                             <div key={idx} className="bg-white/5 p-3 rounded border border-border/50 flex flex-col items-center">
@@ -105,7 +107,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
             </DetailSection>
 
             <DetailSection title="Allocation">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 border-b border-border">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-8 p-6 bg-[var(--bg-sidebar)]/5 border-b border-border rounded-xl border border-border/30">
                     <PieChart
                         percent={allocation.cpu?.capacity > 0 ? (allocation.cpu.requests / allocation.cpu.capacity) * 100 : 0}
                         label="CPU Requests"
@@ -143,7 +145,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left border-collapse">
                         <thead>
-                            <tr>
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Last probe time</th>
@@ -176,7 +178,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                 </div>
             </DetailSection>
 
-            {relatedPods && <PodsTable pods={relatedPods} t={t} icons={icons} title="Allocated Pods" />}
-        </>
+            {relatedPods && <PodsTable pods={Array.isArray(relatedPods) ? relatedPods : []} t={t} icons={icons} title="Allocated Pods" />}
+        </div>
     );
 }

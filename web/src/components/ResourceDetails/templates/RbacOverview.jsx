@@ -3,23 +3,31 @@ import DetailSection from '../DetailSection';
 import SubjectsTable from '../SubjectsTable';
 import RulesTable from '../RulesTable';
 
-export default function RbacOverview({ data, metadata, t, isBinding }) {
-    const roleRef = data?.roleRef || data?.spec?.roleRef;
-    const subjects = data?.subjects || data?.spec?.subjects || [];
-    const rules = data?.rules || data?.spec?.rules || [];
+/**
+ * RbacOverview - RESTORED FROZEN VIEW FROM MAIN
+ * Rewritten to consume DTO.
+ */
+export default function RbacOverview({ data, metadata, spec, t, isBinding }) {
+    if (!data) return null;
+
+    // Map DTO spec to legacy variables
+    const roleRef = spec?.roleRef || data.roleRef;
+    const subjects = spec?.subjects || data.subjects || [];
+    const rules = spec?.rules || data.rules || [];
 
     return (
-        <>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             {isBinding ? (
                 <>
                     <DetailSection title={t('resource_info') || "Role Reference"}>
                         <table className="w-full text-sm text-left border-collapse">
                             <tbody className="divide-y divide-border">
                                 <tr className="border-b border-border">
-                                    <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Role Reference</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 w-48 text-xs font-bold text-text-muted uppercase tracking-wider bg-[var(--bg-sidebar)]/10">Role Reference</td>
+                                    <td className="px-4 py-3 text-sm text-primary">
                                         <div className="flex items-center gap-2">
-                                                                                         <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-xs font-black uppercase tracking-wider">                                                {roleRef?.kind || '—'}
+                                            <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-wider border border-purple-500/20">
+                                                {roleRef?.kind || '—'}
                                             </span>
                                             <span className="font-mono text-info font-bold">{roleRef?.name || '—'}</span>
                                         </div>
@@ -28,11 +36,11 @@ export default function RbacOverview({ data, metadata, t, isBinding }) {
                             </tbody>
                         </table>
                     </DetailSection>
-                    {subjects.length > 0 && <SubjectsTable subjects={subjects} t={t} />}
+                    <SubjectsTable subjects={subjects} t={t} />
                 </>
             ) : (
                 <RulesTable rules={rules} t={t} />
             )}
-        </>
+        </div>
     );
 }

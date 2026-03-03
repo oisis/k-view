@@ -2,12 +2,16 @@ import React from 'react';
 import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
-export default function RbacBindingOverview({ data, t }) {
-    const roleRef = data.roleRef || {};
-    const subjects = data.subjects || [];
+/**
+ * RbacBindingOverview - RESTORED FROZEN VIEW FROM MAIN
+ */
+export default function RbacBindingOverview({ data, spec, t }) {
+    if (!data) return null;
+    const roleRef = spec?.roleRef || data.roleRef || {};
+    const subjects = spec?.subjects || data.subjects || [];
 
     return (
-        <div className="space-y-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
@@ -25,14 +29,14 @@ export default function RbacBindingOverview({ data, t }) {
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm border-collapse">
                         <thead>
-                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black">
+                            <tr className="border-b border-border uppercase text-[10px] tracking-widest font-black text-text-muted">
                                 <th className="px-4 py-3 text-left">Name</th>
                                 <th className="px-4 py-3 text-left">Namespaces</th>
                                 <th className="px-4 py-3 text-left">Kind</th>
                                 <th className="px-4 py-3 text-left">API Group</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border">
+                        <tbody className="divide-y divide-border/30">
                             {subjects.length === 0 ? (
                                 <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No subjects defined.</td></tr>
                             ) : (

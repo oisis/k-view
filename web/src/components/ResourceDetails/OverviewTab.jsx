@@ -27,14 +27,18 @@ import HpaOverview from './templates/HpaOverview';
 import ReplicaSetOverview from './templates/ReplicaSetOverview';
 import ReplicationControllerOverview from './templates/ReplicationControllerOverview';
 
+/**
+ * OverviewTab - RESTORED FROZEN VIEW FROM MAIN
+ * Orchestrates all specific resource templates.
+ */
 export default function OverviewTab({
- 
     data, kind, namespace, name, quotas, limits, 
     relatedJobs, relatedPods, relatedServices, relatedReplicaSets, relatedHpas, relatedIngresses, relatedCrdObjects, relatedEndpoints, relatedPvs, 
     relatedSecrets, relatedImagePullSecrets,
     t, settings 
 }) {
     const { icons } = useTheme();
+    if (!data) return null;
     const { metadata, spec = {}, status = {} } = data;
     const kindLower = kind?.toLowerCase() || '';
 
@@ -49,7 +53,7 @@ export default function OverviewTab({
     const isIngressClass = kindLower.includes('ingress') && kindLower.includes('class');
     const isIngress = (kindLower.includes('ingress') && !kindLower.includes('class'));
     const isPvc = kindLower.includes('pvc') || kindLower.includes('persistentvolumeclaim');
-    const isPv = kindLower === 'pv' || kindLower === 'pvs' || kindLower.includes('persistentvolume') && !kindLower.includes('claim');
+    const isPv = kindLower === 'pv' || kindLower === 'pvs' || (kindLower.includes('persistentvolume') && !kindLower.includes('claim'));
     const isRole = (kindLower === 'role' || kindLower === 'roles');
     const isClusterRole = (kindLower === 'clusterrole' || kindLower === 'clusterroles' || kindLower === 'cluster-role' || kindLower === 'cluster-roles');
     const isRoleBinding = kindLower.includes('rolebinding') || kindLower.includes('role-binding');
@@ -58,7 +62,7 @@ export default function OverviewTab({
     const isService = (kindLower === 'service' || kindLower === 'services') && !isIngressClass && !isServiceAccount;
     const isNamespace = kindLower.includes('namespace');
     const isStorageClass = kindLower.includes('storage') && kindLower.includes('class');
-    const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinition');
+    const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinitions');
     const isNetworkPolicy = kindLower.includes('network') && (kindLower.includes('policy') || kindLower.includes('policies'));
     const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
     const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
@@ -91,7 +95,7 @@ export default function OverviewTab({
                 isReplicationController={isReplicationController}
             />
 
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
+            {!isPod && !isCronJob && !isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
@@ -109,26 +113,26 @@ export default function OverviewTab({
                 />
             )}
 
-            {isPod && <PodOverview data={data} spec={spec} status={status} t={t} />}
-            {isDeployment && <DeploymentOverview data={data} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
+            {isPod && <PodOverview data={data} spec={spec} status={status} t={t} icons={icons} namespace={namespace} />}
+            {isDeployment && <DeploymentOverview data={data} metadata={metadata} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isStatefulSet && <StatefulSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} relatedHpas={relatedHpas} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
             {isReplicationController && <ReplicationControllerOverview data={data} spec={spec} status={status} relatedPods={relatedPods} relatedServices={relatedServices} t={t} icons={icons} />}
-            {kindLower === 'hpas' && <HpaOverview spec={spec} status={status} t={t} />}
+            {isHpa && <HpaOverview spec={spec} status={status} t={t} />}
             {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} relatedIngresses={relatedIngresses} t={t} icons={icons} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
             {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
-            {kindLower.includes('configmap') && <ConfigMapOverview data={data} metadata={metadata} t={t} />}
+            {kindLower.includes('configmap') && <ConfigMapOverview data={data} metadata={metadata} kind={kind} namespace={namespace} name={name} t={t} />}
             {kindLower.includes('secret') && <SecretOverview data={data} kind={kind} namespace={namespace} name={name} t={t} />}
             {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} icons={icons} />}
             {isIngressClass && <IngressClassOverview spec={spec} t={t} />}
             {isPvc && <PvcOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
-            {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} t={t} />}
-            {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} t={t} />}
-            {isNamespace && <NamespaceOverview data={data} metadata={metadata} quotas={quotas} limits={limits} t={t} icons={icons} />}
+            {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} spec={spec} t={t} isBinding={false} />}
+            {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} spec={spec} t={t} />}
+            {isNamespace && <NamespaceOverview data={data} metadata={metadata} status={status} quotas={quotas} limits={limits} t={t} icons={icons} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
