@@ -1,4 +1,5 @@
-general_overview:
+Section: Workloads
+General overview:
   - Name
   - Namespace
   - Images
@@ -6,19 +7,19 @@ general_overview:
   - Pods
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-pods_table:
-  - label_name
-  - label_namespace
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Pods:
+  - Name
+  - Namespace
   - Images
   - Labels
   - Node
@@ -27,24 +28,24 @@ pods_table:
   - CPU
   - RAM
   - Created
-new_replica_set_table:
-  - label_name
-  - label_namespace
+New Replica Set:
+  - Name
+  - Namespace
   - Age
   - Pods
   - Labels
   - Images
-old_replica_set_table:
-  - label_name
-  - label_namespace
+Old Replica Set:
+  - Name
+  - Namespace
   - Age
   - Pods
   - Labels
   - Images
-status_conditions_table:
-  - type
-  - label_status
-  - last_probe
-  - last_transition
-  - reason
-  - message
+Status Conditions:
+  - Type
+  - Status
+  - Last Probe
+  - Last Transition
+  - Reason
+  - Message

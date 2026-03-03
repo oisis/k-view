@@ -1,4 +1,5 @@
-general_overview:
+Section: Cluster
+General overview:
   - Name
   - Namespace
   - Reason
@@ -9,13 +10,13 @@ general_overview:
   - First Seen
   - Last Seen
 detail_tabs:
-  - overview
-  - yaml
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_status
-  - label_labels
-  - label_annotations
+  - Overview
+  - Yaml
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Status
+  - Labels
+  - Annotations

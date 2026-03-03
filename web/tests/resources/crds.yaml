@@ -1,24 +1,25 @@
-general_overview:
+Section: Cluster
+General overview:
   - Name
   - Group
   - Full Name
   - Namespaced
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-versions_table:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Versions:
   - Name
   - Served
   - Storage
-conditions_table:
+Conditions:
   - Type
   - Status
   - Last Transition

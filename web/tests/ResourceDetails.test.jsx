@@ -6,7 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
-// Load all resource definitions from standardized YAML files
 const resourcesPath = path.resolve(__dirname, './resources');
 const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
 const resources = resourceFiles.reduce((acc, file) => {
@@ -16,7 +15,6 @@ const resources = resourceFiles.reduce((acc, file) => {
   return acc;
 }, {});
 
-// Mocking dependencies
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -99,7 +97,7 @@ const renderWithRouter = (ui) => {
   );
 };
 
-describe('ResourceDetails "Frozen" View Tests - YAML Standardized', () => {
+describe('ResourceDetails "Frozen" View Tests - Human YAML', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -125,37 +123,19 @@ describe('ResourceDetails "Frozen" View Tests - YAML Standardized', () => {
             template: { spec: { containers: [{ name: 'main', image: 'nginx' }] } },
             jobTemplate: { spec: { template: { spec: { containers: [{ name: 'main', image: 'nginx' }] } } } },
             strategy: { type: 'RollingUpdate' },
-            rules: [{ verbs: ['get'], resources: ['pods'] }],
             provisioner: 'k-view',
-            nodeName: 'node-1',
-            metrics: [{ type: 'Resource', resource: { name: 'cpu', target: { averageUtilization: 50 } } }],
-            schedule: '*/5 * * * *',
-            suspend: false,
-            controller: 'k-view-controller',
             ports: [{ port: 80, protocol: 'TCP' }]
         },
         status: { 
             phase: 'Running', 
-            conditions: [{type: 'Ready', status: 'True', lastProbeTime: '2024-01-01T00:00:00Z', lastTransitionTime: '2024-01-01T00:00:00Z', reason: 'Ready', message: 'Stable'}], 
-            numberReady: 1, 
-            desiredNumberScheduled: 1, 
-            currentReplicas: 1, 
-            replicas: 1, 
-            updatedReplicas: 1, 
-            availableReplicas: 1,
-            nodeInfo: { machineID: 'm1', kernelVersion: 'v1', containerRuntimeVersion: 'docker' }
+            conditions: [{type: 'Ready', status: 'True', lastProbeTime: '2024-01-01T00:00:00Z', lastTransitionTime: '2024-01-01T00:00:00Z', reason: 'Ready', message: 'Stable'}]
         },
-        allocation: { 
-            cpu: { requests: '1', capacity: '2' }, 
-            memory: { requests: '1Gi', capacity: '2Gi' }, 
-            pods: { allocation: 1, capacity: 10 } 
-        },
-        extra: { kind: kind.toUpperCase(), group: 'example.com', version: 'v1', 'pod-cidr': '10.0.0.0/24' },
+        extra: { kind: kind.toUpperCase() },
         relatedReplicaSets: [dummyItem], 
         relatedPods: [dummyItem], 
         relatedServices: [dummyItem], 
         relatedJobs: [dummyItem],
-        relatedEndpoints: { subsets: [{ addresses: [{ ip: '1.1.1.1', nodeName: 'node-1' }], ports: [{ port: 80, protocol: 'TCP' }] }] }, 
+        relatedEndpoints: { subsets: [{ addresses: [{ ip: '1.1.1.1' }], ports: [{ port: 80 }] }] }, 
         relatedIngresses: [dummyItem], 
         relatedSecrets: [dummyItem], 
         relatedImagePullSecrets: [dummyItem], 
@@ -169,42 +149,34 @@ describe('ResourceDetails "Frozen" View Tests - YAML Standardized', () => {
       await waitFor(() => {
         let missingItems = [];
 
-        Object.entries(config).forEach(([key, values]) => {
-            if (key === 'general_overview' || key === 'detail_tabs') return;
+        Object.entries(config).forEach(([title, values]) => {
+            if (title === 'General overview' || title === 'detail_tabs') return;
 
-            // Handle Metadata Grid Fields
-            if (key === 'metadata_table') {
-                values.forEach(field => {
-                    const expected = field.toLowerCase();
-                    const found = screen.queryAllByText((content) => {
+            // 1. Find the Section/Table Title
+            const expectedTitle = title.toLowerCase();
+            const titleFound = screen.queryAllByText((content) => {
+                const text = (content || '').toLowerCase();
+                return text === expectedTitle || 
+                       text === `label_${expectedTitle.replace(/\s+/g, '_')}` ||
+                       text === expectedTitle.replace(/\s+/g, '_') ||
+                       text.includes(expectedTitle);
+            });
+            if (titleFound.length === 0) missingItems.push(`Section Title: '${title}'`);
+
+            // 2. Verify fields or columns inside this section
+            if (Array.isArray(values)) {
+                values.forEach(val => {
+                    const expectedVal = val.toLowerCase();
+                    const valFound = screen.queryAllByText((content) => {
                         const text = (content || '').toLowerCase();
-                        return text === expected || text === `label_${expected}` || text === field;
+                        // Match literal, snake_case, or label_ prefix
+                        return text === expectedVal || 
+                               text === expectedVal.replace(/\s+/g, '_') ||
+                               text === `label_${expectedVal.replace(/\s+/g, '_')}` ||
+                               text.includes(expectedVal);
                     });
-                    if (found.length === 0) missingItems.push(`Metadata Field: ${field}`);
+                    if (valFound.length === 0) missingItems.push(`Element: '${val}' in Section: '${title}'`);
                 });
-                return;
-            }
-
-            // Handle Other Tables/Sections (Normalizing key back to searchable text)
-            if (key.endsWith('_table')) {
-                const searchBase = key.replace('_table', '').replace(/_/g, ' ').replace(/end/g, '&');
-                const titleFound = screen.queryAllByText((content) => {
-                    const text = (content || '').toLowerCase();
-                    return text === searchBase || text === `label_${searchBase.replace(/ /g, '_')}` || text.includes(searchBase);
-                });
-                if (titleFound.length === 0) missingItems.push(`Section/Table Title: ${key} (searched as: ${searchBase})`);
-
-                // Verify columns
-                if (Array.isArray(values)) {
-                    values.forEach(col => {
-                        const cName = col.toLowerCase();
-                        const colFound = screen.queryAllByText((content) => {
-                            const text = (content || '').toLowerCase();
-                            return text === cName || text === `label_${cName}` || text === `label_${cName.replace(' ', '_')}` || text.includes(cName);
-                        });
-                        if (colFound.length === 0) missingItems.push(`Column: '${col}' in Table: '${key}'`);
-                    });
-                }
             }
         });
 

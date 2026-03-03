@@ -1,25 +1,26 @@
-general_overview:
+Section: Cluster
+General overview:
   - Name
   - Age
 detail_tabs:
-  - overview
-  - yaml
-metadata_table:
-  - label_name
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-status_conditions_table:
-  - type
-  - label_status
-  - last_probe
-  - last_transition
-  - reason
-  - message
-allocated_pods_table:
-  - label_name
-  - label_namespace
+  - Overview
+  - Yaml
+Metadata:
+  - Name
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Status Conditions:
+  - Type
+  - Status
+  - Last Probe
+  - Last Transition
+  - Reason
+  - Message
+Allocated Pods:
+  - Name
+  - Namespace
   - Images
   - Labels
   - Node

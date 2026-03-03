@@ -1,23 +1,24 @@
-general_overview:
+Section: Config & Storage
+General overview:
   - Name
   - Capacity
-  - access modes
-  - reclaim policy
+  - Access Modes
+  - Reclaim Policy
   - Status
   - Claim
-  - storage class
+  - Storage Class
   - Reason
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-capacity_table:
-  - Resource name
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Capacity:
+  - Resource Name
   - Quantity

@@ -1,19 +1,20 @@
-general_overview:
+Section: Network
+General overview:
   - Name
   - Labels
   - Controller
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-parameters_reference_table:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Parameters Reference:
   - API Group
   - Kind
   - Name

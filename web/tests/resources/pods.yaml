@@ -1,29 +1,30 @@
-general_overview:
+Section: Workloads
+General overview:
   - Name
   - Namespace
   - Images
   - Labels
-  - Pod status
+  - Pod Status
   - Restarts
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - logs
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_status
-  - label_node
-  - label_labels
-  - label_annotations
-status_conditions_table:
-  - type
-  - label_status
-  - last_probe
-  - last_transition
-  - reason
-  - message
+  - Overview
+  - Yaml
+  - Logs
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Status
+  - Node
+  - Labels
+  - Annotations
+Status Conditions:
+  - Type
+  - Status
+  - Last Probe
+  - Last Transition
+  - Reason
+  - Message

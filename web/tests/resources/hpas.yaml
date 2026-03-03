@@ -1,24 +1,25 @@
-general_overview:
-  - label_name
-  - label_namespace
+Section: Workloads
+General overview:
+  - Name
+  - Namespace
   - Reference
   - Targets
   - Min
   - Max
   - Replicas
-  - label_age
+  - Age
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-metrics_table:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Metrics:
   - Type
   - Resource / Name
   - Target

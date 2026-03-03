@@ -1,4 +1,5 @@
-general_overview:
+Section: Workloads
+General overview:
   - Name
   - Namespace
   - Images
@@ -6,29 +7,29 @@ general_overview:
   - Schedule
   - Suspend
   - Active
-  - Last run
+  - Last Run
   - Age
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-active_jobs_table:
-  - label_name
-  - label_namespace
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Active Jobs:
+  - Name
+  - Namespace
   - Images
   - Labels
   - Pods
   - Created
-inactive_jobs_table:
-  - label_name
-  - label_namespace
+Inactive Jobs:
+  - Name
+  - Namespace
   - Images
   - Labels
   - Pods

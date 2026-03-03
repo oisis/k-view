@@ -1,19 +1,20 @@
-general_overview:
+Section: Cluster
+General overview:
   - Name
   - Namespace
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-subjects_table:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Subjects:
   - Name
   - Namespaces
   - Kind

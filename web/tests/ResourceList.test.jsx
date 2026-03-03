@@ -6,7 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
-// Load all resource definitions from YAML files
 const resourcesPath = path.resolve(__dirname, './resources');
 const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
 const resources = resourceFiles.reduce((acc, file) => {
@@ -16,7 +15,6 @@ const resources = resourceFiles.reduce((acc, file) => {
   return acc;
 }, {});
 
-// Mocking dependencies
 vi.mock('../src/SettingsContext', () => ({
   useSettings: () => ({
     settings: { itemsPerPage: 10, resourceRefreshInterval: 5, defaultNamespace: 'default' }
@@ -62,7 +60,7 @@ const renderWithRouter = (ui) => {
   );
 };
 
-describe('ResourceList "Frozen" View Tests - YAML Driven', () => {
+describe('ResourceList "Frozen" View Tests - Human YAML', () => {
   Object.entries(resources).forEach(([kind, config]) => {
     it(`renders correct columns for ${kind}`, async () => {
       renderWithRouter(<ResourceList kind={kind} />);
@@ -70,14 +68,14 @@ describe('ResourceList "Frozen" View Tests - YAML Driven', () => {
       const headers = screen.getAllByRole('columnheader');
       const headerTexts = headers.map(h => h.textContent.trim().toLowerCase());
 
-      const columns = config.general_overview || [];
+      const columns = config['General overview'] || [];
       columns.forEach(columnName => {
         const expected = columnName.toLowerCase();
         const found = headerTexts.some(text => 
             text === expected || 
-            text === expected.replace(/ /g, '_') ||
+            text === expected.replace(/\s+/g, '_') ||
             text === `label_${expected}` ||
-            text === `label_${expected.replace(/ /g, '_')}` ||
+            text === `label_${expected.replace(/\s+/g, '_')}` ||
             text.includes(expected)
         );
 

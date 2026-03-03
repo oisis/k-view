@@ -1,38 +1,39 @@
-general_overview:
+Section: Network
+General overview:
   - Name
   - Namespace
   - Labels
   - Type
-  - cluster ip
-  - int endpoints
-  - ext endpoints
+  - Cluster Ip
+  - Int Endpoints
+  - Ext Endpoints
   - Created
 detail_tabs:
-  - overview
-  - yaml
-  - events
-metadata_table:
-  - label_name
-  - label_namespace
-  - label_created
-  - label_age
-  - label_labels
-  - label_annotations
-endpoints_table:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Endpoints:
   - Host
   - Ports
   - Node
   - Ready
-ingresses_table:
-  - label_name
-  - label_namespace
+Ingresses:
+  - Name
+  - Namespace
   - Labels
   - Endpoints
   - Hosts
   - Created
-pods_table:
-  - label_name
-  - label_namespace
+Pods:
+  - Name
+  - Namespace
   - Images
   - Labels
   - Node
