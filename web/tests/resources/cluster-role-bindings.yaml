@@ -5,7 +5,7 @@ General overview:
 detail_tabs:
   - Overview
   - Yaml
-  - Recent Events
+  - events
 Metadata:
   - Name
   - Created
