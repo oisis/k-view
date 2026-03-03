@@ -14,7 +14,7 @@ const TABS = [
     { id: 'overview', label: 'overview' },
     { id: 'yaml', label: 'yaml' },
     { id: 'logs', label: 'logs' },
-    { id: 'events', label: 'recent_events' },
+    { id: 'events', label: 'events' },
 ];
 
 const KIND_DISPLAY_MAP = {

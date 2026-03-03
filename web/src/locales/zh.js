@@ -229,7 +229,7 @@ export const zh = {
     resource_quotas: '资源配额',
     limit_ranges: '限制范围',
     status_conditions: '状态与条件',
-    resource_events: '资源事件',
+    resource_events: '事件',
     // About
     about_kview: '关于 K-View',
     about_desc: '关于应用程序的信息。',

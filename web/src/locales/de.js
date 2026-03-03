@@ -242,7 +242,7 @@ export const de = {
     resource_quotas: 'Ressourcen-Kontingente',
     limit_ranges: 'Limit-Bereiche',
     status_conditions: 'Status & Bedingungen',
-    resource_events: 'Ressourcen-Ereignisse',
+    resource_events: 'Ereignisse',
     // About
     about_kview: 'Über K-View',
     about_desc: 'Informationen über die Anwendung.',

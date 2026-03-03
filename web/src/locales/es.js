@@ -230,7 +230,7 @@ export const es = {
     resource_quotas: 'Cuotas de recursos',
     limit_ranges: 'Rangos de límites',
     status_conditions: 'Estado y Condiciones',
-    resource_events: 'Eventos del recurso',
+    resource_events: 'Eventos',
     // About
     about_kview: 'Acerca de K-View',
     about_desc: 'Información sobre la aplicación.',

@@ -10,7 +10,7 @@ detail_tabs:
   - overview
   - yaml
   - logs
-  - recent_events
+  - events
 metadata_table:
   - label_name
   - label_namespace
