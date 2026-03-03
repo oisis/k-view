@@ -1,32 +1,35 @@
 import React from 'react';
 
-// Dumb components - RESTORED FULL LIST FROM MAIN
-import PodOverview from './templates/PodOverview';
-import DeploymentOverview from './templates/DeploymentOverview';
-import ServiceOverview from './templates/ServiceOverview';
-import CronJobOverview from './templates/CronJobOverview';
-import NodeOverview from './templates/NodeOverview';
-import ConfigMapOverview from './templates/ConfigMapOverview';
-import IngressOverview from './templates/IngressOverview';
-import StatefulSetOverview from './templates/StatefulSetOverview';
-import PvcOverview from './templates/PvcOverview';
-import RbacOverview from './templates/RbacOverview';
-import NamespaceOverview from './templates/NamespaceOverview';
-import CrdOverview from './templates/CrdOverview';
-import IngressClassOverview from './templates/IngressClassOverview';
-import SecretOverview from './templates/SecretOverview';
-import StorageClassOverview from './templates/StorageClassOverview';
-import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
-import ServiceAccountOverview from './templates/ServiceAccountOverview';
-import PvOverview from './templates/PvOverview';
-import RbacBindingOverview from './templates/RbacBindingOverview';
-import DaemonSetOverview from './templates/DaemonSetOverview';
-import JobOverview from './templates/JobOverview';
-import HpaOverview from './templates/HpaOverview';
-import ReplicaSetOverview from './templates/ReplicaSetOverview';
-import ReplicationControllerOverview from './templates/ReplicationControllerOverview';
+// Dumb components - RESTORED FULL LIST FROM MAIN WITH NEW NAMING CONVENTION
+import PodOverview from './templates/Pod-overview';
+import DeploymentOverview from './templates/Deployment-overview';
+import ServiceOverview from './templates/Service-overview';
+import CronJobOverview from './templates/CronJob-overview';
+import NodeOverview from './templates/Node-overview';
+import ConfigMapOverview from './templates/ConfigMap-overview';
+import IngressOverview from './templates/Ingress-overview';
+import StatefulSetOverview from './templates/StatefulSet-overview';
+import PvcOverview from './templates/PersistentVolumeClaim-overview';
+import RoleOverview from './templates/Role-overview';
+import ClusterRoleOverview from './templates/ClusterRole-overview';
+import NamespaceOverview from './templates/Namespace-overview';
+import CrdOverview from './templates/CustomResourceDefinition-overview';
+import IngressClassOverview from './templates/IngressClass-overview';
+import SecretOverview from './templates/Secret-overview';
+import StorageClassOverview from './templates/StorageClass-overview';
+import NetworkPolicyOverview from './templates/NetworkPolicy-overview';
+import ServiceAccountOverview from './templates/ServiceAccount-overview';
+import PvOverview from './templates/PersistentVolume-overview';
+import RoleBindingOverview from './templates/RoleBinding-overview';
+import ClusterRoleBindingOverview from './templates/ClusterRoleBinding-overview';
+import DaemonSetOverview from './templates/DaemonSet-overview';
+import JobOverview from './templates/Job-overview';
+import HpaOverview from './templates/HorizontalPodAutoscaler-overview';
+import ReplicaSetOverview from './templates/ReplicaSet-overview';
+import ReplicationControllerOverview from './templates/ReplicationController-overview';
+import EventOverview from './templates/Event-overview';
 
-import GenericDetails from './templates/GenericDetails';
+import GenericDetails from './templates/Generic-overview';
 
 const REGISTRY = {
     'pods': PodOverview,
@@ -47,29 +50,48 @@ const REGISTRY = {
     'statefulset': StatefulSetOverview,
     'persistentvolumeclaims': PvcOverview,
     'pvc': PvcOverview,
-    'roles': RbacOverview,
-    'clusterroles': RbacOverview,
+    'roles': RoleOverview,
+    'role': RoleOverview,
+    'clusterroles': ClusterRoleOverview,
+    'clusterrole': ClusterRoleOverview,
     'namespaces': NamespaceOverview,
+    'namespace': NamespaceOverview,
     'customresourcedefinitions': CrdOverview,
+    'crd': CrdOverview,
     'ingressclasses': IngressClassOverview,
+    'ingressclass': IngressClassOverview,
     'secrets': SecretOverview,
+    'secret': SecretOverview,
     'storageclasses': StorageClassOverview,
+    'storageclass': StorageClassOverview,
     'networkpolicies': NetworkPolicyOverview,
+    'networkpolicy': NetworkPolicyOverview,
     'serviceaccounts': ServiceAccountOverview,
+    'serviceaccount': ServiceAccountOverview,
     'persistentvolumes': PvOverview,
-    'rolebindings': RbacBindingOverview,
-    'clusterrolebindings': RbacBindingOverview,
+    'pv': PvOverview,
+    'rolebindings': RoleBindingOverview,
+    'rolebinding': RoleBindingOverview,
+    'clusterrolebindings': ClusterRoleBindingOverview,
+    'clusterrolebinding': ClusterRoleBindingOverview,
     'daemonsets': DaemonSetOverview,
+    'daemonset': DaemonSetOverview,
     'jobs': JobOverview,
+    'job': JobOverview,
     'horizontalpodautoscalers': HpaOverview,
+    'hpa': HpaOverview,
     'replicasets': ReplicaSetOverview,
+    'replicaset': ReplicaSetOverview,
     'replicationcontrollers': ReplicationControllerOverview,
+    'replicationcontroller': ReplicationControllerOverview,
+    'events': EventOverview,
+    'event': EventOverview,
 };
 
 /**
  * Registry Pattern for Resource Details.
  * Maps kind to specific Overview component or Fallback.
- * RESTORED: All specific templates from main branch.
+ * Standard naming: <KIND_NAME>-overview.jsx
  */
 export function getResourceComponent(kind) {
     const key = (kind || '').toLowerCase().replace(/-/g, '');

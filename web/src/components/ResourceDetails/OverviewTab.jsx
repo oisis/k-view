@@ -2,30 +2,31 @@ import React from 'react';
 import { useTheme } from '../../ThemeContext';
 import MetadataSection from './sections/MetadataSection';
 import ResourceInfoSection from './sections/ResourceInfoSection';
-import PodOverview from './templates/PodOverview';
-import DeploymentOverview from './templates/DeploymentOverview';
-import ServiceOverview from './templates/ServiceOverview';
-import CronJobOverview from './templates/CronJobOverview';
-import NodeOverview from './templates/NodeOverview';
-import ConfigMapOverview from './templates/ConfigMapOverview';
-import IngressOverview from './templates/IngressOverview';
-import StatefulSetOverview from './templates/StatefulSetOverview';
-import PvcOverview from './templates/PvcOverview';
-import RbacOverview from './templates/RbacOverview';
-import NamespaceOverview from './templates/NamespaceOverview';
-import CrdOverview from './templates/CrdOverview';
-import IngressClassOverview from './templates/IngressClassOverview';
-import SecretOverview from './templates/SecretOverview';
-import StorageClassOverview from './templates/StorageClassOverview';
-import NetworkPolicyOverview from './templates/NetworkPolicyOverview';
-import ServiceAccountOverview from './templates/ServiceAccountOverview';
-import PvOverview from './templates/PvOverview';
-import RbacBindingOverview from './templates/RbacBindingOverview';
-import DaemonSetOverview from './templates/DaemonSetOverview';
-import JobOverview from './templates/JobOverview';
-import HpaOverview from './templates/HpaOverview';
-import ReplicaSetOverview from './templates/ReplicaSetOverview';
-import ReplicationControllerOverview from './templates/ReplicationControllerOverview';
+import PodOverview from './templates/Pod-overview';
+import DeploymentOverview from './templates/Deployment-overview';
+import ServiceOverview from './templates/Service-overview';
+import CronJobOverview from './templates/CronJob-overview';
+import NodeOverview from './templates/Node-overview';
+import ConfigMapOverview from './templates/ConfigMap-overview';
+import IngressOverview from './templates/Ingress-overview';
+import StatefulSetOverview from './templates/StatefulSet-overview';
+import PvcOverview from './templates/PersistentVolumeClaim-overview';
+import RbacOverview from './templates/Role-overview';
+import NamespaceOverview from './templates/Namespace-overview';
+import CrdOverview from './templates/CustomResourceDefinition-overview';
+import IngressClassOverview from './templates/IngressClass-overview';
+import SecretOverview from './templates/Secret-overview';
+import StorageClassOverview from './templates/StorageClass-overview';
+import NetworkPolicyOverview from './templates/NetworkPolicy-overview';
+import ServiceAccountOverview from './templates/ServiceAccount-overview';
+import PvOverview from './templates/PersistentVolume-overview';
+import RbacBindingOverview from './templates/RoleBinding-overview';
+import DaemonSetOverview from './templates/DaemonSet-overview';
+import JobOverview from './templates/Job-overview';
+import HpaOverview from './templates/HorizontalPodAutoscaler-overview';
+import ReplicaSetOverview from './templates/ReplicaSet-overview';
+import ReplicationControllerOverview from './templates/ReplicationController-overview';
+import EventOverview from './templates/Event-overview';
 
 /**
  * OverviewTab - RESTORED FROZEN VIEW FROM MAIN
@@ -95,7 +96,7 @@ export default function OverviewTab({
                 isReplicationController={isReplicationController}
             />
 
-            {!isPod && !isCronJob && !isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}
