@@ -59,7 +59,7 @@ describe('ResourceList "Frozen" View Tests - Dynamic', () => {
       const headers = screen.getAllByRole('columnheader');
       const headerTexts = headers.map(h => h.textContent.trim().toLowerCase());
 
-      config.list_columns.forEach(columnName => {
+      config.general_overview.forEach(columnName => {
         const expected = columnName.toLowerCase();
         const found = headerTexts.some(text => 
             text === expected || 
