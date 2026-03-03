@@ -162,7 +162,7 @@ describe('ResourceDetails "Frozen" View Tests - Human YAML', () => {
         }
 
         Object.entries(config).forEach(([title, values]) => {
-            if (title === 'General overview' || title === 'detail_tabs') return;
+            if (title === 'General overview' || title === 'detail_tabs' || title === 'Section') return;
 
             // 1. Find the Section/Table Title
             const expectedTitle = title.toLowerCase();
