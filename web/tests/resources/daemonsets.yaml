@@ -9,7 +9,7 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
@@ -18,7 +18,7 @@ metadata_fields:
   - Pods Desired
   - label_labels
   - label_annotations
-pods:
+pods_table:
   - label_name
   - label_namespace
   - Images
@@ -29,7 +29,7 @@ pods:
   - CPU
   - RAM
   - Created
-Services:
+services_table:
   - label_name
   - label_namespace
   - Type
@@ -37,7 +37,7 @@ Services:
   - Internal Endpoints
   - External Endpoints
   - Created
-status_conditions:
+status_conditions_table:
   - type
   - label_status
   - last_probe

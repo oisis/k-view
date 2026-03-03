@@ -9,14 +9,14 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
   - label_age
   - label_labels
   - label_annotations
-pods:
+pods_table:
   - label_name
   - label_namespace
   - Images
@@ -27,21 +27,21 @@ pods:
   - CPU
   - RAM
   - Created
-New Replica Set:
+new_replica_set_table:
   - label_name
   - label_namespace
   - Age
   - Pods
   - Labels
   - Images
-Old Replica Set:
+old_replica_set_table:
   - label_name
   - label_namespace
   - Age
   - Pods
   - Labels
   - Images
-status_conditions:
+status_conditions_table:
   - type
   - label_status
   - last_probe

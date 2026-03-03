@@ -11,7 +11,7 @@ detail_tabs:
   - yaml
   - logs
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
@@ -20,7 +20,7 @@ metadata_fields:
   - label_node
   - label_labels
   - label_annotations
-status_conditions:
+status_conditions_table:
   - type
   - label_status
   - last_probe

@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
-// Load all resource definitions from YAML files
+// Load all resource definitions from standardized YAML files
 const resourcesPath = path.resolve(__dirname, './resources');
 const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
 const resources = resourceFiles.reduce((acc, file) => {
@@ -99,7 +99,7 @@ const renderWithRouter = (ui) => {
   );
 };
 
-describe('ResourceDetails "Frozen" View Tests - YAML Driven', () => {
+describe('ResourceDetails "Frozen" View Tests - YAML Standardized', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -169,12 +169,11 @@ describe('ResourceDetails "Frozen" View Tests - YAML Driven', () => {
       await waitFor(() => {
         let missingItems = [];
 
-        // Dynamic detection of sections and tables based on YAML keys
         Object.entries(config).forEach(([key, values]) => {
             if (key === 'general_overview' || key === 'detail_tabs') return;
 
-            if (key === 'metadata_fields') {
-                // Assert Metadata Grid Fields
+            // Handle Metadata Grid Fields
+            if (key === 'metadata_table') {
                 values.forEach(field => {
                     const expected = field.toLowerCase();
                     const found = screen.queryAllByText((content) => {
@@ -186,24 +185,26 @@ describe('ResourceDetails "Frozen" View Tests - YAML Driven', () => {
                 return;
             }
 
-            // Otherwise, it's a Section Title or Table Title
-            const tTitle = key.toLowerCase();
-            const titleFound = screen.queryAllByText((content) => {
-                const text = (content || '').toLowerCase();
-                return text === tTitle || text === `label_${tTitle}` || text.includes(tTitle);
-            });
-            if (titleFound.length === 0) missingItems.push(`Section/Table Title: ${key}`);
-
-            // If it's a table (value is an array of column names)
-            if (Array.isArray(values)) {
-                values.forEach(col => {
-                    const cName = col.toLowerCase();
-                    const colFound = screen.queryAllByText((content) => {
-                        const text = (content || '').toLowerCase();
-                        return text === cName || text === `label_${cName}` || text === `label_${cName.replace(' ', '_')}` || text.includes(cName);
-                    });
-                    if (colFound.length === 0) missingItems.push(`Column: '${col}' in Table: '${key}'`);
+            // Handle Other Tables/Sections (Normalizing key back to searchable text)
+            if (key.endsWith('_table')) {
+                const searchBase = key.replace('_table', '').replace(/_/g, ' ').replace(/end/g, '&');
+                const titleFound = screen.queryAllByText((content) => {
+                    const text = (content || '').toLowerCase();
+                    return text === searchBase || text === `label_${searchBase.replace(/ /g, '_')}` || text.includes(searchBase);
                 });
+                if (titleFound.length === 0) missingItems.push(`Section/Table Title: ${key} (searched as: ${searchBase})`);
+
+                // Verify columns
+                if (Array.isArray(values)) {
+                    values.forEach(col => {
+                        const cName = col.toLowerCase();
+                        const colFound = screen.queryAllByText((content) => {
+                            const text = (content || '').toLowerCase();
+                            return text === cName || text === `label_${cName}` || text === `label_${cName.replace(' ', '_')}` || text.includes(cName);
+                        });
+                        if (colFound.length === 0) missingItems.push(`Column: '${col}' in Table: '${key}'`);
+                    });
+                }
             }
         });
 

@@ -11,7 +11,7 @@ general_overview:
 detail_tabs:
   - overview
   - yaml
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created

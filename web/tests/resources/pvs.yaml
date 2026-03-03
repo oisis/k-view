@@ -12,12 +12,12 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_created
   - label_age
   - label_labels
   - label_annotations
-Capacity:
+capacity_table:
   - Resource name
   - Quantity

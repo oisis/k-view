@@ -11,26 +11,26 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
   - label_age
   - label_labels
   - label_annotations
-Endpoints:
+endpoints_table:
   - Host
   - Ports
   - Node
   - Ready
-Ingresses:
+ingresses_table:
   - label_name
   - label_namespace
   - Labels
   - Endpoints
   - Hosts
   - Created
-pods:
+pods_table:
   - label_name
   - label_namespace
   - Images

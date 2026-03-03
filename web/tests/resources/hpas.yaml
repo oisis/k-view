@@ -11,14 +11,14 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
   - label_age
   - label_labels
   - label_annotations
-Metrics:
+metrics_table:
   - Type
   - Resource / Name
   - Target

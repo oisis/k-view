@@ -7,13 +7,13 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_created
   - label_age
   - label_labels
   - label_annotations
-Parameters Reference:
+parameters_reference_table:
   - API Group
   - Kind
   - Name

@@ -12,21 +12,21 @@ detail_tabs:
   - overview
   - yaml
   - recent_events
-metadata_fields:
+metadata_table:
   - label_name
   - label_namespace
   - label_created
   - label_age
   - label_labels
   - label_annotations
-Active Jobs:
+active_jobs_table:
   - label_name
   - label_namespace
   - Images
   - Labels
   - Pods
   - Created
-Inactive Jobs:
+inactive_jobs_table:
   - label_name
   - label_namespace
   - Images
