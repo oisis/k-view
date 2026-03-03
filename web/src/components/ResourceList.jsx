@@ -61,11 +61,22 @@ const SCHEMAS = {
     crds: CrdListSchema,
 };
 
-// Get a possibly-nested value like "extra.ready"
+// Get a value from the DTO (name, namespace, status, age or extra fields)
 function getVal(item, key) {
-    if (key.startsWith('extra.')) {
-        return item.extra?.[key.slice(6)] ?? '—';
+    // 1. Check top-level DTO fields
+    if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') {
+        return item[key] ?? '—';
     }
+    
+    // 2. Check 'extra' object (backend maps specific resource fields here)
+    if (item.extra) {
+        // Handle both "extra.key" and "key" (if the key is intended to be in extra)
+        const extraKey = key.startsWith('extra.') ? key.slice(6) : key;
+        if (item.extra[extraKey] !== undefined) {
+            return item.extra[extraKey] ?? '—';
+        }
+    }
+    
     return item[key] ?? '—';
 }
 

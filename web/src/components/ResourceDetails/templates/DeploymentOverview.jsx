@@ -1,57 +1,34 @@
 import React from 'react';
+import MetadataSection from '../sections/MetadataSection';
+import ResourceInfoSection from '../sections/ResourceInfoSection';
 import DetailSection from '../DetailSection';
 import PodsTable from '../PodsTable';
-import ReplicaSetsTable from '../ReplicaSetsTable';
-import HpaTable from '../HpaTable';
 import ConditionsTable from '../ConditionsTable';
 
-export default function DeploymentOverview({ data, metadata, spec, status, relatedPods, relatedReplicaSets, relatedHpas, t, icons }) {
-    const pods = Array.isArray(relatedPods) ? relatedPods : [];
-    const rss = Array.isArray(relatedReplicaSets) ? relatedReplicaSets : [];
-    const hpas = Array.isArray(relatedHpas) ? relatedHpas : [];
+/**
+ * Dumb Component for Deployment Details.
+ */
+export default function DeploymentOverview({ data, t, settings }) {
+    if (!data) return null;
 
-    const deploymentRevision = metadata?.annotations?.['deployment.kubernetes.io/revision'];
-    const newRS = rss.filter(rs => rs.extra?.revision && rs.extra.revision === deploymentRevision);
-    const oldRS = rss.filter(rs => !rs.extra?.revision || rs.extra.revision !== deploymentRevision);
+    const { resource, metadata, spec, status, extra } = data;
 
     return (
-        <>
-            <DetailSection title={t('resource_info') || "Resource Info"}>
-                <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border">
-                    <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Replicas</span>
-                        <span className="text-sm font-bold text-primary">{status?.replicas ?? 0}</span>
-                    </div>
-                    <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Ready</span>
-                        <span className="text-sm font-bold text-success">{status?.readyReplicas ?? 0}</span>
-                    </div>
-                    <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Updated</span>
-                        <span className="text-sm font-bold text-info">{status?.updatedReplicas ?? 0}</span>
-                    </div>
-                    <div className="px-4 py-3 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Available</span>
-                        <span className="text-sm font-bold text-success">{status?.availableReplicas ?? 0}</span>
-                    </div>
-                </div>
-            </DetailSection>
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <MetadataSection metadata={metadata} t={t} />
+                <ResourceInfoSection 
+                    resource={resource} 
+                    extra={extra} 
+                    t={t} 
+                />
+            </div>
 
-            <PodsTable pods={pods} t={t} title={t('pods') || "Pods"} />
-            
-            {newRS.length > 0 && (
-                <ReplicaSetsTable replicaSets={newRS} t={t} title="New Replica Set" />
+            {status?.conditions && (
+                <DetailSection title={t('conditions')} icon="activity">
+                    <ConditionsTable conditions={status.conditions} t={t} />
+                </DetailSection>
             )}
-
-            {oldRS.length > 0 && (
-                <ReplicaSetsTable replicaSets={oldRS} t={t} title="Old Replica Set" />
-            )}
-
-            <HpaTable hpas={hpas} t={t} />
-            
-            {status?.conditions && Array.isArray(status.conditions) && (
-                <ConditionsTable conditions={status.conditions} t={t} />
-            )}
-        </>
+        </div>
     );
 }

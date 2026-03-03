@@ -3,13 +3,14 @@ import { useSettings } from '../SettingsContext';
 
 /**
  * Custom hook for fetching and managing Kubernetes resource data with automatic refreshing.
- * 
- * @param {string} url - The API endpoint to fetch data from.
- * @param {string} searchTerm - Optional search term for filtering.
- * @param {object} initialSort - Initial sorting configuration.
- * @param {function} getVal - Helper function to extract values for sorting.
+ * Updated to handle backend DTOs: name, namespace, status, age, extra.
  */
-export function useResourceData(url, searchTerm = '', initialSort = { key: 'name', direction: 'asc' }, getVal = (item, key) => item[key]) {
+export function useResourceData(url, searchTerm = '', initialSort = { key: 'name', direction: 'asc' }, getVal = (item, key) => {
+    // Handle nested DTO structure for sorting
+    if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') return item[key];
+    if (item.extra && item.extra[key] !== undefined) return item.extra[key];
+    return item[key];
+}) {
     const { settings } = useSettings();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,12 +27,7 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
                 try {
                     const data = await r.json();
                     errorMessage = data.error || errorMessage;
-                } catch (e) {
-                    try {
-                        const text = await r.text();
-                        if (text) errorMessage = text;
-                    } catch (e2) { }
-                }
+                } catch (e) {}
                 throw new Error(errorMessage);
             })
             .then(data => setItems(data || []))
@@ -61,7 +57,7 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
 
             const aNum = parseFloat(aVal);
             const bNum = parseFloat(bVal);
-            if (!isNaN(aNum) && !isNaN(bNum) && typeof aVal !== 'string' || (!aVal.includes(':') && !aVal.includes('-'))) {
+            if (!isNaN(aNum) && !isNaN(bNum) && typeof aVal !== 'string') {
                 return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
             }
 
@@ -99,4 +95,40 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
         setSortConfig,
         refresh: load
     };
+}
+
+/**
+ * Custom hook for fetching single resource details DTO.
+ */
+export function useResourceDetails(kind, namespace, name) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const load = useCallback(async () => {
+        setLoading(true);
+        try {
+            const url = namespace && namespace !== '-' 
+                ? `/api/resources/${kind}/${namespace}/${name}` 
+                : `/api/resources/${kind}/-/${name}`;
+            
+            const res = await fetch(url);
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || 'Failed to fetch resource details');
+            }
+            const dto = await res.json();
+            setData(dto);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [kind, namespace, name]);
+
+    useEffect(() => {
+        if (kind && name) load();
+    }, [load]);
+
+    return { data, loading, error, refresh: load };
 }
