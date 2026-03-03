@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"k-view/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -15,12 +14,16 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
 
+	// CRITICAL RBAC REQUIREMENT: Apply namespace restriction from auth context
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		// Override requested namespace with the user's restricted namespace
+		ns = rbacNs.(string)
+	}
+
 	// Dynamic GVR support for Custom Resources
 	group := c.Query("group")
 	version := c.Query("version")
 	plural := c.Query("plural")
-
-	var items []unstructured.Unstructured
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
 	if err != nil {
@@ -28,9 +31,14 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		return
 	}
 
+	// Strategy selection
+	manager := h.registry.GetManager(kind)
+
 	var gvr schema.GroupVersionResource
 	if group != "" && version != "" && plural != "" {
 		gvr = schema.GroupVersionResource{Group: group, Version: version, Resource: plural}
+	} else if manager != h.registry.fallback {
+		gvr = manager.GetGVR()
 	} else {
 		gvr = getGVR(kind)
 	}
@@ -40,15 +48,20 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		return
 	}
 
+	// For custom resources, if we don't know the scope, try namespaced first
 	var list *unstructured.UnstructuredList
 	var errList error
-	if ns != "" && !isClusterScoped(kind) && group == "" { // Standard resources check
+	
+	isClusterScopedRes := isClusterScoped(kind)
+	if manager != h.registry.fallback {
+		isClusterScopedRes = manager.IsClusterScoped()
+	}
+
+	if ns != "" && !isClusterScopedRes && group == "" {
 		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
-	} else if ns != "" && group != "" { // Custom resources might be namespaced
-		// We try namespaced first for custom resources if namespace is provided
+	} else if ns != "" && group != "" {
 		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
 		if errList != nil {
-			// Fallback to cluster-scoped if namespaced fails
 			list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
 		}
 	} else {
@@ -59,11 +72,8 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": errList.Error()})
 		return
 	}
-	items = list.Items
 
-	result := make([]ResourceItem, 0)
-
-	// Fetch metrics if listing pods
+	// Fetch metrics if listing pods (strategy can also handle this, but fetching here minimizes API calls for Lists)
 	var metricsMap map[string]unstructured.Unstructured
 	if kind == "pods" || kind == "pod" {
 		mList, _ := h.k8sClient.ListPodMetrics(c.Request.Context(), ns)
@@ -76,17 +86,21 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		}
 	}
 
-	for _, item := range items {
-		resItem := ResourceItem{
-			Name:      item.GetName(),
-			Namespace: item.GetNamespace(),
-			Age:       utils.GetAge(item.GetCreationTimestamp().Time),
-			Status:    "Active",
+	result := make([]ResourceItem, 0)
+	for _, item := range list.Items {
+		// Strategy delegation for Map
+		if manager != h.registry.fallback {
+			result = append(result, manager.MapItem(item, metricsMap))
+		} else {
+			// Fallback to legacy map ResourceSpecifics for resources not yet migrated
+			resItem := ResourceItem{
+				Name:      item.GetName(),
+				Namespace: item.GetNamespace(),
+				Status:    "Active",
+			}
+			h.mapResourceSpecificsWithMetrics(item, kind, &resItem, metricsMap)
+			result = append(result, resItem)
 		}
-
-		// Pass metrics to mapper if available
-		h.mapResourceSpecificsWithMetrics(item, kind, &resItem, metricsMap)
-		result = append(result, resItem)
 	}
 
 	c.JSON(http.StatusOK, result)

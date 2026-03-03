@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"sigs.k8s.io/yaml"
 )
@@ -115,6 +116,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	ns := c.Param("namespace")
 	if ns == "-" { ns = "" }
 
+	// CRITICAL RBAC REQUIREMENT: Apply namespace restriction from auth context
+	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
+		// Override requested namespace with the user's restricted namespace
+		ns = rbacNs.(string)
+	}
+
 	var item *unstructured.Unstructured
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
@@ -122,21 +129,45 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
 		return
 	}
-	gvr := getGVR(kind)
+
+	manager := h.registry.GetManager(kind)
+
+	var gvr schema.GroupVersionResource
+	isClusterScopedRes := isClusterScoped(kind)
+
+	if manager != h.registry.fallback {
+		gvr = manager.GetGVR()
+		isClusterScopedRes = manager.IsClusterScoped()
+	} else {
+		gvr = getGVR(kind)
+	}
+
 	var resInterface dynamic.ResourceInterface
-	if ns != "" && !isClusterScoped(kind) {
+	if ns != "" && !isClusterScopedRes {
 		resInterface = dynClient.Resource(gvr).Namespace(ns)
 	} else {
 		resInterface = dynClient.Resource(gvr)
 	}
 
-	item, _ = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
+	item, err = resInterface.Get(c.Request.Context(), name, metav1.GetOptions{})
 
-	if item == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
+	if err != nil || item == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found or access denied"})
 		return
 	}
 
+	// Strategy delegation for details
+	if manager != h.registry.fallback {
+		response, err := manager.GetDetails(c.Request.Context(), dynClient, *item)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	// Fallback to legacy details mapping for resources not yet migrated
 	statusData, _, _ := unstructured.NestedMap(item.Object, "status")
 	metaData, _, _ := unstructured.NestedMap(item.Object, "metadata")
 

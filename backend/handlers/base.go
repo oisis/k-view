@@ -9,12 +9,27 @@ import (
 type ResourceHandler struct {
 	k8sClient k8s.KubernetesProvider
 	devMode   bool
+	registry  *ResourceRegistry
 }
 
 func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *ResourceHandler {
+	// Initialize the registry with the fallback GenericManager
+	fallbackMgr := NewGenericManager(schema.GroupVersionResource{}, false)
+	registry := NewResourceRegistry(fallbackMgr)
+
+	// Register specific resource managers
+	registry.Register("pods", NewPodManager())
+	registry.Register("pod", NewPodManager())
+	registry.Register("services", NewServiceManager())
+	registry.Register("service", NewServiceManager())
+	registry.Register("deployments", NewDeploymentManager())
+	registry.Register("deployment", NewDeploymentManager())
+	registry.Register("deploy", NewDeploymentManager())
+
 	return &ResourceHandler{
 		k8sClient: k8sClient,
 		devMode:   devMode,
+		registry:  registry,
 	}
 }
 
