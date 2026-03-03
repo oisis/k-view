@@ -23,7 +23,7 @@ export default function StorageClassOverview({ data, spec, relatedPvs, t, icons 
             <DetailSection title="Resource Info">
                 <table className="w-full text-sm text-left border-collapse">
                     <tbody className="divide-y divide-border">
-                        {fields.map(f => (
+                        {(fields || []).map(f => (
                             <DetailRow key={f.key} label={f.label}>
                                 <span className="font-mono text-primary font-bold">
                                     {extra[f.key] || '—'}

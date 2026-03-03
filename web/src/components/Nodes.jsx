@@ -114,7 +114,7 @@ function LabelsCell({ labels }) {
             <div className="flex flex-wrap gap-1 min-w-0 overflow-y-hidden justify-center">
                 {visibleLabels.map(([k, v]) => (
                     <span key={k} className="text-xs bg-slate-500/10 px-1 rounded overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide max-w-full inline-block" title={`${k}: ${v}`}>
-                        {k.split('/').pop()}: {v}
+                        {(k || '').split('/').pop()}: {v}
                     </span>
                 ))}
             </div>
@@ -206,7 +206,7 @@ export default function Nodes() {
                             ) : filteredNodes.length === 0 ? (
                                 <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
                             ) : (
-                                filteredNodes.map((node, i) => (
+                                (filteredNodes || []).map((node, i) => (
                                     <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-primary justify-center">

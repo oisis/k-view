@@ -74,8 +74,8 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
 
         const searchInObj = (obj) => {
             if (!obj) return false;
-            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
-            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
+            if (typeof obj === 'string') return (obj || '').toLowerCase().includes(lowercasedTerm);
+            if (typeof obj === 'number') return String(obj || '').includes(lowercasedTerm);
             if (Array.isArray(obj)) return obj.some(searchInObj);
             if (typeof obj === 'object') {
                 return Object.values(obj).some(searchInObj);

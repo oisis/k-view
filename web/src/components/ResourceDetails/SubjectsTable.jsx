@@ -20,7 +20,7 @@ export default function SubjectsTable({ subjects, t }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
-                        {subjects.map((sub, i) => (
+                        {(subjects || []).map((sub, i) => (
                             <tr key={i} className="hover:bg-white/5 transition-colors">
                                 <td className="px-4 py-2 font-bold text-accent font-mono">
                                     {sub.kind === 'ServiceAccount' ? (

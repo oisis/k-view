@@ -14,7 +14,7 @@ export default function ContainerDetails({ containers, statuses, t }) {
                     <div className="px-6 py-8 text-center text-text-muted italic">No containers found.</div>
                 </DetailSection>
             ) : (
-                containers.map((c, i) => {
+                (containers || []).map((c, i) => {
                     const status = statuses?.find(s => s.name === c.name);
                     const stateKey = status?.state ? Object.keys(status.state)[0] : null;
                     const stateInfo = stateKey ? status.state[stateKey] : null;

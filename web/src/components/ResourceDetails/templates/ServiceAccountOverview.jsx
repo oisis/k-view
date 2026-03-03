@@ -25,7 +25,7 @@ export default function ServiceAccountOverview({ data, metadata, spec, namespace
                             {imagePullSecrets.length === 0 ? (
                                 <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No image pull secrets defined.</td></tr>
                             ) : (
-                                imagePullSecrets.map((s, i) => (
+                                (imagePullSecrets || []).map((s, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-accent font-mono">{s?.name || '—'}</td>
                                         <td className="px-4 py-3 text-secondary font-medium">{s?.namespace || '—'}</td>

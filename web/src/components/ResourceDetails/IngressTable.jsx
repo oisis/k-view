@@ -28,7 +28,7 @@ export default function IngressTable({ title, ingresses, t, icons }) {
                                 </td>
                             </tr>
                         ) : (
-                            ingresses.map((ing, i) => (
+                            (ingresses || []).map((ing, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/ingresses/${ing.namespace}/${ing.name}`} className="font-bold text-accent hover:underline font-mono">

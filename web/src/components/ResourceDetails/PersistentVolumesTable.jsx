@@ -30,7 +30,7 @@ export default function PersistentVolumesTable({ title, pvs, t, icons }) {
                                 </td>
                             </tr>
                         ) : (
-                            pvs.map((pv, i) => (
+                            (pvs || []).map((pv, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/pvs/${pv.namespace || '-'}/${pv.name}`} className="font-bold text-accent hover:underline font-mono">

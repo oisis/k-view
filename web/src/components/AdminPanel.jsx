@@ -109,7 +109,7 @@ export default function AdminPanel() {
                     {roles.length === 0 ? (
                         <div className="p-8 text-center text-text-muted">No K-View roles detected.</div>
                     ) : (
-                        roles.map((role, i) => (
+                        (roles || []).map((role, i) => (
                             <div key={i} className="bg-main">
                                 <button
                                     onClick={() => toggleRole(role.name)}

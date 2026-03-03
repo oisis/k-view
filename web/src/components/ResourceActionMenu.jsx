@@ -16,25 +16,27 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const { icons } = useTheme();
     const { t } = useTranslation();
 
+    const safeKindLower = (kind || '').toLowerCase();
+    
     const nsPath = namespace && namespace !== '-' ? namespace : '';
-    const isPod = kind.toLowerCase().includes('pod');
-    const isDaemonSet = kind.toLowerCase() === 'daemonsets' || kind.toLowerCase() === 'daemonset';
-    const isJob = kind.toLowerCase() === 'jobs' || kind.toLowerCase() === 'job';
-    const isReplicaSet = kind.toLowerCase() === 'replicasets' || kind.toLowerCase() === 'replicaset';
-    const isStatefulSet = kind.toLowerCase() === 'statefulsets' || kind.toLowerCase() === 'statefulset';
-    const isIngress = kind.toLowerCase() === 'ingresses' || kind.toLowerCase() === 'ingress';
-    const isService = kind.toLowerCase() === 'services' || kind.toLowerCase() === 'service';
-    const isReplicationController = kind.toLowerCase() === 'replicationcontrollers' || kind.toLowerCase() === 'replicationcontroller';
-    const isCronJob = kind.toLowerCase() === 'cronjobs' || kind.toLowerCase() === 'cronjob';
-    const isClusterRoleBinding = kind.toLowerCase() === 'cluster-role-bindings' || kind.toLowerCase() === 'clusterrolebindings';
-    const isClusterRole = kind.toLowerCase() === 'cluster-roles' || kind.toLowerCase() === 'clusterroles';
-    const isNamespace = kind.toLowerCase() === 'namespaces' || kind.toLowerCase() === 'namespace';
-    const isNetworkPolicy = kind.toLowerCase() === 'network-policies' || kind.toLowerCase() === 'networkpolicy';
-    const isRoleBinding = kind.toLowerCase() === 'role-bindings' || kind.toLowerCase() === 'rolebinding';
-    const isRole = kind.toLowerCase() === 'roles' || kind.toLowerCase() === 'role';
-    const isServiceAccount = kind.toLowerCase() === 'service-accounts' || kind.toLowerCase() === 'serviceaccount' || kind.toLowerCase() === 'serviceaccounts';
-    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(kind.toLowerCase());
-    const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(kind.toLowerCase());
+    const isPod = safeKindLower.includes('pod');
+    const isDaemonSet = safeKindLower === 'daemonsets' || safeKindLower === 'daemonset';
+    const isJob = safeKindLower === 'jobs' || safeKindLower === 'job';
+    const isReplicaSet = safeKindLower === 'replicasets' || safeKindLower === 'replicaset';
+    const isStatefulSet = safeKindLower === 'statefulsets' || safeKindLower === 'statefulset';
+    const isIngress = safeKindLower === 'ingresses' || safeKindLower === 'ingress';
+    const isService = safeKindLower === 'services' || safeKindLower === 'service';
+    const isReplicationController = safeKindLower === 'replicationcontrollers' || safeKindLower === 'replicationcontroller';
+    const isCronJob = safeKindLower === 'cronjobs' || safeKindLower === 'cronjob';
+    const isClusterRoleBinding = safeKindLower === 'cluster-role-bindings' || safeKindLower === 'clusterrolebindings';
+    const isClusterRole = safeKindLower === 'cluster-roles' || safeKindLower === 'clusterroles';
+    const isNamespace = safeKindLower === 'namespaces' || safeKindLower === 'namespace';
+    const isNetworkPolicy = safeKindLower === 'network-policies' || safeKindLower === 'networkpolicy';
+    const isRoleBinding = safeKindLower === 'role-bindings' || safeKindLower === 'rolebinding';
+    const isRole = safeKindLower === 'roles' || safeKindLower === 'role';
+    const isServiceAccount = safeKindLower === 'service-accounts' || safeKindLower === 'serviceaccount' || safeKindLower === 'serviceaccounts';
+    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(safeKindLower);
+    const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(safeKindLower);
 
     useEffect(() => {
         function handleClickOutside(event) {

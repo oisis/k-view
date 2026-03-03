@@ -5,7 +5,7 @@ export default function ResourceQuotasTable({ quotas, t, icons }) {
     return (
         <DetailSection title={t('resource_quotas')} className="mt-4">
             <div className="p-4 space-y-4">
-                {quotas && quotas.length > 0 ? quotas.map(q => (
+                {quotas && quotas.length > 0 ? (quotas || []).map(q => (
                                          <div key={q.metadata?.name || q.name} className="bg-[var(--bg-muted)]/30 rounded-lg p-4">                        <h4 className="font-bold text-accent mb-3 flex items-center gap-2">
                             {icons?.activity && <icons.activity size={14} />} {q.metadata?.name || q.name}
                         </h4>

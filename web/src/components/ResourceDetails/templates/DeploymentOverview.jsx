@@ -1,8 +1,8 @@
 import React from 'react';
 import MetadataSection from '../sections/MetadataSection';
 import ResourceInfoSection from '../sections/ResourceInfoSection';
+import ContainersSection from '../sections/ContainersSection';
 import DetailSection from '../DetailSection';
-import PodsTable from '../PodsTable';
 import ConditionsTable from '../ConditionsTable';
 
 /**
@@ -12,6 +12,10 @@ export default function DeploymentOverview({ data, t, settings }) {
     if (!data) return null;
 
     const { resource, metadata, spec, status, extra } = data;
+    
+    // Safe extraction of containers from Pod template
+    const containers = spec?.template?.spec?.containers || [];
+    const initContainers = spec?.template?.spec?.initContainers || [];
 
     return (
         <div className="space-y-6">
@@ -23,6 +27,12 @@ export default function DeploymentOverview({ data, t, settings }) {
                     t={t} 
                 />
             </div>
+
+            <ContainersSection 
+                containers={containers} 
+                initContainers={initContainers}
+                t={t} 
+            />
 
             {status?.conditions && (
                 <DetailSection title={t('conditions')} icon="activity">

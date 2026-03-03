@@ -37,7 +37,7 @@ export default function ServiceOverview({ data, t, settings }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/30">
-                                {spec.ports.map((p, i) => (
+                                {(spec?.ports || []).map((p, i) => (
                                     <tr key={i} className="text-sm">
                                         <td className="px-4 py-3 font-bold">{p.name || '—'}</td>
                                         <td className="px-4 py-3">{p.protocol}</td>

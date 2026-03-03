@@ -231,7 +231,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                                 }}
                             >
                                 <option value="" disabled>Select Container</option>
-                                {containers.map(c => (
+                                {(containers || []).map(c => (
                                     <option key={c.name} value={c.name}>{c.name}</option>
                                 ))}
                             </select>

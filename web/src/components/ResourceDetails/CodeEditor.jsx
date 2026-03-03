@@ -5,7 +5,7 @@ import { useTheme } from '../../ThemeContext';
 
 export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, language = 'yaml' }) {
     const { activeTheme } = useTheme();
-    const lines = value.split('\n');
+    const lines = (value || '').split('\n');
     const lineCount = lines.length;
     const LINE_HEIGHT = '1.25rem';
     
@@ -19,7 +19,7 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
                     className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-border/20 py-4 font-mono text-xs text-text-muted text-right pr-3 select-none"
                     style={{ fontSize: `${fontSize}px` }}
                 >
-                    {lines.map((_, i) => (
+                    {(lines || []).map((_, i) => (
                         <div key={i} style={{ height: LINE_HEIGHT, lineHeight: LINE_HEIGHT }}>{i + 1}</div>
                     ))}
                 </div>

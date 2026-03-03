@@ -50,10 +50,10 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            {Object.entries(capacity).length === 0 ? (
+                            {Object.entries(capacity || {}).length === 0 ? (
                                 <tr><td colSpan="2" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No capacity info available.</td></tr>
                             ) : (
-                                Object.entries(capacity).map(([res, qty]) => (
+                                Object.entries(capacity || {}).map(([res, qty]) => (
                                     <tr key={res} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-primary">{res}</td>
                                         <td className="px-4 py-3 font-mono text-info font-bold">{qty}</td>

@@ -156,7 +156,7 @@ export default function NodeOverview({ data, metadata, spec, status, relatedPods
                             {conditions.length === 0 ? (
                                 <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No conditions found.</td></tr>
                             ) : (
-                                conditions.map((cond, idx) => (
+                                (conditions || []).map((cond, idx) => (
                                     <tr key={idx} className="hover:bg-slate-700/10 transition-colors">
                                         <td className="px-4 py-3 font-bold text-info">{cond.type}</td>
                                         <td className="px-4 py-3">

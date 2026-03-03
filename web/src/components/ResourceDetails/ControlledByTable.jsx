@@ -19,7 +19,7 @@ export default function ControlledByTable({ owners, namespace, t }) {
                         {(!owners || owners.length === 0) ? (
                             <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic">{t('no_controller_found')}</td></tr>
                         ) : (
-                            owners.map((ref, i) => (
+                            (owners || []).map((ref, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-3 font-bold text-accent font-mono text-xs">
                                         <Link to={`/${ref.kind.toLowerCase()}s/${namespace}/${ref.name}`} className="hover:underline">{ref.name}</Link>

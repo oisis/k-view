@@ -36,7 +36,7 @@ export default function RbacBindingOverview({ data, t }) {
                             {subjects.length === 0 ? (
                                 <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No subjects defined.</td></tr>
                             ) : (
-                                subjects.map((s, i) => (
+                                (subjects || []).map((s, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-primary">{s.name}</td>
                                         <td className="px-4 py-3 text-secondary font-medium">{s.namespace || '—'}</td>

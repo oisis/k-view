@@ -17,7 +17,7 @@ export default function PolicyRulesTable({ title, rules, t }) {
     const toYaml = (obj, indent = 0) => {
         const spaces = '  '.repeat(indent);
         if (Array.isArray(obj)) {
-            return obj.map(item => {
+            return (obj || []).map(item => {
                 if (typeof item === 'object' && item !== null) {
                     const yamlItem = toYaml(item, indent + 1).trimStart();
                     return `${spaces}- ${yamlItem}`;
@@ -25,7 +25,7 @@ export default function PolicyRulesTable({ title, rules, t }) {
                 return `${spaces}- ${item}`;
             }).join('\n');
         } else if (typeof obj === 'object' && obj !== null) {
-            return Object.entries(obj).map(([key, value]) => {
+            return Object.entries(obj || {}).map(([key, value]) => {
                 if (typeof value === 'object' && value !== null) {
                     return `${spaces}${key}:\n${toYaml(value, indent + 1)}`;
                 }

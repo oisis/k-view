@@ -13,8 +13,8 @@ export default function StatefulSetOverview({ data, metadata, spec, status, rela
     // Extract images and init images
     const containers = spec?.template?.spec?.containers || [];
     const initContainers = spec?.template?.spec?.initContainers || [];
-    const images = containers.map(c => c.image).join(', ');
-    const initImages = initContainers.map(c => c.image).join(', ');
+    const images = (containers || []).map(c => c.image).join(', ');
+    const initImages = (initContainers || []).map(c => c.image).join(', ');
 
     return (
         <>

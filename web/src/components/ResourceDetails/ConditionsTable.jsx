@@ -20,7 +20,7 @@ export default function ConditionsTable({ conditions, t }) {
                         {(conditions || []).length === 0 ? (
                             <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic">No conditions found.</td></tr>
                         ) : (
-                            conditions.map((c, i) => (
+                            (conditions || []).map((c, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-3 font-medium text-primary">{c.type}</td>
                                     <td className="px-4 py-3 text-center">

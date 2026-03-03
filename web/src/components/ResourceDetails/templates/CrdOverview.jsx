@@ -72,7 +72,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                             {versions.length === 0 ? (
                                 <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No versions defined.</td></tr>
                             ) : (
-                                versions.map((v, i) => (
+                                (versions || []).map((v, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-mono font-bold text-primary">{v.name}</td>
                                         <td className="px-4 py-3 text-center">
@@ -109,7 +109,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                             {conditions.length === 0 ? (
                                 <tr><td colSpan="5" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No conditions reported.</td></tr>
                             ) : (
-                                conditions.map((c, i) => (
+                                (conditions || []).map((c, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-primary">{c.type}</td>
                                         <td className="px-4 py-3 text-center">

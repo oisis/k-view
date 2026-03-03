@@ -18,7 +18,7 @@ export default function ImagePullSecretsTable({ imagePullSecrets, namespace, t }
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
-                            {items.map((s, i) => (
+                            {(items || []).map((s, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-mono text-sm">
                                         <Link

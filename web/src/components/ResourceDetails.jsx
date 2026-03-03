@@ -4,6 +4,7 @@ import { useTranslation, useSettings } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
 import { useResourceDetails } from '../hooks/useResourceData';
 import { getResourceComponent } from './ResourceDetails/Registry';
+import ErrorBoundary from './ErrorBoundary';
 
 import YamlTab from './ResourceDetails/YamlTab';
 import LogsTab from './ResourceDetails/LogsTab';
@@ -127,12 +128,14 @@ export default function ResourceDetails() {
 
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {activeTab === 'overview' && (
-                    <OverviewComponent 
-                        data={data} 
-                        t={t}
-                        settings={settings}
-                        refresh={refresh}
-                    />
+                    <ErrorBoundary>
+                        <OverviewComponent 
+                            data={data} 
+                            t={t}
+                            settings={settings}
+                            refresh={refresh}
+                        />
+                    </ErrorBoundary>
                 )}
                 {activeTab === 'yaml' && (
                     <YamlTab 
@@ -149,7 +152,7 @@ export default function ResourceDetails() {
                         kind={kindLower}
                         namespace={namespace} 
                         name={name} 
-                        containers={data.spec?.containers || []}
+                        containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || data?.spec?.jobTemplate?.spec?.template?.spec?.containers || []}
                         t={t} 
                     />
                 )}

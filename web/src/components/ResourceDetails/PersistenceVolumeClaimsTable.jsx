@@ -22,7 +22,7 @@ export default function PersistenceVolumeClaimsTable({ pvcNames, namespace, t })
                         {(!pvcNames || pvcNames.length === 0) ? (
                             <tr><td colSpan="7" className="px-4 py-8 text-center text-text-muted italic">No PVCs found.</td></tr>
                         ) : (
-                            pvcNames.map((pvc, i) => (
+                            (pvcNames || []).map((pvc, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono text-xs">
                                         <Link to={`/pvcs/${namespace}/${pvc}`} className="hover:underline">{pvc}</Link>

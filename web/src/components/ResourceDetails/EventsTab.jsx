@@ -49,7 +49,7 @@ export default function EventsTab({ kind, namespace, name, t }) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-color)] text-left">
-                    {events && events.length > 0 ? events.map((e, i) => (
+                    {events && events.length > 0 ? (events || []).map((e, i) => (
                         <tr key={i} className="hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4">
                                 <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>

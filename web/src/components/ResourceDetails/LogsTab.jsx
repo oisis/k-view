@@ -79,15 +79,18 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const allLines = logs.split('\n');
     const filteredLines = allLines.filter(line => {
         if (!logSearchTerm) return true;
+        const safeLine = (line || '');
+        const safeTerm = (logSearchTerm || '');
+        
         if (logSearchRegex) {
             try {
-                const re = new RegExp(logSearchTerm, 'i');
-                return re.test(line);
+                const re = new RegExp(safeTerm, 'i');
+                return re.test(safeLine);
             } catch (e) {
-                return line.toLowerCase().includes(logSearchTerm.toLowerCase());
+                return safeLine.toLowerCase().includes(safeTerm.toLowerCase());
             }
         }
-        return line.toLowerCase().includes(logSearchTerm.toLowerCase());
+        return safeLine.toLowerCase().includes(safeTerm.toLowerCase());
     });
 
     const totalPages = Math.ceil(filteredLines.length / logLinesPerPage) || 1;
@@ -158,7 +161,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                                         }}
                                                         className="bg-transparent text-xs font-bold text-accent outline-none pr-1 px-2 py-0.5 cursor-pointer"
                                                     >
-                                                        {containers.map(c => (
+                                                        {(containers || []).map(c => (
                                                             <option key={c.name} value={c.name}>{c.name}</option>
                                                         ))}
                                                     </select>

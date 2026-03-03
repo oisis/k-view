@@ -19,14 +19,14 @@ export default function ExpandableCell({ value, type }) {
     let items = [];
     if (typeof value === 'object' && !Array.isArray(value)) {
         // Handle object/map from API
-        items = Object.entries(value).map(([k, v]) => `${k}: ${v}`);
+        items = Object.entries(value || {}).map(([k, v]) => `${k}: ${v}`);
     } else if (Array.isArray(value)) {
         // Handle array
-        items = value.map(v => String(v));
+        items = (value || []).map(v => String(v));
     } else if (typeof value === 'string') {
         // Handle comma-separated string from backend (e.g., "app=k-view, env=dev")
         // We replace "=" with ": " for consistent UI presentation
-        items = value.split(',').map(s => s.trim().replace('=', ': '));
+        items = (value || '').split(',').map(s => s.trim().replace('=', ': '));
     } else {
         items = [String(value)];
     }

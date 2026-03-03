@@ -174,8 +174,9 @@ export default function Settings() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {Object.entries(themes || {}).map(([id, themeCfg]) => {
+                            const safeId = id || '';
                             const isSelected = activeTheme === id;
-                            const isLight = id.includes('light');
+                            const isLight = safeId.includes('light');
                             
                             let tileStyle = "";
                             let iconBoxStyle = "";
@@ -185,7 +186,7 @@ export default function Settings() {
                                 tileStyle = "bg-[#ffffff99] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-200");
                                 iconBoxStyle = "bg-[#2563eb] text-white";
                                 textStyle = "text-[#475569]";
-                            } else if (id.includes('dark') || id.includes('black')) {
+                            } else if (safeId.includes('dark') || safeId.includes('black')) {
                                 tileStyle = "bg-[#09090b99] " + (isSelected ? "border-blue-600 ring-2 ring-blue-600/20" : "border-slate-800");
                                 iconBoxStyle = isSelected ? "bg-[#2563eb] text-white" : "bg-[#3b82f6]/20 text-[#60a5fa]";
                                 textStyle = "text-[#f8fafc]";
@@ -204,7 +205,7 @@ export default function Settings() {
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className={`p-2 w-fit rounded-lg transition-colors ${iconBoxStyle}`}>
-                                            {id.includes('light') ? <icons.sun size={36} /> : (id.includes('black') || id.includes('dark')) ? <icons.moon size={36} /> : <icons.layers size={36} />}
+                                            {safeId.includes('light') ? <icons.sun size={36} /> : (safeId.includes('black') || safeId.includes('dark')) ? <icons.moon size={36} /> : <icons.layers size={36} />}
                                         </div>
                                         <h3 className={`text-lg font-bold transition-colors ${textStyle}`}>{themeCfg.name}</h3>
                                     </div>

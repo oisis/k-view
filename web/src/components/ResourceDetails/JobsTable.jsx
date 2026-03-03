@@ -28,7 +28,7 @@ export default function JobsTable({ title, jobs, t, kind, namespace }) {
                                 </td>
                             </tr>
                         ) : (
-                            jobs.map((job, i) => (
+                            (jobs || []).map((job, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-2">
                                         <Link to={`/jobs/${job.namespace}/${job.name}`} className="font-bold text-accent hover:underline font-mono">

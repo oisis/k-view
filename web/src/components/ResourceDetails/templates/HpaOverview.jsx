@@ -55,7 +55,7 @@ export default function HpaOverview({ spec, status, t }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            {metrics.map((m, i) => {
+                            {(metrics || []).map((m, i) => {
                                 const current = currentMetrics.find(cm => cm.type === m.type && cm.resource?.name === m.resource?.name);
                                 return (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">

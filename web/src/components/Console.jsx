@@ -43,7 +43,7 @@ export default function Console() {
                 if (Array.isArray(data)) {
                     setNamespaces(data);
                 } else if (data && data.items) {
-                    setNamespaces(data.items.map(ns => ns.metadata.name));
+                    setNamespaces(data.items.map(ns => ns.name));
                 }
             })
             .catch(() => { });
@@ -125,7 +125,7 @@ export default function Console() {
         if (parts[0] !== 'kubectl' && parts[0] !== 'k') return null;
 
         // Find the Verb (first match from our known list after current prefix)
-        const verb = parts.slice(startIndex).find(p => VERBS.includes(p));
+        const verb = parts.slice(startIndex).find(p => (VERBS || []).includes(p || ''));
         const verbIdx = verb ? parts.indexOf(verb) : -1;
 
         // Find the potential Resource (the first non-flag after the verb)
@@ -142,7 +142,7 @@ export default function Console() {
         }
 
         // Stage 2: We have Verb but no Resource -> suggest Resources
-        if (!potentialResource && !['version', 'cluster-info'].includes(verb)) {
+        if (!potentialResource && !['version', 'cluster-info'].includes(verb || '')) {
             return {
                 title: 'Resources',
                 items: RESOURCES.map(r => ({ label: r, val: r }))
@@ -178,7 +178,7 @@ export default function Console() {
         return words.map((word, idx) => {
             if (/^\s+$/.test(word)) return <span key={idx}>{word}</span>;
 
-            if (namespaces.includes(word)) {
+            if ((namespaces || []).includes(word || '')) {
                 return (
                     <span
                         key={idx}
@@ -191,7 +191,7 @@ export default function Console() {
                 );
             }
 
-            if (/[a-z0-9]+-[a-z0-9]{5,}(- [a-z0-9]{5,})?/.test(word) || (word.includes('-') && word.length > 8)) {
+            if (/[a-z0-9]+-[a-z0-9]{5,}(- [a-z0-9]{5,})?/.test(word) || ((word || '').includes('-') && (word || '').length > 8)) {
                 if (!/Running|Ready|Active|True|CrashLoop|Error|Failed|Evicted|OOMKilled|Namespace|Name|Status|Age|Restarts/.test(word)) {
                     return (
                         <span

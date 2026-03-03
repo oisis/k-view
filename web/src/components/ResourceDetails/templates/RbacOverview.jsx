@@ -4,9 +4,9 @@ import SubjectsTable from '../SubjectsTable';
 import RulesTable from '../RulesTable';
 
 export default function RbacOverview({ data, metadata, t, isBinding }) {
-    const roleRef = data?.roleRef || data?.Object?.roleRef;
-    const subjects = data?.subjects || data?.Object?.subjects || [];
-    const rules = data?.rules || data?.Object?.rules || [];
+    const roleRef = data?.roleRef || data?.spec?.roleRef;
+    const subjects = data?.subjects || data?.spec?.subjects || [];
+    const rules = data?.rules || data?.spec?.rules || [];
 
     return (
         <>

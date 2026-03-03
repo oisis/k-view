@@ -26,7 +26,7 @@ export default function RulesTable({ rules = [], t }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
-                        {rules.map((rule, idx) => (
+                        {(rules || []).map((rule, idx) => (
                             <tr key={idx} className="hover:bg-white/5 transition-colors">
                                 <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">

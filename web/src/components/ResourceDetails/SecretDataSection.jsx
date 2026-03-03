@@ -13,7 +13,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
         if (!str) return '';
         try {
             // Support UTF-8 decoding
-            return decodeURIComponent(atob(str).split('').map(function(c) {
+            return decodeURIComponent(atob(str || '').split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
         } catch (e) {
@@ -57,7 +57,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
             const encodedValue = encodeBase64(editValue);
 
             const lines = currentYaml.split('\n');
-            const newLines = lines.map(line => {
+            const newLines = (lines || []).map(line => {
                 const trimmed = line.trim();
                 if (trimmed.startsWith(`${editingKey}:`)) {
                     const indent = line.indexOf(editingKey);
@@ -102,7 +102,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                         {Object.keys(secretData).length === 0 ? (
                             <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No data found in this secret.</td></tr>
                         ) : (
-                            Object.entries(secretData).map(([key, value]) => (
+                            Object.entries(secretData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3 font-bold text-primary font-mono align-top">{key}</td>
                                     <td className="px-4 py-3">

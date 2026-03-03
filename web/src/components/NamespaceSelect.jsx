@@ -31,7 +31,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
     }, [open]);
 
     const filtered = ['All namespaces', ...namespaces].filter(ns =>
-        ns.toLowerCase().includes(query.toLowerCase())
+        (ns || '').toLowerCase().includes((query || '').toLowerCase())
     );
 
     const selectNs = (ns) => {
@@ -99,7 +99,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                             filtered.map(ns => {
                                 const value = ns === 'All namespaces' ? '' : ns;
                                 const isSelected = selected === value;
-                                const isSystem = ['kube-system', 'kube-public', 'kube-node-lease'].includes(ns);
+                                const isSystem = ['kube-system', 'kube-public', 'kube-node-lease'].includes(ns || '');
                                 return (
                                     <li
                                         key={ns}

@@ -11,7 +11,7 @@ function NamespaceSelect({ namespaces, selected, onChange }) {
             className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-primary focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none min-w-[150px] font-medium h-10"
         >
             <option value="">{t('all_namespaces') || 'All Namespaces'}</option>
-            {namespaces.map(ns => (
+            {(namespaces || []).map(ns => (
                 <option key={ns} value={ns}>{ns}</option>
             ))}
         </select>
@@ -93,7 +93,7 @@ export default function EventsList() {
 
             const aNum = parseFloat(aVal);
             const bNum = parseFloat(bVal);
-            if (!isNaN(aNum) && !isNaN(bNum) && !String(aVal).includes(':') && !String(aVal).includes('-')) {
+            if (!isNaN(aNum) && !isNaN(bNum) && !String(aVal || '').includes(':') && !String(aVal || '').includes('-')) {
                 return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
             }
 
@@ -122,8 +122,8 @@ export default function EventsList() {
 
         const searchInObj = (obj) => {
             if (!obj) return false;
-            if (typeof obj === 'string') return obj.toLowerCase().includes(lowercasedTerm);
-            if (typeof obj === 'number') return String(obj).includes(lowercasedTerm);
+            if (typeof obj === 'string') return (obj || '').toLowerCase().includes(lowercasedTerm);
+            if (typeof obj === 'number') return String(obj || '').includes(lowercasedTerm);
             if (Array.isArray(obj)) return obj.some(searchInObj);
             if (typeof obj === 'object') {
                 return Object.values(obj).some(searchInObj);

@@ -338,7 +338,7 @@ export default function ResourceList({ kind }) {
                                         let content;
                                         let cellClass = "py-1.5 overflow-hidden";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller'].includes(col.key)) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller'].includes(col.key || '')) {
                                             cellClass += " text-center px-2";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-3";
@@ -347,7 +347,7 @@ export default function ResourceList({ kind }) {
                                         }
 
                                         const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
-                                        if (expandableKeys.includes(col.key)) {
+                                        if ((expandableKeys || []).includes(col.key || '')) {
                                             cellClass = "py-1.5 overflow-hidden min-w-0 pl-1 pr-2 text-left";
                                             content = <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {

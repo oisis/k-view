@@ -24,7 +24,7 @@ export default function HpaTable({ hpas, t }) {
                         {hpas.length === 0 ? (
                             <tr><td colSpan="8" className="px-4 py-8 text-center text-text-muted italic">No HPAs found.</td></tr>
                         ) : (
-                            hpas.map((hpa, i) => (
+                            (hpas || []).map((hpa, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono">
                                         <Link to={`/hpas/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>

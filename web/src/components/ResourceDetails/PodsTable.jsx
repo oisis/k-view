@@ -31,7 +31,7 @@ export default function PodsTable({ pods, onRefresh }) {
                         {pods.length === 0 ? (
                             <tr><td colSpan="11" className="px-4 py-8 text-center text-text-muted italic">No pods found.</td></tr>
                         ) : (
-                            pods.map((pod, i) => (
+                            (pods || []).map((pod, i) => (
                                 <tr key={i} className="hover:bg-[var(--bg-sidebar)]/10 transition-colors group">
                                     <td className="px-4 py-3 font-mono font-bold text-accent truncate">
                                         <Link to={`/pods/${pod.namespace}/${pod.name}`} className="hover:underline block truncate" title={pod.name}>

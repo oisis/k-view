@@ -19,7 +19,7 @@ export default function EndpointsTable({ endpoints, t }) {
                         {(!endpoints || endpoints.length === 0) ? (
                             <tr><td colSpan="4" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No endpoints found.</td></tr>
                         ) : (
-                            endpoints.map((ep, i) => (
+                            (endpoints || []).map((ep, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3 font-mono text-xs text-info font-bold">{ep.host}</td>
                                     <td className="px-4 py-3 text-xs font-mono text-secondary">

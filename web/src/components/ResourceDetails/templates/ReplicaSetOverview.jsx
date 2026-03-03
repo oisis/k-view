@@ -10,10 +10,10 @@ export default function ReplicaSetOverview({ data, spec, status, relatedPods, re
     
     // Extract selector and images
     const selector = spec?.selector?.matchLabels || {};
-    const selectorStr = Object.entries(selector).map(([k, v]) => `${k}=${v}`).join(', ');
+    const selectorStr = Object.entries(selector || {}).map(([k, v]) => `${k}=${v}`).join(', ');
     
     const containers = spec?.template?.spec?.containers || [];
-    const images = containers.map(c => c.image).join(', ');
+    const images = (containers || []).map(c => c.image).join(', ');
 
     return (
         <>

@@ -26,7 +26,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
             const currentYaml = await yamlRes.text();
 
             const lines = currentYaml.split('\n');
-            const newLines = lines.map(line => {
+            const newLines = (lines || []).map(line => {
                 const trimmed = line.trim();
                 if (trimmed.startsWith(`${editingKey}:`)) {
                     const indent = line.indexOf(editingKey);
@@ -71,7 +71,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                         {Object.keys(cmData).length === 0 ? (
                             <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No data found.</td></tr>
                         ) : (
-                            Object.entries(cmData).map(([key, value]) => (
+                            Object.entries(cmData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3 font-bold text-primary font-mono">{key}</td>
                                     <td className="px-4 py-3">

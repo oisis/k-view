@@ -15,7 +15,7 @@ const VerbsList = ({ items, title, t }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50">
-                        {items.map((rule, idx) => (
+                        {(items || []).map((rule, idx) => (
                             <tr key={idx} className="hover:bg-white/10 transition-all">
                                 <td className="px-6 py-4">
                                     <div className="flex flex-col gap-2">
@@ -24,12 +24,12 @@ const VerbsList = ({ items, title, t }) => {
                                                 <div key={i} className="flex flex-wrap gap-2 items-center">
                                                     {peer.podSelector && (
                                                         <span className="px-2 py-1 bg-white/10 border border-white/10 text-accent rounded text-[10px] font-bold shadow-sm">
-                                                            PODS: {peer.podSelector.matchLabels ? Object.entries(peer.podSelector.matchLabels).map(([k,v]) => `${k}=${v}`).join(', ') : 'ALL'}
+                                                            PODS: {peer.podSelector.matchLabels ? Object.entries(peer.podSelector.matchLabels || {}).map(([k,v]) => `${k}=${v}`).join(', ') : 'ALL'}
                                                         </span>
                                                     )}
                                                     {peer.namespaceSelector && (
                                                         <span className="px-2 py-1 bg-white/10 border border-white/10 text-info rounded text-[10px] font-bold shadow-sm">
-                                                            NS: {peer.namespaceSelector.matchLabels ? Object.entries(peer.namespaceSelector.matchLabels).map(([k,v]) => `${k}=${v}`).join(', ') : 'ALL'}
+                                                            NS: {peer.namespaceSelector.matchLabels ? Object.entries(peer.namespaceSelector.matchLabels || {}).map(([k,v]) => `${k}=${v}`).join(', ') : 'ALL'}
                                                         </span>
                                                     )}
                                                     {peer.ipBlock && (
@@ -50,7 +50,7 @@ const VerbsList = ({ items, title, t }) => {
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex flex-wrap justify-center gap-1.5">
                                         {rule.ports && rule.ports.length > 0 ? (
-                                            rule.ports.map((p, i) => (
+                                            (rule.ports || []).map((p, i) => (
                                                 <span key={i} className="px-2 py-1 bg-white/10 border border-white/10 text-success rounded text-xs font-mono font-black shadow-sm">
                                                     {p.port}/{p.protocol}
                                                 </span>
@@ -82,8 +82,8 @@ export default function NetworkPolicyOverview({ spec, t }) {
                             <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Pod Selector</td>
                             <td className="px-4 py-3">
                                 <div className="flex flex-wrap gap-1.5">
-                                    {Object.entries(podSelector).length > 0 ? (
-                                        Object.entries(podSelector).map(([k, v]) => (
+                                    {Object.entries(podSelector || {}).length > 0 ? (
+                                        Object.entries(podSelector || {}).map(([k, v]) => (
                                             <span key={k} className="px-2 py-0.5 bg-white/10 text-info rounded text-xs font-mono border border-white/10 shadow-sm">{k}={v}</span>
                                         ))
                                     ) : (
@@ -96,7 +96,7 @@ export default function NetworkPolicyOverview({ spec, t }) {
                             <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Policy Types</td>
                             <td className="px-4 py-3">
                                 <div className="flex gap-4">
-                                    {policyTypes.map(type => (
+                                    {(policyTypes || []).map(type => (
                                         <span key={type} className="px-2 py-0.5 bg-white/10 border border-white/10 text-accent rounded text-[10px] font-black uppercase tracking-widest shadow-sm">{type}</span>
                                     ))}
                                 </div>

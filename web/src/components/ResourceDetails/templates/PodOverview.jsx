@@ -7,11 +7,16 @@ import ConditionsTable from '../ConditionsTable';
 
 /**
  * Dumb Component for Pod Details.
+ * Uses safe container extraction to prevent rendering crashes.
  */
 export default function PodOverview({ data, t, settings }) {
     if (!data) return null;
 
     const { resource, metadata, spec, status, metrics, extra } = data;
+    
+    // Safe extraction of containers from Pod spec
+    const podContainers = spec?.containers || [];
+    const podInitContainers = spec?.initContainers || [];
 
     return (
         <div className="space-y-6">
@@ -26,7 +31,8 @@ export default function PodOverview({ data, t, settings }) {
             </div>
 
             <ContainersSection 
-                containers={spec?.containers || []} 
+                containers={podContainers} 
+                initContainers={podInitContainers}
                 statuses={status?.containerStatuses || []}
                 t={t} 
             />

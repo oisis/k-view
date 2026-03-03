@@ -4,7 +4,7 @@ import DetailSection from '../DetailSection';
 import DetailRow from '../DetailRow';
 
 // Metadata section for resource details
-export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower, status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
+export default function MetadataSection({ metadata = {}, namespace, t, settings, data = {}, kindLower = '', status = {}, isNode, isPv, isIngressClass, isStorageClass, isClusterRoleBinding, isRoleBinding, isRole, isServiceAccount, isClusterRole, isNamespace, isNetworkPolicy, isDaemonSet, spec = {} }) {
     const isCronJob = kindLower.includes('cronjob');
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
     const isHpa = kindLower === 'hpas' || kindLower === 'hpa' || kindLower === 'horizontalpodautoscalers';
@@ -113,14 +113,14 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
                                 </td>
                                 <td className="px-4 py-3 text-sm text-primary">
                                     <div className="flex flex-wrap gap-1.5 min-w-0 w-full overflow-y-hidden">
-                                        {sortedLabels.slice(0, settings.labelsLimit).map(([k, v]) => (
+                                        {sortedLabels.slice(0, settings?.labelsLimit || 5).map(([k, v]) => (
                                             <span key={k} className="px-2 py-0.5 bg-info/10 rounded text-sm text-info font-mono block max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide">
                                                 {k}: {v}
                                             </span>
                                         ))}
-                                        {sortedLabels.length > settings.labelsLimit && (
+                                        {sortedLabels.length > (settings?.labelsLimit || 5) && (
                                             <span className="text-xs text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center whitespace-nowrap">
-                                                + {sortedLabels.length - settings.labelsLimit} {t('more')}
+                                                + {sortedLabels.length - (settings?.labelsLimit || 5)} {t('more')}
                                             </span>
                                         )}
                                     </div>

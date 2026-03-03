@@ -5,7 +5,7 @@ export default function LimitRangesTable({ limits, t, icons }) {
     return (
         <DetailSection title={t('limit_ranges')} className="mt-4">
             <div className="p-4 space-y-4">
-                {limits && limits.length > 0 ? limits.map(l => (
+                {limits && limits.length > 0 ? (limits || []).map(l => (
                                          <div key={l.metadata?.name || l.name} className="bg-[var(--bg-muted)]/30 rounded-lg p-4 overflow-x-auto">                        <h4 className="font-bold text-accent mb-3 flex items-center gap-2">
                             {icons?.about && <icons.about size={14} />} {l.metadata?.name || l.name}
                         </h4>

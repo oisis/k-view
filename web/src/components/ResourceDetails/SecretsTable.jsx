@@ -27,7 +27,7 @@ export default function SecretsTable({ title, secrets, t, icons }) {
                                 </td>
                             </tr>
                         ) : (
-                            secrets.map((s, i) => (
+                            (secrets || []).map((s, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/secrets/${s.namespace}/${s.name}`} className="font-bold text-accent hover:underline font-mono">

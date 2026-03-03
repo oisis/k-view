@@ -5,16 +5,32 @@ import { useTheme } from '../ThemeContext';
 
 // --- Mini Chart Component (SVG) ---
 function MiniChart({ data, color, label }) {
-    if (!data || data.length === 0) return null;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-[60px] mt-2 text-sm font-medium text-text-muted/60 italic bg-[var(--bg-muted)]/20 rounded-lg border border-dashed border-border/50">
+                No metrics data available
+            </div>
+        );
+    }
 
-    const max = Math.max(...data.map(d => d.value), 1);
+    // Check if we actually have valid numeric data
+    const validData = data.filter(d => typeof d?.value === 'number' && !isNaN(d.value));
+    if (validData.length === 0) {
+         return (
+            <div className="flex items-center justify-center h-[60px] mt-2 text-sm font-medium text-text-muted/60 italic bg-[var(--bg-muted)]/20 rounded-lg border border-dashed border-border/50">
+                Metrics not ready
+            </div>
+        );
+    }
+
+    const max = Math.max(...validData.map(d => d.value), 1);
     const width = 400;
     const height = 60;
     const padding = 2;
 
-    // Calculate points
-    const points = data.map((d, i) => {
-        const x = (i / (data.length - 1)) * width;
+    // Calculate points based on validData
+    const points = validData.map((d, i) => {
+        const x = (i / (validData.length - 1 || 1)) * width;
         const y = height - ((d.value / max) * (height - padding * 2)) - padding;
         return `${x},${y}`;
     }).join(' ');

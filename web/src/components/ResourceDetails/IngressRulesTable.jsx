@@ -23,7 +23,7 @@ export default function IngressRulesTable({ spec, t }) {
                         {rules.length === 0 ? (
                             <tr><td colSpan="6" className="px-4 py-8 text-center text-text-muted italic bg-[var(--bg-sidebar)]/5">No rules defined.</td></tr>
                         ) : (
-                            rules.map((rule, ri) => (
+                            (rules || []).map((rule, ri) => (
                                 (rule.http?.paths || [{}]).map((path, pi) => (
                                     <tr key={`${ri}-${pi}`} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-4 py-3 font-bold text-info font-mono text-xs">{rule.host || '*'}</td>
@@ -38,7 +38,7 @@ export default function IngressRulesTable({ spec, t }) {
                                         </td>
                                         <td className="px-4 py-3 text-xs font-mono text-secondary">{path.backend?.service?.port?.number || path.backend?.service?.port?.name || '—'}</td>
                                         <td className="px-4 py-3 text-xs text-purple-400 font-mono">
-                                            {spec.tls?.find(tls => tls.hosts?.includes(rule.host))?.secretName || '—'}
+                                            {spec.tls?.find(tls => (tls.hosts || []).includes(rule.host))?.secretName || '—'}
                                         </td>
                                     </tr>
                                 ))
