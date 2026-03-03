@@ -1,0 +1,21 @@
+general_overview:
+  - Name
+  - Namespace
+  - Reason
+  - Message
+  - Source
+  - Objects
+  - Count
+  - First Seen
+  - Last Seen
+detail_tabs:
+  - overview
+  - yaml
+metadata_fields:
+  - label_name
+  - label_namespace
+  - label_created
+  - label_age
+  - label_status
+  - label_labels
+  - label_annotations

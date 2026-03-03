@@ -2,7 +2,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ResourceDetails from '../src/components/ResourceDetails';
 import { MemoryRouter, useParams } from 'react-router-dom';
-import frozenViews from './frozen-views.json';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+
+// Load all resource definitions from YAML files
+const resourcesPath = path.resolve(__dirname, './resources');
+const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
+const resources = resourceFiles.reduce((acc, file) => {
+  const kind = path.basename(file, '.yaml');
+  const content = fs.readFileSync(path.join(resourcesPath, file), 'utf8');
+  acc[kind] = yaml.load(content);
+  return acc;
+}, {});
 
 // Mocking dependencies
 vi.mock('react-router-dom', async () => {
@@ -87,13 +99,13 @@ const renderWithRouter = (ui) => {
   );
 };
 
-describe('ResourceDetails "Frozen" View Tests - Deep Relational', () => {
+describe('ResourceDetails "Frozen" View Tests - YAML Driven', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  Object.entries(frozenViews.resources).forEach(([kind, config]) => {
-    it(`enforces relational tables and columns for ${kind}`, async () => {
+  Object.entries(resources).forEach(([kind, config]) => {
+    it(`enforces structural integrity for ${kind}`, async () => {
       useParams.mockReturnValue({ kind, namespace: 'default', name: 'resource-1' });
       
       const dummyItem = { 
@@ -155,45 +167,47 @@ describe('ResourceDetails "Frozen" View Tests - Deep Relational', () => {
       renderWithRouter(<ResourceDetails />);
 
       await waitFor(() => {
-        // Safe arrays to store errors, so we don't throw immediately
         let missingItems = [];
 
-        // 1. Check Titles and Sections
-        config.detail_sections.forEach(section => {
-          const expected = section.toLowerCase();
-          const found = screen.queryAllByText((content) => {
-             const text = (content || '').toLowerCase();
-             return text === expected || text === `label_${expected}` || text.includes(expected);
-          });
-          if (found.length === 0) missingItems.push(`Section: ${section}`);
-        });
+        // Dynamic detection of sections and tables based on YAML keys
+        Object.entries(config).forEach(([key, values]) => {
+            if (key === 'general_overview' || key === 'detail_tabs') return;
 
-        // 2. Rygorystyczna weryfikacja tabel relacyjnych i ich kolumn (Snapshot z main)
-        if (config.detail_tables) {
-          Object.entries(config.detail_tables).forEach(([tableTitle, columns]) => {
-            // Safe DOM query for table title
-            const tTitle = tableTitle.toLowerCase();
+            if (key === 'metadata_fields') {
+                // Assert Metadata Grid Fields
+                values.forEach(field => {
+                    const expected = field.toLowerCase();
+                    const found = screen.queryAllByText((content) => {
+                        const text = (content || '').toLowerCase();
+                        return text === expected || text === `label_${expected}` || text === field;
+                    });
+                    if (found.length === 0) missingItems.push(`Metadata Field: ${field}`);
+                });
+                return;
+            }
+
+            // Otherwise, it's a Section Title or Table Title
+            const tTitle = key.toLowerCase();
             const titleFound = screen.queryAllByText((content) => {
                 const text = (content || '').toLowerCase();
                 return text === tTitle || text === `label_${tTitle}` || text.includes(tTitle);
             });
-            if (titleFound.length === 0) missingItems.push(`Table Title: ${tableTitle}`);
+            if (titleFound.length === 0) missingItems.push(`Section/Table Title: ${key}`);
 
-            // Safe DOM query for each column header
-            columns.forEach(col => {
-                const cName = col.toLowerCase();
-                const colFound = screen.queryAllByText((content) => {
-                    const text = (content || '').toLowerCase();
-                    return text === cName || text === `label_${cName}` || text === `label_${cName.replace(' ', '_')}` || text.includes(cName);
+            // If it's a table (value is an array of column names)
+            if (Array.isArray(values)) {
+                values.forEach(col => {
+                    const cName = col.toLowerCase();
+                    const colFound = screen.queryAllByText((content) => {
+                        const text = (content || '').toLowerCase();
+                        return text === cName || text === `label_${cName}` || text === `label_${cName.replace(' ', '_')}` || text.includes(cName);
+                    });
+                    if (colFound.length === 0) missingItems.push(`Column: '${col}' in Table: '${key}'`);
                 });
-                if (colFound.length === 0) missingItems.push(`Column: '${col}' in Table: '${tableTitle}'`);
-            });
-          });
-        }
+            }
+        });
 
-        // Output all failures at once without crashing early
         expect(missingItems, `Missing UI elements for ${kind}`).toEqual([]);
-
       }, { timeout: 3000 });
     });
   });

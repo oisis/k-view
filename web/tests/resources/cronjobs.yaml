@@ -1,0 +1,35 @@
+general_overview:
+  - Name
+  - Namespace
+  - Images
+  - Labels
+  - Schedule
+  - Suspend
+  - Active
+  - Last run
+  - Age
+detail_tabs:
+  - overview
+  - yaml
+  - recent_events
+metadata_fields:
+  - label_name
+  - label_namespace
+  - label_created
+  - label_age
+  - label_labels
+  - label_annotations
+Active Jobs:
+  - label_name
+  - label_namespace
+  - Images
+  - Labels
+  - Pods
+  - Created
+Inactive Jobs:
+  - label_name
+  - label_namespace
+  - Images
+  - Labels
+  - Pods
+  - Created

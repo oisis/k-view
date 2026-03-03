@@ -1,0 +1,46 @@
+general_overview:
+  - Name
+  - Namespace
+  - Images
+  - Labels
+  - Pods
+  - Created
+detail_tabs:
+  - overview
+  - yaml
+  - recent_events
+metadata_fields:
+  - label_name
+  - label_namespace
+  - label_created
+  - label_age
+  - Pods Running
+  - Pods Desired
+  - label_labels
+  - label_annotations
+pods:
+  - label_name
+  - label_namespace
+  - Images
+  - Labels
+  - Node
+  - Status
+  - Restarts
+  - CPU
+  - RAM
+  - Created
+Services:
+  - label_name
+  - label_namespace
+  - Type
+  - cluster ip
+  - Internal Endpoints
+  - External Endpoints
+  - Created
+status_conditions:
+  - type
+  - label_status
+  - last_probe
+  - last_transition
+  - reason
+  - message

@@ -1,0 +1,43 @@
+general_overview:
+  - Name
+  - Namespace
+  - Labels
+  - Type
+  - cluster ip
+  - int endpoints
+  - ext endpoints
+  - Created
+detail_tabs:
+  - overview
+  - yaml
+  - recent_events
+metadata_fields:
+  - label_name
+  - label_namespace
+  - label_created
+  - label_age
+  - label_labels
+  - label_annotations
+Endpoints:
+  - Host
+  - Ports
+  - Node
+  - Ready
+Ingresses:
+  - label_name
+  - label_namespace
+  - Labels
+  - Endpoints
+  - Hosts
+  - Created
+pods:
+  - label_name
+  - label_namespace
+  - Images
+  - Labels
+  - Node
+  - Status
+  - Restarts
+  - CPU
+  - RAM
+  - Created

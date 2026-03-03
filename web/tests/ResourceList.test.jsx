@@ -2,7 +2,19 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import ResourceList from '../src/components/ResourceList';
 import { MemoryRouter } from 'react-router-dom';
-import frozenViews from './frozen-views.json';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+
+// Load all resource definitions from YAML files
+const resourcesPath = path.resolve(__dirname, './resources');
+const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
+const resources = resourceFiles.reduce((acc, file) => {
+  const kind = path.basename(file, '.yaml');
+  const content = fs.readFileSync(path.join(resourcesPath, file), 'utf8');
+  acc[kind] = yaml.load(content);
+  return acc;
+}, {});
 
 // Mocking dependencies
 vi.mock('../src/SettingsContext', () => ({
@@ -43,7 +55,6 @@ vi.mock('../src/hooks/useResourceData', () => ({
 }));
 
 const renderWithRouter = (ui) => {
-  // Use MemoryRouter with future flags to silence warnings
   return render(
     <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       {ui}
@@ -51,15 +62,16 @@ const renderWithRouter = (ui) => {
   );
 };
 
-describe('ResourceList "Frozen" View Tests - Dynamic', () => {
-  Object.entries(frozenViews.resources).forEach(([kind, config]) => {
+describe('ResourceList "Frozen" View Tests - YAML Driven', () => {
+  Object.entries(resources).forEach(([kind, config]) => {
     it(`renders correct columns for ${kind}`, async () => {
       renderWithRouter(<ResourceList kind={kind} />);
       
       const headers = screen.getAllByRole('columnheader');
       const headerTexts = headers.map(h => h.textContent.trim().toLowerCase());
 
-      config.general_overview.forEach(columnName => {
+      const columns = config.general_overview || [];
+      columns.forEach(columnName => {
         const expected = columnName.toLowerCase();
         const found = headerTexts.some(text => 
             text === expected || 
@@ -69,7 +81,7 @@ describe('ResourceList "Frozen" View Tests - Dynamic', () => {
             text.includes(expected)
         );
 
-        expect(found).toBe(true);
+        expect(found, `Column '${columnName}' not found in ${kind} list`).toBe(true);
       });
     });
   });

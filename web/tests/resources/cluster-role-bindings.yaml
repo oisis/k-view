@@ -1,0 +1,18 @@
+general_overview:
+  - Name
+  - Created
+detail_tabs:
+  - overview
+  - yaml
+  - recent_events
+metadata_fields:
+  - label_name
+  - label_created
+  - label_age
+  - label_labels
+  - label_annotations
+Subjects:
+  - Name
+  - Namespaces
+  - Kind
+  - API Group
