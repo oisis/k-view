@@ -149,6 +149,18 @@ describe('ResourceDetails "Frozen" View Tests - Human YAML', () => {
       await waitFor(() => {
         let missingItems = [];
 
+        // 0. Verify Tabs
+        if (config.detail_tabs) {
+            config.detail_tabs.forEach(tab => {
+                const expectedTab = tab.toLowerCase();
+                const tabFound = screen.queryAllByRole('button', { name: (content) => {
+                    const text = (content || '').toLowerCase();
+                    return text === expectedTab || text === tab.toLowerCase() || text.includes(expectedTab);
+                }});
+                if (tabFound.length === 0) missingItems.push(`Tab: '${tab}'`);
+            });
+        }
+
         Object.entries(config).forEach(([title, values]) => {
             if (title === 'General overview' || title === 'detail_tabs') return;
 
