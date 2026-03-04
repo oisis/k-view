@@ -65,13 +65,13 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
     // Identify cluster-scoped resources to apply a subtle highlight
     const clusterScopedPaths = [
         '/nodes', 
-        '/config/pvs', 
-        '/config/storage-classes', 
-        '/cluster/cluster-role-bindings', 
-        '/cluster/cluster-roles', 
-        '/cluster/crds', 
-        '/cluster/namespaces', 
-        '/cluster/ingress-classes'
+        '/config/PersistentVolumes', 
+        '/config/StorageClasses', 
+        '/cluster/ClusterRoleBindings', 
+        '/cluster/ClusterRoles', 
+        '/cluster/CustomResourceDefinitions', 
+        '/cluster/Namespaces', 
+        '/cluster/IngressClasses'
     ];
     const isClusterResource = clusterScopedPaths.some(p => href === p);
 
@@ -128,12 +128,11 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
         if (href === '/') return p === '/';
 
         const parts = href.split('/');
-        const kind = parts[parts.length - 1]; // e.g. "pods", "crds"
+        const kind = parts[parts.length - 1]; 
 
-        // Handle CRD vs CRDS naming inconsistency and cluster prefix
-        const isCrd = kind === 'crds' || kind === 'crd';
+        const isCrd = kind === 'CustomResourceDefinitions';
         if (isCrd) {
-            return p.startsWith('/crd/') || p.startsWith('/crds/') || p.startsWith('/cluster/crds') || p === '/crd';
+            return p.startsWith('/CustomResourceDefinitions/') || p.startsWith('/cluster/CustomResourceDefinitions') || p === '/CustomResourceDefinition';
         }
 
         return p.startsWith(`/${kind}/`) || p.startsWith(`/workloads/${kind}`) || p.startsWith(`/network/${kind}`) || p.startsWith(`/config/${kind}`) || p.startsWith(`/cluster/${kind}`);
@@ -181,42 +180,42 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                 </div>
 
                 <Section id="workloads" label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/workloads/cronjobs" iconKey="cronjob" label={t('cronjobs')} active={isPathActive('/workloads/cronjobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/daemonsets" iconKey="daemonset" label={t('daemonsets')} active={isPathActive('/workloads/daemonsets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/deployments" iconKey="deployment" label={t('deployments')} active={isPathActive('/workloads/deployments')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/jobs" iconKey="job" label={t('jobs')} active={isPathActive('/workloads/jobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/pods" iconKey="pod" label={t('pods')} active={isPathActive('/workloads/pods')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicasets" iconKey="replicaset" label={t('replicasets')} active={isPathActive('/workloads/replicasets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/replicationcontrollers" iconKey="replicationcontroller" label={t('replicationcontrollers')} active={isPathActive('/workloads/replicationcontrollers')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/statefulsets" iconKey="statefulset" label={t('statefulsets')} active={isPathActive('/workloads/statefulsets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/hpas" iconKey="hpa" label={t('hpas')} active={isPathActive('/workloads/hpas')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/CronJobs" iconKey="cronjob" label={t('CronJobs')} active={isPathActive('/workloads/CronJobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/DaemonSets" iconKey="daemonset" label={t('DaemonSets')} active={isPathActive('/workloads/DaemonSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/Deployments" iconKey="deployment" label={t('Deployments')} active={isPathActive('/workloads/Deployments')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/Jobs" iconKey="job" label={t('Jobs')} active={isPathActive('/workloads/Jobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/Pods" iconKey="pod" label={t('Pods')} active={isPathActive('/workloads/Pods')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/ReplicaSets" iconKey="replicaset" label={t('ReplicaSets')} active={isPathActive('/workloads/ReplicaSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/ReplicationControllers" iconKey="replicationcontroller" label={t('ReplicationControllers')} active={isPathActive('/workloads/ReplicationControllers')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/StatefulSets" iconKey="statefulset" label={t('StatefulSets')} active={isPathActive('/workloads/StatefulSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/workloads/HorizontalPodAutoscalers" iconKey="hpa" label={t('HorizontalPodAutoscalers')} active={isPathActive('/workloads/HorizontalPodAutoscalers')} isCollapsed={isCollapsed} />
                 </Section>
 
-                <Section id="network" label={t('services')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/ingress-classes" iconKey="ingressclass" label={t('ingress_classes')} active={isPathActive('/cluster/ingress-classes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/ingresses" iconKey="ingress" label={t('ingresses')} active={isPathActive('/network/ingresses')} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/services" iconKey="service" label={t('services')} active={isPathActive('/network/services')} isCollapsed={isCollapsed} />
+                <Section id="network" label={t('Services')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
+                    <NavItem href="/cluster/IngressClasses" iconKey="ingressclass" label={t('IngressClasses')} active={isPathActive('/cluster/IngressClasses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/Ingresses" iconKey="ingress" label={t('Ingresses')} active={isPathActive('/network/Ingresses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/Services" iconKey="service" label={t('Services')} active={isPathActive('/network/Services')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/config/configmaps" iconKey="configmap" label={t('configmaps')} active={isPathActive('/config/configmaps')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvcs" iconKey="pvc" label={t('pvc')} active={isPathActive('/config/pvcs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/secrets" iconKey="secret" label={t('secrets')} active={isPathActive('/config/secrets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/storage-classes" iconKey="storageclass" label={t('storageclasses')} active={isPathActive('/config/storage-classes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/ConfigMaps" iconKey="configmap" label={t('ConfigMaps')} active={isPathActive('/config/ConfigMaps')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/PersistentVolumeClaims" iconKey="pvc" label={t('PersistentVolumeClaims')} active={isPathActive('/config/PersistentVolumeClaims')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/Secrets" iconKey="secret" label={t('Secrets')} active={isPathActive('/config/Secrets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/StorageClasses" iconKey="storageclass" label={t('StorageClasses')} active={isPathActive('/config/StorageClasses')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/cluster-role-bindings" iconKey="clusterrolebinding" label={t('clusterrolebindings')} active={isPathActive('/cluster/cluster-role-bindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/cluster-roles" iconKey="clusterrole" label={t('clusterroles')} active={isPathActive('/cluster/cluster-roles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/crds" iconKey="crd" label={t('crd')} active={isPathActive('/cluster/crds')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/events" iconKey="event" label={t('events')} active={isPathActive('/cluster/events')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/namespaces" iconKey="namespace" label={t('namespaces')} active={isPathActive('/cluster/namespaces')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/network-policies" iconKey="networkpolicy" label={t('network_policies')} active={isPathActive('/cluster/network-policies')} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" iconKey="nodes" label={t('nodes')} active={isPathActive('/nodes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/pvs" iconKey="pv" label={t('pv')} active={isPathActive('/config/pvs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/role-bindings" iconKey="rolebinding" label={t('rolebindings')} active={isPathActive('/cluster/role-bindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/roles" iconKey="role" label={t('roles')} active={isPathActive('/cluster/roles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/service-accounts" iconKey="serviceaccount" label={t('serviceaccounts')} active={isPathActive('/cluster/service-accounts')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ClusterRoleBindings" iconKey="clusterrolebinding" label={t('ClusterRoleBindings')} active={isPathActive('/cluster/ClusterRoleBindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ClusterRoles" iconKey="clusterrole" label={t('ClusterRoles')} active={isPathActive('/cluster/ClusterRoles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/CustomResourceDefinitions" iconKey="crd" label={t('CustomResourceDefinitions')} active={isPathActive('/cluster/CustomResourceDefinitions')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/Events" iconKey="event" label={t('Events')} active={isPathActive('/cluster/Events')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/Namespaces" iconKey="namespace" label={t('Namespaces')} active={isPathActive('/cluster/Namespaces')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/NetworkPolicies" iconKey="networkpolicy" label={t('NetworkPolicies')} active={isPathActive('/cluster/NetworkPolicies')} isCollapsed={isCollapsed} />
+                    <NavItem href="/nodes" iconKey="nodes" label={t('Nodes')} active={isPathActive('/nodes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/config/PersistentVolumes" iconKey="pv" label={t('PersistentVolumes')} active={isPathActive('/config/PersistentVolumes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/RoleBindings" iconKey="rolebinding" label={t('RoleBindings')} active={isPathActive('/cluster/RoleBindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/Roles" iconKey="role" label={t('Roles')} active={isPathActive('/cluster/Roles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/cluster/ServiceAccounts" iconKey="serviceaccount" label={t('ServiceAccounts')} active={isPathActive('/cluster/ServiceAccounts')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
@@ -411,41 +410,41 @@ function App() {
                         <Route path="/settings" element={protect(<Settings theme={theme} setTheme={setTheme} />)} />
 
                         {/* Workloads */}
-                        <Route path="/workloads/pods" element={protect(<ResourceList kind="pods" />)} />
-                        <Route path="/workloads/deployments" element={protect(<ResourceList kind="deployments" />)} />
-                        <Route path="/workloads/statefulsets" element={protect(<ResourceList kind="statefulsets" />)} />
-                        <Route path="/workloads/daemonsets" element={protect(<ResourceList kind="daemonsets" />)} />
-                        <Route path="/workloads/jobs" element={protect(<ResourceList kind="jobs" />)} />
-                        <Route path="/workloads/cronjobs" element={protect(<ResourceList kind="cronjobs" />)} />
-                        <Route path="/workloads/replicasets" element={protect(<ResourceList kind="replicasets" />)} />
-                        <Route path="/workloads/replicationcontrollers" element={protect(<ResourceList kind="replicationcontrollers" />)} />
-                        <Route path="/workloads/hpas" element={protect(<ResourceList kind="hpas" />)} />
+                        <Route path="/workloads/Pods" element={protect(<ResourceList kind="Pods" />)} />
+                        <Route path="/workloads/Deployments" element={protect(<ResourceList kind="Deployments" />)} />
+                        <Route path="/workloads/StatefulSets" element={protect(<ResourceList kind="StatefulSets" />)} />
+                        <Route path="/workloads/DaemonSets" element={protect(<ResourceList kind="DaemonSets" />)} />
+                        <Route path="/workloads/Jobs" element={protect(<ResourceList kind="Jobs" />)} />
+                        <Route path="/workloads/CronJobs" element={protect(<ResourceList kind="CronJobs" />)} />
+                        <Route path="/workloads/ReplicaSets" element={protect(<ResourceList kind="ReplicaSets" />)} />
+                        <Route path="/workloads/ReplicationControllers" element={protect(<ResourceList kind="ReplicationControllers" />)} />
+                        <Route path="/workloads/HorizontalPodAutoscalers" element={protect(<ResourceList kind="HorizontalPodAutoscalers" />)} />
 
                         {/* Services / Networking */}
-                        <Route path="/network/services" element={protect(<ResourceList kind="services" />)} />
-                        <Route path="/network/ingresses" element={protect(<ResourceList kind="ingresses" />)} />
+                        <Route path="/network/Services" element={protect(<ResourceList kind="Services" />)} />
+                        <Route path="/network/Ingresses" element={protect(<ResourceList kind="Ingresses" />)} />
 
                         {/* Config & Storage */}
-                        <Route path="/config/configmaps" element={protect(<ResourceList kind="configmaps" />)} />
-                        <Route path="/config/secrets" element={protect(<ResourceList kind="secrets" />)} />
-                        <Route path="/config/pvcs" element={protect(<ResourceList kind="pvcs" />)} />
-                        <Route path="/config/pvs" element={protect(<ResourceList kind="pvs" />)} />
-                        <Route path="/config/storage-classes" element={protect(<ResourceList kind="storage-classes" />)} />
+                        <Route path="/config/ConfigMaps" element={protect(<ResourceList kind="ConfigMaps" />)} />
+                        <Route path="/config/Secrets" element={protect(<ResourceList kind="Secrets" />)} />
+                        <Route path="/config/PersistentVolumeClaims" element={protect(<ResourceList kind="PersistentVolumeClaims" />)} />
+                        <Route path="/config/PersistentVolumes" element={protect(<ResourceList kind="PersistentVolumes" />)} />
+                        <Route path="/config/StorageClasses" element={protect(<ResourceList kind="StorageClasses" />)} />
 
-                        {/* CRD */}
-                        <Route path="/cluster/crds" element={protect(<ResourceList kind="crds" />)} />
-                        <Route path="/crd" element={<Navigate to="/cluster/crds" replace />} />
+                        {/* CustomResourceDefinition */}
+                        <Route path="/cluster/CustomResourceDefinitions" element={protect(<ResourceList kind="CustomResourceDefinitions" />)} />
+                        <Route path="/CustomResourceDefinition" element={<Navigate to="/cluster/CustomResourceDefinitions" replace />} />
 
                         {/* Cluster */}
-                        <Route path="/cluster/cluster-role-bindings" element={protect(<ResourceList kind="cluster-role-bindings" />)} />
-                        <Route path="/cluster/cluster-roles" element={protect(<ResourceList kind="cluster-roles" />)} />
-                        <Route path="/cluster/namespaces" element={protect(<ResourceList kind="namespaces" />)} />
-                        <Route path="/cluster/events" element={protect(<EventsList />)} />
-                        <Route path="/cluster/ingress-classes" element={protect(<ResourceList kind="ingress-classes" />)} />
-                        <Route path="/cluster/network-policies" element={protect(<ResourceList kind="network-policies" />)} />
-                        <Route path="/cluster/role-bindings" element={protect(<ResourceList kind="role-bindings" />)} />
-                        <Route path="/cluster/roles" element={protect(<ResourceList kind="roles" />)} />
-                        <Route path="/cluster/service-accounts" element={protect(<ResourceList kind="service-accounts" />)} />
+                        <Route path="/cluster/ClusterRoleBindings" element={protect(<ResourceList kind="ClusterRoleBindings" />)} />
+                        <Route path="/cluster/ClusterRoles" element={protect(<ResourceList kind="ClusterRoles" />)} />
+                        <Route path="/cluster/Namespaces" element={protect(<ResourceList kind="Namespaces" />)} />
+                        <Route path="/cluster/Events" element={protect(<EventsList />)} />
+                        <Route path="/cluster/IngressClasses" element={protect(<ResourceList kind="IngressClasses" />)} />
+                        <Route path="/cluster/NetworkPolicies" element={protect(<ResourceList kind="NetworkPolicies" />)} />
+                        <Route path="/cluster/RoleBindings" element={protect(<ResourceList kind="RoleBindings" />)} />
+                        <Route path="/cluster/Roles" element={protect(<ResourceList kind="Roles" />)} />
+                        <Route path="/cluster/ServiceAccounts" element={protect(<ResourceList kind="ServiceAccounts" />)} />
 
                         <Route path="/:kind/:namespace/:name" element={protect(<ResourceDetails user={user} />)} />
                         <Route path="/access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? protect(<AdminPanel />) : <Navigate to="/" />} />

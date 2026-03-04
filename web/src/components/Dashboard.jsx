@@ -210,7 +210,7 @@ export default function Dashboard({ isCollapsed }) {
                     subValue={`${stats?.podCountFailed || 0} ${t('failed_evicted')}`}
                     iconKey="pod"
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
-                    onClick={() => navigate('/workloads/pods')}
+                    onClick={() => navigate('/workloads/Pods')}
                     isCollapsed={isCollapsed}
                 >
                     <div className="mt-3 flex items-center gap-2">

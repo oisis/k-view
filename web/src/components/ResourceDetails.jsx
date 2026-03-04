@@ -18,33 +18,32 @@ const TABS = [
 ];
 
 const KIND_DISPLAY_MAP = {
-    'pods': 'Pod',
-    'deployments': 'Deployment',
-    'statefulsets': 'StatefulSet',
-    'daemonsets': 'DaemonSet',
-    'jobs': 'Job',
-    'cronjobs': 'CronJob',
-    'replicasets': 'ReplicaSet',
-    'replicationcontrollers': 'ReplicationController',
-    'hpas': 'HorizontalPodAutoscaler',
-    'services': 'Service',
-    'ingresses': 'Ingress',
-    'ingress-classes': 'IngressClass',
-    'configmaps': 'ConfigMap',
-    'secrets': 'Secret',
-    'pvcs': 'PersistentVolumeClaim',
-    'pvs': 'PersistentVolume',
-    'storage-classes': 'StorageClass',
-    'cluster-role-bindings': 'ClusterRoleBinding',
-    'cluster-roles': 'ClusterRole',
-    'crds': 'CustomResourceDefinition',
-    'events': 'Event',
-    'namespaces': 'Namespace',
-    'network-policies': 'NetworkPolicy',
-    'nodes': 'Node',
-    'role-bindings': 'RoleBinding',
-    'roles': 'Role',
-    'service-accounts': 'ServiceAccount'
+    'Pods': 'Pod',
+    'Deployments': 'Deployment',
+    'StatefulSets': 'StatefulSet',
+    'DaemonSets': 'DaemonSet',
+    'Jobs': 'Job',
+    'CronJobs': 'CronJob',
+    'ReplicaSets': 'ReplicaSet',
+    'ReplicationControllers': 'ReplicationController',
+    'HorizontalPodAutoscalers': 'HorizontalPodAutoscaler',
+    'Services': 'Service',
+    'Ingresses': 'Ingress',
+    'IngressClasses': 'IngressClass',
+    'ConfigMaps': 'ConfigMap',
+    'Secrets': 'Secret',
+    'PersistentVolumeClaims': 'PersistentVolumeClaim',
+    'PersistentVolumes': 'PersistentVolume',
+    'StorageClasses': 'StorageClass',
+    'ClusterRoleBindings': 'ClusterRoleBinding',
+    'ClusterRoles': 'ClusterRole',
+    'CustomResourceDefinitions': 'CustomResourceDefinition',
+    'Events': 'Event',
+    'Namespaces': 'Namespace',
+    'NetworkPolicies': 'NetworkPolicy',
+    'RoleBindings': 'RoleBinding',
+    'Roles': 'Role',
+    'ServiceAccounts': 'ServiceAccount'
 };
 
 /**
@@ -77,8 +76,6 @@ export default function ResourceDetails() {
     const [relatedImagePullSecrets, setRelatedImagePullSecrets] = useState([]);
     const [relatedPvs, setRelatedPvs] = useState([]);
 
-    const kindLower = (kind || '').toLowerCase();
-
     const load = async () => {
         setLoading(true);
         try {
@@ -92,10 +89,10 @@ export default function ResourceDetails() {
             setData(detailsData);
 
             if (activeTab === 'overview') {
-                if (kindLower === 'namespaces') {
+                if (kind === 'Namespaces') {
                     const [qRes, lRes] = await Promise.all([
-                        fetch(`/api/resources/resourcequotas?namespace=${name}`),
-                        fetch(`/api/resources/limitranges?namespace=${name}`)
+                        fetch(`/api/resources/ResourceQuotas?namespace=${name}`),
+                        fetch(`/api/resources/LimitRanges?namespace=${name}`)
                     ]);
                     if (qRes.ok) {
                         const q = await qRes.json();
@@ -107,8 +104,8 @@ export default function ResourceDetails() {
                     }
                 }
 
-                if (kindLower.includes('cronjob')) {
-                    const jRes = await fetch(`/api/resources/jobs?namespace=${namespace === '-' ? '' : namespace}`);
+                if (kind.includes('CronJob')) {
+                    const jRes = await fetch(`/api/resources/Jobs?namespace=${namespace === '-' ? '' : namespace}`);
                     if (jRes.ok) {
                         const jobs = await jRes.json();
                         if (Array.isArray(jobs)) {
@@ -155,7 +152,7 @@ export default function ResourceDetails() {
     if (!data) return null;
 
     const tabsToDisplay = TABS.filter(t => {
-        if (t.id === 'logs' && !['pods', 'pod'].includes(kindLower)) return false;
+        if (t.id === 'logs' && !['Pods', 'Pod'].includes(kind)) return false;
         return true;
     });
 
@@ -172,7 +169,7 @@ export default function ResourceDetails() {
                     <div>
                         <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
                         <p className="text-sm font-bold tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
-                            <span>Kind: {KIND_DISPLAY_MAP[kindLower] || data?.extra?.kind || kind}</span>
+                            <span>Kind: {KIND_DISPLAY_MAP[kind] || data?.extra?.kind || kind}</span>
                             <span className="font-mono text-[var(--text-green)] opacity-100">UID: {data.metadata?.uid || '—'}</span>
                         </p>
                     </div>
@@ -232,7 +229,7 @@ export default function ResourceDetails() {
                 )}
                 {activeTab === 'logs' && (
                     <LogsTab 
-                        kind={kindLower}
+                        kind={kind}
                         namespace={namespace} 
                         name={name} 
                         containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
@@ -241,7 +238,7 @@ export default function ResourceDetails() {
                 )}
                 {activeTab === 'events' && (
                     <EventsTab 
-                        kind={kindLower === 'pods' ? 'pod' : kind}
+                        kind={kind === 'Pods' ? 'Pod' : kind}
                         namespace={namespace && namespace !== '-' ? namespace : ''}
                         name={name}
                         t={t}

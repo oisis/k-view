@@ -33,32 +33,32 @@ import { JobListSchema } from './ResourceList/templates/JobList';
 
 // Column schema per resource kind - RESTORED FROM MAIN
 const SCHEMAS = {
-    pods: PodListSchema,
-    deployments: DeploymentListSchema,
-    statefulsets: StatefulSetListSchema,
-    daemonsets: DeploymentListSchema,
-    jobs: JobListSchema,
-    cronjobs: CronJobListSchema,
-    replicasets: ReplicaSetListSchema,
-    replicationcontrollers: ReplicaSetListSchema,
-    hpas: HpaListSchema,
-    services: ServiceListSchema,
-    ingresses: IngressListSchema,
-    'ingress-classes': IngressClassListSchema,
-    configmaps: ConfigMapListSchema,
-    secrets: SecretListSchema,
-    pvcs: PvcListSchema,
-    pvs: PvListSchema,
-    'storage-classes': StorageClassListSchema,
-    'cluster-role-bindings': ClusterRbacListSchema,
-    'cluster-roles': ClusterRbacListSchema,
-    events: EventListSchema,
-    namespaces: NamespaceListSchema,
-    'network-policies': ConfigMapListSchema,
-    'role-bindings': RbacListSchema,
-    roles: RbacListSchema,
-    'service-accounts': ServiceAccountListSchema,
-    crds: CrdListSchema,
+    Pods: PodListSchema,
+    Deployments: DeploymentListSchema,
+    StatefulSets: StatefulSetListSchema,
+    DaemonSets: DeploymentListSchema,
+    Jobs: JobListSchema,
+    CronJobs: CronJobListSchema,
+    ReplicaSets: ReplicaSetListSchema,
+    ReplicationControllers: ReplicaSetListSchema,
+    HorizontalPodAutoscalers: HpaListSchema,
+    Services: ServiceListSchema,
+    Ingresses: IngressListSchema,
+    IngressClasses: IngressClassListSchema,
+    ConfigMaps: ConfigMapListSchema,
+    Secrets: SecretListSchema,
+    PersistentVolumeClaims: PvcListSchema,
+    PersistentVolumes: PvListSchema,
+    StorageClasses: StorageClassListSchema,
+    ClusterRoleBindings: ClusterRbacListSchema,
+    ClusterRoles: ClusterRbacListSchema,
+    Events: EventListSchema,
+    Namespaces: NamespaceListSchema,
+    NetworkPolicies: ConfigMapListSchema,
+    RoleBindings: RbacListSchema,
+    Roles: RbacListSchema,
+    ServiceAccounts: ServiceAccountListSchema,
+    CustomResourceDefinitions: CrdListSchema,
 };
 
 // DTO-Safe value accessor (Restored logic from main, but using new DTO paths)
@@ -290,7 +290,7 @@ export default function ResourceList({ kind }) {
                                 {(schema.cols || []).map(col => {
                                     let widthCls = "";
                                     
-                                    if (col.key === 'name') widthCls = kind === 'cronjobs' ? "w-1/6" : "w-1/4";
+                                    if (col.key === 'name') widthCls = kind === 'CronJobs' ? "w-1/6" : "w-1/4";
                                     else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-40";
                                     else if (col.key === 'extra.images' || col.key === 'extra.address' || col.key === 'extra.endpoints' || col.key === 'extra.external') widthCls = "w-48";
                                     else if (col.key === 'extra.cluster-ip' || col.key === 'extra.access-modes' || col.key === 'extra.reclaim-policy' || col.key === 'extra.storage-class') widthCls = "w-32";
