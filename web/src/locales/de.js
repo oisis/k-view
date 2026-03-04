@@ -372,5 +372,6 @@ export const de = {
     "warning_status": "Warnung",
     "complete": "Abgeschlossen",
     "bound": "Gebunden",
-    "released": "Freigegeben"
+    "released": "Freigegeben",
+    "no_data_available": "Keine Daten verfügbar"
 };

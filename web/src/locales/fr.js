@@ -372,5 +372,6 @@ export const fr = {
     "warning_status": "Avertissement",
     "complete": "Terminé",
     "bound": "Lié",
-    "released": "Libéré"
+    "released": "Libéré",
+    "no_data_available": "Aucune donnée disponible"
 };

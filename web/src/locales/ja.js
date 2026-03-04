@@ -372,5 +372,6 @@ export const ja = {
     "warning_status": "警告",
     "complete": "完了",
     "bound": "バインド済み",
-    "released": "解放済み"
+    "released": "解放済み",
+    "no_data_available": "データがありません"
 };

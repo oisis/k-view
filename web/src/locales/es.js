@@ -372,5 +372,6 @@ export const es = {
     "warning_status": "Advertencia",
     "complete": "Completado",
     "bound": "Vinculado",
-    "released": "Liberado"
+    "released": "Liberado",
+    "no_data_available": "No hay datos disponibles"
 };

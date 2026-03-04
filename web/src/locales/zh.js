@@ -372,5 +372,6 @@ export const zh = {
     "warning_status": "警告",
     "complete": "完成",
     "bound": "已绑定",
-    "released": "已释放"
+    "released": "已释放",
+    "no_data_available": "暂无数据"
 };

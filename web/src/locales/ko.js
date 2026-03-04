@@ -372,5 +372,6 @@ export const ko = {
     "warning_status": "경고",
     "complete": "완료",
     "bound": "바인딩됨",
-    "released": "해제됨"
+    "released": "해제됨",
+    "no_data_available": "데이터가 없습니다"
 };
