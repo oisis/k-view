@@ -8,6 +8,7 @@ import OverviewTab from './ResourceDetails/OverviewTab';
 import YamlTab from './ResourceDetails/YamlTab';
 import LogsTab from './ResourceDetails/LogsTab';
 import EventsTab from './ResourceDetails/EventsTab';
+import NetworkTrace from './NetworkTrace';
 import ErrorBoundary from './ErrorBoundary';
 
 const TABS = [
@@ -15,6 +16,7 @@ const TABS = [
     { id: 'yaml', label: 'yaml' },
     { id: 'logs', label: 'logs' },
     { id: 'events', label: 'events' },
+    { id: 'trace', label: 'trace' },
 ];
 
 const KIND_DISPLAY_MAP = {
@@ -153,6 +155,7 @@ export default function ResourceDetails() {
 
     const tabsToDisplay = TABS.filter(t => {
         if (t.id === 'logs' && !['Pods', 'Pod'].includes(kind)) return false;
+        if (t.id === 'trace' && !['Pods', 'Pod', 'Services', 'Service', 'Ingresses', 'Ingress', 'Deployments', 'Deployment', 'StatefulSets', 'StatefulSet', 'DaemonSets', 'DaemonSet'].includes(kind)) return false;
         return true;
     });
 
@@ -243,6 +246,15 @@ export default function ResourceDetails() {
                         name={name}
                         t={t}
                     />
+                )}
+                {activeTab === 'trace' && (
+                    <ErrorBoundary>
+                        <NetworkTrace 
+                            kind={kind}
+                            namespace={namespace}
+                            name={name}
+                        />
+                    </ErrorBoundary>
                 )}
             </div>
         </div>

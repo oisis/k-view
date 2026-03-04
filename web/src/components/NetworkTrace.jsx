@@ -49,23 +49,27 @@ export default function NetworkTrace({ kind, namespace, name }) {
     }, [kind, namespace, name]);
 
     useEffect(() => {
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: activeTheme === 'light' ? 'default' : 'base',
-            themeVariables: {
-                background: 'transparent',
-                fontFamily: 'inherit',
-            },
-            flowchart: {
-                htmlLabels: true,
-                curve: 'basis',
-                useMaxWidth: true,
-            }
-        });
+        const initAndRender = async () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: activeTheme === 'light' ? 'default' : 'base',
+                themeVariables: {
+                    background: 'transparent',
+                    fontFamily: 'inherit',
+                },
+                flowchart: {
+                    htmlLabels: true,
+                    curve: 'basis',
+                    useMaxWidth: true,
+                }
+            });
 
-        if (traceData && mermaidRef.current) {
-            renderDiagram();
-        }
+            if (traceData && mermaidRef.current) {
+                await renderDiagram();
+            }
+        };
+
+        initAndRender();
     }, [traceData, activeTheme]);
 
     useEffect(() => {
