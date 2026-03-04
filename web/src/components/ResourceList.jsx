@@ -66,19 +66,26 @@ const SCHEMAS = {
 // DTO-Safe value accessor (Restored logic from main, but using new DTO paths)
 function getVal(item, key) {
     if (!item) return '—';
+    
+    let rawVal;
     // 1. Map top-level DTO fields
     if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') {
-        return item[key] ?? '—';
+        rawVal = item[key];
     }
     // 2. Map extra fields from DTO (backend uses 'extra' object)
-    if (item.extra) {
+    else if (item.extra) {
         // Handle "extra.node", "extra.restarts", etc.
         const extraKey = key.startsWith('extra.') ? key.slice(6) : key;
-        if (item.extra[extraKey] !== undefined) {
-            return item.extra[extraKey] ?? '—';
-        }
+        rawVal = item.extra[extraKey];
+    } else {
+        rawVal = item[key];
     }
-    return item[key] ?? '—';
+
+    if (rawVal === undefined || rawVal === null) return '—';
+    if (typeof rawVal === 'boolean') return String(rawVal);
+    if (Array.isArray(rawVal)) return rawVal.join(', ');
+    
+    return rawVal;
 }
 
 function StatusBadge({ value }) {

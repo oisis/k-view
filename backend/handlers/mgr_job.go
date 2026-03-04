@@ -30,12 +30,26 @@ func (m *JobManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	failed, _, _ := unstructured.NestedInt64(item.Object, "status", "failed")
 	active, _, _ := unstructured.NestedInt64(item.Object, "status", "active")
 
+	// Extract images from spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["completions"] = completions
 	resItem.Extra["parallelism"] = parallelism
 	resItem.Extra["activeDeadlineSeconds"] = activeDeadline
 	resItem.Extra["succeeded"] = succeeded
 	resItem.Extra["failed"] = failed
 	resItem.Extra["active"] = active
+	resItem.Extra["images"] = images
 
 	// Logic for job status
 	if failed > 0 {

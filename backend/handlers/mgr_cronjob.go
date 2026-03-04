@@ -29,8 +29,22 @@ func (m *CronJobManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	
 	activeJobs, _, _ := unstructured.NestedSlice(item.Object, "status", "active")
 
+	// Extract images from jobTemplate -> spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "jobTemplate", "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["schedule"] = schedule
 	resItem.Extra["suspend"] = suspend
+	resItem.Extra["images"] = images
 	resItem.Extra["concurrencyPolicy"] = concurrencyPolicy
 	resItem.Extra["lastScheduleTime"] = lastSchedule
 	resItem.Extra["activeJobsCount"] = len(activeJobs)
