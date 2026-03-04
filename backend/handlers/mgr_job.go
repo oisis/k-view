@@ -50,6 +50,7 @@ func (m *JobManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	resItem.Extra["failed"] = failed
 	resItem.Extra["active"] = active
 	resItem.Extra["images"] = images
+	resItem.Extra["readyReplicas"] = succeeded
 
 	// Logic for job status
 	if failed > 0 {
