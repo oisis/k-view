@@ -195,6 +195,7 @@ function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, onCreateResource
                     <NavItem href="/cluster/IngressClasses" iconKey="ingressclass" label={t('IngressClasses')} active={isPathActive('/cluster/IngressClasses')} isCollapsed={isCollapsed} />
                     <NavItem href="/network/Ingresses" iconKey="ingress" label={t('Ingresses')} active={isPathActive('/network/Ingresses')} isCollapsed={isCollapsed} />
                     <NavItem href="/network/Services" iconKey="service" label={t('Services')} active={isPathActive('/network/Services')} isCollapsed={isCollapsed} />
+                    <NavItem href="/network/Endpoints" iconKey="network" label={t('Endpoints')} active={isPathActive('/network/Endpoints')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
@@ -423,6 +424,7 @@ function App() {
                         {/* Services / Networking */}
                         <Route path="/network/Services" element={protect(<ResourceList kind="Services" />)} />
                         <Route path="/network/Ingresses" element={protect(<ResourceList kind="Ingresses" />)} />
+                        <Route path="/network/Endpoints" element={protect(<ResourceList kind="Endpoints" />)} />
 
                         {/* Config & Storage */}
                         <Route path="/config/ConfigMaps" element={protect(<ResourceList kind="ConfigMaps" />)} />

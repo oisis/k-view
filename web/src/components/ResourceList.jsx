@@ -30,6 +30,7 @@ import { ClusterRbacListSchema } from './ResourceList/templates/ClusterRbacList'
 import { ReplicaSetListSchema } from './ResourceList/templates/ReplicaSetList';
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
+import { EndpointsListSchema } from './ResourceList/templates/EndpointsList';
 
 // Column schema per resource kind - RESTORED FROM MAIN
 const SCHEMAS = {
@@ -45,6 +46,7 @@ const SCHEMAS = {
     Services: ServiceListSchema,
     Ingresses: IngressListSchema,
     IngressClasses: IngressClassListSchema,
+    Endpoints: EndpointsListSchema,
     ConfigMaps: ConfigMapListSchema,
     Secrets: SecretListSchema,
     PersistentVolumeClaims: PvcListSchema,
