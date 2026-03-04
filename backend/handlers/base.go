@@ -48,6 +48,14 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	registry.Register("storageclasses", NewStorageClassManager())
 	registry.Register("storageclass", NewStorageClassManager())
 	registry.Register("sc", NewStorageClassManager())
+	registry.Register("ingresses", NewIngressManager())
+	registry.Register("ingress", NewIngressManager())
+	registry.Register("ing", NewIngressManager())
+	registry.Register("ingressclasses", NewIngressClassManager())
+	registry.Register("ingressclass", NewIngressClassManager())
+	registry.Register("networkpolicies", NewNetworkPolicyManager())
+	registry.Register("networkpolicy", NewNetworkPolicyManager())
+	registry.Register("netpol", NewNetworkPolicyManager())
 
 	return &ResourceHandler{
 		k8sClient: k8sClient,
