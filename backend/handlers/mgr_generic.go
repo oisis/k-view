@@ -34,8 +34,12 @@ func (m *GenericManager) IsClusterScoped() bool {
 
 func (m *GenericManager) MapItem(item unstructured.Unstructured, metricsMap map[string]unstructured.Unstructured) ResourceItem {
 	extra := make(map[string]interface{})
-	extra["labels"] = k8sutils.GetLabels(item.Object)
-	extra["annotations"] = k8sutils.GetAnnotations(item.Object)
+	
+	labels, _, _ := unstructured.NestedMap(item.Object, "metadata", "labels")
+	annotations, _, _ := unstructured.NestedMap(item.Object, "metadata", "annotations")
+	
+	extra["labels"] = labels
+	extra["annotations"] = annotations
 	extra["kind"] = item.GetKind()
 
 	if len(item.GetOwnerReferences()) > 0 {
