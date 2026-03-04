@@ -1,60 +1,72 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ResourceInfoSection from '../sections/ResourceInfoSection';
+import DetailSection from '../DetailSection';
 import CommonTable from '../../Common/CommonTable';
+import ExpandableCell from '../ExpandableCell';
+import { useTheme } from '../../../ThemeContext';
 
-/**
- * ServiceOverview - Cleanup Duplicate Metadata
- */
-export default function ServiceOverview({ data, t }) {
-    if (!data) return null;
-    const { resource, metadata, spec, status, extra, relatedPods = [], relatedEndpoints = {}, relatedIngresses = [] } = data;
-
-    const epColumns = [
-        { header: 'Host', accessor: 'host' },
-        { header: 'Ports', accessor: (ep) => ep.ports?.map(p => `${p.port}/${p.protocol}`).join(', ') || '—' },
-        { header: 'Node', accessor: 'node' },
-        { header: 'Ready', accessor: 'ready', className: 'text-center' }
-    ];
-
-    const ingColumns = [
-        { header: t('label_name'), accessor: (i) => <Link to={`/ingresses/${i.namespace}/${i.name}`} className="hover:underline text-accent font-bold font-mono">{i.name}</Link> },
-        { header: t('label_namespace'), accessor: 'namespace' },
-        { header: 'Labels', accessor: (i) => i.extra?.labels || '—', className: 'text-xs' },
-        { header: 'Endpoints', accessor: (i) => i.extra?.endpoints || '—' },
-        { header: 'Hosts', accessor: (i) => i.extra?.hosts || '—' },
-        { header: 'Created', accessor: 'age' }
-    ];
+export default function ServiceOverview({ data, spec, status, relatedEndpoints = [], relatedPods = [], relatedIngresses = [], t, icons }) {
+    const { icons: themeIcons } = useTheme();
 
     const podColumns = [
-        { header: t('label_name'), accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
-        { header: t('label_namespace'), accessor: 'namespace' },
-        { header: 'Images', accessor: (p) => p.extra?.images || '—', className: 'text-xs font-mono' },
-        { header: 'Labels', accessor: (p) => p.extra?.labels || '—', className: 'text-xs' },
-        { header: 'Node', accessor: (p) => p.extra?.node || '—' },
-        { header: 'Status', accessor: 'status', className: 'text-center' },
+        { header: 'Name', accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="text-info hover:underline">{p.name}</Link> },
+        { header: 'Namespace', accessor: 'namespace' },
+        { header: 'Images', accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
+        { header: 'Labels', accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
+        { header: 'Node', accessor: (p) => p.extra?.nodeName || '—' },
+        { header: 'Status', accessor: 'status', badge: true },
         { header: 'Restarts', accessor: (p) => p.extra?.restarts || 0, className: 'text-center' },
         { header: 'CPU', accessor: (p) => p.extra?.cpu || '—', className: 'text-center' },
-        { header: 'RAM', accessor: (p) => p.extra?.ram || '—', className: 'text-center' },
+        { header: 'RAM', accessor: (p) => p.extra?.memory || '—', className: 'text-center' },
         { header: 'Created', accessor: 'age' }
     ];
 
-    // Process endpoints
-    const processedEndpoints = [];
-    if (relatedEndpoints.subsets) {
-        relatedEndpoints.subsets.forEach(subset => {
-            const ports = subset.ports || [];
-            subset.addresses?.forEach(addr => processedEndpoints.push({ host: addr.ip, node: addr.nodeName, ready: 'True', ports }));
-            subset.notReadyAddresses?.forEach(addr => processedEndpoints.push({ host: addr.ip, node: addr.nodeName, ready: 'False', ports }));
-        });
-    }
+    const ingressColumns = [
+        { header: 'Name', accessor: (i) => <Link to={`/ingresses/${i.namespace}/${i.name}`} className="text-accent hover:underline">{i.name}</Link> },
+        { header: 'Namespace', accessor: 'namespace' },
+        { header: 'Labels', accessor: (i) => <ExpandableCell value={i.extra?.labels || {}} type="labels" icons={themeIcons} /> },
+        { header: 'Endpoints', accessor: (i) => <ExpandableCell value={i.extra?.endpoints || []} type="endpoints" icons={themeIcons} /> },
+        { header: 'Hosts', accessor: (i) => <ExpandableCell value={i.extra?.hosts || []} type="hosts" icons={themeIcons} /> },
+        { header: 'Created', accessor: 'age' }
+    ];
+
+    const epColumns = [
+        { header: 'Host', accessor: 'host', className: 'font-mono' },
+        { header: 'Ports', accessor: 'ports', className: 'text-xs' },
+        { header: 'Node', accessor: 'node' },
+        { header: 'Ready', accessor: 'ready', className: 'text-center text-success font-bold' }
+    ];
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <ResourceInfoSection isService={true} resource={resource} extra={extra} spec={spec} status={status} t={t} />
-            <CommonTable title="Endpoints" columns={epColumns} data={processedEndpoints} t={t} />
-            <CommonTable title="Ingresses" columns={ingColumns} data={relatedIngresses} t={t} />
-            <CommonTable title="pods" columns={podColumns} data={relatedPods} t={t} />
+            <DetailSection title="Resource Info">
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <th className="px-6 py-2 text-center border-r border-border">Type</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Cluster IP</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Session Affinity</th>
+                                <th className="px-6 py-2 text-center">Selector</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="text-primary font-bold align-middle">
+                                <td className="px-6 py-4 text-center border-r border-border">{spec?.type || '—'}</td>
+                                <td className="px-6 py-4 text-center border-r border-border font-mono">{spec?.clusterIP || '—'}</td>
+                                <td className="px-6 py-4 text-center border-r border-border">{spec?.sessionAffinity || 'None'}</td>
+                                <td className="px-6 py-4 text-center">
+                                    <ExpandableCell value={spec?.selector || {}} type="labels" icons={themeIcons} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </DetailSection>
+
+            <CommonTable title="Endpoints" columns={epColumns} data={relatedEndpoints} t={t} />
+            <CommonTable title="Pods" columns={podColumns} data={relatedPods} t={t} />
+            <CommonTable title="Ingresses" columns={ingressColumns} data={relatedIngresses} t={t} />
         </div>
     );
 }

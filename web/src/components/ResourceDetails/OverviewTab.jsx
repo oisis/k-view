@@ -53,6 +53,11 @@ export default function OverviewTab({
     const isCronJob = kindLower.includes('cronjob');
     const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
     const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
+    const isService = kindLower === 'service' || kindLower === 'services';
+    const isIngress = kindLower === 'ingress' || kindLower === 'ingresses';
+    const isEndpoint = kindLower === 'endpoint' || kindLower === 'endpoints';
+    const isNetworkPolicy = kindLower.includes('networkpolicy') || kindLower.includes('network-policy');
+    const isIngressClass = kindLower === 'ingressclass' || kindLower === 'ingress-class' || kindLower === 'ingressclasses';
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
     return (
@@ -84,7 +89,14 @@ export default function OverviewTab({
             {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
 
-            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && (
+            {/* BATCH 3: Network */}
+            {isService && <ServiceOverview data={data} spec={spec} status={status} relatedEndpoints={relatedEndpoints} relatedPods={relatedPods} relatedIngresses={relatedIngresses} t={t} icons={icons} />}
+            {isIngress && <IngressOverview data={data} metadata={metadata} spec={spec} status={status} t={t} icons={icons} />}
+            {isEndpoint && <EndpointsOverview data={data} spec={spec} t={t} icons={icons} />}
+            {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
+            {isIngressClass && <IngressClassOverview spec={spec} t={t} />}
+
+            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}). Implementation in progress.
                 </div>

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -56,5 +57,49 @@ func (m *IngressManager) MapItem(item unstructured.Unstructured, metricsMap map[
 }
 
 func (m *IngressManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract Rules for detailed table
+	var rulesList []gin.H
+	rules, _, _ := unstructured.NestedSlice(item.Object, "spec", "rules")
+	for _, r := range rules {
+		if rule, ok := r.(map[string]interface{}); ok {
+			host, _ := rule["host"].(string)
+			if http, ok := rule["http"].(map[string]interface{}); ok {
+				if paths, ok := http["paths"].([]interface{}); ok {
+					for _, p := range paths {
+						if pMap, ok := p.(map[string]interface{}); ok {
+							path, _ := pMap["path"].(string)
+							pType, _ := pMap["pathType"].(string)
+							
+							var svcName, svcPort string
+							if backend, ok := pMap["backend"].(map[string]interface{}); ok {
+								if svc, ok := backend["service"].(map[string]interface{}); ok {
+									svcName, _ = svc["name"].(string)
+									if port, ok := svc["port"].(map[string]interface{}); ok {
+										if n, ok := port["number"]; ok { svcPort = fmt.Sprintf("%v", n) }
+										if n, ok := port["name"]; ok { svcPort = fmt.Sprintf("%v", n) }
+									}
+								}
+							}
+
+							rulesList = append(rulesList, gin.H{
+								"host":        host,
+								"path":        path,
+								"pathType":    pType,
+								"serviceName": svcName,
+								"servicePort": svcPort,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+	response["rules"] = rulesList
+
+	return response, nil
 }

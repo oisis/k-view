@@ -1,43 +1,22 @@
 import React from 'react';
-import CommonTable from '../../Common/CommonTable';
 import DetailSection from '../DetailSection';
+import CommonTable from '../../Common/CommonTable';
 
-export default function IngressOverview({ data, spec, status, t }) {
-    if (!data) return null;
-    const ingressStatus = status?.loadBalancer?.ingress || [];
+export default function IngressOverview({ data, metadata, spec, status, t, icons }) {
+    const rules = data?.rules || [];
 
     const ruleColumns = [
-        { header: 'Host', accessor: 'host', className: 'font-bold text-info font-mono' },
-        { header: 'Path', accessor: 'path', className: 'font-mono' },
-        { header: 'Service', accessor: 'serviceName', className: 'font-bold text-accent' },
-        { header: 'Port', accessor: 'port' }
+        { header: 'Host', accessor: 'host', className: 'font-bold text-info' },
+        { header: 'Path', accessor: 'path', className: 'font-mono text-xs' },
+        { header: 'Path type', accessor: 'pathType', className: 'text-xs' },
+        { header: 'Service name', accessor: 'serviceName' },
+        { header: 'Service port', accessor: 'servicePort', className: 'text-center' },
+        { header: 'TLS secret', accessor: (r) => spec?.tls?.[0]?.secretName || '—', className: 'text-xs italic opacity-70' }
     ];
-
-    const rulesData = [];
-    spec?.rules?.forEach(rule => {
-        rule.http?.paths?.forEach(path => {
-            rulesData.push({
-                host: rule.host || '*',
-                path: path.path || '/',
-                serviceName: path.backend?.service?.name || '—',
-                port: path.backend?.service?.port?.number || '—'
-            });
-        });
-    });
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <CommonTable title="Rules" columns={ruleColumns} data={rulesData} t={t} />
-            <DetailSection title="Load Balancer">
-                <div className="p-4 flex flex-wrap gap-2">
-                    {(ingressStatus || []).map((ing, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-info/10 text-info font-mono text-xs border border-info/20">
-                            {ing.ip || ing.hostname}
-                        </span>
-                    ))}
-                    {ingressStatus.length === 0 && <span className="text-text-muted italic">Not provisioned</span>}
-                </div>
-            </DetailSection>
+            <CommonTable title="Rules" columns={ruleColumns} data={rules} t={t} />
         </div>
     );
 }
