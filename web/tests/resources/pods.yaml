@@ -19,9 +19,7 @@ detail_tabs:
   - Exec
   - Trace
 Metadata:
-  - Name
   - Namespace
-  - Created
   - Age
   - Labels
   - Annotations

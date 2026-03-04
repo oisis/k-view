@@ -14,9 +14,7 @@ detail_tabs:
   - Events
   - Trace
 Metadata:
-  - Name
   - Namespace
-  - Created
   - Age
   - Labels
   - Annotations

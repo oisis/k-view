@@ -10,9 +10,7 @@ detail_tabs:
   - Yaml
   - Events
 Metadata:
-  - Name
   - Namespace
-  - Created
   - Age
   - Labels
   - Annotations

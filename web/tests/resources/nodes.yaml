@@ -16,8 +16,6 @@ detail_tabs:
   - Yaml
   - Events
 Metadata:
-  - Name
-  - Created
   - Age
   - Labels
   - Annotations
