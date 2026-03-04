@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -40,5 +41,26 @@ func (m *StorageClassManager) MapItem(item unstructured.Unstructured, metricsMap
 }
 
 func (m *StorageClassManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	scName := item.GetName()
+
+	// Fetch related PVs
+	pvMgr := NewPVManager()
+	pvs, err := dynClient.Resource(pvMgr.GetGVR()).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		var relatedPvs []ResourceItem
+		for _, pv := range pvs.Items {
+			pvSC, _, _ := unstructured.NestedString(pv.Object, "spec", "storageClassName")
+			if pvSC == scName {
+				relatedPvs = append(relatedPvs, pvMgr.MapItem(pv, nil))
+			}
+		}
+		response["relatedPvs"] = relatedPvs
+	}
+
+	return response, nil
 }

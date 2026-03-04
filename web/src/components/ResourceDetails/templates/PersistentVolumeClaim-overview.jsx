@@ -1,23 +1,37 @@
 import React from 'react';
-import ResourceInfoSection from '../sections/ResourceInfoSection';
 import DetailSection from '../DetailSection';
+import ExpandableCell from '../ExpandableCell';
+import { useTheme } from '../../../ThemeContext';
 
 export default function PvcOverview({ data, metadata, spec, status, t }) {
-    if (!data) return null;
+    const { icons: themeIcons } = useTheme();
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <ResourceInfoSection isPvc={true} resource={data.resource} extra={data.extra} spec={spec} status={status} t={t} />
-            <DetailSection title="Capacity & Resources">
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border bg-[var(--bg-sidebar)]/5 border-b border-border rounded-xl overflow-hidden border border-border/30">
-                    <div className="px-6 py-4 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Requested</span>
-                        <span className="text-sm font-bold text-primary">{spec?.resources?.requests?.storage || '—'}</span>
-                    </div>
-                    <div className="px-6 py-4 flex flex-col items-center">
-                        <span className="text-xs font-bold text-text-muted uppercase mb-1">Capacity</span>
-                        <span className="text-sm font-bold text-success">{status?.capacity?.storage || '—'}</span>
-                    </div>
+            <DetailSection title="Resource Info">
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <th className="px-4 py-2 text-center border-r border-border">Status</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Storage Class</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Volume name</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Capacity</th>
+                                <th className="px-4 py-2 text-center">Access Modes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="text-primary font-bold align-middle text-center">
+                                <td className="px-4 py-4 border-r border-border">{status?.phase || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{spec?.storageClassName || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{spec?.volumeName || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{status?.capacity?.storage || '—'}</td>
+                                <td className="px-4 py-4">
+                                    <ExpandableCell value={spec?.accessModes || []} type="access-modes" icons={themeIcons} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </DetailSection>
         </div>

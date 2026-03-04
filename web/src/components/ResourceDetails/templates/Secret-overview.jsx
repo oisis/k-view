@@ -1,23 +1,22 @@
 import React from 'react';
-import SecretDataSection from '../SecretDataSection';
+import CommonTable from '../../Common/CommonTable';
+import ExpandableCell from '../ExpandableCell';
 
-/**
- * SecretOverview - Cleanup Duplicate Metadata
- */
-export default function SecretOverview({ data, kind, namespace, name, t, onRefresh }) {
-    if (!data) return null;
-    const secretData = data.data || data.resource?.data || {};
+export default function SecretOverview({ data, t }) {
+    const dataItems = Object.entries(data?.data || {}).map(([k, v]) => ({
+        key: k,
+        value: v
+    }));
+
+    const columns = [
+        { header: 'Key', accessor: 'key', className: 'font-mono font-bold text-warning w-1/4' },
+        { header: 'Value', accessor: (d) => <ExpandableCell value={d.value} type="secret" limit={1} />, className: 'w-2/3' },
+        { header: 'Actions', accessor: () => '—', className: 'text-center' }
+    ];
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <SecretDataSection 
-                data={secretData} 
-                kind={kind} 
-                namespace={namespace} 
-                name={name} 
-                t={t} 
-                onRefresh={onRefresh} 
-            />
+            <CommonTable title="Data" columns={columns} data={dataItems} t={t} />
         </div>
     );
 }

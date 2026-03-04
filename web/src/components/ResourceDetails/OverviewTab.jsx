@@ -58,6 +58,11 @@ export default function OverviewTab({
     const isEndpoint = kindLower === 'endpoint' || kindLower === 'endpoints';
     const isNetworkPolicy = kindLower.includes('networkpolicy') || kindLower.includes('network-policy');
     const isIngressClass = kindLower === 'ingressclass' || kindLower === 'ingress-class' || kindLower === 'ingressclasses';
+    const isConfigMap = kindLower.includes('configmap');
+    const isSecret = kindLower.includes('secret');
+    const isPvc = kindLower === 'pvc' || kindLower === 'persistentvolumeclaim' || kindLower === 'persistentvolumeclaims';
+    const isPv = kindLower === 'pv' || kindLower === 'persistentvolume' || kindLower === 'persistentvolumes';
+    const isStorageClass = kindLower === 'storageclass' || kindLower === 'storageclasses';
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
     return (
@@ -96,7 +101,14 @@ export default function OverviewTab({
             {isNetworkPolicy && <NetworkPolicyOverview spec={spec} t={t} />}
             {isIngressClass && <IngressClassOverview spec={spec} t={t} />}
 
-            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && (
+            {/* BATCH 4: Storage & Config */}
+            {isConfigMap && <ConfigMapOverview data={data} metadata={metadata} t={t} />}
+            {isSecret && <SecretOverview data={data} t={t} />}
+            {isPvc && <PvcOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
+            {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
+            {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
+
+            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && !isConfigMap && !isSecret && !isPvc && !isPv && !isStorageClass && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}). Implementation in progress.
                 </div>

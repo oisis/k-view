@@ -47,5 +47,48 @@ func (m *PVManager) MapItem(item unstructured.Unstructured, metricsMap map[strin
 }
 
 func (m *PVManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	// 1. Extract detailed Capacity Info
+	capacity, _, _ := unstructured.NestedMap(item.Object, "spec", "capacity")
+	var capacityList []gin.H
+	for k, v := range capacity {
+		capacityList = append(capacityList, gin.H{
+			"resourceName": k,
+			"quantity":     v,
+		})
+	}
+	response["detailedCapacity"] = capacityList
+
+	// 2. Extract Volume Source Info
+	spec, ok := item.Object["spec"].(map[string]interface{})
+	if ok {
+		// Identify which source type is used (csi, nfs, hostPath, etc)
+		var sourceInfo gin.H
+		if csi, ok, _ := unstructured.NestedMap(spec, "csi"); ok {
+			sourceInfo = gin.H{
+				"type":           "CSI",
+				"driver":         csi["driver"],
+				"volumeHandle":   csi["volumeHandle"],
+				"attributes":     csi["volumeAttributes"],
+			}
+		} else if nfs, ok, _ := unstructured.NestedMap(spec, "nfs"); ok {
+			sourceInfo = gin.H{
+				"type":   "NFS",
+				"server": nfs["server"],
+				"path":   nfs["path"],
+			}
+		} else if hp, ok, _ := unstructured.NestedMap(spec, "hostPath"); ok {
+			sourceInfo = gin.H{
+				"type": "HostPath",
+				"path": hp["path"],
+			}
+		}
+		response["volumeSource"] = sourceInfo
+	}
+
+	return response, nil
 }
