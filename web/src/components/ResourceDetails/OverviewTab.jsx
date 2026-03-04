@@ -47,6 +47,12 @@ export default function OverviewTab({
     // Resource detection
     const isPod = kindLower.includes('pod');
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
+    const isStatefulSet = kindLower.includes('statefulset');
+    const isDaemonSet = kindLower.includes('daemonset');
+    const isJob = kindLower === 'job' || kindLower === 'jobs';
+    const isCronJob = kindLower.includes('cronjob');
+    const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
+    const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
     return (
@@ -70,7 +76,15 @@ export default function OverviewTab({
             {isPod && <PodOverview data={data} spec={spec} status={status} t={t} icons={icons} namespace={namespace} />}
             {isDeployment && <DeploymentOverview data={data} metadata={metadata} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
 
-            {!isEventResource && !isPod && !isDeployment && (
+            {/* BATCH 2: STS, DS, RS, RC, Job, CronJob */}
+            {isStatefulSet && <StatefulSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isReplicationController && <ReplicationControllerOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isJob && <JobOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isCronJob && <CronJobOverview data={data} metadata={metadata} spec={spec} status={status} relatedJobs={relatedJobs} t={t} icons={icons} />}
+
+            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}). Implementation in progress.
                 </div>

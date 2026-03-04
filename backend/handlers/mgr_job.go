@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -67,5 +68,26 @@ func (m *JobManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 }
 
 func (m *JobManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch related Pods
+	podMgr := NewPodManager()
+	pods, err := dynClient.Resource(podMgr.GetGVR()).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		var relatedPods []ResourceItem
+		for _, pod := range pods.Items {
+			for _, owner := range pod.GetOwnerReferences() {
+				if owner.UID == item.GetUID() {
+					relatedPods = append(relatedPods, podMgr.MapItem(pod, nil))
+					break
+				}
+			}
+		}
+		response["relatedPods"] = relatedPods
+	}
+
+	return response, nil
 }
