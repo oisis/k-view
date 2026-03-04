@@ -27,12 +27,14 @@ func (m *StorageClassManager) MapItem(item unstructured.Unstructured, metricsMap
 	bindingMode, _, _ := unstructured.NestedString(item.Object, "volumeBindingMode")
 	allowExpansion, _, _ := unstructured.NestedBool(item.Object, "allowVolumeExpansion")
 	mountOptions, _, _ := unstructured.NestedStringSlice(item.Object, "mountOptions")
+	parameters, _, _ := unstructured.NestedMap(item.Object, "parameters")
 
 	resItem.Extra["provisioner"] = provisioner
 	resItem.Extra["reclaimPolicy"] = reclaimPolicy
 	resItem.Extra["volumeBindingMode"] = bindingMode
 	resItem.Extra["allowVolumeExpansion"] = allowExpansion
 	resItem.Extra["mountOptions"] = mountOptions
+	resItem.Extra["parameters"] = parameters
 
 	return resItem
 }
