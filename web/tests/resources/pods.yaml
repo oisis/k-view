@@ -17,6 +17,7 @@ detail_tabs:
   - Logs
   - Events
   - Exec
+  - Trace
 Metadata:
   - Name
   - Namespace

@@ -12,6 +12,7 @@ detail_tabs:
   - Overview
   - Yaml
   - Events
+  - Trace
 Metadata:
   - Name
   - Namespace
