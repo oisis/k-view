@@ -45,6 +45,13 @@ function deploy() {
           --for=condition=ready pod \
           --selector=app.kubernetes.io/component=controller \
           --timeout=120s
+
+        # 1a. Install Metrics Server
+        if [ -f "$SCRIPT_DIR/metrics-server.sh" ]; then
+            bash "$SCRIPT_DIR/metrics-server.sh"
+        else
+            echo -e "${RED}⚠️  metrics-server.sh not found in $SCRIPT_DIR${NC}"
+        fi
     fi
     
     # 2. Create Namespace
