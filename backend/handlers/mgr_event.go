@@ -30,11 +30,22 @@ func (m *EventManager) MapItem(item unstructured.Unstructured, metricsMap map[st
 	involvedKind, _, _ := unstructured.NestedString(item.Object, "involvedObject", "kind")
 	involvedName, _, _ := unstructured.NestedString(item.Object, "involvedObject", "name")
 
+	source, _, _ := unstructured.NestedString(item.Object, "source", "component")
+	if source == "" {
+		source, _, _ = unstructured.NestedString(item.Object, "reportingComponent")
+	}
+
+	firstSeen, _, _ := unstructured.NestedString(item.Object, "firstTimestamp")
+	lastSeen, _, _ := unstructured.NestedString(item.Object, "lastTimestamp")
+
 	resItem.Extra["type"] = eventType
 	resItem.Extra["reason"] = reason
 	resItem.Extra["message"] = message
 	resItem.Extra["count"] = count
 	resItem.Extra["involvedObject"] = involvedKind + "/" + involvedName
+	resItem.Extra["source"] = source
+	resItem.Extra["firstTimestamp"] = firstSeen
+	resItem.Extra["lastTimestamp"] = lastSeen
 	
 	resItem.Status = eventType
 
