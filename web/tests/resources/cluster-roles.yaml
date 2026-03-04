@@ -1,3 +1,4 @@
+# verified
 Section: Cluster
 General overview:
   - Name
@@ -12,3 +13,9 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Rules:
+  - Resources	
+  - Non-resource URL
+  - Resource Names
+  - Verbs
+  - API Groups

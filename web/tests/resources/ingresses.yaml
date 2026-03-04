@@ -1,3 +1,4 @@
+# verified
 Section: Network
 General overview:
   - Name
@@ -18,3 +19,10 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Rules:
+  - Host
+  - Path
+  - Path type
+  - Service name
+  - Service port
+  - TLS secret

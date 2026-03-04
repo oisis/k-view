@@ -1,24 +1,58 @@
+# verified
 Section: Cluster
 General overview:
   - Name
-  - Age
+  - Labels
+  - Ready
+  - CPU requests (cores)
+  - CPU limits (cores)
+  - CPU capacity (cores)
+  - RAM requests
+  - RAM limits
+  - RAM capacity
+  - Pods
+  - Create
 detail_tabs:
   - Overview
   - Yaml
+  - Events
 Metadata:
   - Name
   - Created
   - Age
   - Labels
   - Annotations
-Status Conditions:
+Resource Info:
+  - Pod CIDR
+  - Taints
+  - Internal IP
+  - Internal IPv6
+  - Hostname
+System Information:
+  - Machine ID
+  - System UUID
+  - Boot ID
+  - Kernel Version
+  - OS Image
+  - Container Runtime
+  - Kubelet Version
+  - Kube-Proxy Version
+  - Architecture
+  - Operating System
+Allocation:
+  - CPU Requests
+  - CPU Limits
+  - RAM Requests
+  - RAM Limits
+  - Pods
+Conditions:
   - Type
   - Status
-  - Last Probe
-  - Last Transition
+  - Last Probe Time
+  - Last Transition Time
   - Reason
   - Message
-Allocated Pods:
+Pods:
   - Name
   - Namespace
   - Images

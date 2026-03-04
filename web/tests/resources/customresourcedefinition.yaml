@@ -1,3 +1,4 @@
+# verified
 Section: Cluster
 General overview:
   - Name
@@ -15,6 +16,17 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Version
+  - Scope
+  - Group
+Accepted Names:
+  - Plural
+  - Singular
+  - Kind
+  - List Kind
+  - Short Names
+  - Categories
 Versions:
   - Name
   - Served
@@ -25,3 +37,7 @@ Conditions:
   - Last Transition
   - Reason
   - Message
+Objects:
+  - Name
+  - Namespace
+  - Age

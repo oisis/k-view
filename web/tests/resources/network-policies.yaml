@@ -1,3 +1,4 @@
+# verified
 Section: Cluster
 General overview:
   - Name
@@ -15,3 +16,12 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Pod Selector
+  - Policy Types
+Ingress Rules (Incoming Traffic):
+  - Source / Destination (Peers)
+  - Allowed Ports
+Egress Rules (Outgoing Traffic):
+  - Source / Destination (Peers)
+  - Allowed Ports

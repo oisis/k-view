@@ -1,3 +1,4 @@
+# Needs check
 Section: Workloads
 General overview:
   - Name
@@ -19,6 +20,15 @@ Metadata:
   - Pods Desired
   - Labels
   - Annotations
+Resource Info:
+  - Desired
+  - Current
+  - Ready
+  - Available
+  - Updated
+  - Misscheduled
+  - Strategy
+  - Selector
 Pods:
   - Name
   - Namespace
@@ -38,10 +48,3 @@ Services:
   - Internal Endpoints
   - External Endpoints
   - Created
-Status Conditions:
-  - Type
-  - Status
-  - Last Probe
-  - Last Transition
-  - Reason
-  - Message

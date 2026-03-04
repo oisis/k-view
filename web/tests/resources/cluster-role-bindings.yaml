@@ -1,3 +1,4 @@
+# verified
 Section: Cluster
 General overview:
   - Name
@@ -12,6 +13,8 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Role References
 Subjects:
   - Name
   - Namespaces

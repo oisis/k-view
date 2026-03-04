@@ -1,3 +1,4 @@
+# verified
 Section: Config & Storage
 General overview:
   - Name
@@ -21,3 +22,9 @@ Metadata:
   - Status
   - Labels
   - Annotations
+Resource Info:
+  - Status
+  - Volume
+  - Storage Class
+  - Access Modes
+  - Capacity

@@ -1,3 +1,4 @@
+# verified
 Section: Config & Storage
 General overview:
   - Name
@@ -15,3 +16,7 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Data:
+  - Key
+  - Value
+  - Actions

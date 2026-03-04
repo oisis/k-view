@@ -1,3 +1,4 @@
+# verified
 Section: Cluster
 General overview:
   - Name
@@ -9,14 +10,4 @@ General overview:
   - Count
   - First Seen
   - Last Seen
-detail_tabs:
-  - Overview
-  - Yaml
-Metadata:
-  - Name
-  - Namespace
-  - Created
-  - Age
-  - Status
-  - Labels
-  - Annotations
+

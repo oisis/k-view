@@ -1,10 +1,11 @@
+# Needs check
 Section: Workloads
 General overview:
   - Name
   - Namespace
   - Images
   - Labels
-  - Pod Status
+  - Status
   - Restarts
   - Created
 detail_tabs:
@@ -12,15 +13,29 @@ detail_tabs:
   - Yaml
   - Logs
   - Events
+  - Exec
 Metadata:
   - Name
   - Namespace
   - Created
   - Age
-  - Status
-  - Node
   - Labels
   - Annotations
+Resource Info:
+  - Node
+  - Status
+  - IP
+  - QoS Class
+  - Restarts
+  - Service Account
+  - CPU (usage)
+  - RAM (usage)
+Containers:
+  - Image
+  - Status
+  - Environment Variables
+  - Volume Mounts
+  - Health Probes
 Status Conditions:
   - Type
   - Status

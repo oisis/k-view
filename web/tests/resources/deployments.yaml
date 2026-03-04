@@ -1,3 +1,4 @@
+# verified
 Section: Workloads
 General overview:
   - Name
@@ -17,6 +18,11 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Replicas
+  - Ready
+  - Updated
+  - Available
 Pods:
   - Name
   - Namespace

@@ -1,3 +1,4 @@
+# verified
 Section: Workloads
 General overview:
   - Name
@@ -24,3 +25,7 @@ Metrics:
   - Resource / Name
   - Target
   - Current
+Scale Target Ref:
+  - apiVersion
+  - kind
+  - name

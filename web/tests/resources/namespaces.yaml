@@ -1,3 +1,4 @@
+# Needs check
 Section: Cluster
 General overview:
   - Name
@@ -14,3 +15,7 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Status
+# Resource Quotas:
+# Limit Ranges:

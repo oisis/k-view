@@ -1,3 +1,4 @@
+# verified
 Section: Config & Storage
 General overview:
   - Name
@@ -19,6 +20,16 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Status
+  - Access Modes
+  - Reclaim Policy
+  - Claim
+  - Storage Class
 Capacity:
   - Resource Name
   - Quantity
+Source:
+  - Type
+  - Server
+  - Path
