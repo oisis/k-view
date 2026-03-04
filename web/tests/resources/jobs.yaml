@@ -1,11 +1,9 @@
-# verified
 Section: Workloads
 General overview:
   - Name
   - Namespace
   - Images
   - Labels
-  - Status
   - Pods
   - Created
 detail_tabs:
@@ -19,6 +17,20 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Completions
+  - Parallelism
+  - Images
+Conditions:
+  - Type
+  - Status
+  - Last Probe Time
+  - Last Transition Time
+  - Reason
+  - Message
+Pods status:
+  - Running
+  - Desired
 Pods:
   - Name
   - Namespace
@@ -30,10 +42,3 @@ Pods:
   - CPU
   - RAM
   - Created
-Status Conditions:
-  - Type
-  - Status
-  - Last Probe
-  - Last Transition
-  - Reason
-  - Message

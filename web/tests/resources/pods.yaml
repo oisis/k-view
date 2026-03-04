@@ -1,12 +1,15 @@
-# Needs check
+# Additional verification needed
 Section: Workloads
 General overview:
   - Name
   - Namespace
   - Images
   - Labels
+  - Node
   - Status
   - Restarts
+  - CPU(usage)
+  - RAM(usage)
   - Created
 detail_tabs:
   - Overview
@@ -28,18 +31,36 @@ Resource Info:
   - QoS Class
   - Restarts
   - Service Account
-  - CPU (usage)
-  - RAM (usage)
 Containers:
-  - Image
-  - Status
-  - Environment Variables
-  - Volume Mounts
-  - Health Probes
-Status Conditions:
   - Type
   - Status
-  - Last Probe
-  - Last Transition
+  - Last probe time
+  - Last transition time
   - Reason
   - Message
+Controlled by:
+  - Name
+  - Kind
+  - Pods
+  - Age
+  - Labels
+  - Images
+Persistent Volume Claims:
+  - Name
+  - Namespace
+  - Labels
+  - Status
+  - Volume
+  - Capacity
+  - Access Modes
+  - Storage Class
+  - Created
+Containers:
+  - Image
+  - Status Ready
+  - Status Started
+  - Status Reason
+  - Environment Variables
+  - Mounts
+  - Liveness Probe
+  - Readiness Probe

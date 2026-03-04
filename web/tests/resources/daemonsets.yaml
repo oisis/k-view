@@ -1,4 +1,4 @@
-# Needs check
+# Additional verification needed
 Section: Workloads
 General overview:
   - Name
@@ -16,19 +16,14 @@ Metadata:
   - Namespace
   - Created
   - Age
-  - Pods Running
-  - Pods Desired
   - Labels
   - Annotations
 Resource Info:
-  - Desired
-  - Current
-  - Ready
-  - Available
-  - Updated
-  - Misscheduled
-  - Strategy
   - Selector
+  - Images
+Pods status:
+  - Running
+  - Desired
 Pods:
   - Name
   - Namespace
@@ -43,6 +38,7 @@ Pods:
 Services:
   - Name
   - Namespace
+  - Labels
   - Type
   - Cluster Ip
   - Internal Endpoints

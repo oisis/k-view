@@ -1,4 +1,3 @@
-# verified
 Section: Config & Storage
 General overview:
   - Name
@@ -19,12 +18,11 @@ Metadata:
   - Namespace
   - Created
   - Age
-  - Status
   - Labels
   - Annotations
 Resource Info:
   - Status
-  - Volume
   - Storage Class
-  - Access Modes
+  - Volume name
   - Capacity
+  - Access Modes

@@ -4,9 +4,7 @@ General overview:
   - Namespace
   - Images
   - Labels
-  - Annotations
-  - Ready
-  - Replicas
+  - Pods
   - Created
 detail_tabs:
   - Overview
@@ -19,6 +17,12 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Images
+  - Init Images
+Pods status:
+  - Running
+  - Desired
 Pods:
   - Name
   - Namespace
@@ -30,18 +34,3 @@ Pods:
   - CPU
   - RAM
   - Created
-Services:
-  - Name
-  - Namespace
-  - Type
-  - Cluster Ip
-  - Internal Endpoints
-  - External Endpoints
-  - Created
-Status Conditions:
-  - Type
-  - Status
-  - Last Probe
-  - Last Transition
-  - Reason
-  - Message

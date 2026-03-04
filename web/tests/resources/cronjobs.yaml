@@ -1,4 +1,3 @@
-# Needs check
 Section: Workloads
 General overview:
   - Name
@@ -8,8 +7,8 @@ General overview:
   - Schedule
   - Suspend
   - Active
-  - Last Run
-  - Age
+  - Last Schedule
+  - Created
 detail_tabs:
   - Overview
   - Yaml
@@ -21,6 +20,12 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Schedule
+  - Active Jobs
+  - Suspend
+  - Last schedule
+  - Concurrentcy policy
 Active Jobs:
   - Name
   - Namespace

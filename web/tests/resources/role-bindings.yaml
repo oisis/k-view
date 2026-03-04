@@ -14,6 +14,8 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Role References
 Subjects:
   - Name
   - Namespaces

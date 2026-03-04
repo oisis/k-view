@@ -1,4 +1,3 @@
-# verified
 Section: Cluster
 General overview:
   - Name
@@ -26,7 +25,10 @@ Accepted Names:
   - Kind
   - List Kind
   - Short Names
-  - Categories
+Objects:
+  - Name
+  - Namespace
+  - Age
 Versions:
   - Name
   - Served
@@ -34,10 +36,6 @@ Versions:
 Conditions:
   - Type
   - Status
-  - Last Transition
+  - Last Transition time
   - Reason
   - Message
-Objects:
-  - Name
-  - Namespace
-  - Age

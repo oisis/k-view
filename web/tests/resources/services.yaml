@@ -4,7 +4,7 @@ General overview:
   - Namespace
   - Labels
   - Type
-  - Cluster Ip
+  - Cluster IP
   - Int Endpoints
   - Ext Endpoints
   - Created
@@ -19,18 +19,16 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Type
+  - Cluster IP
+  - Session Affinity
+  - Selector
 Endpoints:
   - Host
   - Ports
   - Node
   - Ready
-Ingresses:
-  - Name
-  - Namespace
-  - Labels
-  - Endpoints
-  - Hosts
-  - Created
 Pods:
   - Name
   - Namespace
@@ -41,4 +39,11 @@ Pods:
   - Restarts
   - CPU
   - RAM
+  - Created
+Ingresses:
+  - Name
+  - Namespace
+  - Labels
+  - Endpoints
+  - Hosts
   - Created

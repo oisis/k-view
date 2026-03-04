@@ -1,8 +1,8 @@
 Section: Config & Storage
 General overview:
   - Name
-  - Labels
   - Provisioner
+  - Parameters
   - Created
 detail_tabs:
   - Overview
@@ -14,3 +14,23 @@ Metadata:
   - Age
   - Labels
   - Annotations
+Resource Info:
+  - Provisioner
+  - basePath
+  - directoryPerms
+  - ensureUniqueDirectory
+  - fileSystemId
+  - gid
+  - provisioningMode
+  - subPathPattern
+  - uid
+Persistent Volumes:
+  - Name
+  - Capacity
+  - Access Modes
+  - Reclaim Policy
+  - Status
+  - Claim
+  - Storage Class
+  - Reason
+  - Created

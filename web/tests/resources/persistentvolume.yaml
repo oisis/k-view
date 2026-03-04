@@ -1,4 +1,3 @@
-# verified
 Section: Config & Storage
 General overview:
   - Name
@@ -22,14 +21,16 @@ Metadata:
   - Annotations
 Resource Info:
   - Status
-  - Access Modes
-  - Reclaim Policy
   - Claim
+  - Reclaim Policy
   - Storage Class
+  - Mount Options
+  - Access modes
+Source:
+  - Type
+  - Driver
+  - Volume Handle
+  - Volume Attributes(Key, Value)
 Capacity:
   - Resource Name
   - Quantity
-Source:
-  - Type
-  - Server
-  - Path

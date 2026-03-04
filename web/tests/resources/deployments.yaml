@@ -1,4 +1,3 @@
-# verified
 Section: Workloads
 General overview:
   - Name
@@ -19,21 +18,21 @@ Metadata:
   - Labels
   - Annotations
 Resource Info:
-  - Replicas
-  - Ready
+  - Strategy
+  - Min ready seconds
+  - Revision history Limit
+  - Selector
+Rolling update strategy:
   - Updated
+  - Total
   - Available
-Pods:
-  - Name
-  - Namespace
-  - Images
-  - Labels
-  - Node
+Conditions:
+  - Type
   - Status
-  - Restarts
-  - CPU
-  - RAM
-  - Created
+  - Last probe time
+  - Last transition time
+  - Reason
+  - Message
 New Replica Set:
   - Name
   - Namespace
@@ -48,10 +47,9 @@ Old Replica Set:
   - Pods
   - Labels
   - Images
-Status Conditions:
+Horizontal Pod Autoscalers:
+  - Name
   - Type
-  - Status
-  - Last Probe
-  - Last Transition
-  - Reason
-  - Message
+  - Resource / Name
+  - Target
+  - Current

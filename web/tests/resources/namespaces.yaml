@@ -1,4 +1,3 @@
-# Needs check
 Section: Cluster
 General overview:
   - Name
@@ -17,5 +16,12 @@ Metadata:
   - Annotations
 Resource Info:
   - Status
-# Resource Quotas:
-# Limit Ranges:
+Resource Quotas:
+  - Name
+  - Created
+  - Status
+Resource Limits:
+  - Resource name
+  - Resource type
+  - Default
+  - Default request  
