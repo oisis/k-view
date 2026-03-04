@@ -27,10 +27,24 @@ func (m *ReplicaSetManager) MapItem(item unstructured.Unstructured, metricsMap m
 	readyReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 	availableReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
 
+	// Extract images from spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["replicas"] = replicas
 	resItem.Extra["fullyLabeledReplicas"] = fullyLabeledReplicas
 	resItem.Extra["readyReplicas"] = readyReplicas
 	resItem.Extra["availableReplicas"] = availableReplicas
+	resItem.Extra["images"] = images
 
 	if readyReplicas < replicas {
 		resItem.Status = "Degraded"

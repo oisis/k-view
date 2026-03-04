@@ -30,12 +30,26 @@ func (m *DaemonSetManager) MapItem(item unstructured.Unstructured, metricsMap ma
 	
 	updateStrategy, _, _ := unstructured.NestedString(item.Object, "spec", "updateStrategy", "type")
 
+	// Extract images from spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["desired"] = desired
 	resItem.Extra["current"] = current
-	resItem.Extra["ready"] = ready
+	resItem.Extra["readyReplicas"] = ready
 	resItem.Extra["available"] = available
 	resItem.Extra["updated"] = updated
 	resItem.Extra["updateStrategy"] = updateStrategy
+	resItem.Extra["images"] = images
 
 	if ready < desired {
 		resItem.Status = "Degraded"

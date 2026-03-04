@@ -30,12 +30,26 @@ func (m *StatefulSetManager) MapItem(item unstructured.Unstructured, metricsMap 
 	updateStrategy, _, _ := unstructured.NestedString(item.Object, "spec", "updateStrategy", "type")
 	serviceName, _, _ := unstructured.NestedString(item.Object, "spec", "serviceName")
 
+	// Extract images from spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["replicas"] = replicas
 	resItem.Extra["readyReplicas"] = readyReplicas
 	resItem.Extra["currentReplicas"] = currentReplicas
 	resItem.Extra["updatedReplicas"] = updatedReplicas
 	resItem.Extra["updateStrategy"] = updateStrategy
 	resItem.Extra["serviceName"] = serviceName
+	resItem.Extra["images"] = images
 
 	if readyReplicas < replicas {
 		resItem.Status = "Degraded"
