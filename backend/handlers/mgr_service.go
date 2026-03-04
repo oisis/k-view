@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,6 +30,7 @@ func (m *ServiceManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	
 	ports, _, _ := unstructured.NestedSlice(item.Object, "spec", "ports")
 	var portList []interface{}
+	var portStrings []string
 	for _, p := range ports {
 		if port, ok := p.(map[string]interface{}); ok {
 			portList = append(portList, gin.H{
@@ -37,6 +39,26 @@ func (m *ServiceManager) MapItem(item unstructured.Unstructured, metricsMap map[
 				"protocol": port["protocol"],
 				"targetPort": port["targetPort"],
 			})
+			pNum, _ := port["port"].(int64)
+			if clusterIP != "" && clusterIP != "None" {
+				portStrings = append(portStrings, fmt.Sprintf("%s:%d", clusterIP, pNum))
+			} else {
+				pProto, _ := port["protocol"].(string)
+				portStrings = append(portStrings, fmt.Sprintf("%d/%s", pNum, pProto))
+			}
+		}
+	}
+
+	lbIngress, _, _ := unstructured.NestedSlice(item.Object, "status", "loadBalancer", "ingress")
+	var externalEndpoints []string
+	for _, lbi := range lbIngress {
+		if ing, ok := lbi.(map[string]interface{}); ok {
+			if ip, ok := ing["ip"].(string); ok {
+				externalEndpoints = append(externalEndpoints, ip)
+			}
+			if host, ok := ing["hostname"].(string); ok {
+				externalEndpoints = append(externalEndpoints, host)
+			}
 		}
 	}
 
@@ -44,6 +66,8 @@ func (m *ServiceManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	resItem.Extra["type"] = svcType
 	resItem.Extra["selector"] = selector
 	resItem.Extra["ports"] = portList
+	resItem.Extra["endpoints"] = portStrings
+	resItem.Extra["external"] = externalEndpoints
 
 	resItem.Status = "Active"
 
