@@ -50,6 +50,7 @@ func (m *IngressManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	resItem.Extra["ingressClass"] = ingressClass
 	resItem.Extra["hosts"] = hosts
 	resItem.Extra["endpoints"] = endpoints
+	resItem.Extra["address"] = endpoints
 
 	return resItem
 }
