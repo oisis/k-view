@@ -39,110 +39,19 @@ export default function MetadataSection({ metadata = {}, namespace, t, settings,
 
     return (
         <DetailSection title={t('metadata')}>
-            <div className={`grid grid-cols-1 ${isClusterScoped ? 'md:grid-cols-3' : 'md:grid-cols-4'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border bg-[var(--bg-sidebar)]/10`}>
-                <div className="px-6 py-4 flex flex-col items-center text-center text-info">
-                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_name')}</span>
-                    <span className="text-sm font-mono font-bold break-all">{metadata?.name || '—'}</span>
-                </div>
-                {!isClusterScoped && (
-                    <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_namespace')}</span>
-                        {metadata?.namespace ? (
-                            <Link to={`/namespaces/-/${metadata.namespace}`} className="text-sm text-accent font-bold hover:underline">
-                                {metadata.namespace}
-                            </Link>
-                        ) : (
-                            <span className="text-sm text-text-muted font-bold italic">—</span>
-                        )}
-                    </div>
-                )}
-                <div className="px-6 py-4 flex flex-col items-center text-center">
-                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_created')}</span>
-                    <span className="text-sm text-primary font-bold">{formatDate(metadata?.creationTimestamp)}</span>
-                </div>
-                <div className="px-6 py-4 flex flex-col items-center text-center">
-                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">{t('label_age')}</span>
-                    <span className="text-sm text-primary font-bold">{data?.resource?.age || '—'}</span>
-                </div>
+            <div className="grid grid-cols-1 divide-y divide-border border-b border-border bg-[var(--bg-sidebar)]/10">
             </div>
 
-            {!isSpecialMetadataOnly && (
-                <div className={`grid grid-cols-1 ${(!isNode && spec?.nodeName) || isDaemonSet ? 'md:grid-cols-2' : 'md:grid-cols-1'} divide-y md:divide-y-0 md:divide-x divide-border border-b border-border`}>
-                    <div className="px-6 py-4 flex flex-col items-center text-center">
-                        <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
-                            {isDaemonSet ? 'Pods Running' : t('label_status')}
-                        </span>
-                        {isDaemonSet ? (
-                            <span className="text-sm font-bold text-success">{status?.numberReady || 0}</span>
-                        ) : (
-                            <div className={`flex items-center gap-1.5 ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || status?.phase === 'Bound' || data?.resource?.status === 'Running' || data?.resource?.status === 'Active' || data?.resource?.status === 'Bound') ? 'text-success' : 'text-warning'}`}>
-                                <div className={`w-2 h-2 rounded-full animate-pulse ${(status?.phase === 'Running' || status?.phase === 'Active' || status?.phase === 'Succeeded' || status?.phase === 'Bound' || data?.resource?.status === 'Running' || data?.resource?.status === 'Active' || data?.resource?.status === 'Bound') ? 'bg-success' : 'bg-warning'}`} />
-                                <span className="text-sm font-bold uppercase tracking-wide">
-                                    {status?.phase || (typeof data?.resource?.status === 'string' ? data.resource.status : '') || t('unknown')}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                    {(isDaemonSet || spec?.nodeName) && (
-                        <div className="px-6 py-4 flex flex-col items-center text-center">
-                            <span className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">
-                                {isDaemonSet ? 'Pods Desired' : t('label_node')}
-                            </span>
-                            {isDaemonSet ? (
-                                <span className="text-sm font-bold text-primary">{status?.desiredNumberScheduled || 0}</span>
-                            ) : (
-                                <Link to={`/nodes/-/${spec?.nodeName}`} className="text-sm text-info font-bold hover:underline font-mono">
-                                    {spec?.nodeName}
-                                </Link>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-border">
+            <div className="grid grid-cols-1 divide-y divide-border">
                 <div className="overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse table-fixed">
                         <tbody className="divide-y divide-border">
-                            <tr className="group">
-                                <td className="px-4 py-3 w-48 text-xs font-bold text-text-muted uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
-                                    {t('label_labels')}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-primary">
-                                    <div className="flex flex-wrap gap-1.5 min-w-0 w-full overflow-y-hidden">
-                                        {sortedLabels.slice(0, settings?.labelsLimit || 5).map(([k, v]) => (
-                                            <span key={k} className="px-2 py-0.5 bg-info/10 rounded text-sm text-info font-mono block max-w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide">
-                                                {k}: {v}
-                                            </span>
-                                        ))}
-                                        {sortedLabels.length > (settings?.labelsLimit || 5) && (
-                                            <span className="text-xs text-text-muted bg-[var(--bg-muted)]/50 px-2 py-1 rounded self-center whitespace-nowrap">
-                                                + {sortedLabels.length - (settings?.labelsLimit || 5)} {t('more')}
-                                            </span>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
                 <div className="overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse table-fixed">
                         <tbody className="divide-y divide-border">
-                            <tr className="group">
-                                <td className="px-4 py-3 w-48 text-xs font-bold text-text-muted uppercase tracking-wider bg-[var(--bg-sidebar)]/10">
-                                    {t('label_annotations')}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-primary">
-                                    <div className="space-y-1 min-w-0 w-full overflow-y-hidden">
-                                        {sortedAnnotations.map(([k, v]) => (
-                                            <div key={k} className="text-sm font-mono text-secondary w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide bg-sidebar/10 px-2 py-1 rounded">
-                                                <span className="text-info">{k}</span>: {v}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
