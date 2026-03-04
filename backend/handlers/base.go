@@ -25,6 +25,20 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	registry.Register("deployments", NewDeploymentManager())
 	registry.Register("deployment", NewDeploymentManager())
 	registry.Register("deploy", NewDeploymentManager())
+	registry.Register("statefulsets", NewStatefulSetManager())
+	registry.Register("statefulset", NewStatefulSetManager())
+	registry.Register("sts", NewStatefulSetManager())
+	registry.Register("daemonsets", NewDaemonSetManager())
+	registry.Register("daemonset", NewDaemonSetManager())
+	registry.Register("ds", NewDaemonSetManager())
+	registry.Register("replicasets", NewReplicaSetManager())
+	registry.Register("replicaset", NewReplicaSetManager())
+	registry.Register("rs", NewReplicaSetManager())
+	registry.Register("jobs", NewJobManager())
+	registry.Register("job", NewJobManager())
+	registry.Register("cronjobs", NewCronJobManager())
+	registry.Register("cronjob", NewCronJobManager())
+	registry.Register("cj", NewCronJobManager())
 
 	return &ResourceHandler{
 		k8sClient: k8sClient,
