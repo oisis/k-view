@@ -46,6 +46,11 @@ func (m *ReplicaSetManager) MapItem(item unstructured.Unstructured, metricsMap m
 	resItem.Extra["availableReplicas"] = availableReplicas
 	resItem.Extra["images"] = images
 
+	// Map revision for Deployment relationship
+	if rev, ok := item.GetAnnotations()["deployment.kubernetes.io/revision"]; ok {
+		resItem.Extra["revision"] = rev
+	}
+
 	if readyReplicas < replicas {
 		resItem.Status = "Degraded"
 	} else {

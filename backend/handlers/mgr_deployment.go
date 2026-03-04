@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -59,5 +60,49 @@ func (m *DeploymentManager) MapItem(item unstructured.Unstructured, metricsMap m
 }
 
 func (m *DeploymentManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch and Map related HPAs
+	hpaMgr := NewHPAManager()
+	hpaGVR := hpaMgr.GetGVR()
+	hpas, err := dynClient.Resource(hpaGVR).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		var relatedHpas []ResourceItem
+		for _, hpa := range hpas.Items {
+			targetKind, _, _ := unstructured.NestedString(hpa.Object, "spec", "scaleTargetRef", "kind")
+			targetName, _, _ := unstructured.NestedString(hpa.Object, "spec", "scaleTargetRef", "name")
+			// Case-insensitive match for Deployment kind
+			if (targetKind == "Deployment" || targetKind == "deployment") && targetName == item.GetName() {
+				relatedHpas = append(relatedHpas, hpaMgr.MapItem(hpa, nil))
+			}
+		}
+		response["relatedHpas"] = relatedHpas
+	}
+
+	// Fetch and Map related ReplicaSets
+	rsMgr := NewReplicaSetManager()
+	rsGVR := rsMgr.GetGVR()
+	rss, err := dynClient.Resource(rsGVR).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		var relatedRS []ResourceItem
+		for _, rs := range rss.Items {
+			// Check ownership by UID
+			isOwner := false
+			for _, owner := range rs.GetOwnerReferences() {
+				if owner.UID == item.GetUID() {
+					isOwner = true
+					break
+				}
+			}
+			if isOwner {
+				relatedRS = append(relatedRS, rsMgr.MapItem(rs, nil))
+			}
+		}
+		response["relatedReplicaSets"] = relatedRS
+	}
+
+	return response, nil
 }

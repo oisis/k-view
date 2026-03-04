@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation, useSettings } from '../SettingsContext';
-import { createPortal } from 'react-dom';
 import { useTheme } from '../ThemeContext';
 
 import OverviewTab from './ResourceDetails/OverviewTab';
@@ -24,35 +23,28 @@ const TABS = [
 const KIND_DISPLAY_MAP = {
     'Pods': 'Pod',
     'Deployments': 'Deployment',
-    'StatefulSets': 'StatefulSet',
-    'DaemonSets': 'DaemonSet',
-    'Jobs': 'Job',
-    'CronJobs': 'CronJob',
-    'ReplicaSets': 'ReplicaSet',
-    'ReplicationControllers': 'ReplicationController',
-    'HorizontalPodAutoscalers': 'HorizontalPodAutoscaler',
     'Services': 'Service',
     'Ingresses': 'Ingress',
-    'IngressClasses': 'IngressClass',
     'ConfigMaps': 'ConfigMap',
     'Secrets': 'Secret',
+    'Namespaces': 'Namespace',
+    'Nodes': 'Node',
+    'Events': 'Event',
     'PersistentVolumeClaims': 'PersistentVolumeClaim',
     'PersistentVolumes': 'PersistentVolume',
     'StorageClasses': 'StorageClass',
-    'ClusterRoleBindings': 'ClusterRoleBinding',
-    'ClusterRoles': 'ClusterRole',
+    'HorizontalPodAutoscalers': 'HorizontalPodAutoscaler',
     'CustomResourceDefinitions': 'CustomResourceDefinition',
-    'Events': 'Event',
-    'Namespaces': 'Namespace',
-    'NetworkPolicies': 'NetworkPolicy',
-    'RoleBindings': 'RoleBinding',
     'Roles': 'Role',
+    'RoleBindings': 'RoleBinding',
+    'ClusterRoles': 'ClusterRole',
+    'ClusterRoleBindings': 'ClusterRoleBinding',
     'ServiceAccounts': 'ServiceAccount'
 };
 
 /**
- * ResourceDetails - RESTORED FROZEN VIEW FROM MAIN
- * Cleanly rewritten to consume DTO structure.
+ * ResourceDetails - Unified View for all K8s resources.
+ * Consumes aggregated DTO from backend.
  */
 export default function ResourceDetails() {
     const { kind, namespace, name } = useParams();
@@ -100,26 +92,27 @@ export default function ResourceDetails() {
                     ]);
                     if (qRes.ok) {
                         const q = await qRes.json();
-                        setQuotas(Array.isArray(q) ? q : []);
+                        setQuotas(Array.isArray(q.items) ? q.items : []);
                     }
                     if (lRes.ok) {
                         const l = await lRes.json();
-                        setLimits(Array.isArray(l) ? l : []);
+                        setLimits(Array.isArray(l.items) ? l.items : []);
                     }
                 }
 
                 if (kind.includes('CronJob')) {
                     const jRes = await fetch(`/api/resources/Jobs?namespace=${namespace === '-' ? '' : namespace}`);
                     if (jRes.ok) {
-                        const jobs = await jRes.json();
-                        if (Array.isArray(jobs)) {
-                            setRelatedJobs(jobs.filter(j => j.extra?.['owner-uid'] === detailsData.metadata?.uid));
-                        } else {
-                            setRelatedJobs([]);
-                        }
+                        const jobsData = await jRes.json();
+                        const jobs = jobsData.items || [];
+                        setRelatedJobs(jobs.filter(j => j.extra?.['owner-uid'] === detailsData.metadata?.uid));
                     }
                 }
 
+                // Related resources aggregated by backend DTO
+                if (detailsData.relatedReplicaSets) setRelatedReplicaSets(detailsData.relatedReplicaSets);
+                if (detailsData.relatedHpas) setRelatedHpas(detailsData.relatedHpas);
+                if (detailsData.relatedPods) setRelatedPods(detailsData.relatedPods);
                 if (detailsData.relatedEndpoints) setRelatedEndpoints(detailsData.relatedEndpoints);
                 if (detailsData.relatedSecrets) setRelatedSecrets(Array.isArray(detailsData.relatedSecrets) ? detailsData.relatedSecrets : []);
                 if (detailsData.relatedImagePullSecrets) setRelatedImagePullSecrets(Array.isArray(detailsData.relatedImagePullSecrets) ? detailsData.relatedImagePullSecrets : []);

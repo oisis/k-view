@@ -41,9 +41,11 @@ func (m *GenericManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	extra["labels"] = labels
 	extra["annotations"] = annotations
 	extra["kind"] = item.GetKind()
+	extra["uid"] = string(item.GetUID())
 
 	if len(item.GetOwnerReferences()) > 0 {
 		extra["owner-uid"] = string(item.GetOwnerReferences()[0].UID)
+		extra["owner-name"] = item.GetOwnerReferences()[0].Name
 	}
 
 	return ResourceItem{

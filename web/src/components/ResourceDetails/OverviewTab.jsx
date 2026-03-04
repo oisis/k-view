@@ -4,6 +4,7 @@ import MetadataSection from './sections/MetadataSection';
 import ResourceInfoSection from './sections/ResourceInfoSection';
 import PodOverview from './templates/Pod-overview';
 import DeploymentOverview from './templates/Deployment-overview';
+// Templates under construction will be enabled batch by batch
 import ServiceOverview from './templates/Service-overview';
 import CronJobOverview from './templates/CronJob-overview';
 import NodeOverview from './templates/Node-overview';
@@ -29,8 +30,8 @@ import ReplicationControllerOverview from './templates/ReplicationController-ove
 import EventOverview from './templates/Event-overview';
 
 /**
- * OverviewTab - RESTORED FROZEN VIEW FROM MAIN
- * Orchestrates all specific resource templates.
+ * OverviewTab - Batch Implementation
+ * Only enabled resources will render their specific templates.
  */
 export default function OverviewTab({
     data, kind, namespace, name, quotas, limits, 
@@ -43,31 +44,9 @@ export default function OverviewTab({
     const { metadata, spec = {}, status = {} } = data;
     const kindLower = kind?.toLowerCase() || '';
 
-    // Robust resource detection
+    // Resource detection
     const isPod = kindLower.includes('pod');
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
-    const isStatefulSet = kindLower.includes('statefulset');
-    const isDaemonSet = kindLower.includes('daemonset');
-    const isJob = kindLower === 'job' || kindLower === 'jobs';
-    const isCronJob = kindLower.includes('cronjob');
-    const isNode = kindLower === 'node' || kindLower === 'nodes';
-    const isIngressClass = kindLower.includes('ingress') && kindLower.includes('class');
-    const isIngress = (kindLower.includes('ingress') && !kindLower.includes('class'));
-    const isPvc = kindLower.includes('pvc') || kindLower.includes('persistentvolumeclaim');
-    const isPv = kindLower === 'pv' || kindLower === 'pvs' || (kindLower.includes('persistentvolume') && !kindLower.includes('claim'));
-    const isRole = (kindLower === 'role' || kindLower === 'roles');
-    const isClusterRole = (kindLower === 'clusterrole' || kindLower === 'clusterroles' || kindLower === 'cluster-role' || kindLower === 'cluster-roles');
-    const isRoleBinding = kindLower.includes('rolebinding') || kindLower.includes('role-binding');
-    const isClusterRoleBinding = kindLower.includes('clusterrolebinding') || kindLower.includes('cluster-role-binding');
-    const isServiceAccount = kindLower.includes('serviceaccount') || kindLower.includes('service-account');
-    const isService = (kindLower === 'service' || kindLower === 'services') && !isIngressClass && !isServiceAccount;
-    const isNamespace = kindLower.includes('namespace');
-    const isStorageClass = kindLower.includes('storage') && kindLower.includes('class');
-    const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinitions');
-    const isNetworkPolicy = kindLower.includes('network') && (kindLower.includes('policy') || kindLower.includes('policies'));
-    const isReplicaSet = kindLower.includes('replicaset') || kindLower.includes('replica-set');
-    const isReplicationController = kindLower === 'replicationcontroller' || kindLower === 'replicationcontrollers';
-    const isHpa = kindLower === 'hpas' || kindLower === 'hpa' || kindLower === 'horizontalpodautoscalers';
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
     return (
@@ -82,28 +61,18 @@ export default function OverviewTab({
                     kindLower={kindLower}
                     status={status}
                     spec={spec}
-                    isNode={isNode}
-                    isPv={isPv}
-                    isIngressClass={isIngressClass}
-                    isStorageClass={isStorageClass}
-                    isClusterRoleBinding={isClusterRoleBinding}
-                    isRoleBinding={isRoleBinding}
-                    isRole={isRole}
-                    isServiceAccount={isServiceAccount}
-                    isClusterRole={isClusterRole}
-                    isNamespace={isNamespace}
-                    isNetworkPolicy={isNetworkPolicy}
-                    isDaemonSet={isDaemonSet}
-                    isReplicaSet={isReplicaSet}
-                    isReplicationController={isReplicationController}
                 />
             )}
 
             {isEventResource && <EventOverview data={data} spec={spec} status={status} t={t} icons={icons} />}
 
-            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isService && !isNode && !kindLower.includes('configmap') && !kindLower.includes('secret') && !isIngress && !isPvc && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && !isNamespace && !isServiceAccount && !isStorageClass && !isIngressClass && !isCrd && !isNetworkPolicy && !isPv && !isReplicaSet && !isHpa && !isReplicationController && (
+            {/* BATCH 1: Pods & Deployments */}
+            {isPod && <PodOverview data={data} spec={spec} status={status} t={t} icons={icons} namespace={namespace} />}
+            {isDeployment && <DeploymentOverview data={data} metadata={metadata} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
+
+            {!isEventResource && !isPod && !isDeployment && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
-                    No specialized overview available for this resource type ({kind}).
+                    No specialized overview available for this resource type ({kind}). Implementation in progress.
                 </div>
             )}
         </div>

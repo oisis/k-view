@@ -5,7 +5,8 @@ import { useTheme } from '../../ThemeContext';
 /**
  * ExpandableCell component for displaying long lists of labels, annotations, or images
  */
-export default function ExpandableCell({ value, type, customStyle, icons: propIcons }) {
+export default function ExpandableCell({ value, type, customStyle, icons: propIcons, limit = 2 }) {
+    const [isExpanded, setIsExpanded] = useState(false);
     const [tooltip, setTooltip] = useState({ show: false, content: '' });
     const { icons: themeIcons } = useTheme();
     const icons = propIcons || themeIcons || {};
@@ -26,22 +27,36 @@ export default function ExpandableCell({ value, type, customStyle, icons: propIc
         navigator.clipboard.writeText(text);
     };
 
+    const displayItems = isExpanded ? items : items.slice(0, limit);
+    const hasMore = items.length > limit;
+
     return (
-        <div className="flex flex-wrap gap-1 w-full">
-            {items.map((it, idx) => (
-                <div
-                    key={idx}
-                    className={`px-2 py-0.5 rounded text-[11px] font-mono border cursor-pointer transition-all hover:brightness-110 active:scale-95 whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${tagStyle}`}
-                    onClick={(e) => {
-                        setTooltip({
-                            show: true,
-                            content: it
-                        });
-                    }}
+        <div className="flex flex-col gap-1 w-full">
+            <div className={`flex ${isExpanded ? 'flex-col' : 'flex-wrap'} gap-1`}>
+                {displayItems.map((it, idx) => (
+                    <div
+                        key={idx}
+                        className={`px-2 py-0.5 rounded text-[11px] font-mono border cursor-pointer transition-all hover:brightness-110 active:scale-95 whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${tagStyle}`}
+                        onClick={(e) => {
+                            setTooltip({
+                                show: true,
+                                content: it
+                            });
+                        }}
+                    >
+                        {it}
+                    </div>
+                ))}
+            </div>
+            
+            {hasMore && (
+                <button 
+                    onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+                    className="text-[9px] font-black uppercase tracking-widest text-accent hover:text-accent/80 transition-colors w-fit mt-0.5"
                 >
-                    {it}
-                </div>
-            ))}
+                    {isExpanded ? 'Less' : `More (${items.length - limit})`}
+                </button>
+            )}
 
             {tooltip.show && createPortal(
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"k-view/pkg/k8sutils"
+	"k-view/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -35,7 +35,7 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	resItem.Extra["podIP"] = podIP
 	resItem.Extra["hostIP"] = hostIP
 
-	// Extract images from spec -> containers and initContainers
+	// Extract images from spec
 	var images []string
 	if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok {
 		for _, c := range containers {
@@ -46,30 +46,7 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 			}
 		}
 	}
-	if initContainers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "initContainers"); ok {
-		for _, c := range initContainers {
-			if cmap, ok := c.(map[string]interface{}); ok {
-				if img, ok := cmap["image"].(string); ok {
-					images = append(images, img)
-				}
-			}
-		}
-	}
 	resItem.Extra["images"] = images
-
-	// Calculate specific status from container statuses (like CrashLoopBackOff etc)
-	if statuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
-		for _, s := range statuses {
-			if sMap, ok := s.(map[string]interface{}); ok {
-				if waiting, ok, _ := unstructured.NestedMap(sMap, "state", "waiting"); ok {
-					if reason, ok := waiting["reason"].(string); ok {
-						resItem.Status = reason
-						break
-					}
-				}
-			}
-		}
-	}
 
 	// Restarts count
 	restarts := int64(0)
@@ -84,24 +61,6 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	}
 	resItem.Extra["restarts"] = restarts
 
-	// Metrics
-	key := item.GetNamespace() + "/" + item.GetName()
-	if metric, ok := metricsMap[key]; ok {
-		if containers, ok, _ := unstructured.NestedSlice(metric.Object, "containers"); ok {
-			var totalCPU, totalMemory float64
-			for _, c := range containers {
-				if cmap, ok := c.(map[string]interface{}); ok {
-					if usage, ok, _ := unstructured.NestedMap(cmap, "usage"); ok {
-						totalCPU += k8sutils.ParseCPU(usage["cpu"])
-						totalMemory += k8sutils.ParseMemory(usage["memory"])
-					}
-				}
-			}
-			resItem.Extra["cpu"] = totalCPU
-			resItem.Extra["memory"] = totalMemory
-		}
-	}
-
 	return resItem
 }
 
@@ -111,26 +70,92 @@ func (m *PodManager) GetDetails(ctx context.Context, dynClient dynamic.Interface
 		return nil, err
 	}
 
-	// Fetch metrics if available
-	metricsGVR := schema.GroupVersionResource{Group: "metrics.k8s.io", Version: "v1beta1", Resource: "pods"}
-	metricsItem, err := dynClient.Resource(metricsGVR).Namespace(item.GetNamespace()).Get(ctx, item.GetName(), metav1.GetOptions{})
-	if err == nil && metricsItem != nil {
-		var podCpu, podMem float64
-		if containers, ok, _ := unstructured.NestedSlice(metricsItem.Object, "containers"); ok {
-			for _, c := range containers {
-				if cmap, ok := c.(map[string]interface{}); ok {
-					if usage, ok, _ := unstructured.NestedMap(cmap, "usage"); ok {
-						podCpu += k8sutils.ParseCPU(usage["cpu"])
-						podMem += k8sutils.ParseMemory(usage["memory"])
+	// 1. Controlled By (Owners with full DTO info)
+	owners := item.GetOwnerReferences()
+	var controlledBy []ResourceItem
+	for _, owner := range owners {
+		gvr := getGVR(owner.Kind)
+		if gvr.Resource != "" {
+			ownerItem, err := dynClient.Resource(gvr).Namespace(item.GetNamespace()).Get(ctx, owner.Name, metav1.GetOptions{})
+			if err == nil {
+				// Use Generic Manager map for simplicity here, as we don't have registry access easily
+				// but Generic maps UID, Labels, etc.
+				extra := make(map[string]interface{})
+				extra["uid"] = string(ownerItem.GetUID())
+				extra["kind"] = ownerItem.GetKind()
+				extra["labels"] = ownerItem.GetLabels()
+				
+				controlledBy = append(controlledBy, ResourceItem{
+					Name:      ownerItem.GetName(),
+					Namespace: ownerItem.GetNamespace(),
+					Age:       utils.GetAge(ownerItem.GetCreationTimestamp().Time),
+					Extra:     extra,
+				})
+			}
+		}
+	}
+	response["controlledBy"] = controlledBy
+
+	// 2. Containers Info (Full Spec details)
+	var containers []gin.H
+	if specs, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok {
+		for _, s := range specs {
+			if c, ok := s.(map[string]interface{}); ok {
+				name, _ := c["name"].(string)
+				
+				// Status info
+				var ready, started bool
+				var stateReason string
+				if statuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
+					for _, st := range statuses {
+						if stMap, ok := st.(map[string]interface{}); ok && stMap["name"] == name {
+							ready, _ = stMap["ready"].(bool)
+							started, _ = stMap["started"].(bool)
+							if state, ok := stMap["state"].(map[string]interface{}); ok {
+								for _, v := range state {
+									if vMap, ok := v.(map[string]interface{}); ok {
+										stateReason, _ = vMap["reason"].(string)
+									}
+								}
+							}
+						}
+					}
+				}
+
+				containers = append(containers, gin.H{
+					"name":           name,
+					"image":          c["image"],
+					"ready":          ready,
+					"started":        started,
+					"stateReason":    stateReason,
+					"env":            c["env"],
+					"volumeMounts":   c["volumeMounts"],
+					"livenessProbe":  c["livenessProbe"],
+					"readinessProbe": c["readinessProbe"],
+				})
+			}
+		}
+	}
+	response["containers"] = containers
+
+	// 3. Related PVCs (Full DTOs)
+	pvcMgr := NewPVCManager()
+	var relatedPvcs []ResourceItem
+	if volumes, ok, _ := unstructured.NestedSlice(item.Object, "spec", "volumes"); ok {
+		for _, v := range volumes {
+			if vMap, ok := v.(map[string]interface{}); ok {
+				if pvc, ok, _ := unstructured.NestedMap(vMap, "persistentVolumeClaim"); ok {
+					if name, ok := pvc["claimName"].(string); ok {
+						pvcItem, err := dynClient.Resource(pvcMgr.GetGVR()).Namespace(item.GetNamespace()).Get(ctx, name, metav1.GetOptions{})
+						if err == nil {
+							relatedPvcs = append(relatedPvcs, pvcMgr.MapItem(*pvcItem, nil))
+						}
 					}
 				}
 			}
 		}
-		response["metrics"] = gin.H{
-			"cpu": podCpu,
-			"memory": podMem,
-		}
 	}
+	response["relatedPvcs"] = relatedPvcs
 
 	return response, nil
 }

@@ -1,57 +1,130 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ResourceInfoSection from '../sections/ResourceInfoSection';
 import CommonTable from '../../Common/CommonTable';
+import DetailSection from '../DetailSection';
+import ExpandableCell from '../ExpandableCell';
+import { useTheme } from '../../../ThemeContext';
 
-/**
- * DeploymentOverview - RESTORED FROZEN VIEW (Cleanup Duplicate Metadata)
- */
-export default function DeploymentOverview({ data, t }) {
-    if (!data) return null;
-    const { resource, metadata, spec, status, extra, relatedPods = [], relatedReplicaSets = [] } = data;
-
+export default function DeploymentOverview({ data, metadata, spec, status, relatedReplicaSets = [], relatedPods = [], relatedHpas = [], t, icons }) {
+    const { icons: themeIcons } = useTheme();
+    const conditions = status?.conditions || [];
+    
+    // Split RS into new and old based on deployment revision
     const deploymentRevision = metadata?.annotations?.['deployment.kubernetes.io/revision'];
-    const newRS = relatedReplicaSets.filter(rs => rs.extra?.revision && String(rs.extra.revision) === String(deploymentRevision));
-    const oldRS = relatedReplicaSets.filter(rs => !rs.extra?.revision || String(rs.extra.revision) !== String(deploymentRevision));
+    const newRS = relatedReplicaSets.filter(rs => {
+        const rev = rs.extra?.annotations?.['deployment.kubernetes.io/revision'];
+        return rev && String(rev) === String(deploymentRevision);
+    });
+    const oldRS = relatedReplicaSets.filter(rs => {
+        const rev = rs.extra?.annotations?.['deployment.kubernetes.io/revision'];
+        return !rev || String(rev) !== String(deploymentRevision);
+    });
 
-    const podColumns = [
-        { header: t('label_name'), accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
-        { header: t('label_namespace'), accessor: 'namespace' },
-        { header: 'Images', accessor: (p) => p.extra?.images || '—', className: 'text-xs font-mono' },
-        { header: 'Labels', accessor: (p) => p.extra?.labels || '—', className: 'text-xs' },
-        { header: 'Node', accessor: (p) => p.extra?.node || '—' },
-        { header: 'Status', accessor: 'status', className: 'text-center' },
-        { header: 'Restarts', accessor: (p) => p.extra?.restarts || 0, className: 'text-center' },
-        { header: 'CPU', accessor: (p) => p.extra?.cpu || '—', className: 'text-center' },
-        { header: 'RAM', accessor: (p) => p.extra?.ram || '—', className: 'text-center' },
-        { header: 'Created', accessor: 'age' }
-    ];
+    const [expandedRows, setExpandedRows] = useState({});
+
+    const toggleRow = (id) => {
+        setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const renderLabelsCell = (labels, id) => {
+        const entries = Object.entries(labels || {});
+        if (entries.length === 0) return '—';
+        
+        const isExpanded = expandedRows[id];
+        const limit = 2;
+        const displayEntries = isExpanded ? entries : entries.slice(0, limit);
+        const hasMore = entries.length > limit;
+
+        return (
+            <div className="flex flex-col gap-1 items-center">
+                {displayEntries.map(([k, v]) => (
+                    <ExpandableCell key={k} value={{[k]: v}} type="labels" icons={themeIcons} />
+                ))}
+                {hasMore && (
+                    <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRow(id); }}
+                        className="text-[9px] font-black uppercase tracking-widest text-accent hover:text-accent/80 mt-1"
+                    >
+                        {isExpanded ? 'Less' : `More (${entries.length - limit})`}
+                    </button>
+                )}
+            </div>
+        );
+    };
 
     const rsColumns = [
-        { header: t('label_name'), accessor: (rs) => <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="hover:underline text-accent font-bold font-mono">{rs.name}</Link> },
-        { header: t('label_namespace'), accessor: 'namespace' },
+        { header: 'Name', accessor: (rs) => <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="text-info hover:underline font-mono">{rs.name}</Link> },
+        { header: 'Namespace', accessor: 'namespace' },
         { header: 'Age', accessor: 'age' },
-        { header: 'Pods', accessor: (rs) => rs.extra?.pods || '—' },
-        { header: 'Labels', accessor: (rs) => rs.extra?.labels || '—', className: 'text-xs' },
-        { header: 'Images', accessor: (rs) => rs.extra?.images || '—', className: 'text-xs font-mono' }
+        { header: 'Labels', accessor: (rs) => renderLabelsCell(rs.extra?.labels, `rs-${rs.name}`), className: 'w-48' },
+        { header: 'Pods', accessor: (rs) => rs.extra?.readyReplicas || 0, className: 'text-center' }
     ];
 
     const conditionColumns = [
-        { header: 'type', accessor: 'type', className: 'font-bold text-info' },
-        { header: t('label_status'), accessor: (c) => <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${c.status === 'True' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{c.status}</span>, className: 'text-center' },
-        { header: 'last_probe', accessor: 'lastUpdateTime' },
-        { header: 'last_transition', accessor: 'lastTransitionTime' },
-        { header: 'reason', accessor: 'reason' },
-        { header: 'message', accessor: 'message', className: 'text-xs' }
+        { header: 'Type', accessor: 'type', className: 'font-bold' },
+        { header: 'Status', accessor: 'status', className: 'text-center' },
+        { header: 'Last probe time', accessor: 'lastUpdateTime' },
+        { header: 'Last transition time', accessor: 'lastTransitionTime' },
+        { header: 'Reason', accessor: 'reason' },
+        { header: 'Message', accessor: 'message', className: 'text-xs opacity-70' }
     ];
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <ResourceInfoSection isDeployment={true} resource={resource} extra={extra} spec={spec} status={status} t={t} />
-            <CommonTable title="pods" columns={podColumns} data={relatedPods} t={t} />
+            {/* 1. Resource Info */}
+            <ResourceInfoSection isDeployment={true} data={data} spec={spec} status={status} t={t} />
+
+            {/* 2. Rolling update strategy */}
+            <DetailSection title="Rolling update strategy">
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <th className="px-6 py-2 text-center border-r border-border">Updated</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Total</th>
+                                <th className="px-6 py-2 text-center">Available</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="text-primary font-bold">
+                                <td className="px-6 py-4 text-center border-r border-border text-success">
+                                    {status?.updatedReplicas || 0}
+                                </td>
+                                <td className="px-6 py-4 text-center border-r border-border text-primary">
+                                    {status?.replicas || 0}
+                                </td>
+                                <td className="px-6 py-4 text-center text-info">
+                                    {status?.availableReplicas || 0}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </DetailSection>
+
+            {/* 3. Conditions */}
+            <CommonTable title="Conditions" columns={conditionColumns} data={conditions} t={t} />
+
+            {/* 4. New Replica Set */}
             <CommonTable title="New Replica Set" columns={rsColumns} data={newRS} t={t} />
+
+            {/* 5. Old Replica Set */}
             <CommonTable title="Old Replica Set" columns={rsColumns} data={oldRS} t={t} />
-            <CommonTable title="status_conditions" columns={conditionColumns} data={status?.conditions || []} t={t} />
+
+            {/* 6. Horizontal Pod Autoscalers */}
+            <CommonTable 
+                title="Horizontal Pod Autoscalers" 
+                columns={[
+                    { header: 'Name', accessor: (h) => <Link to={`/horizontalpodautoscalers/${h.namespace}/${h.name}`} className="text-accent hover:underline">{h.name}</Link> },
+                    { header: 'Type', accessor: (h) => h.extra?.type || 'Resource' },
+                    { header: 'Resource / Name', accessor: (h) => h.extra?.reference || '—' },
+                    { header: 'Target', accessor: (h) => h.extra?.targets || '—' },
+                    { header: 'Current', accessor: (h) => h.extra?.currentReplicas || 0, className: 'text-center' }
+                ]} 
+                data={relatedHpas} 
+                t={t} 
+            />
         </div>
     );
 }
