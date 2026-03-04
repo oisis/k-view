@@ -35,6 +35,28 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	resItem.Extra["podIP"] = podIP
 	resItem.Extra["hostIP"] = hostIP
 
+	// Extract images from spec -> containers and initContainers
+	var images []string
+	if containers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "containers"); ok {
+		for _, c := range containers {
+			if cmap, ok := c.(map[string]interface{}); ok {
+				if img, ok := cmap["image"].(string); ok {
+					images = append(images, img)
+				}
+			}
+		}
+	}
+	if initContainers, ok, _ := unstructured.NestedSlice(item.Object, "spec", "initContainers"); ok {
+		for _, c := range initContainers {
+			if cmap, ok := c.(map[string]interface{}); ok {
+				if img, ok := cmap["image"].(string); ok {
+					images = append(images, img)
+				}
+			}
+		}
+	}
+	resItem.Extra["images"] = images
+
 	// Calculate specific status from container statuses (like CrashLoopBackOff etc)
 	if statuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
 		for _, s := range statuses {
