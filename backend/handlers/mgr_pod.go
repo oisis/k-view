@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"k-view/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -78,19 +77,23 @@ func (m *PodManager) GetDetails(ctx context.Context, dynClient dynamic.Interface
 		if gvr.Resource != "" {
 			ownerItem, err := dynClient.Resource(gvr).Namespace(item.GetNamespace()).Get(ctx, owner.Name, metav1.GetOptions{})
 			if err == nil {
-				// Use Generic Manager map for simplicity here, as we don't have registry access easily
-				// but Generic maps UID, Labels, etc.
-				extra := make(map[string]interface{})
-				extra["uid"] = string(ownerItem.GetUID())
-				extra["kind"] = ownerItem.GetKind()
-				extra["labels"] = ownerItem.GetLabels()
-				
-				controlledBy = append(controlledBy, ResourceItem{
-					Name:      ownerItem.GetName(),
-					Namespace: ownerItem.GetNamespace(),
-					Age:       utils.GetAge(ownerItem.GetCreationTimestamp().Time),
-					Extra:     extra,
-				})
+				// Map using specialized managers to get all fields like images and readyReplicas
+				var mapped ResourceItem
+				switch owner.Kind {
+				case "ReplicaSet":
+					mapped = NewReplicaSetManager().MapItem(*ownerItem, nil)
+				case "Job":
+					mapped = NewJobManager().MapItem(*ownerItem, nil)
+				case "StatefulSet":
+					mapped = NewStatefulSetManager().MapItem(*ownerItem, nil)
+				case "DaemonSet":
+					mapped = NewDaemonSetManager().MapItem(*ownerItem, nil)
+				case "Deployment":
+					mapped = NewDeploymentManager().MapItem(*ownerItem, nil)
+				default:
+					mapped = m.GenericManager.MapItem(*ownerItem, nil)
+				}
+				controlledBy = append(controlledBy, mapped)
 			}
 		}
 	}
