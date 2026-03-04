@@ -215,7 +215,7 @@ export const ja = {
     "scale_now": "今すぐスケーリング",
     "view_details": "詳細を表示",
     "view_logs": "ログを表示",
-    "exec_shell": "シェルを実行",
+    "exec": "Exec",
     "export_yaml": "YAMLをエクスポート",
     "add_resource": "リソースを追加",
     "create": "作成",

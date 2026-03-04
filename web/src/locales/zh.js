@@ -215,7 +215,7 @@ export const zh = {
     "scale_now": "扩缩容",
     "view_details": "查看详情",
     "view_logs": "查看日志",
-    "exec_shell": "终端",
+    "exec": "Exec",
     "export_yaml": "导出 YAML",
     "add_resource": "添加资源",
     "create": "创建",

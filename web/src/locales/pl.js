@@ -215,7 +215,7 @@ export const pl = {
     "scale_now": "Skaluj teraz",
     "view_details": "Szczegóły",
     "view_logs": "Logi",
-    "exec_shell": "Terminal",
+    "exec": "Exec",
     "export_yaml": "Eksportuj YAML",
     "add_resource": "Dodaj zasób",
     "create": "Utwórz",

@@ -215,7 +215,7 @@ export const ko = {
     "scale_now": "지금 스케일링",
     "view_details": "상세 보기",
     "view_logs": "로그 보기",
-    "exec_shell": "셸 실행",
+    "exec": "Exec",
     "export_yaml": "YAML 내보내기",
     "add_resource": "리소스 추가",
     "create": "생성",
