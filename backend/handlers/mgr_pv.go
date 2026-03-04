@@ -33,12 +33,14 @@ func (m *PVManager) MapItem(item unstructured.Unstructured, metricsMap map[strin
 	claimRefNamespace, _, _ := unstructured.NestedString(item.Object, "spec", "claimRef", "namespace")
 	
 	phase, _, _ := unstructured.NestedString(item.Object, "status", "phase")
+	reason, _, _ := unstructured.NestedString(item.Object, "status", "reason")
 
 	resItem.Extra["capacity"] = storage
 	resItem.Extra["accessModes"] = accessModes
 	resItem.Extra["reclaimPolicy"] = reclaimPolicy
 	resItem.Extra["storageClass"] = storageClass
 	resItem.Extra["claimRef"] = claimRefNamespace + "/" + claimRefName
+	resItem.Extra["reason"] = reason
 	resItem.Status = phase
 
 	return resItem
