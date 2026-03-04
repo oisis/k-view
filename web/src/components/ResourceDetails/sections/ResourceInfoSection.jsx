@@ -101,6 +101,39 @@ export default function ResourceInfoSection({
                 </DetailSection>
             )}
 
+            {isCronJob && (
+                <DetailSection title={t('resource_info')}>
+                    <table className="w-full text-sm text-left border-collapse">
+                        <tbody className="divide-y divide-border">
+                            <tr className="border-b border-border">
+                                <td colSpan="2" className="p-0">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border text-sm bg-[var(--bg-sidebar)]/5">
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_schedule')}</span>
+                                            <span className="font-mono text-primary font-bold">{spec?.schedule || data?.extra?.schedule || '—'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_suspend')}</span>
+                                            <span className={`font-bold ${(spec?.suspend || data?.extra?.suspend) ? 'text-warning' : 'text-success'}`}>
+                                                {String(spec?.suspend || data?.extra?.suspend || 'false')}
+                                            </span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_active')}</span>
+                                            <span className="text-primary font-bold">{data?.extra?.activeJobsCount || '0'}</span>
+                                        </div>
+                                        <div className="px-4 py-3 flex flex-col items-center text-center">
+                                            <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_last_schedule')}</span>
+                                            <span className="text-primary font-bold text-xs">{status?.lastScheduleTime || data?.extra?.lastScheduleTime || '—'}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </DetailSection>
+            )}
+
             {isStorageClass && (
                 <DetailSection title={t('resource_info')} className="mt-4">
                     <table className="w-full text-sm text-left border-collapse">
