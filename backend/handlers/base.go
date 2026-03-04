@@ -64,6 +64,14 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	registry.Register("networkpolicies", NewNetworkPolicyManager())
 	registry.Register("networkpolicy", NewNetworkPolicyManager())
 	registry.Register("netpol", NewNetworkPolicyManager())
+	registry.Register("roles", NewRoleManager())
+	registry.Register("role", NewRoleManager())
+	registry.Register("rolebindings", NewRoleBindingManager())
+	registry.Register("rolebinding", NewRoleBindingManager())
+	registry.Register("clusterroles", NewClusterRoleManager())
+	registry.Register("clusterrole", NewClusterRoleManager())
+	registry.Register("clusterrolebindings", NewClusterRoleBindingManager())
+	registry.Register("clusterrolebinding", NewClusterRoleBindingManager())
 
 	return &ResourceHandler{
 		k8sClient: k8sClient,
