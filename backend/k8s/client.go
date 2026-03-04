@@ -32,6 +32,7 @@ type KubernetesProvider interface {
 	ListNodeMetrics(ctx context.Context) ([]unstructured.Unstructured, error)
 	ListAllPods(ctx context.Context) ([]corev1.Pod, error)
 	ListAllNodes(ctx context.Context) ([]corev1.Node, error)
+	GetNode(ctx context.Context, name string) (*corev1.Node, error)
 	GetDynamicClient(ctx context.Context) (dynamic.Interface, error)
 
 	// Network related methods
@@ -140,6 +141,14 @@ func (c *Client) ListAllNodes(ctx context.Context) ([]corev1.Node, error) {
 		return nil, err
 	}
 	return nodes.Items, nil
+}
+
+func (c *Client) GetNode(ctx context.Context, name string) (*corev1.Node, error) {
+	clientset, err := c.getClientset(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clientset.CoreV1().Nodes().Get(ctx, name, metav1.GetOptions{})
 }
 
 func (c *Client) ListPodMetrics(ctx context.Context, namespace string) ([]unstructured.Unstructured, error) {

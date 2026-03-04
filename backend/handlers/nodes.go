@@ -9,6 +9,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"github.com/gin-gonic/gin"
 )
 
@@ -61,6 +62,46 @@ func nodeStatus(node corev1.Node) string {
 		}
 	}
 	return "Unknown"
+}
+
+func (h *NodeHandler) GetNodeDetails(c *gin.Context) {
+	nodeName := c.Param("name")
+	ctx := c.Request.Context()
+
+	node, err := h.k8sClient.GetNode(ctx, nodeName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Node not found"})
+		return
+	}
+
+	pods, err := h.k8sClient.ListAllPods(ctx)
+	var nodePods []ResourceItem
+	podMgr := NewPodManager()
+	if err == nil {
+		for _, p := range pods {
+			if p.Spec.NodeName == nodeName {
+				// Convert to unstructured for mapper
+				u := unstructured.Unstructured{}
+				u.Object = make(map[string]interface{})
+				
+				// Map necessary fields for the DTO
+				u.SetName(p.Name)
+				u.SetNamespace(p.Namespace)
+				u.SetCreationTimestamp(p.CreationTimestamp)
+				
+				nodePods = append(nodePods, podMgr.MapItem(u, nil))
+			}
+		}
+	}
+
+	// For node details, we will return the full Node object plus aggregated data
+	c.JSON(http.StatusOK, gin.H{
+		"resource": node,
+		"metadata": node.ObjectMeta,
+		"spec":     node.Spec,
+		"status":   node.Status,
+		"relatedPods": nodePods,
+	})
 }
 
 func (h *NodeHandler) ListNodes(c *gin.Context) {

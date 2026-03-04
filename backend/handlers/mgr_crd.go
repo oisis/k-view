@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -44,5 +45,34 @@ func (m *CRDManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 }
 
 func (m *CRDManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	group, _, _ := unstructured.NestedString(item.Object, "spec", "group")
+	names, _, _ := unstructured.NestedMap(item.Object, "spec", "names")
+	plural, _ := names["plural"].(string)
+	
+	// Try to find the first served version
+	version := "v1"
+	versions, ok, _ := unstructured.NestedSlice(item.Object, "spec", "versions")
+	if ok && len(versions) > 0 {
+		if vMap, ok := versions[0].(map[string]interface{}); ok {
+			version = vMap["name"].(string)
+		}
+	}
+
+	// Fetch instances of this CRD
+	gvr := schema.GroupVersionResource{Group: group, Version: version, Resource: plural}
+	list, err := dynClient.Resource(gvr).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		var objects []ResourceItem
+		for _, obj := range list.Items {
+			objects = append(objects, m.GenericManager.MapItem(obj, nil))
+		}
+		response["relatedCrdObjects"] = objects
+	}
+
+	return response, nil
 }

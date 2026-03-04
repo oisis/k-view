@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -52,5 +53,28 @@ func (m *ServiceAccountManager) MapItem(item unstructured.Unstructured, metricsM
 }
 
 func (m *ServiceAccountManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	ns := item.GetNamespace()
+
+	// Fetch related Secrets
+	secretMgr := NewSecretManager()
+	var relatedSecrets []ResourceItem
+	if secrets, ok, _ := unstructured.NestedSlice(item.Object, "secrets"); ok {
+		for _, s := range secrets {
+			if sMap, ok := s.(map[string]interface{}); ok {
+				name, _ := sMap["name"].(string)
+				secretItem, err := dynClient.Resource(secretMgr.GetGVR()).Namespace(ns).Get(ctx, name, metav1.GetOptions{})
+				if err == nil {
+					relatedSecrets = append(relatedSecrets, secretMgr.MapItem(*secretItem, nil))
+				}
+			}
+		}
+	}
+	response["relatedSecrets"] = relatedSecrets
+
+	return response, nil
 }

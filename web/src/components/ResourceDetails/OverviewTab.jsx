@@ -4,7 +4,6 @@ import MetadataSection from './sections/MetadataSection';
 import ResourceInfoSection from './sections/ResourceInfoSection';
 import PodOverview from './templates/Pod-overview';
 import DeploymentOverview from './templates/Deployment-overview';
-// Templates under construction will be enabled batch by batch
 import ServiceOverview from './templates/Service-overview';
 import CronJobOverview from './templates/CronJob-overview';
 import NodeOverview from './templates/Node-overview';
@@ -28,6 +27,7 @@ import HpaOverview from './templates/HorizontalPodAutoscaler-overview';
 import ReplicaSetOverview from './templates/ReplicaSet-overview';
 import ReplicationControllerOverview from './templates/ReplicationController-overview';
 import EventOverview from './templates/Event-overview';
+import EndpointsOverview from './templates/Endpoint-overview';
 
 /**
  * OverviewTab - Batch Implementation
@@ -63,6 +63,15 @@ export default function OverviewTab({
     const isPvc = kindLower === 'pvc' || kindLower === 'persistentvolumeclaim' || kindLower === 'persistentvolumeclaims';
     const isPv = kindLower === 'pv' || kindLower === 'persistentvolume' || kindLower === 'persistentvolumes';
     const isStorageClass = kindLower === 'storageclass' || kindLower === 'storageclasses';
+    const isNode = kindLower === 'node' || kindLower === 'nodes';
+    const isNamespace = kindLower === 'namespace' || kindLower === 'namespaces';
+    const isHpa = kindLower === 'hpa' || kindLower === 'hpas' || kindLower === 'horizontalpodautoscalers';
+    const isServiceAccount = kindLower.includes('serviceaccount') || kindLower.includes('service-account');
+    const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinition');
+    const isRole = kindLower === 'role' || kindLower === 'roles';
+    const isClusterRole = kindLower.includes('clusterrole') && !kindLower.includes('binding');
+    const isRoleBinding = kindLower === 'rolebinding' || kindLower === 'role-binding';
+    const isClusterRoleBinding = kindLower.includes('clusterrolebinding') || kindLower.includes('cluster-role-binding');
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
     return (
@@ -82,11 +91,9 @@ export default function OverviewTab({
 
             {isEventResource && <EventOverview data={data} spec={spec} status={status} t={t} icons={icons} />}
 
-            {/* BATCH 1: Pods & Deployments */}
+            {/* BATCH 1 & 2: Workloads */}
             {isPod && <PodOverview data={data} spec={spec} status={status} t={t} icons={icons} namespace={namespace} />}
             {isDeployment && <DeploymentOverview data={data} metadata={metadata} spec={spec} status={status} relatedReplicaSets={relatedReplicaSets} relatedPods={relatedPods} relatedHpas={relatedHpas} t={t} icons={icons} />}
-
-            {/* BATCH 2: STS, DS, RS, RC, Job, CronJob */}
             {isStatefulSet && <StatefulSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isDaemonSet && <DaemonSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
             {isReplicaSet && <ReplicaSetOverview data={data} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
@@ -108,7 +115,16 @@ export default function OverviewTab({
             {isPv && <PvOverview data={data} metadata={metadata} spec={spec} status={status} t={t} />}
             {isStorageClass && <StorageClassOverview data={data} spec={spec} relatedPvs={relatedPvs} t={t} icons={icons} />}
 
-            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && !isConfigMap && !isSecret && !isPvc && !isPv && !isStorageClass && (
+            {/* BATCH 5: Cluster & Metadata */}
+            {isNode && <NodeOverview data={data} metadata={metadata} spec={spec} status={status} relatedPods={relatedPods} t={t} icons={icons} />}
+            {isNamespace && <NamespaceOverview data={data} metadata={metadata} status={status} quotas={quotas} limits={limits} t={t} icons={icons} />}
+            {isHpa && <HpaOverview data={data} spec={spec} status={status} t={t} />}
+            {isServiceAccount && <ServiceAccountOverview data={data} metadata={metadata} spec={spec} namespace={namespace} relatedSecrets={relatedSecrets} relatedImagePullSecrets={relatedImagePullSecrets} t={t} icons={icons} />}
+            {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
+            {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} spec={spec} t={t} isBinding={false} />}
+            {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} spec={spec} t={t} />}
+
+            {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && !isConfigMap && !isSecret && !isPvc && !isPv && !isStorageClass && !isNode && !isNamespace && !isHpa && !isServiceAccount && !isCrd && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
                     No specialized overview available for this resource type ({kind}). Implementation in progress.
                 </div>

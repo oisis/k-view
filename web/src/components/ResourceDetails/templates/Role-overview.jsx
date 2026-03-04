@@ -1,21 +1,18 @@
 import React from 'react';
 import CommonTable from '../../Common/CommonTable';
+import ExpandableCell from '../ExpandableCell';
+import { useTheme } from '../../../ThemeContext';
 
-export default function RbacOverview({ data, metadata, spec, t }) {
-    if (!data) return null;
-    const rules = spec?.rules || data.rules || [];
+export default function RoleOverview({ data, metadata, spec, t, isBinding = false }) {
+    const { icons: themeIcons } = useTheme();
+    const rules = spec?.rules || [];
 
     const ruleColumns = [
-        { header: t('api_groups'), accessor: (r) => r.apiGroups?.map(g => g === "" ? "(core)" : g).join(', ') || '—', className: 'font-mono text-xs' },
-        { 
-            header: t('resources'), 
-            accessor: (r) => (
-                <div className="flex flex-wrap gap-1">
-                    {r.resources?.map((res, i) => <span key={i} className="bg-success/10 text-success px-1.5 py-0.5 rounded text-xs">{res}</span>)}
-                </div>
-            )
-        },
-        { header: t('verbs'), accessor: (r) => r.verbs?.join(', ') || '—', className: 'font-mono text-info' }
+        { header: 'Resources', accessor: (r) => <ExpandableCell value={r.resources || []} type="resources" icons={themeIcons} /> },
+        { header: 'Non-resource URL', accessor: (r) => <ExpandableCell value={r.nonResourceURLs || []} type="urls" icons={themeIcons} /> },
+        { header: 'Resource Names', accessor: (r) => <ExpandableCell value={r.resourceNames || []} type="names" icons={themeIcons} /> },
+        { header: 'Verbs', accessor: (r) => <ExpandableCell value={r.verbs || []} type="verbs" icons={themeIcons} /> },
+        { header: 'API Groups', accessor: (r) => <ExpandableCell value={r.apiGroups || []} type="groups" icons={themeIcons} /> }
     ];
 
     return (

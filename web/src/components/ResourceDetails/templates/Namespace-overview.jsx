@@ -1,33 +1,32 @@
 import React from 'react';
 import DetailSection from '../DetailSection';
-import ResourceQuotasTable from '../ResourceQuotasTable';
-import LimitRangesTable from '../LimitRangesTable';
+import CommonTable from '../../Common/CommonTable';
 
-export default function NamespaceOverview({ data, status, quotas, limits, t, icons }) {
-    if (!data) return null;
-    const phase = data.resource?.status?.phase || status?.phase || data.status?.phase || 'Active';
+export default function NamespaceOverview({ data, metadata, status, quotas = [], limits = [], t, icons }) {
+    const quotaColumns = [
+        { header: 'Name', accessor: 'metadata.name', className: 'font-bold' },
+        { header: 'Created', accessor: 'metadata.creationTimestamp' },
+        { header: 'Status', accessor: (q) => JSON.stringify(q.status?.used || {}), className: 'text-xs font-mono opacity-70' }
+    ];
+
+    const limitColumns = [
+        { header: 'Resource name', accessor: 'metadata.name' },
+        { header: 'Type', accessor: (l) => l.spec?.limits?.[0]?.type || '—' },
+        { header: 'Default', accessor: (l) => JSON.stringify(l.spec?.limits?.[0]?.default || {}), className: 'text-xs font-mono' },
+        { header: 'Default request', accessor: (l) => JSON.stringify(l.spec?.limits?.[0]?.defaultRequest || {}), className: 'text-xs font-mono' }
+    ];
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <DetailSection title="resource_info">
-                <table className="w-full text-sm text-left border-collapse">
-                    <tbody className="divide-y divide-border">
-                        <tr className="border-b border-border">
-                            <td className="px-4 py-3 text-text-muted font-bold uppercase text-xs w-1/4">Status</td>
-                            <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${phase === 'Active' ? 'bg-success animate-pulse' : 'bg-warning'}`} />
-                                    <span className={`font-bold uppercase tracking-wider ${phase === 'Active' ? 'text-success' : 'text-warning'}`}>
-                                        {phase}
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <DetailSection title="Resource Info">
+                <div className="glass rounded-2xl border border-border p-4 text-center">
+                    <span className="text-[10px] font-black uppercase text-text-muted block mb-1">Status</span>
+                    <span className={`text-lg font-bold ${status?.phase === 'Active' ? 'text-success' : 'text-warning'}`}>{status?.phase || 'Unknown'}</span>
+                </div>
             </DetailSection>
-            {(quotas || data.quotas) && <ResourceQuotasTable quotas={data.quotas || quotas} t={t} icons={icons} />}
-            {(limits || data.limits) && <LimitRangesTable limits={data.limits || limits} t={t} icons={icons} />}
+
+            <CommonTable title="Resource Quotas" columns={quotaColumns} data={quotas} t={t} />
+            <CommonTable title="Resource Limits" columns={limitColumns} data={limits} t={t} />
         </div>
     );
 }

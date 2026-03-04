@@ -228,9 +228,13 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 
 		var cpuReq, memReq float64
 		podCount := 0
+		var nodePods []ResourceItem
+		podMgr := NewPodManager()
+		
 		if err == nil {
 			podCount = len(podList.Items)
 			for _, p := range podList.Items {
+				// Metrics calculation
 				containers, _, _ := unstructured.NestedSlice(p.Object, "spec", "containers")
 				for _, c := range containers {
 					if cm, ok := c.(map[string]interface{}); ok {
@@ -239,9 +243,12 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 						memReq += k8sutils.ParseMemory(reqs["memory"])
 					}
 				}
+				// Full DTO mapping
+				nodePods = append(nodePods, podMgr.MapItem(p, nil))
 			}
 		}
 
+		response["relatedPods"] = nodePods
 		response["allocation"] = gin.H{
 			"cpu": gin.H{"requests": cpuReq, "allocatable": cpuAlloc, "capacity": cpuCap},
 			"memory": gin.H{"requests": memReq, "allocatable": memAlloc, "capacity": memCap},

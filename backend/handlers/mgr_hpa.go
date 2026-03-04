@@ -108,5 +108,14 @@ func (m *HPAManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 }
 
 func (m *HPAManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	return m.GenericManager.GetDetails(ctx, dynClient, item)
+	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract spec metrics for the detailed table
+	metrics, _, _ := unstructured.NestedSlice(item.Object, "spec", "metrics")
+	response["detailedMetrics"] = metrics
+
+	return response, nil
 }
