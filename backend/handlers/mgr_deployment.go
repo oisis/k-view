@@ -29,11 +29,25 @@ func (m *DeploymentManager) MapItem(item unstructured.Unstructured, metricsMap m
 	
 	updateStrategy, _, _ := unstructured.NestedString(item.Object, "spec", "strategy", "type")
 
+	// Extract images from spec -> template -> spec -> containers
+	var images []string
+	containers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "containers")
+	if found {
+		for _, c := range containers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					images = append(images, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["replicas"] = replicas
 	resItem.Extra["readyReplicas"] = readyReplicas
 	resItem.Extra["updatedReplicas"] = updatedReplicas
 	resItem.Extra["availableReplicas"] = availableReplicas
 	resItem.Extra["updateStrategy"] = updateStrategy
+	resItem.Extra["images"] = images
 
 	if readyReplicas < replicas {
 		resItem.Status = "Degraded"
