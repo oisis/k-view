@@ -22,11 +22,18 @@ func NewDeploymentManager() *DeploymentManager {
 func (m *DeploymentManager) MapItem(item unstructured.Unstructured, metricsMap map[string]unstructured.Unstructured) ResourceItem {
 	resItem := m.GenericManager.MapItem(item, metricsMap)
 	
-	readyReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 	replicas, _, _ := unstructured.NestedInt64(item.Object, "spec", "replicas")
+	readyReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
+	updatedReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "updatedReplicas")
+	availableReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
+	
+	updateStrategy, _, _ := unstructured.NestedString(item.Object, "spec", "strategy", "type")
 
-	resItem.Extra["readyReplicas"] = readyReplicas
 	resItem.Extra["replicas"] = replicas
+	resItem.Extra["readyReplicas"] = readyReplicas
+	resItem.Extra["updatedReplicas"] = updatedReplicas
+	resItem.Extra["availableReplicas"] = availableReplicas
+	resItem.Extra["updateStrategy"] = updateStrategy
 
 	if readyReplicas < replicas {
 		resItem.Status = "Degraded"
@@ -38,6 +45,5 @@ func (m *DeploymentManager) MapItem(item unstructured.Unstructured, metricsMap m
 }
 
 func (m *DeploymentManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
-	// Simple passthrough to generic for now, relying on its DTO extraction
 	return m.GenericManager.GetDetails(ctx, dynClient, item)
 }

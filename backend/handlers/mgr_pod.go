@@ -24,9 +24,16 @@ func NewPodManager() *PodManager {
 func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[string]unstructured.Unstructured) ResourceItem {
 	resItem := m.GenericManager.MapItem(item, metricsMap)
 	
-	// Pod specific mapping
 	statusPhase, _, _ := unstructured.NestedString(item.Object, "status", "phase")
 	resItem.Status = statusPhase
+
+	nodeName, _, _ := unstructured.NestedString(item.Object, "spec", "nodeName")
+	podIP, _, _ := unstructured.NestedString(item.Object, "status", "podIP")
+	hostIP, _, _ := unstructured.NestedString(item.Object, "status", "hostIP")
+
+	resItem.Extra["nodeName"] = nodeName
+	resItem.Extra["podIP"] = podIP
+	resItem.Extra["hostIP"] = hostIP
 
 	// Calculate specific status from container statuses (like CrashLoopBackOff etc)
 	if statuses, ok, _ := unstructured.NestedSlice(item.Object, "status", "containerStatuses"); ok {
@@ -86,7 +93,6 @@ func (m *PodManager) GetDetails(ctx context.Context, dynClient dynamic.Interface
 	metricsGVR := schema.GroupVersionResource{Group: "metrics.k8s.io", Version: "v1beta1", Resource: "pods"}
 	metricsItem, err := dynClient.Resource(metricsGVR).Namespace(item.GetNamespace()).Get(ctx, item.GetName(), metav1.GetOptions{})
 	if err == nil && metricsItem != nil {
-		// DTO isolation: extract only necessary metric fields
 		var podCpu, podMem float64
 		if containers, ok, _ := unstructured.NestedSlice(metricsItem.Object, "containers"); ok {
 			for _, c := range containers {

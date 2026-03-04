@@ -25,9 +25,27 @@ func (m *ServiceManager) MapItem(item unstructured.Unstructured, metricsMap map[
 	
 	clusterIP, _, _ := unstructured.NestedString(item.Object, "spec", "clusterIP")
 	svcType, _, _ := unstructured.NestedString(item.Object, "spec", "type")
+	selector, _, _ := unstructured.NestedMap(item.Object, "spec", "selector")
+	
+	ports, _, _ := unstructured.NestedSlice(item.Object, "spec", "ports")
+	var portList []interface{}
+	for _, p := range ports {
+		if port, ok := p.(map[string]interface{}); ok {
+			portList = append(portList, gin.H{
+				"name": port["name"],
+				"port": port["port"],
+				"protocol": port["protocol"],
+				"targetPort": port["targetPort"],
+			})
+		}
+	}
 
 	resItem.Extra["clusterIP"] = clusterIP
 	resItem.Extra["type"] = svcType
+	resItem.Extra["selector"] = selector
+	resItem.Extra["ports"] = portList
+
+	resItem.Status = "Active"
 
 	return resItem
 }
@@ -42,7 +60,6 @@ func (m *ServiceManager) GetDetails(ctx context.Context, dynClient dynamic.Inter
 	endpointsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
 	epItem, err := dynClient.Resource(endpointsGVR).Namespace(item.GetNamespace()).Get(ctx, item.GetName(), metav1.GetOptions{})
 	if err == nil && epItem != nil {
-		// DTO isolation: extract subsets instead of returning raw item.Object
 		subsets, _, _ := unstructured.NestedSlice(epItem.Object, "subsets")
 		response["relatedEndpoints"] = gin.H{
 			"subsets": subsets,

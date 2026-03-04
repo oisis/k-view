@@ -96,7 +96,7 @@ export default function OverviewTab({
                 isReplicationController={isReplicationController}
             />
 
-            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && (
+            {!isIngress && !isIngressClass && !isNamespace && !isNetworkPolicy && !isStorageClass && !isPv && !isRoleBinding && !isClusterRoleBinding && !isDaemonSet && !isJob && !isReplicaSet && !isReplicationController && !isHpa && (
                 <ResourceInfoSection 
                     isPod={isPod}
                     isDaemonSet={isDaemonSet}

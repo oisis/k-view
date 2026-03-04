@@ -34,7 +34,9 @@ export default function ResourceInfoSection({
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
                                             <span className="text-xs text-text-muted uppercase font-bold mb-1">{t('label_status')}</span>
                                             <span className={`font-bold ${status?.phase === 'Running' || data?.resource?.status?.phase === 'Running' ? 'text-success' : 'text-warning'}`}>
-                                                {status?.phase || data?.resource?.status?.phase || data?.resource?.status || '—'}
+                                                {typeof (status?.phase || data?.resource?.status?.phase || status) === 'string' 
+                                                    ? (status?.phase || data?.resource?.status?.phase || status) 
+                                                    : '—'}
                                             </span>
                                         </div>
                                         <div className="px-4 py-3 flex flex-col items-center text-center">
