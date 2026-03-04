@@ -39,6 +39,15 @@ func NewResourceHandler(devMode bool, k8sClient k8s.KubernetesProvider) *Resourc
 	registry.Register("cronjobs", NewCronJobManager())
 	registry.Register("cronjob", NewCronJobManager())
 	registry.Register("cj", NewCronJobManager())
+	registry.Register("persistentvolumeclaims", NewPVCManager())
+	registry.Register("persistentvolumeclaim", NewPVCManager())
+	registry.Register("pvc", NewPVCManager())
+	registry.Register("persistentvolumes", NewPVManager())
+	registry.Register("persistentvolume", NewPVManager())
+	registry.Register("pv", NewPVManager())
+	registry.Register("storageclasses", NewStorageClassManager())
+	registry.Register("storageclass", NewStorageClassManager())
+	registry.Register("sc", NewStorageClassManager())
 
 	return &ResourceHandler{
 		k8sClient: k8sClient,
