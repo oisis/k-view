@@ -3,101 +3,92 @@ import { createPortal } from 'react-dom';
 import { useTheme } from '../../ThemeContext';
 
 /**
- * ExpandableCell component for displaying long lists of labels, annotations, or images.
- * It provides horizontal scrolling for long text and alphabetical sorting.
+ * ExpandableCell component for displaying long lists of labels, annotations, or images
  */
-export default function ExpandableCell({ value, type }) {
-    const [expanded, setExpanded] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0 });
-    const { activeTheme } = useTheme();
-    const buttonRef = useRef(null);
+export default function ExpandableCell({ value, type, customStyle, icons: propIcons }) {
+    const [tooltip, setTooltip] = useState({ show: false, content: '' });
+    const { icons: themeIcons } = useTheme();
+    const icons = propIcons || themeIcons || {};
 
-    if (!value || value === '—') return <span className="text-text-muted">—</span>;
+    const items = typeof value === 'string'
+        ? value.split(',').map(s => s.trim()).filter(Boolean)
+        : Object.entries(value || {}).map(([k, v]) => `${k}: ${v}`);
 
-    // Normalize value into a stable, sorted array of strings
-    let items = [];
-    if (typeof value === 'object' && !Array.isArray(value)) {
-        // Handle object/map from API
-        items = Object.entries(value || {}).map(([k, v]) => `${k}: ${v}`);
-    } else if (Array.isArray(value)) {
-        // Handle array
-        items = (value || []).map(v => String(v));
-    } else if (typeof value === 'string') {
-        // Handle comma-separated string from backend (e.g., "app=k-view, env=dev")
-        // We replace "=" with ": " for consistent UI presentation
-        items = (value || '').split(',').map(s => s.trim().replace('=', ': '));
-    } else {
-        items = [String(value)];
-    }
+    if (items.length === 0) return <span className="text-text-muted italic">—</span>;
 
-    // Secondary safety sort to ensure perfect fixed ordering
-    items.sort((a, b) => a.localeCompare(b));
+    const defaultStyle = type === 'images' 
+        ? "bg-accent/10 text-accent border-accent/20" 
+        : "bg-info/10 text-info border-info/20";
+    
+    const tagStyle = customStyle || defaultStyle;
 
-    if (items.length === 0) return <span className="text-text-muted">—</span>;
-
-    const handleMouseEnter = () => {
-        if (buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            setCoords({ top: rect.top - 10, left: rect.left });
-        }
-        setIsHovered(true);
+    const handleCopy = (text) => {
+        navigator.clipboard.writeText(text);
     };
 
-    const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
-
     return (
-        <div className="relative group/expandable min-w-0 w-full overflow-hidden">
-            <div className="flex flex-col gap-1 py-1 max-w-full min-w-0 overflow-y-hidden">
-                {(expanded ? items : items.slice(0, 2)).map((it, idx) => (
-                    <div key={idx} className="text-[12px] font-mono bg-transparent px-2 py-0.5 rounded text-secondary overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide w-full block" title={it}>
-                        {it}
-                    </div>
-                ))}
-                
-                {items.length > 2 && (
-                    !expanded ? (
-                        <button
-                            ref={buttonRef}
-                            onMouseEnter={handleMouseEnter}
-                            onMouseLeave={() => setIsHovered(false)}
-                            onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                            className="text-xs font-bold text-accent hover:text-primary mt-1 text-left px-1 flex items-center gap-1 active:scale-95 transition-all"
-                        >
-                            Show all ({items.length})
-                        </button>
-                    ) : (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-                            className="text-xs font-bold mt-1 text-left px-1 underline active:scale-95 transition-all"
-                            style={{ color: hideColor }}
-                        >
-                            Hide
-                        </button>
-                    )
-                )}
-            </div>
-
-            {isHovered && !expanded && createPortal(
-                <div 
-                    style={{ 
-                        position: 'fixed',
-                        top: coords.top,
-                        left: coords.left,
-                        transform: 'translateY(-100%)',
-                        zIndex: 9999
+        <div className="flex flex-wrap gap-1 w-full">
+            {items.map((it, idx) => (
+                <div
+                    key={idx}
+                    className={`px-2 py-0.5 rounded text-[11px] font-mono border cursor-pointer transition-all hover:brightness-110 active:scale-95 whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${tagStyle}`}
+                    onClick={(e) => {
+                        setTooltip({
+                            show: true,
+                            content: it
+                        });
                     }}
-                    className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[240px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
                 >
-                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
-                        {type === 'labels' ? 'Labels' : 'Images'}
-                    </div>
-                    <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2">
-                        {items.map((it, idx) => (
-                            <div key={idx} className="text-[12px] font-mono text-[var(--text-tooltip)] break-all leading-tight">
-                                {it}
+                    {it}
+                </div>
+            ))}
+
+            {tooltip.show && createPortal(
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                        onClick={() => setTooltip({ ...tooltip, show: false })}
+                    />
+                    
+                    {/* Modal Content */}
+                    <div 
+                        className="relative w-full max-w-2xl bg-[var(--bg-sidebar)] border border-border shadow-2xl rounded-2xl p-6 animate-in zoom-in-95 fade-in duration-200"
+                    >
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                            <div className="flex items-center gap-2">
+                                {icons.info ? <icons.info size={18} className="text-accent" /> : <div className="w-4 h-4 bg-accent rounded-full" />}
+                                <span className="text-sm font-black uppercase tracking-widest text-primary">Detail View</span>
                             </div>
-                        ))}
+                            <button 
+                                onClick={() => setTooltip({ ...tooltip, show: false })}
+                                className="p-2 rounded-lg hover:bg-sidebar/50 text-text-muted hover:text-primary transition-all"
+                            >
+                                {icons.x ? <icons.x size={20} /> : <span>✕</span>}
+                            </button>
+                        </div>
+                        
+                        <div className="bg-black/20 p-4 rounded-xl border border-border/30">
+                            <div className="text-sm font-mono text-primary break-all max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar leading-relaxed">
+                                {tooltip.content}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end mt-6 gap-3">
+                            <button
+                                onClick={() => setTooltip({ ...tooltip, show: false })}
+                                className="px-4 py-2 text-sm font-bold text-text-muted hover:text-primary transition-colors"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={() => handleCopy(tooltip.content)}
+                                className="flex items-center gap-2 px-6 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-sm font-bold shadow-lg shadow-accent/20 transition-all active:scale-95"
+                            >
+                                {icons.clipboard ? <icons.clipboard size={16} /> : null}
+                                Copy Full Entry
+                            </button>
+                        </div>
                     </div>
                 </div>,
                 document.body
