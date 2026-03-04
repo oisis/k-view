@@ -1,4 +1,7 @@
 export const ClusterRbacListSchema = {
     title: 'Cluster RBAC',
-    cols: [],
+    cols: [
+        { key: 'name', label: 'Name' },
+        { key: 'age', label: 'Created' },
+    ],
 };

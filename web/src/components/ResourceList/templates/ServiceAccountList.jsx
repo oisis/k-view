@@ -1,4 +1,9 @@
 export const ServiceAccountListSchema = {
-    title: 'Service Accounts',
-    cols: [],
+    title: 'ServiceAccounts',
+    cols: [
+        { key: 'name', label: 'Name' },
+        { key: 'namespace', label: 'Namespace' },
+        { key: 'extra.labels', label: 'Labels' },
+        { key: 'age', label: 'Created' },
+    ],
 };

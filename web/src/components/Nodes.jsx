@@ -186,16 +186,67 @@ export default function Nodes() {
                     <table className="w-full text-sm text-left text-primary">
                         <thead>
                             <tr>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Name</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Labels</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Ready</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU requests (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU limits (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">CPU capacity (cores)</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM requests</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM limits</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">RAM capacity</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Pods</th>
+                                <th className="px-4 py-3 text-center border-r border-white/10">Create</th>
+                                <th className="px-4 py-3 w-10 text-right"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading && filteredNodes.length === 0 ? (
-                                <tr><td className="px-4 py-8 text-center text-text-muted italic">Loading nodes...</td></tr>
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted italic">Loading nodes...</td></tr>
                             ) : filteredNodes.length === 0 ? (
-                                <tr><td className="px-4 py-8 text-center text-text-muted">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
+                                <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
                             ) : (
                                 (filteredNodes || []).map((node, i) => (
                                     <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2 font-mono font-medium text-primary justify-center">
+                                                <Link
+                                                    to={`/nodes/-/${node.name}`}
+                                                    className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
+                                                >
+                                                    {node.name}
+                                                </Link>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <LabelsCell labels={node.labels} />
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-1.5 justify-center">
+                                                <StatusIcon status={node.status} />
+                                                <span className={node.status === 'Ready' ? 'text-success' : 'text-error'}>
+                                                    {node.status === 'Ready' ? 'True' : 'False'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatCores(node.cpuRequests, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatCores(node.cpuLimits, node.cpuCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{node.cpuCapacity}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatRAM(node.ramRequests, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{formatRAM(node.ramLimits, node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-center">{bytesToGiB(node.memoryCapacity)}</td>
+                                        <td className="px-4 py-3 text-info font-bold text-center">{node.podsCount}</td>
+                                        <td className="px-4 py-3 text-text-muted text-xs text-center">{new Date(node.age).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            <div className="flex justify-center">
+                                                <ResourceActionMenu
+                                                    kind="nodes"
+                                                    namespace="-"
+                                                    name={node.name}
+                                                    onRefresh={refresh}
+                                                />
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             )}

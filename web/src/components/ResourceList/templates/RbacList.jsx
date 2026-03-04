@@ -1,4 +1,8 @@
 export const RbacListSchema = {
     title: 'RBAC',
-    cols: [],
+    cols: [
+        { key: 'name', label: 'Name' },
+        { key: 'namespace', label: 'Namespace' },
+        { key: 'age', label: 'Created' },
+    ],
 };

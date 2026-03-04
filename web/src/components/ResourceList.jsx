@@ -242,6 +242,7 @@ export default function ResourceList({ kind }) {
     };
 
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
+    const isEvent = kind === 'Events';
     const supportsTrace = false;
 
     return (
@@ -306,6 +307,12 @@ export default function ResourceList({ kind }) {
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
                                     else if (col.key === 'namespace') widthCls = "w-32";
+                                    else if (col.key === 'extra.reason') widthCls = "w-32";
+                                    else if (col.key === 'extra.message') widthCls = "w-1/3";
+                                    else if (col.key === 'extra.source') widthCls = "w-32";
+                                    else if (col.key === 'extra.involvedObject') widthCls = "w-48";
+                                    else if (col.key === 'extra.count') widthCls = "w-16";
+                                    else if (col.key === 'extra.firstTimestamp' || col.key === 'extra.lastTimestamp') widthCls = "w-32";
 
                                     return (
                                         <th
@@ -327,14 +334,14 @@ export default function ResourceList({ kind }) {
                                     );
                                 })}
                                 {supportsTrace && <th className="px-2 py-3 whitespace-nowrap w-10 border-r border-white/10"></th>}
-                                <th className="px-2 py-3 whitespace-nowrap w-12 text-right"></th>
+                                {!isEvent && <th className="px-2 py-3 whitespace-nowrap w-12 text-right"></th>}
                             </tr>
                         </thead>
                         <tbody>
                             {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
                             ) : paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 2 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
+                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : paginatedItems.map((item, i) => (
                                 <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/20 transition-colors">
                                     {(schema.cols || []).map(col => {                                        
@@ -342,10 +349,12 @@ export default function ResourceList({ kind }) {
                                         let content;
                                         let cellClass = "py-1.5 overflow-hidden";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller'].includes(col.key || '')) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp'].includes(col.key || '')) {
                                             cellClass += " text-center px-2";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-3";
+                                        } else if (col.key === 'extra.message') {
+                                            cellClass += " text-left px-3 text-xs leading-tight opacity-80";
                                         } else {
                                             cellClass += " px-2";
                                         }
@@ -416,16 +425,18 @@ export default function ResourceList({ kind }) {
                                             </button>
                                         </td>
                                     )}
-                                    <td className="px-2 py-2 whitespace-nowrap text-center">
-                                        <div className="flex justify-center">
-                                            <ResourceActionMenu
-                                                kind={kind}
-                                                namespace={item.namespace}
-                                                name={item.name}
-                                                onRefresh={refresh}
-                                            />
-                                        </div>
-                                    </td>
+                                    {!isEvent && (
+                                        <td className="px-2 py-2 whitespace-nowrap text-center">
+                                            <div className="flex justify-center">
+                                                <ResourceActionMenu
+                                                    kind={kind}
+                                                    namespace={item.namespace}
+                                                    name={item.name}
+                                                    onRefresh={refresh}
+                                                />
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

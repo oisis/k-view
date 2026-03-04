@@ -1,0 +1,20 @@
+Section: Network
+General overview:
+  - Name
+  - Namespace
+  - Labels
+  - Endpoints
+  - Created
+detail_tabs:
+  - Overview
+  - Yaml
+  - Events
+Metadata:
+  - Name
+  - Namespace
+  - Created
+  - Age
+  - Labels
+  - Annotations
+Resource Info:
+  - Subsets

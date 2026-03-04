@@ -1,5 +1,5 @@
-export const ReplicaSetListSchema = {
-    title: 'ReplicaSets',
+export const DaemonSetListSchema = {
+    title: 'DaemonSets',
     cols: [
         { key: 'name', label: 'Name' },
         { key: 'namespace', label: 'Namespace' },
