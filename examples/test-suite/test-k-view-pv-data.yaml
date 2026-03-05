@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: test-k-view-pv
+  name: test-pv-with-data
   labels:
     app: test-k-view
     tier: platinum
@@ -21,7 +21,7 @@ spec:
     name: test-k-view-pvc
     namespace: k-view-test-data
   hostPath:
-    path: "/tmp/k-view-data"
+    path: "/tmp/k-view-data-v2"
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -34,7 +34,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: test-k-view-csi-pv
+  name: test-csi-pv-with-data
   labels:
     app: test-k-view
     type: csi
@@ -48,8 +48,8 @@ spec:
   storageClassName: test-k-view-storageclass
   csi:
     driver: hostpath.csi.k8s.io
-    volumeHandle: csi-hostpath-volume-001
+    volumeHandle: csi-hostpath-volume-unique-id-001
     volumeAttributes:
-      key1: value1
-      key2: value2
-      storage.kubernetes.io/csiProvisionerIdentity: 123456789-8888-9999
+      region: eu-central-1
+      encrypted: "true"
+      storage.kubernetes.io/csiProvisionerIdentity: 123456789-unique

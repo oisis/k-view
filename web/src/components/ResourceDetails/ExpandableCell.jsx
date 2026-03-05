@@ -11,9 +11,11 @@ export default function ExpandableCell({ value, type, customStyle, icons: propIc
     const { icons: themeIcons } = useTheme();
     const icons = propIcons || themeIcons || {};
 
-    const items = typeof value === 'string'
-        ? value.split(',').map(s => s.trim()).filter(Boolean)
-        : Object.entries(value || {}).map(([k, v]) => `${k}: ${v}`);
+    const items = Array.isArray(value)
+        ? value
+        : typeof value === 'string'
+            ? value.split(',').map(s => s.trim()).filter(Boolean)
+            : Object.entries(value || {}).map(([k, v]) => `${k}: ${v}`);
 
     if (items.length === 0) return <span className="text-text-muted italic">—</span>;
 

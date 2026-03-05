@@ -31,10 +31,14 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
                         </thead>
                         <tbody>
                             <tr className="text-primary font-bold align-middle text-center">
-                                <td className="px-4 py-4 border-r border-border">{status?.phase || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{data?.extra?.claimRef || '—'}</td>
+                                <td className={`px-4 py-4 border-r border-border ${status?.phase === 'Bound' ? 'text-success' : 'text-warning'}`}>
+                                    {status?.phase || '—'}
+                                </td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs text-info">
+                                    {spec?.claimRef ? `${spec.claimRef.namespace}/${spec.claimRef.name}` : '—'}
+                                </td>
                                 <td className="px-4 py-4 border-r border-border">{spec?.persistentVolumeReclaimPolicy || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border">{spec?.storageClassName || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{spec?.storageClassName || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">
                                     <ExpandableCell value={spec?.mountOptions || []} type="mounts" icons={themeIcons} />
                                 </td>
@@ -48,19 +52,27 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
             </DetailSection>
 
             <DetailSection title="Source">
-                <div className="glass rounded-2xl border border-border p-4">
-                    <div className="flex items-center gap-2 mb-3 border-b border-border/30 pb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Type:</span>
-                        <span className="text-sm font-bold text-accent">{source.type || 'Unknown'}</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.entries(source).map(([k, v]) => k !== 'type' && (
-                            <div key={k} className="flex flex-col">
-                                <span className="text-[10px] text-text-muted uppercase font-bold">{k}</span>
-                                <span className="text-xs font-mono text-primary truncate" title={JSON.stringify(v)}>{JSON.stringify(v)}</span>
-                            </div>
-                        ))}
-                    </div>
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <th className="px-4 py-2 text-center border-r border-border">Type</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Driver</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Volume Handle</th>
+                                <th className="px-4 py-2 text-center">Volume Attributes (Key, Value)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="text-primary font-bold align-middle text-center">
+                                <td className="px-4 py-4 border-r border-border text-accent">{source.type || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{source.driver || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs truncate" title={source.volumeHandle}>{source.volumeHandle || '—'}</td>
+                                <td className="px-4 py-4">
+                                    <ExpandableCell value={source.attributes || {}} type="labels" icons={themeIcons} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </DetailSection>
 
