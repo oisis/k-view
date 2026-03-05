@@ -53,12 +53,12 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                 t={t} 
             />
 
-            <DetailSection title="Containers">
+            <DetailSection title="Containers" className="!border-none !shadow-none bg-transparent">
                 <div className="grid grid-cols-1 gap-6">
                     {containers.map((c, i) => (
-                        <div key={i} className="glass rounded-3xl border border-border p-6 flex flex-col gap-4 shadow-xl">
+                        <div key={i} className="glass rounded-3xl !border-none p-6 flex flex-col gap-4 shadow-xl bg-white/5">
                             {/* Header */}
-                            <div className="flex items-center justify-between border-b border-border/30 pb-4">
+                            <div className="flex items-center justify-between !border-none pb-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-accent/10 rounded-xl">
                                         <themeIcons.box size={20} className="text-accent" />
@@ -66,7 +66,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                                     <span className="text-lg font-black text-primary truncate max-w-[250px]">{c.name}</span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${c.ready ? 'bg-success/20 text-success border border-success/30' : 'bg-warning/20 text-warning border border-warning/30'}`}>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${c.ready ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>
                                         {c.ready ? 'Ready' : 'Not Ready'}
                                     </span>
                                 </div>
@@ -75,24 +75,36 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                             {/* Details Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                 <div className="space-y-4">
-                                    <div>
+                                    <div className="!border-none">
                                         <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1">Image</span>
-                                        <span className="text-xs font-mono text-secondary break-all bg-black/20 p-2 rounded-lg block">{c.image}</span>
+                                        <span className="text-xs font-mono text-primary break-all block">{c.image}</span>
                                     </div>
-                                    <div className="flex justify-between items-center py-2 border-b border-border/10">
+                                    <div className="flex justify-between items-center py-2 !border-none">
+                                        <span className="text-text-muted font-bold">Ready</span>
+                                        <span className={c.ready ? 'text-success font-black' : 'text-warning font-black'}>{c.ready ? 'True' : 'False'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 !border-none">
+                                        <span className="text-text-muted font-bold">Status Ready</span>
+                                        <span className={c.ready ? 'text-success font-black' : 'text-warning font-black'}>{c.ready ? 'True' : 'False'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 !border-none">
                                         <span className="text-text-muted font-bold">Started</span>
-                                        <span className={c.started ? 'text-success font-black' : 'text-warning'}>{c.started ? 'True' : 'False'}</span>
+                                        <span className={c.started ? 'text-success font-black' : 'text-warning font-black'}>{c.started ? 'True' : 'False'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 !border-none">
+                                        <span className="text-text-muted font-bold">Status Started</span>
+                                        <span className={c.started ? 'text-success font-black' : 'text-warning font-black'}>{c.started ? 'True' : 'False'}</span>
                                     </div>
                                     {c.stateReason && (
-                                        <div className="flex justify-between items-center py-2 border-b border-border/10">
-                                            <span className="text-text-muted font-bold">Reason</span>
+                                        <div className="flex justify-between items-center py-2 !border-none">
+                                            <span className="text-text-muted font-bold">Status Reason</span>
                                             <span className="text-error font-black">{c.stateReason}</span>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div>
+                                    <div className="!border-none">
                                         <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1 text-center">Environment Variables</span>
                                         <ExpandableCell 
                                             value={(c.env || []).map(e => `${e.name}=${e.value || (e.valueFrom ? '<secret/cm>' : '—')}`)} 
@@ -101,7 +113,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                                             limit={2} 
                                         />
                                     </div>
-                                    <div>
+                                    <div className="!border-none">
                                         <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1 text-center">Mounts</span>
                                         <ExpandableCell value={(c.volumeMounts || []).map(m => `${m.mountPath} (${m.name})`)} type="mounts" icons={themeIcons} limit={2} />
                                     </div>
@@ -109,16 +121,16 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                             </div>
 
                             {/* Probes Section */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 pt-4 border-t border-border/30">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 pt-4 !border-none">
                                 <div>
                                     <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1">Liveness Probe</span>
-                                    <div className="text-[11px] font-mono text-secondary/80 bg-black/10 p-2 rounded-lg min-h-[40px]">
+                                    <div className="text-[11px] font-mono text-primary">
                                         {renderProbe(c.livenessProbe)}
                                     </div>
                                 </div>
                                 <div>
                                     <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1">Readiness Probe</span>
-                                    <div className="text-[11px] font-mono text-secondary/80 bg-black/10 p-2 rounded-lg min-h-[40px]">
+                                    <div className="text-[11px] font-mono text-primary">
                                         {renderProbe(c.readinessProbe)}
                                     </div>
                                 </div>

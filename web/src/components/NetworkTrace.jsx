@@ -135,7 +135,8 @@ export default function NetworkTrace({ kind, namespace, name }) {
             }
             label += `</div></div>`;
 
-            const sanitizedLabel = label.replace(/\n/g, ' ').replace(/"/g, "'");
+            // CRITICAL: Remove ALL line breaks and fix quotes for Mermaid compatibility
+            const sanitizedLabel = label.replace(/[\n\r]/g, ' ').replace(/"/g, "'").trim();
             graphDef += `  ${nodeId}("${sanitizedLabel}")\n`;
             graphDef += `  class ${nodeId} ${nodeClass}\n`;
         });
