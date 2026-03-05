@@ -9,6 +9,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type TraceNode struct {
@@ -244,93 +246,151 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 
 		traceServiceToPods(ctx, client, namespace, svc, res)
 
-	case "pod", "pods":
-		pod, err := client.GetPod(ctx, namespace, name)
-		if err != nil {
-			return nil, err
+	case "pod", "pods", "deployment", "deployments", "statefulset", "statefulsets", "daemonset", "daemonsets":
+		var targetPods []corev1.Pod
+		if resType == "pod" || resType == "pods" {
+			pod, err := client.GetPod(ctx, namespace, name)
+			if err != nil {
+				return nil, err
+			}
+			targetPods = append(targetPods, *pod)
+		} else {
+			// Workload support (Deployment, StatefulSet, DaemonSet)
+			dyn, err := client.GetDynamicClient(ctx)
+			if err != nil {
+				return nil, err
+			}
+			
+			var gvr schema.GroupVersionResource
+			switch {
+			case strings.HasPrefix(resType, "deploy"):
+				gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+			case strings.HasPrefix(resType, "stateful"):
+				gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+			case strings.HasPrefix(resType, "daemon"):
+				gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "daemonsets"}
+			}
+
+			workload, err := dyn.Resource(gvr).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+			if err != nil {
+				return nil, err
+			}
+
+			selector, found, _ := unstructured.NestedMap(workload.Object, "spec", "selector", "matchLabels")
+			if !found {
+				return nil, fmt.Errorf("workload has no selector")
+			}
+
+			// Map selector to string map
+			selMap := make(map[string]string)
+			for k, v := range selector {
+				if s, ok := v.(string); ok {
+					selMap[k] = s
+				}
+			}
+
+			allPods, err := client.ListPods(ctx, namespace)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, p := range allPods {
+				if matchesSelector(selMap, p.Labels) {
+					targetPods = append(targetPods, p)
+				}
+			}
 		}
-		res.Nodes = append(res.Nodes, TraceNode{
-			Type:    "Pod",
-			Name:    pod.Name,
-			Healthy: true,
-			Message: string(pod.Status.Phase),
-			Labels:  pod.Labels,
-		})
+
+		if len(targetPods) == 0 {
+			res.Nodes = append(res.Nodes, TraceNode{Type: "Pod", Name: "None", Healthy: false, Message: "No Pods Found"})
+			return deduplicateTrace(res), nil
+		}
 
 		svcs, err := client.ListServices(ctx, namespace)
 		if err != nil {
-			log.Printf("Warning: failed to list services for pod trace: %v", err)
+			log.Printf("Warning: failed to list services for trace: %v", err)
 		}
-		for _, svc := range svcs {
-			if matchesSelector(svc.Spec.Selector, pod.Labels) {
-				res.Nodes = append(res.Nodes, TraceNode{
-					Type:      "Service",
-					Name:      svc.Name,
-					Healthy:   true,
-					Message:   "Selects Pod",
-					Selectors: svc.Spec.Selector,
-				})
+		ings, err := client.ListIngresses(ctx, namespace)
+		if err != nil {
+			log.Printf("Warning: failed to list ingresses for trace: %v", err)
+		}
 
-				portInfo := ""
-				details := make(map[string]string)
-				if len(svc.Spec.Ports) > 0 {
-					p := svc.Spec.Ports[0]
-					portInfo = fmt.Sprintf("%d \u2192 %s", p.Port, p.TargetPort.String())
-					details["Service Port"] = fmt.Sprintf("%d", p.Port)
-					details["Target Port"] = p.TargetPort.String()
-					details["Protocol"] = string(p.Protocol)
-					if p.NodePort != 0 {
-						details["NodePort"] = fmt.Sprintf("%d", p.NodePort)
-					}
-				}
+		for _, pod := range targetPods {
+			res.Nodes = append(res.Nodes, TraceNode{
+				Type:    "Pod",
+				Name:    pod.Name,
+				Healthy: pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded,
+				Message: string(pod.Status.Phase),
+				Labels:  pod.Labels,
+			})
 
-				res.Edges = append(res.Edges, TraceEdge{
-					From:    "Service:" + svc.Name,
-					To:      "Pod:" + pod.Name,
-					Healthy: true,
-					Message: portInfo,
-					Details: details,
-				})
+			for _, svc := range svcs {
+				if matchesSelector(svc.Spec.Selector, pod.Labels) {
+					res.Nodes = append(res.Nodes, TraceNode{
+						Type:      "Service",
+						Name:      svc.Name,
+						Healthy:   true,
+						Message:   "Selects Pod",
+						Selectors: svc.Spec.Selector,
+					})
 
-				ings, err := client.ListIngresses(ctx, namespace)
-				if err != nil {
-					log.Printf("Warning: failed to list ingresses for pod trace: %v", err)
-				}
-				for _, ing := range ings {
-					for _, rule := range ing.Spec.Rules {
-						if rule.HTTP == nil {
-							continue
+					portInfo := ""
+					details := make(map[string]string)
+					if len(svc.Spec.Ports) > 0 {
+						p := svc.Spec.Ports[0]
+						portInfo = fmt.Sprintf("%d \u2192 %s", p.Port, p.TargetPort.String())
+						details["Service Port"] = fmt.Sprintf("%d", p.Port)
+						details["Target Port"] = p.TargetPort.String()
+						details["Protocol"] = string(p.Protocol)
+						if p.NodePort != 0 {
+							details["NodePort"] = fmt.Sprintf("%d", p.NodePort)
 						}
-						for _, path := range rule.HTTP.Paths {
-							if path.Backend.Service.Name == svc.Name {
-								protocol := "HTTP"
-								if len(ing.Spec.TLS) > 0 {
-									protocol = "HTTPS"
-								}
-								entryName := "Internet / External User"
-								res.Nodes = append(res.Nodes, TraceNode{
-									Type:    "External",
-									Name:    entryName,
-									Healthy: true,
-									Message: "Traffic Source",
-									Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
-								})
-								res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+					}
 
-								edgeDetails := map[string]string{
-									"Protocol":     protocol,
-									"Ingress Path": path.Path,
-									"Ingress Host": rule.Host,
-								}
+					res.Edges = append(res.Edges, TraceEdge{
+						From:    "Service:" + svc.Name,
+						To:      "Pod:" + pod.Name,
+						Healthy: true,
+						Message: portInfo,
+						Details: details,
+					})
 
-								res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
-								res.Edges = append(res.Edges, TraceEdge{
-									From:    "Ingress:" + ing.Name,
-									To:      "Service:" + svc.Name,
-									Healthy: true,
-									Message: "Points to Service",
-									Details: edgeDetails,
-								})
+					for _, ing := range ings {
+						for _, rule := range ing.Spec.Rules {
+							if rule.HTTP == nil {
+								continue
+							}
+							for _, path := range rule.HTTP.Paths {
+								if path.Backend.Service.Name == svc.Name {
+									protocol := "HTTP"
+									if len(ing.Spec.TLS) > 0 {
+										protocol = "HTTPS"
+									}
+									entryName := "Internet / External User"
+									res.Nodes = append(res.Nodes, TraceNode{
+										Type:    "External",
+										Name:    entryName,
+										Healthy: true,
+										Message: "Traffic Source",
+										Details: fmt.Sprintf("Host: %s\nProto: %s", rule.Host, protocol),
+									})
+									res.Nodes = append(res.Nodes, TraceNode{Type: "Ingress", Name: ing.Name, Healthy: true, Message: "Found"})
+
+									edgeDetails := map[string]string{
+										"Protocol":     protocol,
+										"Ingress Path": path.Path,
+										"Ingress Host": rule.Host,
+									}
+
+									res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
+									res.Edges = append(res.Edges, TraceEdge{
+										From:    "Ingress:" + ing.Name,
+										To:      "Service:" + svc.Name,
+										Healthy: true,
+										Message: "Points to Service",
+										Details: edgeDetails,
+									})
+								}
 							}
 						}
 					}
