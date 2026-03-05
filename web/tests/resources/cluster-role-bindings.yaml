@@ -10,8 +10,10 @@ Metadata:
   - Age
   - Labels
   - Annotations
-Resource Info:
-  - Role References
+Role References:
+  - Name
+  - Kind
+  - API Group
 Subjects:
   - Name
   - Namespaces
