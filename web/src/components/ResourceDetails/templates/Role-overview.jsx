@@ -5,7 +5,7 @@ import { useTheme } from '../../../ThemeContext';
 
 export default function RoleOverview({ data, metadata, spec, t, isBinding = false }) {
     const { icons: themeIcons } = useTheme();
-    const rules = spec?.rules || [];
+    const rules = data?.rules || spec?.rules || [];
 
     const ruleColumns = [
         { header: 'Resources', accessor: (r) => <ExpandableCell value={r.resources || []} type="resources" icons={themeIcons} /> },
