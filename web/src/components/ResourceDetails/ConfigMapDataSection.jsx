@@ -58,13 +58,13 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
 
     return (
         <DetailSection title={t('data') || "Data"} className="mt-4">
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
+            <div className="w-full">
+                <table className="w-full text-sm border-collapse table-fixed">
                     <thead>
-                        <tr>
-                            <th className="px-4 py-3 w-1/4">Key</th>
-                            <th className="px-4 py-3">Value</th>
-                            <th className="px-4 py-3 w-24 text-right">Actions</th>
+                        <tr className="bg-white/5 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-text-muted">
+                            <th className="px-4 py-3 text-left w-1/4">Key</th>
+                            <th className="px-4 py-3 text-left w-auto">Value</th>
+                            <th className="px-4 py-3 text-center w-24">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
@@ -73,14 +73,15 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                         ) : (
                             Object.entries(cmData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-primary font-mono">{key}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 font-bold text-primary font-mono truncate" title={key}>{key}</td>
+                                    <td className="px-4 py-3 min-w-0">
                                         {editingKey === key ? (
                                             <div className="space-y-3">
                                                 <textarea
                                                     value={editValue}
                                                     onChange={(e) => setEditValue(e.target.value)}
-                                                    className="w-full bg-black/40 border border-info/30 rounded p-2 font-mono text-sm text-info focus:outline-none focus:border-info/60 min-h-[120px]"
+                                                    wrap="off"
+                                                    className="w-full bg-transparent border-2 border-error/50 rounded-xl p-4 font-mono text-sm text-info focus:outline-none focus:border-error min-h-[160px] overflow-x-auto whitespace-pre transition-all shadow-inner"
                                                 />
                                                 <div className="flex items-center gap-2">
                                                     <button
@@ -102,19 +103,21 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="font-mono text-sm text-secondary whitespace-pre-wrap break-all max-h-60 overflow-y-auto">
+                                            <div className="font-mono text-sm text-secondary whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
                                                 {String(value)}
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => startEdit(key, value)}
-                                            className="p-1.5 text-text-muted hover:text-accent hover:bg-white/5 rounded transition-colors"
-                                            title="Edit Value"
-                                        >
-                                            <icons.edit size={16} />
-                                        </button>
+                                    <td className="px-4 py-3 text-center">
+                                        <div className="flex items-center justify-center">
+                                            <button
+                                                onClick={() => startEdit(key, value)}
+                                                className="p-1.5 text-text-muted hover:text-accent hover:bg-white/5 rounded transition-colors"
+                                                title="Edit Value"
+                                            >
+                                                <icons.edit size={16} />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))

@@ -1,22 +1,16 @@
 import React from 'react';
-import CommonTable from '../../Common/CommonTable';
-import ExpandableCell from '../ExpandableCell';
+import ConfigMapDataSection from '../ConfigMapDataSection';
 
-export default function ConfigMapOverview({ data, t }) {
-    const dataItems = Object.entries(data?.data || {}).map(([k, v]) => ({
-        key: k,
-        value: v
-    }));
-
-    const columns = [
-        { header: 'Key', accessor: 'key', className: 'font-mono font-bold text-info w-1/4' },
-        { header: 'Value', accessor: (d) => <ExpandableCell value={d.value} type="data" limit={1} />, className: 'w-2/3' },
-        { header: 'Actions', accessor: () => '—', className: 'text-center' }
-    ];
-
+export default function ConfigMapOverview({ data, metadata, t }) {
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <CommonTable title="Data" columns={columns} data={dataItems} t={t} />
+            <ConfigMapDataSection 
+                data={data?.data || {}} 
+                kind="ConfigMaps"
+                namespace={metadata?.namespace}
+                name={metadata?.name}
+                t={t}
+            />
         </div>
     );
 }
