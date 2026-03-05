@@ -5,8 +5,8 @@ General overview:
   - Labels
   - Type
   - Cluster IP
-  - Int Endpoints
-  - Ext Endpoints
+  - Internal Endpoints
+  - External Endpoints
   - Created
 detail_tabs:
   - Overview
