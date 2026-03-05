@@ -65,6 +65,14 @@ func (m *DeploymentManager) GetDetails(ctx context.Context, dynClient dynamic.In
 		return nil, err
 	}
 
+	// Enhance response with specialized extra fields (including images)
+	mapped := m.MapItem(item, nil)
+	if extra, ok := response["extra"].(map[string]interface{}); ok {
+		for k, v := range mapped.Extra {
+			extra[k] = v
+		}
+	}
+
 	// Fetch and Map related HPAs
 	hpaMgr := NewHPAManager()
 	hpaGVR := hpaMgr.GetGVR()
