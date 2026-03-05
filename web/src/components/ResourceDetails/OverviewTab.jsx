@@ -72,7 +72,7 @@ export default function OverviewTab({
     const isCrd = kindLower.includes('crd') || kindLower.includes('customresourcedefinition');
     const isRole = kindLower === 'role' || kindLower === 'roles';
     const isClusterRole = kindLower.includes('clusterrole') && !kindLower.includes('binding');
-    const isRoleBinding = kindLower === 'rolebinding' || kindLower === 'role-binding';
+    const isRoleBinding = kindLower === 'rolebinding' || kindLower === 'rolebindings' || kindLower === 'role-binding';
     const isClusterRoleBinding = kindLower.includes('clusterrolebinding') || kindLower.includes('cluster-role-binding');
     const isEventResource = kindLower === 'event' || kindLower === 'events';
 
