@@ -2,8 +2,8 @@ apiVersion: v2
 name: k-view
 description: A modern, lightweight Kubernetes dashboard with Google SSO and declarative RBAC.
 type: application
-version: 0.46.0
-appVersion: "0.46.0"
+version: 0.47.0
+appVersion: "0.47.0"
 icon: https://raw.githubusercontent.com/oisis/k-view/main/web/src/assets/k-view-logo.png
 keywords:
   - kubernetes
