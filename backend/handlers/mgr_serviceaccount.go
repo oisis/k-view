@@ -76,5 +76,20 @@ func (m *ServiceAccountManager) GetDetails(ctx context.Context, dynClient dynami
 	}
 	response["relatedSecrets"] = relatedSecrets
 
+	// Fetch related ImagePullSecrets
+	var relatedImagePullSecrets []ResourceItem
+	if ips, ok, _ := unstructured.NestedSlice(item.Object, "imagePullSecrets"); ok {
+		for _, s := range ips {
+			if sMap, ok := s.(map[string]interface{}); ok {
+				name, _ := sMap["name"].(string)
+				secretItem, err := dynClient.Resource(secretMgr.GetGVR()).Namespace(ns).Get(ctx, name, metav1.GetOptions{})
+				if err == nil {
+					relatedImagePullSecrets = append(relatedImagePullSecrets, secretMgr.MapItem(*secretItem, nil))
+				}
+			}
+		}
+	}
+	response["relatedImagePullSecrets"] = relatedImagePullSecrets
+
 	return response, nil
 }
