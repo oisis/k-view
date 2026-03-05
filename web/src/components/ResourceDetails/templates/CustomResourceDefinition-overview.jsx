@@ -25,6 +25,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
     const condColumns = [
         { header: 'Type', accessor: 'type', className: 'font-bold' },
         { header: 'Status', accessor: 'status', className: 'text-center' },
+        { header: 'Last Transition time', accessor: 'lastTransitionTime', className: 'text-xs font-mono' },
         { header: 'Reason', accessor: 'reason' },
         { header: 'Message', accessor: 'message', className: 'text-xs opacity-70' }
     ];
