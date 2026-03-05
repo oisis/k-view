@@ -55,7 +55,7 @@ func TestPodManager_MapItem(t *testing.T) {
 	assert.Equal(t, "test-pod", res.Name)
 	assert.Equal(t, "default", res.Namespace)
 	assert.Equal(t, "Running", res.Status)
-	assert.Equal(t, "app=test", res.Extra["labels"])
+	assert.Equal(t, map[string]interface{}{"app": "test"}, res.Extra["labels"])
 }
 
 func TestGenericManager_GetDetails_DTOIsolation(t *testing.T) {
