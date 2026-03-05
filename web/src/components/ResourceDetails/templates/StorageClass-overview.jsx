@@ -5,15 +5,15 @@ import CommonTable from '../../Common/CommonTable';
 import ExpandableCell from '../ExpandableCell';
 import { useTheme } from '../../../ThemeContext';
 
-export default function StorageClassOverview({ data, spec, relatedPvs = [], t, icons }) {
+export default function StorageClassOverview({ data, relatedPvs = [], t, icons }) {
     const { icons: themeIcons } = useTheme();
 
     const pvColumns = [
         { header: 'Name', accessor: (p) => <Link to={`/persistentvolumes/-/${p.name}`} className="text-info hover:underline font-mono">{p.name}</Link> },
-        { header: 'Capacity', accessor: (p) => p.extra?.capacity || '—' },
+        { header: 'Capacity', accessor: (p) => p.extra?.storage || p.extra?.capacity || '—' },
         { header: 'Status', accessor: 'status', badge: true },
-        { header: 'Claim', accessor: (p) => p.extra?.claimRef || '—', className: 'text-xs opacity-70' },
-        { header: 'Created', accessor: 'age' }
+        { header: 'Claim', accessor: (p) => p.extra?.claim || p.extra?.claimRef || '—', className: 'text-xs opacity-70' },
+        { header: 'Age', accessor: 'age' }
     ];
 
     return (
@@ -32,12 +32,12 @@ export default function StorageClassOverview({ data, spec, relatedPvs = [], t, i
                         </thead>
                         <tbody>
                             <tr className="text-primary font-bold align-middle text-center">
-                                <td className="px-4 py-4 border-r border-border text-xs">{spec?.provisioner || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border">{spec?.reclaimPolicy || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border">{spec?.volumeBindingMode || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border">{String(spec?.allowVolumeExpansion || false)}</td>
+                                <td className="px-4 py-4 border-r border-border text-xs break-all">{data?.provisioner || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{data?.reclaimPolicy || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{data?.volumeBindingMode || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{String(data?.allowVolumeExpansion ?? '—')}</td>
                                 <td className="px-4 py-4">
-                                    <ExpandableCell value={spec?.parameters || {}} type="labels" icons={themeIcons} />
+                                    <ExpandableCell value={data?.parameters || {}} type="labels" icons={themeIcons} />
                                 </td>
                             </tr>
                         </tbody>
