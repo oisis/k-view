@@ -58,7 +58,7 @@ export default function OverviewTab({
     const isService = kindLower === 'service' || kindLower === 'services';
     const isIngress = kindLower === 'ingress' || kindLower === 'ingresses';
     const isEndpoint = kindLower === 'endpoint' || kindLower === 'endpoints';
-    const isNetworkPolicy = kindLower.includes('networkpolicy') || kindLower.includes('network-policy');
+    const isNetworkPolicy = kindLower === 'networkpolicy' || kindLower === 'networkpolicies' || kindLower.includes('network-policy');
     const isIngressClass = kindLower === 'ingressclass' || kindLower === 'ingress-class' || kindLower === 'ingressclasses';
     const isConfigMap = kindLower.includes('configmap');
     const isSecret = kindLower.includes('secret');

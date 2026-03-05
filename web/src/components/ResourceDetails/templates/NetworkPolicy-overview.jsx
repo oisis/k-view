@@ -7,21 +7,36 @@ import { useTheme } from '../../../ThemeContext';
 export default function NetworkPolicyOverview({ spec, t }) {
     const { icons: themeIcons } = useTheme();
 
+    const formatPeers = (peers) => {
+        if (!peers || !Array.isArray(peers)) return '—';
+        return peers.map(p => {
+            if (p.podSelector) return `Pods: ${JSON.stringify(p.podSelector.matchLabels || {})}`;
+            if (p.namespaceSelector) return `Namespaces: ${JSON.stringify(p.namespaceSelector.matchLabels || {})}`;
+            if (p.ipBlock) return `IP: ${p.ipBlock.cidr}${p.ipBlock.except ? ' (except ' + p.ipBlock.except.join(', ') + ')' : ''}`;
+            return JSON.stringify(p);
+        }).join(', ');
+    };
+
+    const formatPorts = (ports) => {
+        if (!ports || !Array.isArray(ports)) return '—';
+        return ports.map(p => `${p.port || 'all'}/${p.protocol || 'TCP'}`).join(', ');
+    };
+
     const ingressRules = (spec?.ingress || []).map((r, i) => ({
         id: i,
-        from: r.from,
-        ports: r.ports
+        peers: formatPeers(r.from),
+        ports: formatPorts(r.ports)
     }));
 
     const egressRules = (spec?.egress || []).map((r, i) => ({
         id: i,
-        to: r.to,
-        ports: r.ports
+        peers: formatPeers(r.to),
+        ports: formatPorts(r.ports)
     }));
 
     const ruleColumns = [
-        { header: 'Source / Destination (Peers)', accessor: (r) => <ExpandableCell value={r.from || r.to || []} type="peers" icons={themeIcons} /> },
-        { header: 'Allowed Ports', accessor: (r) => <ExpandableCell value={(r.ports || []).map(p => `${p.port}/${p.protocol}`)} type="ports" icons={themeIcons} /> }
+        { header: 'Source / Destination (Peers)', accessor: (r) => <ExpandableCell value={r.peers} type="peers" icons={themeIcons} /> },
+        { header: 'Allowed Ports', accessor: (r) => <ExpandableCell value={r.ports} type="ports" icons={themeIcons} /> }
     ];
 
     return (
