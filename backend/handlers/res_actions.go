@@ -19,9 +19,16 @@ func (h *ResourceHandler) Create(c *gin.Context) {
 	ns := c.Param("namespace")
 	if ns == "-" { ns = "" }
 
+	// Read raw body to support both YAML and JSON
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
 	var raw map[string]interface{}
-	if err := c.BindJSON(&raw); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
+	if err := yaml.Unmarshal(body, &raw); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid YAML/JSON: " + err.Error()})
 		return
 	}
 
