@@ -121,7 +121,7 @@ export default function Login() {
                 )}
 
                 {providers.local && (
-                    <div className="mt-4 pt-4 border-t border-border text-center">
+                    <div className="mt-4 pt-4 text-center">
                         {!showLocalLogin ? (
                             <button
                                 onClick={() => setShowLocalLogin(true)}
@@ -131,13 +131,8 @@ export default function Login() {
                                 Local user login
                             </button>
                         ) : providers.oidc && (
-                            <div className="relative my-4">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-border"></div>
-                                </div>
-                                <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                                    <span className="px-2 bg-card text-text-muted">Local Auth</span>
-                                </div>
+                            <div className="relative my-4 text-center">
+                                <span className="text-xs uppercase tracking-wider font-bold text-text-muted">Local Authentication</span>
                             </div>
                         )}
                     </div>
@@ -150,6 +145,7 @@ export default function Login() {
                             <input
                                 type="text"
                                 required
+                                autoFocus
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
                                 className="w-full px-3 py-2 bg-main border border-border rounded-md text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
