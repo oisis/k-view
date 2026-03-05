@@ -21,6 +21,7 @@ import NetworkPolicyOverview from './templates/NetworkPolicy-overview';
 import ServiceAccountOverview from './templates/ServiceAccount-overview';
 import PvOverview from './templates/PersistentVolume-overview';
 import RbacBindingOverview from './templates/RoleBinding-overview';
+import ClusterRoleBindingOverview from './templates/ClusterRoleBinding-overview';
 import DaemonSetOverview from './templates/DaemonSet-overview';
 import JobOverview from './templates/Job-overview';
 import HpaOverview from './templates/HorizontalPodAutoscaler-overview';
@@ -122,7 +123,8 @@ export default function OverviewTab({
             {isServiceAccount && <ServiceAccountOverview data={data} metadata={metadata} spec={spec} namespace={namespace} relatedSecrets={relatedSecrets} relatedImagePullSecrets={relatedImagePullSecrets} t={t} icons={icons} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
             {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} spec={spec} t={t} isBinding={false} />}
-            {(isRoleBinding || isClusterRoleBinding) && <RbacBindingOverview data={data} spec={spec} t={t} />}
+            {isRoleBinding && <RbacBindingOverview data={data} spec={spec} t={t} />}
+            {isClusterRoleBinding && <ClusterRoleBindingOverview data={data} spec={spec} t={t} />}
 
             {!isEventResource && !isPod && !isDeployment && !isStatefulSet && !isDaemonSet && !isJob && !isCronJob && !isReplicaSet && !isReplicationController && !isService && !isIngress && !isEndpoint && !isNetworkPolicy && !isIngressClass && !isConfigMap && !isSecret && !isPvc && !isPv && !isStorageClass && !isNode && !isNamespace && !isHpa && !isServiceAccount && !isCrd && !isRole && !isClusterRole && !isRoleBinding && !isClusterRoleBinding && (
                 <div className="p-8 text-center text-text-muted italic border border-dashed border-border rounded-2xl">
