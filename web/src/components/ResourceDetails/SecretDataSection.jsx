@@ -89,13 +89,13 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
 
     return (
         <DetailSection title="Data" className="mt-4">
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
+            <div className="w-full">
+                <table className="w-full text-sm border-collapse table-fixed">
                     <thead>
-                        <tr>
-                            <th className="px-4 py-3 w-1/4">Key</th>
-                            <th className="px-4 py-3 text-center">Value</th>
-                            <th className="px-4 py-3 w-32 text-center">Actions</th>
+                        <tr className="bg-white/5 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-text-muted">
+                            <th className="px-4 py-3 text-left w-1/4">Key</th>
+                            <th className="px-4 py-3 text-left w-auto">Value</th>
+                            <th className="px-4 py-3 text-center w-32">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border-color)]">
@@ -104,14 +104,15 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                         ) : (
                             Object.entries(secretData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-primary font-mono align-top">{key}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="px-4 py-3 font-bold text-primary font-mono align-top truncate" title={key}>{key}</td>
+                                    <td className="px-4 py-3 min-w-0">
                                         {editingKey === key ? (
                                             <div className="space-y-3 text-left">
                                                 <textarea
                                                     value={editValue}
                                                     onChange={(e) => setEditValue(e.target.value)}
-                                                    className="w-full bg-black/40 border border-info/30 rounded p-2 font-mono text-sm text-info focus:outline-none focus:border-info/60 min-h-[200px]"
+                                                    wrap="off"
+                                                    className="w-full bg-transparent border-2 border-error/50 rounded-xl p-4 font-mono text-sm text-info focus:outline-none focus:border-error min-h-[200px] overflow-x-auto whitespace-pre transition-all shadow-inner"
                                                     placeholder="Enter plain text value..."
                                                 />
                                                 <div className="flex items-center gap-2">
@@ -140,7 +141,7 @@ export default function SecretDataSection({ data, kind, namespace, name, t, onRe
                                                         {decodeBase64(value)}
                                                     </pre>
                                                 ) : (
-                                                    <span className="font-mono text-sm text-text-muted opacity-50 px-2">••••••••••••••••</span>
+                                                    <span className="font-mono text-sm text-text-muted opacity-50 px-2 truncate w-full inline-block">••••••••••••••••</span>
                                                 )}
                                             </div>
                                         )}
