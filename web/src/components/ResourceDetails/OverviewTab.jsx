@@ -44,8 +44,8 @@ export default function OverviewTab({
     const { metadata, spec = {}, status = {} } = data;
     const kindLower = kind?.toLowerCase() || '';
 
-    // Resource detection
-    const isPod = kindLower.includes('pod');
+    // Resource detection - Fixed exact matching to avoid 'HorizontalPodAutoscaler' being detected as 'Pod'
+    const isPod = kindLower === 'pod' || kindLower === 'pods';
     const isDeployment = kindLower === 'deployment' || kindLower === 'deployments';
     const isStatefulSet = kindLower.includes('statefulset');
     const isDaemonSet = kindLower.includes('daemonset');

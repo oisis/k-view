@@ -23,6 +23,7 @@ func NewHPAManager() *HPAManager {
 func (m *HPAManager) MapItem(item unstructured.Unstructured, metricsMap map[string]unstructured.Unstructured) ResourceItem {
 	resItem := m.GenericManager.MapItem(item, metricsMap)
 	
+	targetAPIVersion, _, _ := unstructured.NestedString(item.Object, "spec", "scaleTargetRef", "apiVersion")
 	targetKind, _, _ := unstructured.NestedString(item.Object, "spec", "scaleTargetRef", "kind")
 	targetName, _, _ := unstructured.NestedString(item.Object, "spec", "scaleTargetRef", "name")
 	
@@ -96,6 +97,9 @@ func (m *HPAManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	}
 
 	resItem.Extra["reference"] = targetKind + "/" + targetName
+	resItem.Extra["targetAPIVersion"] = targetAPIVersion
+	resItem.Extra["targetKind"] = targetKind
+	resItem.Extra["targetName"] = targetName
 	resItem.Extra["minReplicas"] = minReplicas
 	resItem.Extra["maxReplicas"] = maxReplicas
 	resItem.Extra["currentReplicas"] = currentReplicas
@@ -111,6 +115,14 @@ func (m *HPAManager) GetDetails(ctx context.Context, dynClient dynamic.Interface
 	response, err := m.GenericManager.GetDetails(ctx, dynClient, item)
 	if err != nil {
 		return nil, err
+	}
+
+	// Enhance response with specialized extra fields
+	mapped := m.MapItem(item, nil)
+	if extra, ok := response["extra"].(map[string]interface{}); ok {
+		for k, v := range mapped.Extra {
+			extra[k] = v
+		}
 	}
 
 	// Extract spec metrics for the detailed table
