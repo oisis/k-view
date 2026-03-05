@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.0] - 2026-03-05
+
+### Added
+- **YAML Support for Creation**: Enabled native YAML/JSON parsing in the resource creation API to support standard manifest formats.
+- **Resource Management**: Added dedicated backend managers for `ResourceQuota` and `LimitRange` to expose technical details via DTO.
+- **ServiceAccount Connectivity**: Implemented backend logic to fetch and display both `secrets` and `imagePullSecrets`.
+
+### Fixed
+- **RBAC Visibility**: Corrected resource detection and routing in `OverviewTab` for `Role`, `ClusterRole`, `RoleBinding`, and `ClusterRoleBinding`, ensuring rules and references are displayed.
+- **PV Details**: Fixed `claimRef` mapping and improved `ExpandableCell` to correctly handle array-based data like `mountOptions`.
+- **Node Allocation**: Fixed calculation of CPU/RAM limits for all pods on a node to provide accurate pie chart data.
+- **ConfigMap/Secret Editing**: Improved textarea styling with transparent backgrounds and red borders while disabling word wrapping in edit mode.
+
+### Changed
+- **Node UI**: Redesigned the "System Information" section as a vertical header table and "Allocation" as high-visibility pie charts.
+- **CRD View**: Converted "Accepted Names" from grid tiles to a standardized table format for better data density.
+- **PV View**: Standardized "Source" and "Resource Info" tables with fixed layouts and comprehensive column mappings.
+
 ## [0.46.0] - 2026-03-02
 
 ### Added
