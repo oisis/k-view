@@ -226,7 +226,14 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 			FieldSelector: "spec.nodeName=" + name,
 		})
 
-		var cpuReq, memReq float64
+		// Fetch metrics for pods to show CPU/RAM in the table
+		metricsList, _ := h.k8sClient.ListPodMetrics(c.Request.Context(), "")
+		metricsMap := make(map[string]unstructured.Unstructured)
+		for _, m := range metricsList {
+			metricsMap[m.GetNamespace()+"/"+m.GetName()] = m
+		}
+
+		var cpuReq, memReq, cpuLim, memLim float64
 		podCount := 0
 		var nodePods []ResourceItem
 		podMgr := NewPodManager()
@@ -239,19 +246,22 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 				for _, c := range containers {
 					if cm, ok := c.(map[string]interface{}); ok {
 						reqs, _, _ := unstructured.NestedMap(cm, "resources", "requests")
+						lims, _, _ := unstructured.NestedMap(cm, "resources", "limits")
 						cpuReq += k8sutils.ParseCPU(reqs["cpu"])
 						memReq += k8sutils.ParseMemory(reqs["memory"])
+						cpuLim += k8sutils.ParseCPU(lims["cpu"])
+						memLim += k8sutils.ParseMemory(lims["memory"])
 					}
 				}
-				// Full DTO mapping
-				nodePods = append(nodePods, podMgr.MapItem(p, nil))
+				// Full DTO mapping with metrics
+				nodePods = append(nodePods, podMgr.MapItem(p, metricsMap))
 			}
 		}
 
 		response["relatedPods"] = nodePods
 		response["allocation"] = gin.H{
-			"cpu": gin.H{"requests": cpuReq, "allocatable": cpuAlloc, "capacity": cpuCap},
-			"memory": gin.H{"requests": memReq, "allocatable": memAlloc, "capacity": memCap},
+			"cpu": gin.H{"requests": cpuReq, "limits": cpuLim, "allocatable": cpuAlloc, "capacity": cpuCap},
+			"memory": gin.H{"requests": memReq, "limits": memLim, "allocatable": memAlloc, "capacity": memCap},
 			"pods": gin.H{"allocation": podCount, "allocatable": podsAlloc, "capacity": podsCap},
 		}
 	}

@@ -32,7 +32,7 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 	podIP, _, _ := unstructured.NestedString(item.Object, "status", "podIP")
 	hostIP, _, _ := unstructured.NestedString(item.Object, "status", "hostIP")
 
-	resItem.Extra["nodeName"] = nodeName
+	resItem.Extra["node"] = nodeName
 	resItem.Extra["podIP"] = podIP
 	resItem.Extra["hostIP"] = hostIP
 
