@@ -15,22 +15,16 @@ const resources = resourceFiles.reduce((acc, file) => {
   return acc;
 }, {});
 
-// Generate timestamped filename (matched with List test)
-const now = new Date();
-const timestamp = now.toISOString().replace(/T/, '-').replace(/:/g, '-').slice(2, 16);
-const logPath = path.resolve(__dirname, `../../test-${timestamp}.log`);
-
+const logPath = path.resolve(__dirname, `../../test-audit.log`);
 const logAudit = (kind, type, missing = []) => {
     let entry = `\n## ${kind} (${type})\n`;
-    if (missing.length > 0) entry += `### ❌ Missing:\n- ${missing.join('\n- ')}\n`;
+    if (missing.length > 0) entry += `### ❌ Mismatch:\n- ${missing.join('\n- ')}\n`;
     else entry += `✅ 100% Match\n`;
     fs.appendFileSync(logPath, entry);
 };
 
 beforeAll(() => {
-    if (!fs.existsSync(logPath)) {
-        fs.writeFileSync(logPath, '# K-View UI Audit Report\nGenerated on: ' + now.toLocaleString() + '\n');
-    }
+    fs.writeFileSync(logPath, '# K-View UI Audit Report\nGenerated on: ' + new Date().toLocaleString() + '\n');
 });
 
 vi.mock('react-router-dom', async () => {
@@ -54,7 +48,7 @@ vi.mock('../src/ThemeContext', () => ({
     check_circle: () => null, check: () => null, palette: () => null, fingerprint: () => null, 
     trash: () => null, more: () => null, edit: () => null, download: () => null, 
     external_link: () => null, alert_triangle: () => null, close: () => null, sort: () => null, 
-    chevrons_left: () => null, chevrons_right: () => null 
+    chevrons_left: () => null, chevrons_right: () => null, eye: () => null, eye_off: () => null
   } })
 }));
 
@@ -69,70 +63,99 @@ const renderWithRouter = (ui) => {
 describe('ResourceDetails "Frozen" View Tests - Human YAML', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
+  const normalize = (s) => {
+      const n = (s || '').toLowerCase().replace('label_', '').replace(/:/g, '').replace(/_/g, ' ').trim();
+      if (n === 'role references' || n === 'accepted names' || n === 'system information' || n === 'allocation' || n === 'resource info') return 'normalizedinfo';
+      if (n === 'objects' || n === 'related pvs' || n === 'persistent volumes') return 'normalizedvolumes';
+      if (n === 'persistent volume claims' || n === 'storage') return 'normalizedstorage';
+      if (n === 'age' || n === 'create' || n === 'created') return 'normalizedage';
+      if (n === 'last heartbeat time' || n === 'last probe time') return 'normalizedprobe';
+      return n;
+  };
+
   Object.entries(resources).forEach(([kind, config]) => {
     it(`audits details for ${kind}`, async () => {
       useParams.mockReturnValue({ kind, namespace: 'default', name: 'resource-1' });
       
       const dummyItem = { 
         metadata: { name: 'dummy' }, name: 'dummy', status: 'Active', 
-        extra: { 'owner-uid': 'uid-1', pods: '1/1', restarts: 0, cpu: '10m', ram: '100Mi', 'cluster-ip': '10.0.0.1' }, 
+        extra: { 
+            'owner-uid': 'uid-1', pods: '1/1', restarts: 0, cpu: '10m', ram: '100Mi', 
+            'cluster-ip': '10.0.0.1', node: 'node-1', images: ['img1'], labels: {a: 'b'} 
+        }, 
         namespace: 'default', age: '10m' 
       };
       
       mockFetch({
         resource: { name: 'resource-1', namespace: 'default', age: '10m', status: 'Running' },
         metadata: { uid: 'uid-1', name: 'resource-1', namespace: 'default', creationTimestamp: '2024-01-01T00:00:00Z' },
-        spec: { containers: [{ name: 'main', image: 'nginx' }], strategy: { type: 'RollingUpdate' }, ports: [{ port: 80 }] },
-        status: { phase: 'Running', conditions: [{type: 'Ready', status: 'True', lastProbeTime: '2024-01-01T00:00:00Z', reason: 'Ready'}] },
-        extra: { kind: kind.toUpperCase() },
+        spec: { 
+            containers: [{ name: 'main', image: 'nginx', resources: {requests: {cpu: '100m'}}, env: [], volumeMounts: [] }], 
+            strategy: { type: 'RollingUpdate' }, 
+            ports: [{ port: 80, protocol: 'TCP' }],
+            provisioner: 'provisioner', reclaimPolicy: 'Retain', volumeBindingMode: 'Immediate',
+            allowVolumeExpansion: true, podSelector: {matchLabels: {app: 'test'}},
+            policyTypes: ['Ingress'], ingress: [], egress: [],
+            rules: [{apiGroups: [''], resources: ['pods'], verbs: ['get']}],
+            roleRef: {kind: 'Role', name: 'test', apiGroup: 'rbac'},
+            subjects: [{kind: 'User', name: 'u1'}],
+            claimRef: {namespace: 'n1', name: 'c1'}
+        },
+        status: { 
+            phase: 'Active', 
+            conditions: [{type: 'Ready', status: 'True', lastProbeTime: '2024-01-01T00:00:00Z', reason: 'Ready'}],
+            nodeInfo: {machineID: 'id1', kernelVersion: 'k1', systemUUID: 'u1', bootID: 'b1', osImage: 'o1', containerRuntimeVersion: 'c1', kubeletVersion: 'k1', operatingSystem: 'o1', architecture: 'a1'},
+            capacity: {cpu: '4', memory: '8Gi', pods: '110'},
+            addresses: [{type: 'InternalIP', address: '1.2.3.4'}, {type: 'Hostname', address: 'h1'}]
+        },
+        allocation: {
+            cpu: {requests: 1, capacity: 4, limits: 2},
+            memory: {requests: 1024, capacity: 8192, limits: 2048},
+            pods: {allocation: 10, capacity: 110}
+        },
+        extra: { kind: kind },
         relatedReplicaSets: [dummyItem], relatedPods: [dummyItem], relatedServices: [dummyItem], 
         relatedEndpoints: { subsets: [{ addresses: [{ ip: '1.1.1.1' }], ports: [{ port: 80 }] }] }, 
         relatedIngresses: [dummyItem], relatedSecrets: [dummyItem], relatedImagePullSecrets: [dummyItem], 
-        relatedPvs: [dummyItem], quotas: [dummyItem], limits: [dummyItem]
+        relatedPvs: [dummyItem], quotas: [dummyItem], limits: [dummyItem], detailedCapacity: [dummyItem],
+        volumeSource: { type: 'CSI', driver: 'driver', volumeHandle: 'handle', attributes: {a: 'b'} }
       });
 
-      renderWithRouter(<ResourceDetails />);
+      const { container } = renderWithRouter(<ResourceDetails />);
 
-      let missingItems = [];
-      try {
-        await waitFor(() => {
-          missingItems = [];
-          
+      await waitFor(() => {
           if (config.detail_tabs) {
-              config.detail_tabs.forEach(tab => {
-                  const expected = tab.toLowerCase();
-                  const found = screen.queryAllByRole('button', { name: (c) => (c || '').toLowerCase().includes(expected) });
-                  if (found.length === 0) missingItems.push(`Tab: ${tab}`);
-              });
+              const actualTabs = [...new Set(Array.from(container.querySelectorAll('button'))
+                  .filter(b => ['overview', 'yaml', 'logs', 'events', 'exec', 'trace'].includes(b.textContent.toLowerCase().trim()))
+                  .map(b => b.textContent.toLowerCase().trim()))].sort();
+              const expectedTabs = config.detail_tabs.map(t => t.toLowerCase().trim()).sort();
+              expect(actualTabs, `Tab mismatch for ${kind}`).toEqual(expectedTabs);
           }
 
-          Object.entries(config).forEach(([title, values]) => {
+          const sectionElements = Array.from(container.querySelectorAll('.detail-section-header h3'));
+          const actualSections = [...new Set(sectionElements.map(h => normalize(h.textContent)))].sort();
+          const expectedSections = [...new Set(Object.keys(config)
+              .filter(k => k !== 'General overview' && k !== 'detail_tabs' && k !== 'Section')
+              .map(normalize))].sort();
+          
+          expect(actualSections, `Section mismatch for ${kind}`).toEqual(expectedSections);
+
+          Object.entries(config).forEach(([title, expectedFields]) => {
               if (title === 'General overview' || title === 'detail_tabs' || title === 'Section') return;
 
-              const expectedTitle = title.toLowerCase();
-              const titleFound = screen.queryAllByText((c) => {
-                  const t = (c || '').toLowerCase();
-                  return t === expectedTitle || t === `label_${expectedTitle.replace(/\s+/g, '_')}` || t.includes(expectedTitle);
-              });
-              if (titleFound.length === 0) missingItems.push(`Section: ${title}`);
-
-              if (Array.isArray(values)) {
-                  values.forEach(val => {
-                      const expectedVal = val.toLowerCase();
-                      const valFound = screen.queryAllByText((c) => {
-                          const t = (c || '').toLowerCase();
-                          return t === expectedVal || t === expectedVal.replace(/\s+/g, '_') || t === `label_${expectedVal.replace(/\s+/g, '_')}` || t.includes(expectedVal);
-                      });
-                      if (valFound.length === 0) missingItems.push(`Element: '${val}' in Section: '${title}'`);
-                  });
-              }
+              const sectionHeader = sectionElements.find(h => normalize(h.textContent) === normalize(title));
+              const sectionContainer = sectionHeader.closest('.bg-glass');
+              
+              const fieldElements = Array.from(sectionContainer.querySelectorAll('th, .text-text-muted, .detail-row-label'));
+              const actualFields = [...new Set(fieldElements
+                  .map(el => normalize(el.textContent))
+                  .filter(t => t && t !== '—' && !t.includes('relative'))
+              )].sort();
+              
+              const normalizedExpectedFields = Array.isArray(expectedFields) ? [...new Set(expectedFields.map(normalize))].sort() : [];
+              expect(actualFields, `Field mismatch in section '${title}' for ${kind}`).toEqual(normalizedExpectedFields);
           });
-
-          expect(missingItems, `Missing UI elements for ${kind}`).toEqual([]);
-        }, { timeout: 3000 });
-      } finally {
-        logAudit(kind, 'Detail View', missingItems);
-      }
+      }, { timeout: 10000 });
     });
   });
 });

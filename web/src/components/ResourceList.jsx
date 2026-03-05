@@ -28,6 +28,7 @@ import { ServiceAccountListSchema } from './ResourceList/templates/ServiceAccoun
 import { StorageClassListSchema } from './ResourceList/templates/StorageClassList';
 import { ClusterRbacListSchema } from './ResourceList/templates/ClusterRbacList';
 import { ReplicaSetListSchema } from './ResourceList/templates/ReplicaSetList';
+import { ReplicationControllerListSchema } from './ResourceList/templates/ReplicationControllerList';
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
 import { EndpointsListSchema } from './ResourceList/templates/EndpointsList';
@@ -41,7 +42,7 @@ const SCHEMAS = {
     Jobs: JobListSchema,
     CronJobs: CronJobListSchema,
     ReplicaSets: ReplicaSetListSchema,
-    ReplicationControllers: ReplicaSetListSchema,
+    ReplicationControllers: ReplicationControllerListSchema,
     HorizontalPodAutoscalers: HpaListSchema,
     Services: ServiceListSchema,
     Ingresses: IngressListSchema,

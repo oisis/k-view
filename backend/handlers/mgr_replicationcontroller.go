@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,9 +24,9 @@ func NewReplicationControllerManager() *ReplicationControllerManager {
 func (m *ReplicationControllerManager) MapItem(item unstructured.Unstructured, metricsMap map[string]unstructured.Unstructured) ResourceItem {
 	resItem := m.GenericManager.MapItem(item, metricsMap)
 	
-	replicas, _, _ := unstructured.NestedInt64(item.Object, "spec", "replicas")
-	readyReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
-	availableReplicas, _, _ := unstructured.NestedInt64(item.Object, "status", "availableReplicas")
+	desired, _, _ := unstructured.NestedInt64(item.Object, "spec", "replicas")
+	current, _, _ := unstructured.NestedInt64(item.Object, "status", "replicas")
+	ready, _, _ := unstructured.NestedInt64(item.Object, "status", "readyReplicas")
 
 	// Extract images from spec -> template -> spec -> containers
 	var images []string
@@ -40,12 +41,12 @@ func (m *ReplicationControllerManager) MapItem(item unstructured.Unstructured, m
 		}
 	}
 
-	resItem.Extra["replicas"] = replicas
-	resItem.Extra["readyReplicas"] = readyReplicas
-	resItem.Extra["availableReplicas"] = availableReplicas
+	resItem.Extra["desired"] = desired
+	resItem.Extra["current"] = current
+	resItem.Extra["ready"] = fmt.Sprintf("%d/%d", ready, desired)
 	resItem.Extra["images"] = images
 
-	if readyReplicas < replicas {
+	if ready < desired {
 		resItem.Status = "Degraded"
 	} else {
 		resItem.Status = "Active"

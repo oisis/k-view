@@ -5,9 +5,9 @@ export const ReplicationControllerListSchema = {
         { key: 'namespace', label: 'Namespace' },
         { key: 'extra.images', label: 'Images' },
         { key: 'extra.labels', label: 'Labels' },
-        { key: 'extra.readyReplicas', label: 'Ready' },
-        { key: 'extra.currentReplicas', label: 'Current' },
-        { key: 'extra.replicas', label: 'Desired' },
+        { key: 'extra.ready', label: 'Ready' },
+        { key: 'extra.current', label: 'Current' },
+        { key: 'extra.desired', label: 'Desired' },
         { key: 'age', label: 'Created' },
     ],
 };
