@@ -94,7 +94,12 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                                 <div className="space-y-4">
                                     <div>
                                         <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1 text-center">Environment Variables</span>
-                                        <ExpandableCell value={c.env || []} type="env" icons={themeIcons} limit={2} />
+                                        <ExpandableCell 
+                                            value={(c.env || []).map(e => `${e.name}=${e.value || (e.valueFrom ? '<secret/cm>' : '—')}`)} 
+                                            type="env" 
+                                            icons={themeIcons} 
+                                            limit={2} 
+                                        />
                                     </div>
                                     <div>
                                         <span className="text-[10px] text-text-muted uppercase font-black tracking-widest block mb-1 text-center">Mounts</span>

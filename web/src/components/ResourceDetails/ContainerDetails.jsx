@@ -49,13 +49,16 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                             )}
                                         </div>
                                     </DetailRow>
+                                    <DetailRow label="Status Ready">
+                                        <span className={status?.ready ? 'text-success' : 'text-warning'}>{String(status?.ready || false)}</span>
+                                    </DetailRow>
                                     <DetailRow label={t('label_env_variables')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-1">
                                             {c.env?.map(ev => (
                                                 <div key={ev.name} className="bg-sidebar/10 rounded p-2 font-mono text-xs flex flex-col gap-0.5 overflow-hidden">
                                                     <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
-                                                    <span className="text-text-muted truncate" title={ev.value || (ev.valueFrom ? 'Value from source' : '—')}>
-                                                        {ev.value || (ev.valueFrom ? '<secret/cm>' : '—')}
+                                                    <span className="text-text-muted truncate" title={typeof ev.value === 'string' ? ev.value : (ev.valueFrom ? 'ValueFrom (Secret/ConfigMap)' : '—')}>
+                                                        {typeof ev.value === 'string' ? ev.value : (ev.valueFrom ? '<secret/cm>' : '—')}
                                                     </span>
                                                 </div>
                                             )) || <span className="text-text-muted italic">{t('none')}</span>}
