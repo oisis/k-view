@@ -374,5 +374,10 @@ export const pl = {
     "complete": "Zakończono",
     "bound": "Powiązany",
     "released": "Zwolniony",
-    "no_data_available": "Brak danych"
+    "no_data_available": "Brak danych",
+    "trigger": "Trigger",
+    "confirm_trigger_title": "Potwierdź uruchomienie",
+    "confirm_trigger_message": "Czy na pewno chcesz ręcznie uruchomić Joba dla tego CronJoba?",
+    "yes": "Tak",
+    "no": "Nie"
 };

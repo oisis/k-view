@@ -374,5 +374,10 @@ export const ja = {
     "complete": "完了",
     "bound": "バインド済み",
     "released": "解放済み",
-    "no_data_available": "データがありません"
+    "no_data_available": "データがありません",
+    "trigger": "今すぐ実行",
+    "confirm_trigger_title": "実行の確認",
+    "confirm_trigger_message": "このCronJobのジョブを手動で実行してもよろしいですか？",
+    "yes": "はい",
+    "no": "いいえ"
 };

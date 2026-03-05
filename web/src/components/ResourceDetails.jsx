@@ -71,6 +71,8 @@ export default function ResourceDetails() {
     const [relatedSecrets, setRelatedSecrets] = useState([]);
     const [relatedImagePullSecrets, setRelatedImagePullSecrets] = useState([]);
     const [relatedPvs, setRelatedPvs] = useState([]);
+    const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
+    const [triggering, setTriggering] = useState(false);
 
     const load = async () => {
         setLoading(true);
@@ -156,6 +158,22 @@ export default function ResourceDetails() {
         return true;
     });
 
+    const handleTrigger = async () => {
+        setTriggering(true);
+        try {
+            const url = `/api/resources/${kind}/${namespace}/${name}/trigger`;
+            const res = await fetch(url, { method: 'POST' });
+            if (!res.ok) throw new Error('Failed to trigger job');
+            setIsTriggerModalOpen(false);
+            // Optional: refresh data or show success toast
+            load();
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setTriggering(false);
+        }
+    };
+
     return (
         <div className="p-8">
             <div className="flex items-center justify-between mb-8">
@@ -189,6 +207,17 @@ export default function ResourceDetails() {
                         {t(tab.label)}
                     </button>
                 ))}
+
+                {/* Manual Trigger Action for CronJobs */}
+                {(kind?.toLowerCase().includes('cronjob') || data?.kind?.toLowerCase() === 'cronjob') && (
+                    <button
+                        onClick={() => setIsTriggerModalOpen(true)}
+                        className="px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-200 text-success hover:bg-success/10 flex items-center gap-2 border-l border-border/50 ml-1 pl-4"
+                    >
+                        <icons.zap size={14} />
+                        {t('trigger')}
+                    </button>
+                )}
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -263,6 +292,47 @@ export default function ResourceDetails() {
                     </ErrorBoundary>
                 )}
             </div>
+
+            {/* Trigger Confirmation Modal */}
+            {isTriggerModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="border border-border rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200" style={{ backgroundColor: 'rgb(var(--color-bg-card))' }}>
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="p-3 rounded-2xl bg-success/20 text-success">
+                                <icons.zap size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold text-primary">{t('confirm_trigger_title')}</h3>
+                        </div>
+                        
+                        <p className="text-secondary mb-8 leading-relaxed">
+                            {t('confirm_trigger_message')}
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setIsTriggerModalOpen(false)}
+                                className="flex-1 px-6 py-3 rounded-xl border border-border text-primary font-bold hover:bg-sidebar/20 transition-all active:scale-95"
+                            >
+                                {t('no')}
+                            </button>
+                            <button
+                                onClick={handleTrigger}
+                                disabled={triggering}
+                                className="flex-1 px-6 py-3 rounded-xl bg-success text-white font-bold hover:bg-success/90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {triggering ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                                ) : (
+                                    <>
+                                        <icons.check size={18} />
+                                        {t('yes')}
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

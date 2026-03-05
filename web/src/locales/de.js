@@ -374,5 +374,10 @@ export const de = {
     "complete": "Abgeschlossen",
     "bound": "Gebunden",
     "released": "Freigegeben",
-    "no_data_available": "Keine Daten verfügbar"
+    "no_data_available": "Keine Daten verfügbar",
+    "trigger": "Trigger",
+    "confirm_trigger_title": "Trigger bestätigen",
+    "confirm_trigger_message": "Sind Sie sicher, dass Sie einen Job für diesen CronJob manuell auslösen möchten?",
+    "yes": "Ja",
+    "no": "Nein"
 };

@@ -13,6 +13,7 @@ detail_tabs:
   - Overview
   - Yaml
   - Events
+  - Trigger
 Metadata:
   - Namespace
   - Age

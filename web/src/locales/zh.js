@@ -374,5 +374,9 @@ export const zh = {
     "complete": "完成",
     "bound": "已绑定",
     "released": "已释放",
-    "no_data_available": "暂无数据"
+    "no_data_available": "暂无数据",
+    "confirm_trigger_title": "确认触发",
+    "confirm_trigger_message": "您确定要手动为该 CronJob 触发作业吗？",
+    "yes": "是",
+    "no": "否"
 };

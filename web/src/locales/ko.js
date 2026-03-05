@@ -374,5 +374,10 @@ export const ko = {
     "complete": "완료",
     "bound": "바인딩됨",
     "released": "해제됨",
-    "no_data_available": "데이터가 없습니다"
+    "no_data_available": "데이터가 없습니다",
+    "trigger": "지금 실행",
+    "confirm_trigger_title": "실행 확인",
+    "confirm_trigger_message": "이 CronJob에 대한 Job을 수동으로 실행하시겠습니까?",
+    "yes": "예",
+    "no": "아니오"
 };

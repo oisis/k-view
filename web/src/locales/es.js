@@ -374,5 +374,10 @@ export const es = {
     "complete": "Completado",
     "bound": "Vinculado",
     "released": "Liberado",
-    "no_data_available": "No hay datos disponibles"
+    "no_data_available": "No hay datos disponibles",
+    "trigger": "Activar ahora",
+    "confirm_trigger_title": "Confirmar activación",
+    "confirm_trigger_message": "¿Está seguro de que desea activar manualmente un Job para este CronJob?",
+    "yes": "Sí",
+    "no": "No"
 };

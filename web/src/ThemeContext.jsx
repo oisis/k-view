@@ -5,7 +5,7 @@ import {
     FileText, Lock, Database, Puzzle, ChevronDown, ChevronRight,
     Shield, Key, User, Users, Link, AlertTriangle, Globe2, Activity,
     Settings as SettingsIcon, Moon, Sun, Palette, Info, PanelLeftClose, PanelLeftOpen,
-    Layers, Repeat, ShieldCheck, Plus, Zap, Heart, Search, X, AlertCircle, ExternalLink, Edit3, Download,
+    Layers, Repeat, ShieldCheck, Plus, Zap, Heart, Search, X, AlertCircle, ExternalLink, Edit3, Download, Play,
     ChevronLeft, Check, Fingerprint, List, Languages, Cpu, Hash, Box, MemoryStick, CheckCircle,
     XCircle, MoreVertical, ChevronUp, ArrowUpDown, Clipboard, CheckCircle2, ChevronsLeft, ChevronsRight, Trash2,
     ShieldOff, HardDrive, Layout, FileCode2, SquareCode, Eye, EyeOff
@@ -42,6 +42,7 @@ const commonIcons = {
     palette: Palette,
     sun: Sun,
     moon: Moon,
+    play: Play,
     check: Check,
     fingerprint: Fingerprint,
     list: List,
