@@ -12,6 +12,7 @@ import IngressOverview from './templates/Ingress-overview';
 import StatefulSetOverview from './templates/StatefulSet-overview';
 import PvcOverview from './templates/PersistentVolumeClaim-overview';
 import RbacOverview from './templates/Role-overview';
+import ClusterRoleOverview from './templates/ClusterRole-overview';
 import NamespaceOverview from './templates/Namespace-overview';
 import CrdOverview from './templates/CustomResourceDefinition-overview';
 import IngressClassOverview from './templates/IngressClass-overview';
@@ -122,7 +123,8 @@ export default function OverviewTab({
             {isHpa && <HpaOverview data={data} spec={spec} status={status} t={t} />}
             {isServiceAccount && <ServiceAccountOverview data={data} metadata={metadata} spec={spec} namespace={namespace} relatedSecrets={relatedSecrets} relatedImagePullSecrets={relatedImagePullSecrets} t={t} icons={icons} />}
             {isCrd && <CrdOverview data={data} metadata={metadata} spec={spec} status={status} relatedCrdObjects={relatedCrdObjects} t={t} />}
-            {(isRole || isClusterRole) && <RbacOverview data={data} metadata={metadata} spec={spec} t={t} isBinding={false} />}
+            {isRole && <RbacOverview data={data} metadata={metadata} spec={spec} t={t} isBinding={false} />}
+            {isClusterRole && <ClusterRoleOverview data={data} spec={spec} t={t} />}
             {isRoleBinding && <RbacBindingOverview data={data} spec={spec} t={t} />}
             {isClusterRoleBinding && <ClusterRoleBindingOverview data={data} spec={spec} t={t} />}
 
