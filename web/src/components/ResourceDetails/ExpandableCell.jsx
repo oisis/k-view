@@ -20,8 +20,8 @@ export default function ExpandableCell({ value, type, customStyle, icons: propIc
     if (items.length === 0) return <span className="text-text-muted italic">—</span>;
 
     const defaultStyle = type === 'images' 
-        ? "bg-accent/10 text-accent border-accent/20" 
-        : "bg-info/10 text-info border-info/20";
+        ? "bg-accent/10 text-accent" 
+        : "bg-info/10 text-info";
     
     const tagStyle = customStyle || defaultStyle;
 
@@ -38,7 +38,7 @@ export default function ExpandableCell({ value, type, customStyle, icons: propIc
                 {displayItems.map((it, idx) => (
                     <div
                         key={idx}
-                        className={`px-2 py-0.5 rounded text-[11px] font-mono border cursor-pointer transition-all hover:brightness-110 active:scale-95 whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${tagStyle}`}
+                        className={`px-2 py-0.5 rounded text-[11px] font-mono cursor-pointer transition-all hover:brightness-110 active:scale-95 whitespace-nowrap overflow-hidden text-ellipsis max-w-full ${tagStyle}`}
                         onClick={(e) => {
                             setTooltip({
                                 show: true,
