@@ -94,11 +94,11 @@ export default function ResourceDetails() {
                     ]);
                     if (qRes.ok) {
                         const q = await qRes.json();
-                        setQuotas(Array.isArray(q.items) ? q.items : []);
+                        setQuotas(Array.isArray(q) ? q : []);
                     }
                     if (lRes.ok) {
                         const l = await lRes.json();
-                        setLimits(Array.isArray(l.items) ? l.items : []);
+                        setLimits(Array.isArray(l) ? l : []);
                     }
                 }
 
