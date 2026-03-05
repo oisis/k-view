@@ -53,14 +53,33 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
             </DetailSection>
 
             <DetailSection title="Accepted Names">
-                <div className="glass rounded-2xl border border-border p-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                    <div><span className="text-[10px] text-text-muted uppercase font-bold block">Plural</span>{names.plural}</div>
-                    <div><span className="text-[10px] text-text-muted uppercase font-bold block">Singular</span>{names.singular}</div>
-                    <div><span className="text-[10px] text-text-muted uppercase font-bold block">Kind</span>{names.kind}</div>
-                    <div><span className="text-[10px] text-text-muted uppercase font-bold block">List Kind</span>{names.listKind}</div>
-                    <div><span className="text-[10px] text-text-muted uppercase font-bold block">Short Names</span>
-                        <ExpandableCell value={names.shortNames || []} type="labels" icons={themeIcons} />
-                    </div>
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <th className="px-4 py-2 text-center border-r border-border">Plural</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Singular</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Kind</th>
+                                <th className="px-4 py-2 text-center border-r border-border">List Kind</th>
+                                <th className="px-4 py-2 text-center">Short Names</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="text-primary font-bold align-middle text-center">
+                                <td className="px-4 py-4 border-r border-border font-mono text-accent">{names.plural || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">{names.singular || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border">
+                                    <span className="px-2 py-1 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">
+                                        {names.kind || '—'}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-4 border-r border-border">{names.listKind || '—'}</td>
+                                <td className="px-4 py-4">
+                                    <ExpandableCell value={names.shortNames || []} type="labels" icons={themeIcons} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </DetailSection>
 

@@ -1,0 +1,19 @@
+apiVersion: k-view.local/v1
+kind: TestViewResource
+metadata:
+  name: test-instance-1
+  namespace: k-view
+  labels:
+    app: test-k-view
+spec:
+  content: "This is a test instance for CRD visualization"
+---
+apiVersion: k-view.local/v1
+kind: TestViewResource
+metadata:
+  name: test-instance-2
+  namespace: default
+  labels:
+    app: test-k-view
+spec:
+  content: "Another test instance in a different namespace"
