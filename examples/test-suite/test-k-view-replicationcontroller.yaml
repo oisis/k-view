@@ -9,6 +9,7 @@ metadata:
   annotations:
     k-view.io/description: "Legacy workload test for backward compatibility"
     k-view.io/migration-status: "pending"
+    k-view.io/test-data: "true"
 spec:
   replicas: 1
   selector:
