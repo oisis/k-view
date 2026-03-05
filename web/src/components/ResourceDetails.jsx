@@ -117,6 +117,7 @@ export default function ResourceDetails() {
                 if (detailsData.relatedPods) setRelatedPods(detailsData.relatedPods);
                 if (detailsData.relatedServices) setRelatedServices(detailsData.relatedServices);
                 if (detailsData.relatedEndpoints) setRelatedEndpoints(detailsData.relatedEndpoints);
+                if (detailsData.relatedIngresses) setRelatedIngresses(detailsData.relatedIngresses);
                 if (detailsData.relatedSecrets) setRelatedSecrets(Array.isArray(detailsData.relatedSecrets) ? detailsData.relatedSecrets : []);
                 if (detailsData.relatedImagePullSecrets) setRelatedImagePullSecrets(Array.isArray(detailsData.relatedImagePullSecrets) ? detailsData.relatedImagePullSecrets : []);
             }

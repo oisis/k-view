@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -80,8 +81,32 @@ func (m *ServiceManager) GetDetails(ctx context.Context, dynClient dynamic.Inter
 		return nil, err
 	}
 
+	// Enhance response with specialized extra fields
+	mapped := m.MapItem(item, nil)
+	if extra, ok := response["extra"].(map[string]interface{}); ok {
+		for k, v := range mapped.Extra {
+			extra[k] = v
+		}
+	}
+
 	ns := item.GetNamespace()
 	svcName := item.GetName()
+
+	// Fetch metrics for related Pods
+	metricsGVR := schema.GroupVersionResource{
+		Group:    "metrics.k8s.io",
+		Version:  "v1beta1",
+		Resource: "pods",
+	}
+	var metricsMap map[string]unstructured.Unstructured
+	mList, err := dynClient.Resource(metricsGVR).Namespace(ns).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		metricsMap = make(map[string]unstructured.Unstructured)
+		for _, m := range mList.Items {
+			key := m.GetNamespace() + "/" + m.GetName()
+			metricsMap[key] = m
+		}
+	}
 
 	// 1. Related Endpoints (Formatted for Table)
 	endpointsGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "endpoints"}
@@ -124,12 +149,12 @@ func (m *ServiceManager) GetDetails(ctx context.Context, dynClient dynamic.Inter
 		for k, v := range selector {
 			labelSelectors = append(labelSelectors, fmt.Sprintf("%s=%s", k, v))
 		}
-		listOptions := metav1.ListOptions{LabelSelector: fmt.Sprintf("%s", labelSelectors[0])} // Simplified
+		listOptions := metav1.ListOptions{LabelSelector: strings.Join(labelSelectors, ",")}
 		pods, err := dynClient.Resource(podMgr.GetGVR()).Namespace(ns).List(ctx, listOptions)
 		if err == nil {
 			var relatedPods []ResourceItem
 			for _, pod := range pods.Items {
-				relatedPods = append(relatedPods, podMgr.MapItem(pod, nil))
+				relatedPods = append(relatedPods, podMgr.MapItem(pod, metricsMap))
 			}
 			response["relatedPods"] = relatedPods
 		}
@@ -141,25 +166,43 @@ func (m *ServiceManager) GetDetails(ctx context.Context, dynClient dynamic.Inter
 	if err == nil {
 		var relatedIngresses []ResourceItem
 		for _, ing := range ingresses.Items {
-			rules, _, _ := unstructured.NestedSlice(ing.Object, "spec", "rules")
 			matches := false
-			for _, r := range rules {
-				if rule, ok := r.(map[string]interface{}); ok {
-					if http, ok := rule["http"].(map[string]interface{}); ok {
-						if paths, ok := http["paths"].([]interface{}); ok {
-							for _, p := range paths {
-								if path, ok := p.(map[string]interface{}); ok {
-									if b, ok := path["backend"].(map[string]interface{}); ok {
-										if s, ok := b["service"].(map[string]interface{}); ok {
-											if s["name"] == svcName { matches = true; break }
+			
+			// Check default backend
+			if defBackend, ok, _ := unstructured.NestedMap(ing.Object, "spec", "defaultBackend"); ok {
+				if svc, ok, _ := unstructured.NestedMap(defBackend, "service"); ok {
+					if name, ok, _ := unstructured.NestedString(svc, "name"); ok && name == svcName {
+						matches = true
+					}
+				}
+			}
+
+			// Check rules
+			if !matches {
+				rules, _, _ := unstructured.NestedSlice(ing.Object, "spec", "rules")
+				for _, r := range rules {
+					if rule, ok := r.(map[string]interface{}); ok {
+						if http, ok := rule["http"].(map[string]interface{}); ok {
+							if paths, ok := http["paths"].([]interface{}); ok {
+								for _, p := range paths {
+									if path, ok := p.(map[string]interface{}); ok {
+										if b, ok := path["backend"].(map[string]interface{}); ok {
+											// Check networking.k8s.io/v1 structure
+											if s, ok := b["service"].(map[string]interface{}); ok {
+												if s["name"] == svcName { matches = true; break }
+											}
+											// Fallback for older structures if any
+											if b["serviceName"] == svcName { matches = true; break }
 										}
 									}
 								}
 							}
 						}
 					}
+					if matches { break }
 				}
 			}
+
 			if matches {
 				relatedIngresses = append(relatedIngresses, ingMgr.MapItem(ing, nil))
 			}
