@@ -24,7 +24,7 @@ Resource Info:
   - Active Jobs
   - Suspend
   - Last schedule
-  - Concurrentcy policy
+  - Concurrency Policy
 Active Jobs:
   - Name
   - Namespace
