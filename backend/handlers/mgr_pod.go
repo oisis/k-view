@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -59,6 +61,54 @@ func (m *PodManager) MapItem(item unstructured.Unstructured, metricsMap map[stri
 		}
 	}
 	resItem.Extra["restarts"] = restarts
+
+	// Extract metrics from metricsMap
+	if metricsMap != nil {
+		key := item.GetNamespace() + "/" + item.GetName()
+		if m, ok := metricsMap[key]; ok {
+			if containers, ok, _ := unstructured.NestedSlice(m.Object, "containers"); ok {
+				var totalCPU, totalMem int64
+				for _, c := range containers {
+					if container, ok := c.(map[string]interface{}); ok {
+						if usage, ok := container["usage"].(map[string]interface{}); ok {
+							if cpu, ok := usage["cpu"].(string); ok {
+								if strings.HasSuffix(cpu, "n") {
+									var val int64
+									fmt.Sscanf(cpu, "%dn", &val)
+									totalCPU += val / 1000000
+								} else if strings.HasSuffix(cpu, "u") {
+									var val int64
+									fmt.Sscanf(cpu, "%du", &val)
+									totalCPU += val / 1000
+								} else if strings.HasSuffix(cpu, "m") {
+									var val int64
+									fmt.Sscanf(cpu, "%dm", &val)
+									totalCPU += val
+								}
+							}
+							if mem, ok := usage["memory"].(string); ok {
+								if strings.HasSuffix(mem, "Ki") {
+									var val int64
+									fmt.Sscanf(mem, "%dKi", &val)
+									totalMem += val / 1024
+								} else if strings.HasSuffix(mem, "Mi") {
+									var val int64
+									fmt.Sscanf(mem, "%dMi", &val)
+									totalMem += val
+								} else if strings.HasSuffix(mem, "Gi") {
+									var val int64
+									fmt.Sscanf(mem, "%dGi", &val)
+									totalMem += val * 1024
+								}
+							}
+						}
+					}
+				}
+				resItem.Extra["cpu"] = fmt.Sprintf("%dm", totalCPU)
+				resItem.Extra["memory"] = fmt.Sprintf("%dMi", totalMem)
+			}
+		}
+	}
 
 	return resItem
 }

@@ -67,6 +67,30 @@ func (m *DaemonSetManager) GetDetails(ctx context.Context, dynClient dynamic.Int
 		return nil, err
 	}
 
+	// Enhance response with specialized extra fields (including images)
+	mapped := m.MapItem(item, nil)
+	if extra, ok := response["extra"].(map[string]interface{}); ok {
+		for k, v := range mapped.Extra {
+			extra[k] = v
+		}
+	}
+
+	// Fetch metrics for related Pods using the dynamic client
+	metricsGVR := schema.GroupVersionResource{
+		Group:    "metrics.k8s.io",
+		Version:  "v1beta1",
+		Resource: "pods",
+	}
+	var metricsMap map[string]unstructured.Unstructured
+	mList, err := dynClient.Resource(metricsGVR).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+	if err == nil {
+		metricsMap = make(map[string]unstructured.Unstructured)
+		for _, m := range mList.Items {
+			key := m.GetNamespace() + "/" + m.GetName()
+			metricsMap[key] = m
+		}
+	}
+
 	// Fetch related Pods
 	podMgr := NewPodManager()
 	pods, err := dynClient.Resource(podMgr.GetGVR()).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
@@ -75,7 +99,7 @@ func (m *DaemonSetManager) GetDetails(ctx context.Context, dynClient dynamic.Int
 		for _, pod := range pods.Items {
 			for _, owner := range pod.GetOwnerReferences() {
 				if owner.UID == item.GetUID() {
-					relatedPods = append(relatedPods, podMgr.MapItem(pod, nil))
+					relatedPods = append(relatedPods, podMgr.MapItem(pod, metricsMap))
 					break
 				}
 			}
