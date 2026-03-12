@@ -339,10 +339,11 @@ export default function ResourceList({ kind }) {
                                             key={col.key}
                                             onClick={() => requestSort(col.key)}
                                             className={cn(
-                                                "py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b border-border/30 border-r border-border/10 last:border-r-0",
+                                                "py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
                                                 widthCls
                                             )}
                                         >
+
                                             <div className="flex items-center justify-center gap-2">
                                                 {t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label}
                                                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary">
@@ -384,7 +385,7 @@ export default function ResourceList({ kind }) {
                                     {(schema.cols || []).map(col => {                                        
                                         const val = getVal(item, col.key);
                                         let content;
-                                        let cellClass = "py-3 overflow-hidden border-r border-border/10 last:border-r-0";
+                                        let cellClass = "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0";
 
                                         if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp'].includes(col.key || '')) {
                                             cellClass += " text-center px-4 font-mono text-[13px]";
@@ -398,15 +399,15 @@ export default function ResourceList({ kind }) {
 
                                         const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if ((expandableKeys || []).includes(col.key || '')) {
-                                            cellClass = "py-3 overflow-hidden min-w-0 pl-2 pr-4 text-left border-r border-border/10 font-mono text-xs";
+                                            // Ensure borders are preserved even for expandable cells
                                             content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} item={item} />;
                                         } else if (col.key === 'extra.active') {
-                                            cellClass += " whitespace-nowrap w-16 text-center font-mono";
+                                            cellClass = cn(cellClass, "whitespace-nowrap w-16 text-center font-mono");
                                             content = <span className="text-primary font-semibold">{val}</span>;
                                         } else if (col.badge) {
-                                            cellClass = "py-3 overflow-hidden text-center px-4 border-r border-border/10";
+                                            cellClass = cn(cellClass, "text-center px-4");
                                             content = <StatusBadge value={val} />;
                                         } else if (col.key === 'name') {
                                             content = (

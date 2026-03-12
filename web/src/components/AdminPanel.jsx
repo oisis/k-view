@@ -201,21 +201,21 @@ export default function AdminPanel() {
                                                 className="overflow-hidden bg-muted/5"
                                             >
                                                 <div className="px-8 pb-8 pt-2 overflow-x-auto">
-                                                    <table className="w-full text-left text-[10px] border border-border/30 rounded-xl overflow-hidden border-separate border-spacing-0">
-                                                        <thead className="bg-muted/40 text-muted-foreground font-black uppercase tracking-[0.15em]">
+                                                    <table className="w-full text-left text-[10px] border border-border rounded-xl overflow-hidden border-separate border-spacing-0">
+                                                        <thead className="bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider">
                                                             <tr>
-                                                                <th className="px-6 py-4 border-b border-r border-border/30">{t('api_groups')}</th>
-                                                                <th className="px-6 py-4 border-b border-r border-border/30">{t('resources')}</th>
-                                                                <th className="px-6 py-4 border-b border-border/30">{t('verbs')}</th>
+                                                                <th className="px-6 py-4 border-b-2 border-border border-r border-border/60">{t('api_groups')}</th>
+                                                                <th className="px-6 py-4 border-b-2 border-border border-r border-border/60">{t('resources')}</th>
+                                                                <th className="px-6 py-4 border-b-2 border-border">{t('verbs')}</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody className="divide-y divide-border/20">
+                                                        <tbody className="">
                                                             {role.rules?.map((rule, idx) => (
-                                                                <tr key={idx} className="hover:bg-primary/5 transition-colors">
-                                                                    <td className="px-6 py-4 border-r border-border/30 font-mono font-bold text-muted-foreground italic">
+                                                                <tr key={idx} className="hover:bg-muted/50 transition-colors">
+                                                                    <td className="px-6 py-4 border-b border-border border-r border-border/40 font-mono font-bold text-muted-foreground italic">
                                                                         {rule.apiGroups?.map(g => g === "" ? "(core)" : g).join(', ')}
                                                                     </td>
-                                                                    <td className="px-6 py-4 border-r border-border/30 text-foreground">
+                                                                    <td className="px-6 py-4 border-b border-border border-r border-border/40 text-foreground">
                                                                         <div className="flex flex-wrap gap-1.5">
                                                                             {rule.resources?.map((res, rIdx) => (
                                                                                 <Badge key={rIdx} variant="outline" className="bg-muted/30 border-border/30 font-bold px-2 py-0 text-[9px]">
@@ -224,7 +224,7 @@ export default function AdminPanel() {
                                                                             ))}
                                                                         </div>
                                                                     </td>
-                                                                    <td className="px-6 py-4 font-mono font-bold text-primary">
+                                                                    <td className="px-6 py-4 border-b border-border font-mono font-bold text-primary">
                                                                         {rule.verbs?.join(', ')}
                                                                     </td>
                                                                 </tr>
@@ -253,42 +253,42 @@ export default function AdminPanel() {
                     </CardHeader>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs text-foreground border-separate border-spacing-0">
-                            <thead className="text-[10px] font-black text-muted-foreground bg-muted/40 uppercase tracking-[0.2em] border-b border-border/30">
+                            <thead className="text-[10px] font-semibold text-muted-foreground bg-muted/40 uppercase tracking-wider">
                                 <tr>
-                                    <th className="px-8 py-5 border-b border-border/30">{t('user')}</th>
-                                    <th className="px-8 py-5 border-b border-border/30">Type</th>
-                                    <th className="px-8 py-5 border-b border-border/30">Role</th>
-                                    <th className="px-8 py-5 border-b border-border/30">Namespace</th>
+                                    <th className="px-8 py-5 border-b-2 border-border border-r border-border/60">{t('user')}</th>
+                                    <th className="px-8 py-5 border-b-2 border-border border-r border-border/60">Type</th>
+                                    <th className="px-8 py-5 border-b-2 border-border border-r border-border/60">Role</th>
+                                    <th className="px-8 py-5 border-b-2 border-border">Namespace</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border/20">
+                            <tbody className="">
                                 {!status?.assignments || status.assignments.length === 0 ? (
                                     <tr>
-                                        <td colSpan="4" className="px-8 py-16 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs opacity-60">No k-view role bindings detected in the cluster.</td>
+                                        <td colSpan="4" className="px-8 py-16 text-center text-muted-foreground font-semibold uppercase tracking-widest text-xs opacity-60">No k-view role bindings detected in the cluster.</td>
                                     </tr>
                                 ) : (
                                     status.assignments.map((assignment, i) => (
-                                        <tr key={i} className="hover:bg-primary/5 transition-all group">
-                                            <td className="px-8 py-6 font-black text-foreground uppercase tracking-tight">
+                                        <tr key={i} className="hover:bg-muted/50 transition-all group">
+                                            <td className="px-8 py-6 border-b border-border border-r border-border/40 font-bold text-foreground">
                                                 {assignment.user || assignment.group || 'Unknown'}
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <Badge variant="outline" className="text-[9px] uppercase font-black bg-muted/30 border-border/30">
+                                            <td className="px-8 py-6 border-b border-border border-r border-border/40">
+                                                <Badge variant="outline" className="text-[9px] uppercase font-semibold bg-muted/30 border-border/30">
                                                     {assignment.user ? 'User' : 'Group'}
                                                 </Badge>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <span className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/20">
+                                            <td className="px-8 py-6 border-b border-border border-r border-border/40">
+                                                <span className="text-primary font-semibold uppercase text-[10px] tracking-wider bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/20">
                                                     {assignment.role}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-8 py-6 border-b border-border">
                                                 {assignment.namespace ? (
-                                                    <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold">
+                                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
                                                         {assignment.namespace}
                                                     </Badge>
                                                 ) : (
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 bg-purple-400/10 px-3 py-1.5 rounded-lg border border-purple-400/20 shadow-inner">
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-purple-600 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20 shadow-inner">
                                                         Cluster-Wide
                                                     </span>
                                                 )}

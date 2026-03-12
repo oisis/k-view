@@ -61,20 +61,20 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
             <div className="w-full">
                 <table className="w-full text-sm border-collapse table-fixed">
                     <thead>
-                        <tr className="bg-white/5 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-text-muted">
-                            <th className="px-4 py-3 text-left w-1/4">Key</th>
-                            <th className="px-4 py-3 text-left w-auto">Value</th>
-                            <th className="px-4 py-3 text-center w-24">Actions</th>
+                        <tr className="bg-muted/50 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
+                            <th className="px-4 py-3 text-left w-1/4 border-b-2 border-border border-r border-border/60">Key</th>
+                            <th className="px-4 py-3 text-left w-auto border-b-2 border-border border-r border-border/60">Value</th>
+                            <th className="px-4 py-3 text-center w-24 border-b-2 border-border border-r border-border/60">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--border-color)]">
+                    <tbody className="">
                         {Object.keys(cmData).length === 0 ? (
-                            <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic">No data found.</td></tr>
+                            <tr><td colSpan="3" className="px-4 py-8 text-center text-text-muted italic border-b border-border border-r border-border/40">No data found.</td></tr>
                         ) : (
                             Object.entries(cmData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-foreground font-mono truncate" title={key}>{key}</td>
-                                    <td className="px-4 py-3 min-w-0">
+                                    <td className="px-4 py-3 font-bold text-foreground font-mono truncate border-b border-border border-r border-border/40" title={key}>{key}</td>
+                                    <td className="px-4 py-3 min-w-0 text-foreground border-b border-border border-r border-border/40">
                                         {editingKey === key ? (
                                             <div className="space-y-3">
                                                 <textarea
@@ -108,7 +108,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-center">
+                                    <td className="px-4 py-3 text-center border-b border-border border-r border-border/40">
                                         <div className="flex items-center justify-center">
                                             <button
                                                 onClick={() => startEdit(key, value)}

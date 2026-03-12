@@ -127,14 +127,15 @@
     --color-text-white: #ffffff;
   }
 
-  /* Table Style with Pastel Colors */
-  table { @apply w-full border-collapse text-sm; }
-  thead { @apply bg-primary/5 border-b border-border; }
-  th { @apply px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider; }
-  td { @apply px-4 py-3 border-b border-border/50 text-foreground; }
+  /* Table Style with Visible Grid */
+  table { @apply w-full border-collapse text-sm border-spacing-0; }
+  thead { @apply bg-muted/50 border-b-2 border-border; }
+  th { @apply px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider border-r border-border/60 last:border-r-0; }
+  td { @apply px-4 py-3 border-b border-border border-r border-border/40 last:border-r-0 text-foreground font-medium align-middle; }
   
   /* Highlight rows with pastel accent */
   tr { @apply transition-colors hover:bg-accent/60; }
+  tr:last-child td { @apply border-b-0; }
 }
 
 @layer utilities {

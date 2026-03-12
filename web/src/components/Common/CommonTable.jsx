@@ -20,23 +20,23 @@ export default function CommonTable({
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr className="bg-muted/50 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
+                        <tr className="bg-muted/50 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
                             {columns.map((col, idx) => (
                                 <th 
                                     key={idx} 
-                                    className={`px-4 py-3 ${col.className || ''}`}
+                                    className={`px-4 py-3 border-b-2 border-border border-r border-border/60 ${col.className || ''}`}
                                 >
                                     {col.header}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/30">
+                    <tbody className="">
                         {!hasData ? (
                             <tr>
                                 <td 
                                     colSpan={columns.length} 
-                                    className="px-4 py-8 text-center text-muted-foreground italic bg-sidebar/5"
+                                    className="px-4 py-8 text-center text-muted-foreground italic bg-sidebar/5 border-b border-border border-r border-border/40"
                                 >
                                     {t?.('no_data_available') || 'No data available'}
                                 </td>
@@ -50,7 +50,7 @@ export default function CommonTable({
                                     {columns.map((col, colIdx) => (
                                         <td 
                                             key={colIdx} 
-                                            className={`px-4 py-3 ${col.className || ''}`}
+                                            className={`px-4 py-3 text-foreground border-b border-border border-r border-border/40 ${col.className || ''}`}
                                         >
                                             {typeof col.accessor === 'function' 
                                                 ? col.accessor(item) 
