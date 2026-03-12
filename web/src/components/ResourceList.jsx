@@ -272,7 +272,7 @@ export default function ResourceList({ kind }) {
                             placeholder={t('search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-muted/30 border border-border/50 pl-9 pr-4 py-2 rounded-xl text-xs font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all h-11 w-64 backdrop-blur-sm"
+                            className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm"
                         />
                     </div>
                     {isNamespaced && (

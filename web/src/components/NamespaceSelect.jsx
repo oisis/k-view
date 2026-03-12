@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTheme } from '../ThemeContext';
 import { useTranslation } from '../SettingsContext';
+import { cn } from "@/lib/utils";
 
 export default function NamespaceSelect({ namespaces, selected, onChange }) {
     const { icons } = useTheme();
@@ -48,13 +49,13 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     if (!open) setRect(e.currentTarget.getBoundingClientRect());
                     setOpen(o => !o);
                 }}
-                className="flex items-center gap-2 bg-card border border-border text-foreground text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
+                className="flex items-center gap-2 bg-card border border-border text-foreground text-sm rounded-lg px-3 py-2 hover:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all min-w-[200px] justify-between shadow-sm"
             >
                 <span className="flex items-center gap-2">
-                    {icons.nodes && <icons.nodes size={14} className="text-text-muted" />}
-                    <span className="truncate">{displayValue}</span>
+                    {icons.nodes && <icons.nodes size={14} className="text-muted-foreground" />}
+                    <span className="font-medium truncate">{displayValue}</span>
                 </span>
-                {icons.chevron_down && <icons.chevron_down size={14} className={`text-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />}
+                {icons.chevron_down && <icons.chevron_down size={14} className={cn("text-muted-foreground transition-transform duration-200", open && "rotate-180")} />}
             </button>
 
             {open && rect && createPortal(
@@ -69,32 +70,32 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                         width: Math.max(220, rect.width),
                         zIndex: 9999
                     }}
-                    className="bg-[var(--bg-dropdown)]/80 backdrop-blur-md border border-border rounded-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-100"
+                    className="bg-popover/95 backdrop-blur-xl border border-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100"
                 >
                     {/* Search input */}
-                    <div className="p-2 border-b border-border">
-                        <div className="flex items-center gap-2 bg-[var(--bg-input)] rounded px-2 py-1.5">
-                            {icons.search && <icons.search size={13} className="text-text-muted shrink-0" />}
+                    <div className="p-2 border-b border-border bg-muted/30">
+                        <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-2 py-1.5">
+                            {icons.search && <icons.search size={13} className="text-muted-foreground shrink-0" />}
                             <input
                                 ref={inputRef}
                                 type="text"
                                 value={query}
                                 onChange={e => setQuery(e.target.value)}
                                 placeholder="Search namespaces..."
-                                className="bg-transparent text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] outline-none flex-1 w-full"
+                                className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none flex-1 w-full font-medium"
                             />
                             {query && (
                                 <button onClick={() => setQuery('')}>
-                                    {icons.close && <icons.close size={13} className="text-text-muted hover:text-secondary" />}
+                                    {icons.close && <icons.close size={13} className="text-muted-foreground hover:text-foreground" />}
                                 </button>
                             )}
                         </div>
                     </div>
 
                     {/* Options list */}
-                    <ul className="max-h-52 overflow-y-auto py-1">
+                    <ul className="max-h-64 overflow-y-auto py-1 custom-scrollbar">
                         {filtered.length === 0 ? (
-                            <li className="px-4 py-3 text-xs text-text-muted text-center">No matches</li>
+                            <li className="px-4 py-6 text-xs text-muted-foreground text-center italic font-medium">No matches found</li>
                         ) : (
                             filtered.map(ns => {
                                 const value = ns === 'All namespaces' ? '' : ns;
@@ -104,13 +105,24 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                     <li
                                         key={ns}
                                         onClick={() => selectNs(ns)}
-                                        className={`flex items-center gap-2 px-4 py-1 text-sm cursor-pointer transition-colors rounded-md mx-1
-                      ${isSelected ? 'bg-accent text-primary-foreground font-bold' : 
-                        isSystem ? 'text-foreground hover:bg-red-500/20 bg-red-500/5' : 'text-foreground hover:bg-sidebar/20'}`}
+                                        className={cn(
+                                            "flex items-center gap-3 px-3 py-2 text-sm cursor-pointer transition-all rounded-lg mx-1 my-0.5",
+                                            isSelected 
+                                                ? "bg-accent text-accent-foreground font-bold shadow-sm" 
+                                                : cn(
+                                                    "text-foreground hover:bg-accent hover:text-accent-foreground",
+                                                    isSystem && "text-muted-foreground/80 hover:text-destructive"
+                                                  )
+                                        )}
                                     >
-                                        {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-red-400' : 'text-text-muted'} />}
-                                        <span className="flex-1 text-left">{ns}</span>
-                                        {isSelected && <span className="text-accent text-xs text-right">✓</span>}
+                                        <div className={cn(
+                                            "p-1 rounded",
+                                            isSelected ? "bg-background/50" : "bg-muted/50"
+                                        )}>
+                                            {icons.nodes && <icons.nodes size={12} className={cn(isSelected ? "text-accent-foreground" : (isSystem ? "text-destructive/50" : "text-muted-foreground"))} />}
+                                        </div>
+                                        <span className="flex-1 text-left truncate">{ns}</span>
+                                        {isSelected && <icons.check size={14} className="text-accent-foreground" />}
                                     </li>
                                 );
                             })
