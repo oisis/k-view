@@ -17,7 +17,7 @@ export default function IngressClassOverview({ spec, t }) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold align-middle">
+                            <tr className="text-foreground align-middle">
                                 <td className="px-6 py-4 text-center">{spec?.controller || '—'}</td>
                             </tr>
                         </tbody>

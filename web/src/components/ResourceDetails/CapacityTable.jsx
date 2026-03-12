@@ -32,21 +32,22 @@ export default function CapacityTable({ capacity, allocatable, t }) {
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left border-collapse table-fixed">
                 <thead>
-                    <tr className="bg-white/5 border-b border-border/20">
-                        <th className="px-4 py-3 font-black text-white uppercase text-[10px] tracking-widest text-center">Resource</th>
-                        <th className="px-4 py-3 font-black text-white uppercase text-[10px] tracking-widest text-center">Capacity</th>
-                        <th className="px-4 py-3 font-black text-white uppercase text-[10px] tracking-widest text-center">Allocatable</th>
+                    <tr className="bg-muted/50 border-b border-border">
+                        <th className="px-4 py-3 font-semibold text-muted-foreground uppercase text-[10px] tracking-widest text-center">Resource</th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground uppercase text-[10px] tracking-widest text-center">Capacity</th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground uppercase text-[10px] tracking-widest text-center">Allocatable</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-border/30">
-                    {(resources || []).map((res) => (
-                        <tr key={res} className="hover:bg-white/5 transition-colors">
-                            <td className="px-4 py-3 font-bold text-info uppercase text-xs">{res}</td>
-                            <td className="px-4 py-3 font-mono text-primary text-center">{formatResourceValue(res, capacity[res])}</td>
-                            <td className="px-4 py-3 font-mono text-success text-center">{formatResourceValue(res, allocatable?.[res])}</td>
+                <tbody className="divide-y divide-border">
+                    {['cpu', 'memory', 'pods'].map(res => (
+                        <tr key={res} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 font-bold text-foreground text-center uppercase text-[10px] tracking-wider">{res}</td>
+                            <td className="px-4 py-3 font-mono text-foreground text-center">{formatResourceValue(res, capacity[res])}</td>
+                            <td className="px-4 py-3 font-mono text-foreground text-center">{formatResourceValue(res, allocatable[res])}</td>
                         </tr>
                     ))}
                 </tbody>
+
             </table>
         </div>
     );

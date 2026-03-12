@@ -87,11 +87,11 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold">
+                            <tr className="text-foreground">
                                 <td className="px-6 py-4 text-center border-r border-border text-success">
                                     {status?.updatedReplicas || 0}
                                 </td>
-                                <td className="px-6 py-4 text-center border-r border-border text-primary">
+                                <td className="px-6 py-4 text-center border-r border-border text-foreground">
                                     {status?.replicas || 0}
                                 </td>
                                 <td className="px-6 py-4 text-center text-info">

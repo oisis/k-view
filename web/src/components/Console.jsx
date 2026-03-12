@@ -334,15 +334,15 @@ export default function Console() {
                                         {history.map((entry, i) => (
                                             <div key={i} className="mb-1">
                                                 {entry.type === 'banner' && (
-                                                    <div className="text-primary mb-3 whitespace-pre">{entry.text}</div>
+                                                    <div className="text-muted-foreground mb-3 whitespace-pre border-b border-border/30 pb-4 italic">{entry.text}</div>
                                                 )}                        {entry.type === 'cmd' && (
                             <div className="flex items-start gap-2 text-info">
                                 <span className="shrink-0">{PROMPT}</span>
-                                <span className="text-white font-bold">{entry.text}</span>
+                                <span className="text-foreground font-bold">{entry.text}</span>
                             </div>
                         )}
                         {entry.type === 'output' && (
-                            <div className="ml-4 mb-2 whitespace-pre text-primary">
+                            <div className="ml-4 mb-2 whitespace-pre text-foreground font-medium">
                                 {entry.text.split('\n').map((line, li) => (
                                     <div key={li} className="min-h-[1.25rem]">
                                         {renderLine(line, entry.exitCode, appendToInput)}
@@ -438,7 +438,7 @@ export default function Console() {
                 </div>
 
                 {/* Input row */}
-                <div className="flex items-center gap-2 px-4 py-3 bg-main/30">
+                <div className="flex items-center gap-2 px-4 py-3 bg-muted/20">
                     <span className="text-info font-mono font-bold select-none">{PROMPT}</span>
                     <input
                         ref={inputRef}
@@ -450,7 +450,7 @@ export default function Console() {
                         disabled={loading}
                         spellCheck={false}
                         autoComplete="off"
-                        className="flex-1 bg-transparent outline-none text-primary font-mono caret-[var(--text-info)] font-bold"
+                        className="flex-1 bg-transparent outline-none text-foreground font-mono caret-primary font-bold"
                     />
                 </div>
 

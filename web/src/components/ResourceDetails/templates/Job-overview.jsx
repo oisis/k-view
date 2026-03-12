@@ -34,7 +34,7 @@ export default function JobOverview({ data, spec, status, relatedPods = [], t, i
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold align-middle">
+                            <tr className="text-foreground align-middle">
                                 <td className="px-6 py-4 text-center border-r border-border">{spec?.completions || '—'}</td>
                                 <td className="px-6 py-4 text-center border-r border-border">{spec?.parallelism || '—'}</td>
                                 <td className="px-6 py-4 text-center">{spec?.activeDeadlineSeconds ? `${spec.activeDeadlineSeconds}s` : '—'}</td>

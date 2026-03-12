@@ -32,7 +32,7 @@ export default function DaemonSetOverview({ data, spec, status, relatedPods = []
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold align-middle">
+                            <tr className="text-foreground align-middle">
                                 <td className="px-6 py-4 text-center border-r border-border">
                                     <ExpandableCell value={spec?.selector?.matchLabels || {}} type="labels" icons={themeIcons} />
                                 </td>
@@ -53,7 +53,7 @@ export default function DaemonSetOverview({ data, spec, status, relatedPods = []
                     </div>
                     <div className="flex flex-col items-center">
                         <span className="text-[10px] uppercase font-black text-text-muted mb-1">Desired</span>
-                        <span className="text-lg font-bold text-primary">{status?.desiredNumberScheduled || 0}</span>
+                        <span className="text-lg text-foreground">{status?.desiredNumberScheduled || 0}</span>
                     </div>
                 </div>
             </DetailSection>

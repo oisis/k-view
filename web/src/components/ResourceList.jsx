@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings, useTranslation } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
 import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
 import ExpandableCell from './ResourceDetails/ExpandableCell';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 import { PodListSchema } from './ResourceList/templates/PodList';
 import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
@@ -33,7 +38,6 @@ import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList'
 import { JobListSchema } from './ResourceList/templates/JobList';
 import { EndpointsListSchema } from './ResourceList/templates/EndpointsList';
 
-// Column schema per resource kind - RESTORED FROM MAIN
 const SCHEMAS = {
     Pods: PodListSchema,
     Deployments: DeploymentListSchema,
@@ -64,28 +68,21 @@ const SCHEMAS = {
     CustomResourceDefinitions: CrdListSchema,
 };
 
-// DTO-Safe value accessor (Restored logic from main, but using new DTO paths)
 function getVal(item, key) {
     if (!item) return '—';
-    
     let rawVal;
-    // 1. Map top-level DTO fields
     if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') {
         rawVal = item[key];
     }
-    // 2. Map extra fields from DTO (backend uses 'extra' object)
     else if (item.extra) {
-        // Handle "extra.node", "extra.restarts", etc.
         const extraKey = key.startsWith('extra.') ? key.slice(6) : key;
         rawVal = item.extra[extraKey];
     } else {
         rawVal = item[key];
     }
-
     if (rawVal === undefined || rawVal === null) return '—';
     if (typeof rawVal === 'boolean') return String(rawVal);
     if (Array.isArray(rawVal)) return rawVal.join(', ');
-    
     return rawVal;
 }
 
@@ -94,28 +91,28 @@ function StatusBadge({ value }) {
     const v = String(value || '');
     const translatedValue = t(v.toLowerCase()) || v;
     const map = {
-        Normal: 'bg-info/10 text-black',
-        Warning: 'bg-warning/10 text-warning',
-        Running: 'bg-success/10 text-success',
-        Active: 'bg-success/10 text-success',
-        Complete: 'bg-purple/10 text-purple',
-        Bound: 'bg-purple/10 text-purple',
-        ClusterIP: 'bg-slate-500/10 text-slate-400',
-        LoadBalancer: 'bg-cyan/10 text-cyan',
-        CrashLoopBackOff: 'bg-error/10 text-error',
-        Failed: 'bg-error/10 text-error',
-        Degraded: 'bg-warning/10 text-warning',
-        Pending: 'bg-warning/10 text-warning',
-        Suspended: 'bg-warning/10 text-warning',
-        Available: 'bg-cyan/10 text-cyan',
-        Released: 'bg-warning/10 text-warning',
-        Default: 'bg-purple/10 text-purple',
+        Normal: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        Warning: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        Running: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        Active: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        Complete: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+        Bound: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+        ClusterIP: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+        LoadBalancer: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+        CrashLoopBackOff: 'bg-destructive/10 text-destructive border-destructive/20',
+        Failed: 'bg-destructive/10 text-destructive border-destructive/20',
+        Degraded: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        Pending: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        Suspended: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        Available: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+        Released: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        Default: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
     };
-    const cls = map[v] || 'bg-slate-500/10 text-slate-400';
+    const cls = map[v] || 'bg-muted/30 text-muted-foreground border-border/30';
     return (
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider ${cls}`}>
+        <Badge variant="outline" className={cn("font-semibold uppercase tracking-wider text-[10px] px-2 py-0.5", cls)}>
             {translatedValue}
-        </span>
+        </Badge>
     );
 }
 
@@ -124,7 +121,7 @@ function ScheduleCell({ value, nextRun }) {
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const ref = useRef(null);
 
-    if (!value || value === '—') return <span className="text-text-muted">—</span>;
+    if (!value || value === '—') return <span className="text-muted-foreground opacity-40">—</span>;
 
     const handleMouseEnter = () => {
         if (ref.current) {
@@ -140,13 +137,15 @@ function ScheduleCell({ value, nextRun }) {
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={() => setIsHovered(false)}
-                className="text-sm font-mono text-accent cursor-help hover:underline decoration-dotted decoration-[var(--accent)]/40 underline-offset-4 tracking-tighter"
+                className="text-xs font-mono font-semibold text-primary cursor-help hover:underline decoration-dotted decoration-primary/40 underline-offset-4"
             >
                 {value}
             </span>
 
             {isHovered && createPortal(
-                <div
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
                     style={{
                         position: 'fixed',
                         top: coords.top,
@@ -154,16 +153,16 @@ function ScheduleCell({ value, nextRun }) {
                         transform: 'translateY(-100%)',
                         zIndex: 9999
                     }}
-                    className="mb-2 bg-[var(--bg-tooltip)] border border-[var(--border-tooltip)] rounded-lg shadow-2xl p-3 min-w-[200px] pointer-events-none glass animate-in fade-in zoom-in duration-200 backdrop-blur-xl"
+                    className="mb-2 bg-popover/90 border border-border rounded-xl shadow-2xl p-4 min-w-[200px] pointer-events-none backdrop-blur-xl"
                 >
-                    <div className="text-xs font-bold text-text-muted uppercase mb-2 border-b border-[var(--border-tooltip)] pb-1">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-2 border-b border-border/50 pb-1 tracking-wider">
                         Next Run
                     </div>
-                    <div className="text-sm font-bold text-[var(--text-tooltip)] flex items-center gap-2">
+                    <div className="text-xs font-semibold text-foreground flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                         {nextRun || 'Calculating...'}
                     </div>
-                </div>,
+                </motion.div>,
                 document.body
             )}
         </div>
@@ -172,10 +171,6 @@ function ScheduleCell({ value, nextRun }) {
 
 import { useResourceData } from '../hooks/useResourceData';
 
-/**
- * ResourceList Component - Restores the exact layout from main branch
- * while consuming backend DTOs.
- */
 export default function ResourceList({ kind }) {
     const { settings } = useSettings();
     const { t } = useTranslation();
@@ -218,7 +213,6 @@ export default function ResourceList({ kind }) {
     const url = `/api/resources/${kind}${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`;
     const { items, loading, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
 
-    // Fetch namespaces on mount
     useEffect(() => {
         fetch('/api/namespaces')
             .then(r => r.ok ? r.json() : Promise.reject())
@@ -254,29 +248,39 @@ export default function ResourceList({ kind }) {
     const supportsTrace = false;
 
     return (
-        <div className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-4 md:p-8"
+        >
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                 <div>
-                    <h2 className="text-2xl font-black mb-1 text-[var(--text-resource-kind)]">{t(kind) || schema.title}</h2>
-                    <p className="text-secondary text-sm">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                        {t(kind) || schema.title}
+                    </h1>
+                    <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1 opacity-70">
                         {loading ? t('loading') : `${(items || []).length} ${(items || []).length === 1 ? t('item') : t('items')}`}
-                        {namespace && ` ${t('in_ns')} "${namespace}"`}
-                        {totalPages > 1 && ` • ${t('page_x_of_y', { current: currentPage, total: totalPages })}`}
+                        {namespace && ` • ns: ${namespace}`}
+                        {totalPages > 1 && ` • page ${currentPage}/${totalPages}`}
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        placeholder={t('search_placeholder')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"
-                    />
-                    {isNamespaced && (<NamespaceSelect
-                        namespaces={namespaces}
-                        selected={namespace}
-                        onChange={setNamespace}
-                    />
+                <div className="flex items-center gap-4">
+                    <div className="relative group">
+                        <icons.search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
+                        <input
+                            type="text"
+                            placeholder={t('search_placeholder')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-muted/30 border border-border/50 pl-9 pr-4 py-2 rounded-xl text-xs font-bold text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all h-11 w-64 backdrop-blur-sm"
+                        />
+                    </div>
+                    {isNamespaced && (
+                        <NamespaceSelect
+                            namespaces={namespaces}
+                            selected={namespace}
+                            onChange={setNamespace}
+                        />
                     )}
                 </div>
             </div>
@@ -289,18 +293,26 @@ export default function ResourceList({ kind }) {
                 namespaces={namespaces}
             />
 
-            {error && (
-                <div className="mb-4 p-4 bg-red-900/30 border border-red-800 text-red-400 rounded-lg text-sm">{error}</div>
-            )}
+            <AnimatePresence>
+                {error && (
+                    <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest"
+                    >
+                        {error}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            <div className="glass rounded-2xl border border-border overflow-hidden transition-all duration-300">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-primary border-collapse table-fixed">
-                        <thead className="border-b-2 border-border">
+            <Card className="border-border/50 bg-card overflow-hidden shadow-xl transition-all duration-500">
+                <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
+                        <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
                             <tr>
                                 {(schema.cols || []).map(col => {
                                     let widthCls = "";
-                                    
                                     if (col.key === 'name') widthCls = kind === 'CronJobs' ? "w-1/6" : "w-1/4";
                                     else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-40";
                                     else if (col.key === 'extra.images' || col.key === 'extra.address' || col.key === 'extra.endpoints' || col.key === 'extra.external') widthCls = "w-48";
@@ -326,64 +338,81 @@ export default function ResourceList({ kind }) {
                                         <th
                                             key={col.key}
                                             onClick={() => requestSort(col.key)}
-                                            className={`py-3 px-2 whitespace-nowrap cursor-pointer group select-none font-bold ${widthCls} text-center border-r border-white/10 last:border-r-0`}
+                                            className={cn(
+                                                "py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b border-border/30 border-r border-border/10 last:border-r-0",
+                                                widthCls
+                                            )}
                                         >
                                             <div className="flex items-center justify-center gap-2">
                                                 {t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label}
-                                                <span className="opacity-50 group-hover:opacity-100 transition-colors" style={{ color: 'var(--text-table-header)' }}>
+                                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary">
                                                     {sortConfig.key === col.key ? (
                                                         sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
                                                     ) : (
-                                                        <icons.sort size={12} className="opacity-0 group-hover:opacity-100" />
+                                                        <icons.sort size={12} />
                                                     )}
                                                 </span>
                                             </div>
                                         </th>
                                     );
                                 })}
-                                {supportsTrace && <th className="px-2 py-3 whitespace-nowrap w-10 border-r border-white/10"></th>}
-                                {!isEvent && <th className="px-2 py-3 whitespace-nowrap w-12 text-right"></th>}
+                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-12 border-b border-border/30 border-r border-border/10"></th>}
+                                {!isEvent && <th className="px-4 py-3 whitespace-nowrap w-16 border-b border-border/30 text-right"></th>}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-border/20">
                             {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-6 py-8 text-center text-text-muted italic">{t('loading')}</td></tr>
+                                <tr>
+                                    <td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">
+                                        {t('loading')}...
+                                    </td>
+                                </tr>
                             ) : paginatedItems.length === 0 ? (
-                                <tr><td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-6 py-8 text-center text-text-muted">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
+                                <tr>
+                                    <td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">
+                                        {t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}
+                                    </td>
+                                </tr>
                             ) : paginatedItems.map((item, i) => (
-                                <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/20 transition-colors">
+                                <motion.tr 
+                                    key={i} 
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.03 }}
+                                    className="hover:bg-muted/50 transition-all group"
+                                >
                                     {(schema.cols || []).map(col => {                                        
                                         const val = getVal(item, col.key);
                                         let content;
-                                        let cellClass = "py-1.5 overflow-hidden";
+                                        let cellClass = "py-3 overflow-hidden border-r border-border/10 last:border-r-0";
 
                                         if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp'].includes(col.key || '')) {
-                                            cellClass += " text-center px-2";
+                                            cellClass += " text-center px-4 font-mono text-[13px]";
                                         } else if (col.key === 'name') {
-                                            cellClass += " text-left px-3";
+                                            cellClass += " text-left px-6";
                                         } else if (col.key === 'extra.message') {
-                                            cellClass += " text-left px-3 text-xs leading-tight opacity-80";
+                                            cellClass += " text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
                                         } else {
-                                            cellClass += " px-2";
+                                            cellClass += " px-4";
                                         }
 
                                         const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if ((expandableKeys || []).includes(col.key || '')) {
-                                            cellClass = "py-1.5 overflow-hidden min-w-0 pl-1 pr-2 text-left";
+                                            cellClass = "py-3 overflow-hidden min-w-0 pl-2 pr-4 text-left border-r border-border/10 font-mono text-xs";
                                             content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
-                                            content = <ScheduleCell value={val} nextRun={item.extra?.['next-run']} />;
+                                            content = <ScheduleCell value={val} item={item} />;
                                         } else if (col.key === 'extra.active') {
-                                            cellClass += " whitespace-nowrap w-16 text-center";
-                                            content = <span className="text-primary font-bold">{val}</span>;
+                                            cellClass += " whitespace-nowrap w-16 text-center font-mono";
+                                            content = <span className="text-primary font-semibold">{val}</span>;
                                         } else if (col.badge) {
-                                            cellClass = "py-1.5 overflow-hidden text-center px-2";
+                                            cellClass = "py-3 overflow-hidden text-center px-4 border-r border-border/10";
                                             content = <StatusBadge value={val} />;
                                         } else if (col.key === 'name') {
                                             content = (
                                                 <Link
                                                     to={`/${kind}/${item.namespace || '-'}/${val}`}
-                                                    className="font-bold transition-colors truncate block text-[var(--text-resource-kind)] hover:text-primary"
+                                                    className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary"
                                                     title={val}
                                                 >
                                                     {val}
@@ -393,7 +422,7 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/namespaces/-/${val}`}
-                                                    className="text-info hover:underline truncate block text-center"
+                                                    className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs"
                                                     title={val}
                                                 >
                                                     {val}
@@ -403,14 +432,14 @@ export default function ResourceList({ kind }) {
                                             content = (
                                                 <Link
                                                     to={`/nodes/-/${val}`}
-                                                    className="text-info hover:underline truncate block font-mono text-xs text-center"
+                                                    className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold"
                                                     title={val}
                                                 >
                                                     {val}
                                                 </Link>
                                             );
                                         } else {
-                                            content = <span className="text-secondary font-medium truncate block" title={val}>{val}</span>;
+                                            content = <span className="text-muted-foreground font-medium truncate block text-xs" title={val}>{val}</span>;
                                         }
 
                                         return (
@@ -420,22 +449,24 @@ export default function ResourceList({ kind }) {
                                         );
                                     })}
                                     {supportsTrace && (
-                                        <td className="px-2 py-2 whitespace-nowrap text-center">
-                                            <button
+                                        <td className="px-4 py-4 whitespace-nowrap text-center border-r border-border/10">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     navigate(`/${kind}/${item.namespace || '-'}/${item.name}?tab=trace`);
                                                 }}
-                                                className="text-info/70 hover:text-info p-1.5 hover:bg-info/10 rounded inline-flex transition-colors"
+                                                className="h-8 w-8 text-primary/40 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                                                 title="Visual Trace"
                                             >
-                                                <icons.activity size={16} />
-                                            </button>
+                                                <icons.activity size={14} />
+                                            </Button>
                                         </td>
                                     )}
                                     {!isEvent && (
-                                        <td className="px-2 py-2 whitespace-nowrap text-center">
-                                            <div className="flex justify-center">
+                                        <td className="px-4 py-4 whitespace-nowrap text-center">
+                                            <div className="flex justify-end pr-2">
                                                 <ResourceActionMenu
                                                     kind={kind}
                                                     namespace={item.namespace}
@@ -445,48 +476,59 @@ export default function ResourceList({ kind }) {
                                             </div>
                                         </td>
                                     )}
-                                </tr>
+                                </motion.tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </Card>
 
-            {/* Pagination Controls - Restored exact style from main */}
+            {/* Pagination */}
             {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-between glass rounded-xl border border-border px-6 py-4">
-                    <div className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                        {t('showing')} {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} {t('of')} {(items || []).length}
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl"
+                >
+                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
+                        Showing {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} of {(items || []).length} items
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(1)}
-                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
-                            title="First Page"
-                        >
-                            <icons.chevrons_left size={18} />
-                        </button>
-                        <button
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
-                        >
-                            <icons.chevron_left size={18} />
-                        </button>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5 border-r border-border/30 pr-6 mr-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(1)}
+                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
+                            >
+                                <icons.chevrons_left size={16} />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
+                            >
+                                <icons.chevron_left size={16} />
+                            </Button>
+                        </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                             {(Array.from({ length: totalPages }, (_, i) => i + 1) || [])
                                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                                 .map((p, i, arr) => (
                                     <React.Fragment key={p}>
-                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-text-muted px-1">...</span>}
+                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-muted-foreground/30 px-1 font-black">...</span>}
                                         <button
                                             onClick={() => setCurrentPage(p)}
-                                            className={`w-9 h-9 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95
-                                                ${currentPage === p
-                                                    ? 'bg-[var(--accent)] text-white shadow-lg shadow-indigo-500/20'
-                                                    : 'text-text-muted hover:text-primary border border-border hover:border-[var(--accent)]/30'}`}
+                                            className={cn(
+                                                "w-9 h-9 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 border",
+                                                currentPage === p
+                                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-110"
+                                                    : "bg-muted/10 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-foreground hover:bg-muted/30"
+                                            )}
                                         >
                                             {p}
                                         </button>
@@ -495,24 +537,29 @@ export default function ResourceList({ kind }) {
                             }
                         </div>
 
-                        <button
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
-                        >
-                            <icons.chevron_right size={18} />
-                        </button>
-                        <button
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(totalPages)}
-                            className="p-2 rounded-lg border border-border text-text-muted hover:text-primary hover:border-[var(--accent)]/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
-                            title="Last Page"
-                        >
-                            <icons.chevrons_right size={18} />
-                        </button>
+                        <div className="flex items-center gap-1.5 border-l border-border/30 pl-6 ml-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
+                            >
+                                <icons.chevron_right size={16} />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(totalPages)}
+                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
+                            >
+                                <icons.chevrons_right size={16} />
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     );
 }

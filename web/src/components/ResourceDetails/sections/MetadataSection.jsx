@@ -68,7 +68,7 @@ export default function MetadataSection({
             <div className="glass rounded-2xl border border-border overflow-hidden">
                 <table className="w-full text-sm text-left border-collapse table-fixed">
                     <thead>
-                        <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                        <tr className="bg-muted/50 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground border-b border-border">
                             {!isClusterScoped && <th className="px-4 py-2 w-1/6 border-r border-border">{t('label_namespace')}</th>}
                             <th className="px-4 py-2 w-32 border-r border-border text-center">{t('label_age')}</th>
                             <th className="px-4 py-2 border-r border-border">{t('label_labels')}</th>
@@ -81,25 +81,25 @@ export default function MetadataSection({
                                 <td className="px-4 py-3 border-r border-border align-middle">
                                     <div className="flex items-center min-h-[3rem]">
                                         {metadata?.namespace ? (
-                                            <Link to={`/namespaces/-/${metadata.namespace}`} className="text-accent font-bold hover:underline truncate block w-full">
+                                            <Link to={`/namespaces/-/${metadata.namespace}`} className="text-primary font-semibold hover:underline truncate block w-full">
                                                 {metadata.namespace}
                                             </Link>
                                         ) : (
-                                            <span className="text-text-muted italic w-full">—</span>
+                                            <span className="text-muted-foreground italic w-full">—</span>
                                         )}
                                     </div>
                                 </td>
                             )}
                             <td 
-                                className="px-4 py-3 border-r border-border text-center cursor-pointer hover:bg-white/5 transition-colors align-middle"
+                                className="px-4 py-3 border-r border-border text-center cursor-pointer hover:bg-muted/50 transition-colors align-middle"
                                 onClick={() => setShowExactDate(!showExactDate)}
                                 title={showExactDate ? 'Click to show relative age' : 'Click to show exact date'}
                             >
                                 <div className="flex flex-col items-center justify-center min-h-[3rem]">
-                                    <span className="text-primary font-bold whitespace-nowrap">
+                                    <span className="text-foreground font-semibold whitespace-nowrap">
                                         {showExactDate ? formatDate(metadata?.creationTimestamp) : (data?.resource?.age || '—')}
                                     </span>
-                                    <span className="text-[9px] text-text-muted uppercase mt-0.5 opacity-50 font-black">
+                                    <span className="text-[9px] text-muted-foreground uppercase mt-0.5 opacity-70 font-bold">
                                         {showExactDate ? 'Exact' : 'Relative'}
                                     </span>
                                 </div>

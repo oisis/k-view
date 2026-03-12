@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation, useSettings } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 import OverviewTab from './ResourceDetails/OverviewTab';
 import YamlTab from './ResourceDetails/YamlTab';
@@ -42,10 +47,6 @@ const KIND_DISPLAY_MAP = {
     'ServiceAccounts': 'ServiceAccount'
 };
 
-/**
- * ResourceDetails - Unified View for all K8s resources.
- * Consumes aggregated DTO from backend.
- */
 export default function ResourceDetails() {
     const { kind, namespace, name } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -111,7 +112,6 @@ export default function ResourceDetails() {
                     }
                 }
 
-                // Related resources aggregated by backend DTO
                 if (detailsData.relatedReplicaSets) setRelatedReplicaSets(detailsData.relatedReplicaSets);
                 if (detailsData.relatedHpas) setRelatedHpas(detailsData.relatedHpas);
                 if (detailsData.relatedPods) setRelatedPods(detailsData.relatedPods);
@@ -134,20 +134,31 @@ export default function ResourceDetails() {
     }, [kind, namespace, name, activeTab]);
 
     if (loading && !data) return (
-        <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+        <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
+            <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            >
+                <icons.refresh size={32} className="text-primary" />
+            </motion.div>
+            <p className="animate-pulse font-medium">{t('loading')}...</p>
         </div>
     );
 
     if (error) return (
         <div className="p-8">
-            <div className="bg-red-900/30 border border-red-800 text-red-400 p-6 rounded-2xl glass">
-                <h3 className="text-xl font-bold mb-2">{t('error')}</h3>
-                <p>{error}</p>
-                <button onClick={load} className="mt-4 px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <Card className="border-destructive/30 bg-destructive/5 p-8 backdrop-blur-md">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 rounded-2xl bg-destructive/20 text-destructive">
+                        <icons.alert size={24} />
+                    </div>
+                    <h3 className="text-2xl font-black tracking-tight text-destructive uppercase italic">{t('error')}</h3>
+                </div>
+                <p className="text-muted-foreground font-medium mb-6">{error}</p>
+                <Button onClick={load} variant="destructive" className="font-bold uppercase tracking-widest px-8">
                     {t('retry')}
-                </button>
-            </div>
+                </Button>
+            </Card>
         </div>
     );
 
@@ -167,7 +178,6 @@ export default function ResourceDetails() {
             const res = await fetch(url, { method: 'POST' });
             if (!res.ok) throw new Error('Failed to trigger job');
             setIsTriggerModalOpen(false);
-            // Optional: refresh data or show success toast
             load();
         } catch (err) {
             alert(err.message);
@@ -177,164 +187,225 @@ export default function ResourceDetails() {
     };
 
     return (
-        <div className="p-8">
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <button 
+        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto">
+            <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10"
+            >
+                <div className="flex items-center gap-6">
+                    <Button 
+                        variant="outline" 
+                        size="icon"
                         onClick={() => navigate(-1)}
-                        className="p-2 rounded-xl border border-border text-text-muted hover:text-primary hover:border-accent/50 transition-all active:scale-95"
+                        className="rounded-2xl h-12 w-12 border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all active:scale-95"
                     >
-                        <icons.chevron_left size={20} />
-                    </button>
+                        <icons.chevron_left size={24} />
+                    </Button>
                     <div>
-                        <h2 className="text-3xl font-black tracking-tight mb-0.5 text-[var(--text-resource-kind)]">{name}</h2>
-                        <p className="text-sm font-bold tracking-[0.2em] transition-colors duration-300 text-[var(--text-resource-kind)] opacity-80 flex flex-wrap gap-x-6">
-                            <span>Kind: {KIND_DISPLAY_MAP[kind] || data?.extra?.kind || kind}</span>
-                            <span className="font-mono text-[var(--text-green)] opacity-100">UID: {data.metadata?.uid || '—'}</span>
+                        <div className="flex items-center gap-3 mb-1">
+                            <Badge variant="outline" className="font-black uppercase tracking-widest text-[10px] bg-primary/5 text-primary border-primary/20">
+                                {KIND_DISPLAY_MAP[kind] || data?.extra?.kind || kind}
+                            </Badge>
+                            {namespace && namespace !== '-' && (
+                                <Badge variant="secondary" className="font-mono text-[10px] font-bold">
+                                    ns: {namespace}
+                                </Badge>
+                            )}
+                        </div>
+                        <h2 className="text-3xl font-black tracking-tighter text-foreground italic uppercase">
+                            {name}
+                        </h2>
+                        <p className="text-[10px] font-mono text-muted-foreground mt-1.5 font-bold uppercase tracking-widest opacity-60">
+                            UID: <span className="text-primary/70">{data.metadata?.uid || '—'}</span>
                         </p>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center gap-1 bg-glass border border-border p-1 rounded-xl w-fit mb-8 shadow-inner">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-wrap items-center gap-2 bg-muted/30 border border-border/50 p-1.5 rounded-2xl w-fit mb-10 backdrop-blur-sm"
+            >
                 {tabsToDisplay.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setSearchParams({ tab: tab.id })}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-200
-                            ${activeTab === tab.id 
-                                ? 'bg-accent text-white shadow-lg shadow-indigo-500/20 scale-105' 
-                                : 'text-text-muted hover:text-primary hover:bg-sidebar/20'}`}
+                        className={cn(
+                            "relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
+                            activeTab === tab.id 
+                                ? "text-primary-foreground" 
+                                : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
+                        )}
                     >
-                        {t(tab.label)}
+                        {activeTab === tab.id && (
+                            <motion.div
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-primary rounded-xl shadow-lg shadow-primary/20"
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                        )}
+                        <span className="relative z-10">{t(tab.label)}</span>
                     </button>
                 ))}
 
-                {/* Manual Trigger Action for CronJobs */}
                 {(kind?.toLowerCase().includes('cronjob') || data?.kind?.toLowerCase() === 'cronjob') && (
-                    <button
+                    <Button
+                        variant="ghost"
                         onClick={() => setIsTriggerModalOpen(true)}
-                        className="px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-200 text-success hover:bg-success/10 flex items-center gap-2 border-l border-border/50 ml-1 pl-4"
+                        className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10 ml-2 border-l border-border/50 pl-6 rounded-none font-black uppercase tracking-widest text-xs"
                     >
-                        <icons.zap size={14} />
+                        <icons.zap size={16} className="mr-2" />
                         {t('trigger')}
-                    </button>
+                    </Button>
                 )}
-            </div>
+            </motion.div>
 
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {activeTab === 'overview' && (
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-full"
+                >
                     <ErrorBoundary>
-                        <OverviewTab 
-                            data={data} 
-                            kind={kind} 
-                            namespace={namespace} 
-                            name={name}
-                            quotas={quotas}
-                            limits={limits}
-                            relatedJobs={relatedJobs}
-                            relatedPods={relatedPods}
-                            relatedServices={relatedServices}
-                            relatedReplicaSets={relatedReplicaSets}
-                            relatedHpas={relatedHpas}
-                            relatedIngresses={relatedIngresses}
-                            relatedCrdObjects={relatedCrdObjects}
-                            relatedSecrets={relatedSecrets}
-                            relatedImagePullSecrets={relatedImagePullSecrets}
-                            relatedEndpoints={relatedEndpoints}
-                            relatedPvs={relatedPvs}
-                            t={t}
-                            settings={settings}
-                        />
+                        {activeTab === 'overview' && (
+                            <OverviewTab 
+                                data={data} 
+                                kind={kind} 
+                                namespace={namespace} 
+                                name={name}
+                                quotas={quotas}
+                                limits={limits}
+                                relatedJobs={relatedJobs}
+                                relatedPods={relatedPods}
+                                relatedServices={relatedServices}
+                                relatedReplicaSets={relatedReplicaSets}
+                                relatedHpas={relatedHpas}
+                                relatedIngresses={relatedIngresses}
+                                relatedCrdObjects={relatedCrdObjects}
+                                relatedSecrets={relatedSecrets}
+                                relatedImagePullSecrets={relatedImagePullSecrets}
+                                relatedEndpoints={relatedEndpoints}
+                                relatedPvs={relatedPvs}
+                                t={t}
+                                settings={settings}
+                            />
+                        )}
+                        {activeTab === 'yaml' && (
+                            <YamlTab 
+                                kind={kind} 
+                                namespace={namespace} 
+                                name={name} 
+                                canEdit={true}
+                                t={t}
+                                onRefresh={load}
+                            />
+                        )}
+                        {activeTab === 'logs' && (
+                            <LogsTab 
+                                kind={kind}
+                                namespace={namespace} 
+                                name={name} 
+                                containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
+                                t={t} 
+                            />
+                        )}
+                        {activeTab === 'events' && (
+                            <EventsTab 
+                                kind={kind === 'Pods' ? 'Pod' : kind}
+                                namespace={namespace && namespace !== '-' ? namespace : ''}
+                                name={name}
+                                t={t}
+                            />
+                        )}
+                        {activeTab === 'trace' && (
+                            <NetworkTrace 
+                                kind={kind}
+                                namespace={namespace}
+                                name={name}
+                            />
+                        )}
+                        {activeTab === 'exec' && (
+                            <PodTerminal 
+                                namespace={namespace}
+                                pod={name}
+                                containers={data?.spec?.containers || []}
+                            />
+                        )}
                     </ErrorBoundary>
-                )}
-                {activeTab === 'yaml' && (
-                    <YamlTab 
-                        kind={kind} 
-                        namespace={namespace} 
-                        name={name} 
-                        canEdit={true}
-                        t={t}
-                        onRefresh={load}
-                    />
-                )}
-                {activeTab === 'logs' && (
-                    <LogsTab 
-                        kind={kind}
-                        namespace={namespace} 
-                        name={name} 
-                        containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
-                        t={t} 
-                    />
-                )}
-                {activeTab === 'events' && (
-                    <EventsTab 
-                        kind={kind === 'Pods' ? 'Pod' : kind}
-                        namespace={namespace && namespace !== '-' ? namespace : ''}
-                        name={name}
-                        t={t}
-                    />
-                )}
-                {activeTab === 'trace' && (
-                    <ErrorBoundary>
-                        <NetworkTrace 
-                            kind={kind}
-                            namespace={namespace}
-                            name={name}
-                        />
-                    </ErrorBoundary>
-                )}
-                {activeTab === 'exec' && (
-                    <ErrorBoundary>
-                        <PodTerminal 
-                            namespace={namespace}
-                            pod={name}
-                            containers={data?.spec?.containers || []}
-                        />
-                    </ErrorBoundary>
-                )}
-            </div>
+                </motion.div>
+            </AnimatePresence>
 
             {/* Trigger Confirmation Modal */}
-            {isTriggerModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="border border-border rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200" style={{ backgroundColor: 'rgb(var(--color-bg-card))' }}>
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 rounded-2xl bg-success/20 text-success">
-                                <icons.zap size={24} />
-                            </div>
-                            <h3 className="text-xl font-bold text-primary">{t('confirm_trigger_title')}</h3>
-                        </div>
-                        
-                        <p className="text-secondary mb-8 leading-relaxed">
-                            {t('confirm_trigger_message')}
-                        </p>
+            <AnimatePresence>
+                {isTriggerModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+                            onClick={() => setIsTriggerModalOpen(false)}
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative z-10 w-full max-w-md"
+                        >
+                            <Card className="border-border shadow-2xl p-8 bg-card/90 backdrop-blur-xl rounded-[2rem]">
+                                <div className="flex items-center gap-5 mb-6">
+                                    <div className="p-4 rounded-2xl bg-emerald-500/20 text-emerald-500 shadow-inner">
+                                        <icons.zap size={32} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black text-foreground uppercase italic tracking-tight">{t('confirm_trigger_title')}</h3>
+                                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-60">Manual Action</p>
+                                    </div>
+                                </div>
+                                
+                                <p className="text-muted-foreground mb-10 leading-relaxed font-medium">
+                                    {t('confirm_trigger_message')}
+                                </p>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setIsTriggerModalOpen(false)}
-                                className="flex-1 px-6 py-3 rounded-xl border border-border text-primary font-bold hover:bg-sidebar/20 transition-all active:scale-95"
-                            >
-                                {t('no')}
-                            </button>
-                            <button
-                                onClick={handleTrigger}
-                                disabled={triggering}
-                                className="flex-1 px-6 py-3 rounded-xl bg-success text-white font-bold hover:bg-success/90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {triggering ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
-                                ) : (
-                                    <>
-                                        <icons.check size={18} />
-                                        {t('yes')}
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsTriggerModalOpen(false)}
+                                        className="rounded-2xl h-14 font-black uppercase tracking-widest text-xs border-border/50 hover:bg-foreground/5"
+                                    >
+                                        {t('no')}
+                                    </Button>
+                                    <Button
+                                        onClick={handleTrigger}
+                                        disabled={triggering}
+                                        className="rounded-2xl h-14 bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/20"
+                                    >
+                                        {triggering ? (
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                            >
+                                                <icons.refresh size={20} />
+                                            </motion.div>
+                                        ) : (
+                                            <>
+                                                <icons.check size={20} className="mr-2" />
+                                                {t('yes')}
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </Card>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     );
 }

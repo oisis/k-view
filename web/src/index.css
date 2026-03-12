@@ -3,374 +3,132 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   1. THEME & TYPOGRAPHY DEFINITIONS
-   ========================================================================== */
-
-:root {
-  /* --- Typography --- */
-  --font-size-xs: 12px;
-  --font-size-sm: 13px;
-  --font-size-base: 14px;
-  --font-size-lg: 17.5px;
-  --font-size-xl: 21.875px;
-  --font-size-2xl: 27.34px;
-  --font-size-3xl: 34.18px;
-  --font-size-4xl: 42.72px;
-  --font-size-5xl: 53.40px;
-
-  /* --- Global UI Settings --- */
-  --wallpaper-opacity: 0.65;
-  --wallpaper-brightness: 0.6;
-  --wallpaper-grayscale: 0%;
-
-  /* --- Channels: K-View (Default) --- */
-  --color-bg-main: 11 15 25;
-  --color-bg-sidebar: 15 23 42;
-  --color-bg-card: 17 24 39;
-  --color-bg-card-hover: 30 41 59;
-  --color-bg-muted: 17 24 39;
-  --color-bg-glass: 15 23 42;
-  --color-bg-glass-deep: 15 23 42;
-  --color-bg-dropdown: 17 24 39;
-  --color-bg-tooltip: 15 23 42;
-  --color-bg-input: 30 41 59;
-  --color-bg-console: 2 6 23;
-  --color-bg-editor: 13 17 23;
-  --color-border-color: 51 65 85;
-  --color-border-muted: 17 24 39;
-  --color-border-tooltip: 51 65 85;
-  --color-text-primary: 249 250 251;
-  --color-text-secondary: 203 213 225; /* Brightened (Slate-300) */
-  --color-text-muted: 148 163 184;      /* Brightened (Slate-400) */
-  --color-text-white: 255 255 255;
-  --color-text-button: 255 255 255;
-  --color-text-tooltip: 249 250 251;
-  --color-text-input: 255 255 255;
-  --color-text-editor-code: 147 197 253;
-  --color-accent: 99 102 241;
-  --color-accent-hover: 79 70 229;
-  --color-text-info: 96 165 250;
-  --color-text-success: 74 222 128;
-  --color-text-green: 74 222 128;
-  --color-text-warning: 251 191 36;
-  --color-text-error: 248 113 113;
-  --color-text-cluster-name: 252 165 165; /* Light Red (Red-300) */
-  --color-text-purple: 167 139 250;
-  --color-text-orange: 251 146 60;
-  --color-text-cyan: 34 211 238;
-  --color-text-resource-kind: 129 140 248;
-  --color-bg-table-header: 30 41 59;
-  --color-text-table-header: 255 255 255;
-  
-  --wallpaper-opacity: 0.4;
-  --wallpaper-brightness: 0.5;
-  --sidebar-hover: 30 41 59;
-}
-
-.theme-dark {
-  /* --- Channels: Dark (Slate/Gray) --- */
-  --color-bg-main: 9 9 11;
-  --color-bg-sidebar: 0 0 0;
-  --color-bg-card: 12 12 15;
-  --color-bg-card-hover: 24 24 27;
-  --color-bg-muted: 9 9 11;
-  --color-bg-glass: 0 0 0;
-  --color-bg-glass-deep: 0 0 0;
-  --color-bg-dropdown: 12 12 15;
-  --color-bg-tooltip: 12 12 15;
-  --color-bg-input: 24 24 27;
-  --color-bg-console: 0 0 0;
-  --color-bg-editor: 0 0 0;
-  --color-border-color: 39 39 42;
-  --color-border-muted: 9 9 11;
-  --color-border-tooltip: 39 39 42;
-  --color-text-primary: 250 250 250;
-  --color-text-secondary: 212 212 216; /* Brightened (Zinc-300) */
-  --color-text-muted: 161 161 170;      /* Brightened (Zinc-400) */
-  --color-text-white: 255 255 255;
-  --color-text-button: 255 255 255;
-  --color-text-tooltip: 250 250 250;
-  --color-text-input: 255 255 255;
-  --color-text-editor-code: 96 165 250;
-  --color-accent: 59 130 246;
-  --color-accent-hover: 37 99 235;
-  --color-text-info: 96 165 250;
-  --color-text-success: 74 222 128;
-  --color-text-green: 74 222 128;
-  --color-text-warning: 251 191 36;
-  --color-text-error: 248 113 113;
-  --color-text-cluster-name: 252 165 165; /* Light Red (Red-300) */
-  --color-text-purple: 167 139 250;
-  --color-text-orange: 251 146 60;
-  --color-text-cyan: 34 211 238;
-  --color-text-resource-kind: 129 140 248;
-  --color-bg-table-header: 30 41 59;
-  --color-text-table-header: 250 250 250;
-
-  --wallpaper-opacity: 0.5;
-  --wallpaper-brightness: 0.4;
-  --wallpaper-grayscale: 100%;
-}
-
-.theme-light {
-  /* --- Channels: Light --- */
-  --color-bg-main: 255 255 255;
-  --color-bg-sidebar: 241 245 249;
-  --color-bg-card: 255 255 255;
-  --color-bg-card-hover: 248 250 252;
-  --color-bg-muted: 241 245 249;
-  --color-bg-glass: 255 255 255;
-  --color-bg-glass-deep: 255 255 255;
-  --color-bg-dropdown: 255 255 255;
-  --color-bg-tooltip: 255 255 255;
-  --color-bg-input: 241 245 249;
-  --color-bg-console: 248 250 252;
-  --color-bg-editor: 255 255 255;
-  --color-border-color: 96 165 250; /* Blue-400 */
-  --color-border-muted: 96 165 250; /* Unified Blue-400 */
-  --color-border-tooltip: 96 165 250;
-  --color-text-primary: 15 23 42;
-  --color-text-secondary: 71 85 105;
-  --color-text-muted: 100 116 139;
-  --color-text-white: 255 255 255; 
-  --color-text-button: 255 255 255; 
-  --color-text-tooltip: 15 23 42;
-  --color-text-input: 15 23 42;
-  --color-text-editor-code: 15 23 42;
-  --color-accent: 59 130 246;
-  --color-accent-hover: 37 99 235;
-  --color-text-info: 37 99 235;
-  --color-text-success: 22 163 74;
-  --color-text-green: 22 163 74;
-  --color-text-warning: 217 119 6;
-  --color-text-error: 220 38 38;
-  --color-text-cluster-name: 239 68 68;
-  --color-text-purple: 124 58 237;
-  --color-text-orange: 234 88 12;
-  --color-text-cyan: 8 145 178;
-  --color-text-resource-kind: 59 130 246;
-  --color-bg-table-header: 59 130 246;
-  --color-text-table-header: 255 255 255;
-  
-  --wallpaper-opacity: 0.35;
-  --wallpaper-brightness: 0.95;
-  --border-width: 1.5px;
-}
-
-/* ==========================================================================
-   2. LEGACY SUPPORT & COMPATIBILITY LAYER
-   ========================================================================== */
-
-:root, .theme-dark, .theme-light {
-  --bg-main: rgb(var(--color-bg-main) / 0.45); 
-  --bg-sidebar: rgb(var(--color-bg-sidebar) / 0.85);
-  --bg-card: rgb(var(--color-bg-card) / 0.65);
-  --bg-card-hover: rgb(var(--color-bg-card-hover) / 0.85);
-  --bg-muted: rgb(var(--color-bg-muted) / 0.25);
-  --bg-glass: rgb(var(--color-bg-glass) / 0.35);
-  --bg-glass-deep: rgb(var(--color-bg-glass-deep) / 0.75);
-  --bg-dropdown: rgb(var(--color-bg-dropdown) / 0.95);
-  --bg-tooltip: rgb(var(--color-bg-tooltip) / 0.98);
-  --bg-input: rgb(var(--color-bg-input) / 0.6);
-  --bg-console: rgb(var(--color-bg-console) / 0.95);
-  --bg-editor: rgb(var(--color-bg-editor) / 0.85);
-  --bg-overlay: rgb(var(--color-bg-main) / 0.35);
-  --bg-table-header: rgb(var(--color-bg-table-header));
-  --text-table-header: rgb(var(--color-text-table-header));
-
-  --border-color: rgb(var(--color-border-color) / 0.3);
-  --border-muted: rgb(var(--color-border-muted) / 0.15);
-  --border-tooltip: rgb(var(--color-border-tooltip) / 0.4);
-
-  --text-primary: rgb(var(--color-text-primary));
-  --text-secondary: rgb(var(--color-text-secondary));
-  --text-muted: rgb(var(--color-text-muted));
-  --text-white: rgb(var(--color-text-white));
-  --text-button: rgb(var(--color-text-button));
-  --text-tooltip: rgb(var(--color-text-tooltip));
-  --text-input: rgb(var(--color-text-input));
-  --text-editor-code: rgb(var(--color-text-editor-code));
-
-  --accent: rgb(var(--color-accent));
-  --accent-hover: rgb(var(--color-accent-hover));
-  --text-info: rgb(var(--color-text-info));
-  --text-success: rgb(var(--color-text-success));
-  --text-green: rgb(var(--color-text-green));
-  --text-warning: rgb(var(--color-text-warning));
-  --text-error: rgb(var(--color-text-error));
-  --text-cluster-name: rgb(var(--color-text-cluster-name));
-  --text-purple: rgb(var(--color-text-purple));
-  --text-orange: rgb(var(--color-text-orange));
-  --text-cyan: rgb(var(--color-text-cyan));
-  --text-resource-kind: rgb(var(--color-text-resource-kind));
-  
-  --sidebar-hover: rgb(var(--color-bg-card-hover) / 0.2);
-}
-
-/* Adjustments for Light theme to ensure solid borders */
-.theme-light {
-  --border-color: rgb(var(--color-border-color)); /* Force 1.0 opacity */
-  --border-muted: rgb(var(--color-border-muted)); /* Force 1.0 opacity */
-}
-
-/* ==========================================================================
-   3. GLOBAL STYLES & RESETS
+   1. CORE VARIABLES (HSL Palette - Standard Shadcn Zinc)
    ========================================================================== */
 
 @layer base {
-  body {
-    @apply bg-main text-secondary antialiased transition-colors duration-200;
-    font-family: var(--font-sans, sans-serif);
-    font-size: var(--font-size-base);
-    background-color: rgb(var(--color-bg-main)) !important; 
+  :root, .light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+
+    --success: 142.1 76.2% 36.3%;
+    --warning: 38 92% 50%;
+    --info: 221.2 83.2% 53.3%;
+
+    --wallpaper-opacity: 0.03;
   }
 
-  table {
-    border-collapse: collapse !important;
-    width: 100%;
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    --wallpaper-opacity: 0.2;
   }
 
-  table, tbody, tfoot, tr, td {
-    background-color: transparent !important;
-    background-image: none !important;
-  }
+  .theme-k-view.dark, .theme-k-view {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
 
-  th {
-    text-align: center !important;
-  }
-
-  thead {
-    background-color: var(--bg-table-header) !important;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 900;
-    border-bottom: 2px solid var(--border-color) !important;
-  }
-
-  thead th {
-    color: var(--text-table-header) !important;
-    background-color: var(--bg-table-header) !important;
+    --wallpaper-opacity: 0.15;
   }
 }
 
-/* --- Base heading style (can be overridden by utility classes) --- */
-h1, h2, h3, h4 {
-  @apply font-bold text-primary;
+/* ==========================================================================
+   2. GLOBAL TYPOGRAPHY & RESET
+   ========================================================================== */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  /* 
+     Legacy variable mapping: forcing all text variables to follow foreground.
+     We must override any inline styles or legacy CSS that uses these.
+  */
+  :root, .dark, .theme-k-view, .light {
+    --text-primary: hsl(var(--foreground));
+    --text-secondary: hsl(var(--muted-foreground));
+    --text-muted: hsl(var(--muted-foreground));
+    --text-white: hsl(var(--foreground));
+    --color-text-white: hsl(var(--foreground));
+    --color-text-primary: hsl(var(--foreground));
+    --bg-main: hsl(var(--background));
+    --bg-card: hsl(var(--card));
+    --border-color: hsl(var(--border));
+  }
+
+  /* Only in dark modes can 'white' actually be white for high contrast headers */
+  .dark, .theme-k-view {
+    --text-white: #ffffff;
+    --color-text-white: #ffffff;
+  }
+
+  /* Table Contrast Fixes */
+  table { @apply w-full border-collapse text-sm; }
+  thead { @apply bg-muted/50 border-b border-border; }
+  th { @apply px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider; }
+  td { @apply px-4 py-3 border-b border-border/50 text-foreground; }
 }
 
 @layer utilities {
-  .glass {
-    background-color: var(--bg-glass) !important;
-    backdrop-filter: blur(12px) saturate(160%) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
-  }
-  .scrollbar-hide {
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) rgb(var(--color-bg-sidebar) / 0.1);
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-  }
-  .scrollbar-hide::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-hide::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-    border: 1.5px solid transparent;
-    background-clip: padding-box;
-  }
+  .glass { @apply backdrop-blur-md bg-background/80 border border-border/50; }
+  .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important; }
 }
-
-/* --- Global Table & Border Styles --- */
-.border, .border-b, .border-t, .border-l, .border-r,
-table td, table th,
-.divide-y > :not([hidden]) ~ :not([hidden]) {
-  border-color: var(--border-color) !important;
-  border-width: 1px;
-}
-
-/* Thicker borders for all themes for consistency */
-.border, .border-b, .border-t, .border-l, .border-r {
-  border-width: 1.5px;
-}
-
-table td, table th {
-  border-bottom-width: 1.5px !important;
-}
-
-/* --- Inverted headers for DetailSection (Unified across all themes) --- */
-.detail-section-header {
-  background-color: #1e3a8a !important; /* Deep Blue (Blue-900) */
-}
-
-.detail-section-header h3 {
-  color: #ffffff !important;
-}
-
-/* --- Mermaid Diagram Styling (K-View System) --- */
-.mermaid .node rect, 
-.mermaid .node circle, 
-.mermaid .node ellipse, 
-.mermaid .node polygon, 
-.mermaid .node path {
-  transition: all 0.2s ease;
-}
-
-/* Node Classes mapped to K-View variables */
-.node-healthy rect, .node-healthy path, .node-healthy polygon {
-  fill: var(--bg-card) !important;
-  stroke: var(--border-color) !important;
-  stroke-width: 1.5px !important;
-}
-
-.node-unhealthy rect, .node-unhealthy path, .node-unhealthy polygon {
-  fill: var(--bg-muted) !important;
-  stroke: var(--text-error) !important;
-  stroke-width: 2px !important;
-}
-
-.node-external rect, .node-external path, .node-external polygon {
-  fill: var(--bg-muted) !important;
-  stroke: var(--text-success) !important;
-  stroke-width: 1.5px !important;
-}
-
-/* Edge paths general properties */
-.edgePath .path {
-  stroke-width: 2px !important;
-}
-
-/* Trace Edge Labels (Port Mappings) */
-.trace-edge-label {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-weight: 900;
-  font-size: 12px;
-  cursor: pointer;
-  pointer-events: all !important;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff !important; /* Always white text for these badges */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s ease;
-}
-
-.trace-edge-label:hover {
-  transform: scale(1.05);
-}
-
-.trace-edge-label.healthy {
-  background-color: #16a34a !important; /* Solid Green-600 for visibility */
-}
-
-.theme-dark .trace-edge-label.healthy {
-  background-color: #059669 !important; /* Solid Emerald-600 */
-}
-
-.trace-edge-label.unhealthy {
-  background-color: #dc2626 !important; /* Solid Red-600 */
-}
-

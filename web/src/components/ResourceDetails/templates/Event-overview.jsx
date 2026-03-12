@@ -15,7 +15,7 @@ export default function EventOverview({ data, extra, t }) {
                         </tr>
                         <tr>
                             <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Message</td>
-                            <td className="px-4 py-3 text-primary">{data.extra?.message || extra?.message || '—'}</td>
+                            <td className="px-4 py-3 text-foreground">{data.extra?.message || extra?.message || '—'}</td>
                         </tr>
                         <tr>
                             <td className="px-4 py-3 text-text-muted font-bold uppercase text-[10px] tracking-widest w-1/4">Source</td>

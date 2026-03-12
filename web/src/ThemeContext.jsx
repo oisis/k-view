@@ -115,9 +115,20 @@ export function ThemeProvider({ children }) {
     // Effect to apply theme class and update localStorage
     useEffect(() => {
         const root = document.documentElement;
-        // Remove previous theme classes and apply the new one
-        root.className = ''; 
-        root.classList.add(`theme-${activeTheme}`);
+        
+        // Remove all possible theme classes
+        root.classList.remove('dark', 'light', 'theme-dark', 'theme-light', 'theme-k-view');
+        
+        // Apply only the one specific class for the active theme
+        // If it's a dark theme variant, we still add 'dark' for Tailwind's dark: prefix
+        if (activeTheme === 'dark') {
+            root.classList.add('dark');
+        } else if (activeTheme === 'k-view') {
+            root.classList.add('theme-k-view');
+            root.classList.add('dark'); // We keep 'dark' so Shadcn components know it's a dark background
+        } else {
+            root.classList.add('light');
+        }
 
         // Update local storage
         localStorage.setItem('kview-theme', activeTheme);

@@ -207,7 +207,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                             >
                                 <icons.chevron_left size={14} />
                             </button>
-                            <span className="text-xs font-mono text-white font-bold px-1 min-w-[4rem] text-center">
+                            <span className="text-xs font-mono text-foreground font-bold px-1 min-w-[4rem] text-center">
                                 {logPage} / {totalPages}
                             </span>
                             <button
@@ -245,7 +245,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
             </div>
 
             <div
-                className={`flex-1 pt-2 px-6 pb-6 font-mono overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] bg-[var(--bg-editor)] ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}
+                className={`flex-1 pt-2 px-6 pb-6 font-mono overflow-auto scrollbar-thin scrollbar-thumb-border bg-muted/20 ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}
                 style={{ fontSize: `${logFontSize}px` }}
             >
                 {displayedLines.length > 0 ? (
@@ -255,7 +255,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                         const isInfo = /info|success/i.test(line);
 
                         return (
-                            <div key={i} className={`hover:bg-[var(--bg-muted)] px-2 -mx-2 transition-colors ${isError ? 'text-error' : isWarn ? 'text-warning' : isInfo ? 'text-info' : 'text-secondary'}`}>
+                            <div key={i} className={`hover:bg-accent/30 px-2 -mx-2 transition-colors ${isError ? 'text-destructive font-semibold' : isWarn ? 'text-orange-500 font-semibold' : isInfo ? 'text-emerald-500 font-semibold' : 'text-foreground'}`}>
                                 {line}
                             </div>
                         );

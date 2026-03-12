@@ -16,7 +16,7 @@ export default function ClusterRoleBindingOverview({ data, spec, t }) {
     ];
 
     const subColumns = [
-        { header: 'Name', accessor: 'name', className: 'font-bold text-primary' },
+        { header: 'Name', accessor: 'name', className: 'text-foreground' },
         { header: 'Namespaces', accessor: 'namespace', className: 'text-secondary font-medium' },
         { header: 'Kind', accessor: (s) => <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">{s.kind}</span> },
         { header: 'API Group', accessor: (s) => s.apiGroup || (s.kind === 'ServiceAccount' ? 'core' : 'rbac.authorization.k8s.io'), className: 'font-mono text-xs' }

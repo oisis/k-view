@@ -84,23 +84,23 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
     }
 
     return (
-        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
-            <div className="flex items-center justify-between px-4 py-2 bg-[var(--text-white)]/5 border-b border-border/20">
+        <div className="bg-card rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
+            <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border/20">
                 <div className="flex items-center gap-4">
-                    <span className="text-xs uppercase font-bold text-text-muted tracking-wider">
+                    <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                     </span>
                     {!isEditing && (
-                        <div className="flex bg-black/30 rounded p-0.5 ml-2">
+                        <div className="flex bg-background/50 rounded p-0.5 ml-2 border border-border/50">
                             <button
                                 onClick={() => setFormat('yaml')}
-                                className={`px-3 py-0.5 text-[10px] font-black rounded transition-all ${format === 'yaml' ? 'bg-accent text-white shadow-sm' : 'text-white hover:bg-white/10'}`}
+                                className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'yaml' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
                             >
                                 YAML
                             </button>
                             <button
                                 onClick={() => setFormat('json')}
-                                className={`px-3 py-0.5 text-[10px] font-black rounded transition-all ${format === 'json' ? 'bg-accent text-white shadow-sm' : 'text-white hover:bg-white/10'}`}
+                                className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'json' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
                             >
                                 JSON
                             </button>

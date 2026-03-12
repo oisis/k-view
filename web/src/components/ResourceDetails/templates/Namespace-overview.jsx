@@ -16,7 +16,7 @@ export default function NamespaceOverview({ data, metadata, status, quotas = [],
                         {Object.keys(hard).map(k => (
                             <div key={k} className="text-[10px] flex gap-2">
                                 <span className="font-bold text-text-muted w-24 uppercase truncate">{k}:</span>
-                                <span className="text-primary font-mono">{used[k] || '0'} / {hard[k]}</span>
+                                <span className="text-foreground font-mono">{used[k] || '0'} / {hard[k]}</span>
                             </div>
                         ))}
                     </div>

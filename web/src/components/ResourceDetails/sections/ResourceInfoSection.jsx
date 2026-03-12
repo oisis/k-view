@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DetailSection from '../DetailSection';
-import DetailRow from '../DetailRow';
-import ExpandableCell from '../ExpandableCell';
 import { useTheme } from '../../../ThemeContext';
+import { cn } from "@/lib/utils";
 
 /**
  * ResourceInfoSection - Dynamic info display based on YAML specs.
@@ -28,14 +27,14 @@ export default function ResourceInfoSection({
         return (
             <div className="flex flex-col gap-1 items-center justify-center">
                 {displayEntries.map(([k, v]) => (
-                    <span key={k} className="px-2 py-0.5 bg-info/10 text-info border border-info/20 rounded text-[10px] font-mono whitespace-nowrap">
+                    <span key={k} className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded text-[10px] font-mono whitespace-nowrap">
                         {k}={v}
                     </span>
                 ))}
                 {hasMore && (
                     <button 
                         onClick={() => setShowAllSelector(!showAllSelector)}
-                        className="text-[9px] font-black uppercase tracking-widest text-accent hover:text-accent/80 mt-1"
+                        className="text-[9px] font-semibold uppercase tracking-wider text-primary hover:underline mt-1"
                     >
                         {showAllSelector ? 'Less' : `More (${entries.length - limit})`}
                     </button>
@@ -43,6 +42,10 @@ export default function ResourceInfoSection({
             </div>
         );
     };
+
+    const headerClass = "bg-muted/50 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground border-b border-border";
+    const cellClass = "px-4 py-3 text-center border-r border-border text-foreground font-medium";
+    const lastCellClass = "px-4 py-3 text-center text-foreground font-medium";
 
     return (
         <div className="space-y-1">
@@ -52,7 +55,7 @@ export default function ResourceInfoSection({
                     <div className="glass rounded-2xl border border-border overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <tr className={headerClass}>
                                     <th className="px-4 py-2 text-center border-r border-border">{t('label_node')}</th>
                                     <th className="px-4 py-2 text-center border-r border-border">{t('label_status')}</th>
                                     <th className="px-4 py-2 text-center border-r border-border">IP</th>
@@ -62,18 +65,18 @@ export default function ResourceInfoSection({
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="text-primary font-bold align-middle">
-                                    <td className="px-4 py-3 text-center border-r border-border">
-                                        <Link to={`/nodes/-/${spec?.nodeName}`} className="text-info hover:underline font-mono">{spec?.nodeName || '—'}</Link>
+                                <tr className="align-middle">
+                                    <td className={cellClass}>
+                                        <Link to={`/nodes/-/${spec?.nodeName}`} className="text-primary hover:underline font-mono">{spec?.nodeName || '—'}</Link>
                                     </td>
-                                    <td className="px-4 py-3 text-center border-r border-border">
-                                        <span className={status?.phase === 'Running' ? 'text-success' : 'text-warning'}>{status?.phase || '—'}</span>
+                                    <td className={cellClass}>
+                                        <span className={status?.phase === 'Running' ? 'text-emerald-600 font-bold' : 'text-orange-600 font-bold'}>{status?.phase || '—'}</span>
                                     </td>
-                                    <td className="px-4 py-3 text-center border-r border-border font-mono">{status?.podIP || '—'}</td>
-                                    <td className="px-4 py-3 text-center border-r border-border">{status?.qosClass || '—'}</td>
-                                    <td className="px-4 py-3 text-center border-r border-border">{data?.extra?.restarts || 0}</td>
-                                    <td className="px-4 py-3 text-center">
-                                        <Link to={`/serviceaccounts/${data?.resource?.namespace}/${spec?.serviceAccountName}`} className="text-accent hover:underline">{spec?.serviceAccountName || '—'}</Link>
+                                    <td className={cn(cellClass, "font-mono")}>{status?.podIP || '—'}</td>
+                                    <td className={cellClass}>{status?.qosClass || '—'}</td>
+                                    <td className={cellClass}>{data?.extra?.restarts || 0}</td>
+                                    <td className={lastCellClass}>
+                                        <Link to={`/serviceaccounts/${data?.resource?.namespace}/${spec?.serviceAccountName}`} className="text-primary font-semibold hover:underline">{spec?.serviceAccountName || '—'}</Link>
                                     </td>
                                 </tr>
                             </tbody>
@@ -88,7 +91,7 @@ export default function ResourceInfoSection({
                     <div className="glass rounded-2xl border border-border overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <tr className={headerClass}>
                                     <th className="px-6 py-2 text-center border-r border-border">Strategy</th>
                                     <th className="px-6 py-2 text-center border-r border-border">Min ready seconds</th>
                                     <th className="px-6 py-2 text-center border-r border-border">Revision history Limit</th>
@@ -96,11 +99,11 @@ export default function ResourceInfoSection({
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="text-primary font-bold align-middle">
-                                    <td className="px-6 py-4 text-center border-r border-border">{spec?.strategy?.type || '—'}</td>
-                                    <td className="px-6 py-4 text-center border-r border-border">{spec?.minReadySeconds || 0}</td>
-                                    <td className="px-6 py-4 text-center border-r border-border">{spec?.revisionHistoryLimit || '—'}</td>
-                                    <td className="px-6 py-4 text-center">
+                                <tr className="align-middle">
+                                    <td className={cn(cellClass, "px-6")}>{spec?.strategy?.type || '—'}</td>
+                                    <td className={cn(cellClass, "px-6")}>{spec?.minReadySeconds || 0}</td>
+                                    <td className={cn(cellClass, "px-6")}>{spec?.revisionHistoryLimit || '—'}</td>
+                                    <td className={cn(lastCellClass, "px-6")}>
                                         {renderSelector(spec?.selector?.matchLabels)}
                                     </td>
                                 </tr>
@@ -116,7 +119,7 @@ export default function ResourceInfoSection({
                     <div className="glass rounded-2xl border border-border overflow-hidden">
                         <table className="w-full text-sm text-left border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
+                                <tr className={headerClass}>
                                     <th className="px-4 py-2 text-center border-r border-border">{t('label_schedule')}</th>
                                     <th className="px-4 py-2 text-center border-r border-border">{t('label_active')}</th>
                                     <th className="px-4 py-2 text-center border-r border-border">{t('label_suspend')}</th>
@@ -125,14 +128,14 @@ export default function ResourceInfoSection({
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="text-primary font-bold align-middle">
-                                    <td className="px-4 py-3 text-center border-r border-border font-mono">{spec?.schedule || '—'}</td>
-                                    <td className="px-4 py-3 text-center border-r border-border">{status?.active?.length || 0}</td>
-                                    <td className="px-4 py-3 text-center border-r border-border">
-                                        <span className={spec?.suspend ? 'text-warning' : 'text-success'}>{String(spec?.suspend || false)}</span>
+                                <tr className="align-middle">
+                                    <td className={cn(cellClass, "font-mono")}>{spec?.schedule || '—'}</td>
+                                    <td className={cellClass}>{status?.active?.length || 0}</td>
+                                    <td className={cellClass}>
+                                        <span className={spec?.suspend ? 'text-orange-600 font-bold' : 'text-emerald-600 font-bold'}>{String(spec?.suspend || false)}</span>
                                     </td>
-                                    <td className="px-4 py-3 text-center border-r border-border text-xs">{status?.lastScheduleTime || '—'}</td>
-                                    <td className="px-4 py-3 text-center">{spec?.concurrencyPolicy || '—'}</td>
+                                    <td className={cn(cellClass, "text-xs font-mono")}>{status?.lastScheduleTime || '—'}</td>
+                                    <td className={lastCellClass}>{spec?.concurrencyPolicy || '—'}</td>
                                 </tr>
                             </tbody>
                         </table>

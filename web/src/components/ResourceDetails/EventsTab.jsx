@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DetailSection from './DetailSection';
+import { cn } from "@/lib/utils";
 
 export default function EventsTab({ kind, namespace, name, t }) {
     const [events, setEvents] = useState([]);
@@ -28,7 +29,7 @@ export default function EventsTab({ kind, namespace, name, t }) {
     if (loading) {
         return (
             <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
-                <div className="p-8 text-center text-text-muted">{t('loading')}</div>
+                <div className="p-8 text-center text-muted-foreground font-medium">{t('loading')}...</div>
             </DetailSection>
         );
     }
@@ -37,46 +38,51 @@ export default function EventsTab({ kind, namespace, name, t }) {
         <DetailSection title={t('recent_events')} className="flex-1 min-h-[400px]">
             <table className="w-full text-sm border-collapse">
                 <thead>
-                    <tr>
-                        <th className="px-6 py-3">{t('label_name')}</th>
-                        <th className="px-6 py-3">{t('reason')}</th>
-                        <th className="px-6 py-3">{t('message')}</th>
-                        <th className="px-6 py-3">{t('label_source')}</th>
-                        <th className="px-6 py-3">Sub-object</th>
-                        <th className="px-6 py-3 text-center">{t('label_count')}</th>
-                        <th className="px-6 py-3">First Seen</th>
-                        <th className="px-6 py-3">Last Seen</th>
+                    <tr className="bg-muted/50">
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('label_name')}</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('reason')}</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('message')}</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('label_source')}</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sub-object</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">{t('label_count')}</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">First Seen</th>
+                        <th className="px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Last Seen</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-color)] text-left">
+                <tbody className="divide-y divide-border text-left">
                     {events && events.length > 0 ? (events || []).map((e, i) => (
-                        <tr key={i} className="hover:bg-white/5 transition-colors">
+                        <tr key={i} className="hover:bg-muted/50 transition-colors group">
                             <td className="px-6 py-4">
-                                <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${e.type === 'Warning' ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                                <span className={cn(
+                                    "px-2 py-0.5 rounded text-[11px] font-mono font-semibold border",
+                                    e.type === 'Warning' 
+                                        ? 'bg-destructive/10 text-destructive border-destructive/20' 
+                                        : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                )}>
                                     {e.name || '—'}
                                 </span>
                             </td>
-                            <td className="px-6 py-4 font-medium text-[var(--text-white)]">{e.reason}</td>
-                            <td className="px-6 py-4 text-secondary max-w-md break-words">{e.message}</td>
-                            <td className="px-6 py-4 text-text-muted text-xs">
+                            <td className="px-6 py-4 font-semibold text-foreground">{e.reason}</td>
+                            <td className="px-6 py-4 text-foreground max-w-md break-words leading-relaxed">{e.message}</td>
+                            <td className="px-6 py-4 text-muted-foreground text-xs italic">
                                 {e.source?.component || e.source || '—'}
                             </td>
-                            <td className="px-6 py-4 text-secondary text-xs font-mono break-all max-w-[150px]">
+                            <td className="px-6 py-4 text-foreground text-[11px] font-mono break-all max-w-[150px] opacity-80">
                                 {e.subObject || '—'}
                             </td>
-                            <td className="px-6 py-4 text-secondary text-center font-bold">
+                            <td className="px-6 py-4 text-foreground text-center font-mono font-bold">
                                 {e.count || 1}
                             </td>
-                            <td className="px-6 py-4 text-text-muted whitespace-nowrap text-xs">
+                            <td className="px-6 py-4 text-muted-foreground text-xs whitespace-nowrap">
                                 {e.firstSeen || e.age || '—'}
                             </td>
-                            <td className="px-6 py-4 text-primary font-bold whitespace-nowrap text-xs">
+                            <td className="px-6 py-4 text-foreground font-semibold whitespace-nowrap text-xs">
                                 {e.lastSeen || e.age || '—'}
                             </td>
                         </tr>
                     )) : (
                         <tr>
-                            <td colSpan="8" className="px-6 py-8 text-center text-text-muted">
+                            <td colSpan="8" className="px-6 py-12 text-center text-muted-foreground italic">
                                 {t('no_events')}
                             </td>
                         </tr>

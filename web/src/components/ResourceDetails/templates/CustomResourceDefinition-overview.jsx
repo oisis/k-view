@@ -43,7 +43,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold align-middle text-center">
+                            <tr className="text-foreground align-middle text-center">
                                 <td className="px-4 py-4 border-r border-border">{spec?.versions?.[0]?.name || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">{spec?.scope || '—'}</td>
                                 <td className="px-4 py-4">{spec?.group || '—'}</td>
@@ -66,7 +66,7 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-primary font-bold align-middle text-center">
+                            <tr className="text-foreground align-middle text-center">
                                 <td className="px-4 py-4 border-r border-border font-mono text-accent">{names.plural || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">{names.singular || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">
