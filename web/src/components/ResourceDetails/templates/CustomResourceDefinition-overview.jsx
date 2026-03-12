@@ -67,10 +67,10 @@ export default function CrdOverview({ data, metadata, spec, status, relatedCrdOb
                         </thead>
                         <tbody>
                             <tr className="text-foreground align-middle text-center">
-                                <td className="px-4 py-4 border-r border-border font-mono text-accent">{names.plural || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-primary">{names.plural || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">{names.singular || '—'}</td>
                                 <td className="px-4 py-4 border-r border-border">
-                                    <span className="px-2 py-1 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">
+                                    <span className="px-2 py-1 bg-primary/10 text-primary rounded text-[10px] font-black uppercase border border-accent/20">
                                         {names.kind || '—'}
                                     </span>
                                 </td>

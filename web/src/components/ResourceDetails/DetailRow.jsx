@@ -8,7 +8,7 @@ export default function DetailRow({ label, value, children }) {
             </td>
             <td className="px-4 py-3 text-sm text-primary">
                 {children || (
-                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[var(--text-white)]'}>
+                    <span className={label === 'UID' || label === 'Name' ? 'font-mono text-info' : 'text-[hsl(var(--foreground))]'}>
                         {value ?? '—'}
                     </span>
                 )}

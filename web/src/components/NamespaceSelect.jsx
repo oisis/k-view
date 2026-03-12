@@ -48,7 +48,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                     if (!open) setRect(e.currentTarget.getBoundingClientRect());
                     setOpen(o => !o);
                 }}
-                className="flex items-center gap-2 bg-card border border-border text-primary text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
+                className="flex items-center gap-2 bg-card border border-border text-foreground text-sm rounded-lg px-3 py-2 hover:border-info focus:outline-none focus:ring-1 focus:ring-info transition-colors min-w-[200px] justify-between"
             >
                 <span className="flex items-center gap-2">
                     {icons.nodes && <icons.nodes size={14} className="text-text-muted" />}
@@ -105,8 +105,8 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                         key={ns}
                                         onClick={() => selectNs(ns)}
                                         className={`flex items-center gap-2 px-4 py-1 text-sm cursor-pointer transition-colors rounded-md mx-1
-                      ${isSelected ? 'bg-accent text-white font-bold' : 
-                        isSystem ? 'text-primary hover:bg-red-500/20 bg-red-500/5' : 'text-primary hover:bg-sidebar/20'}`}
+                      ${isSelected ? 'bg-accent text-primary-foreground font-bold' : 
+                        isSystem ? 'text-foreground hover:bg-red-500/20 bg-red-500/5' : 'text-foreground hover:bg-sidebar/20'}`}
                                     >
                                         {icons.nodes && <icons.nodes size={12} className={isSystem ? 'text-red-400' : 'text-text-muted'} />}
                                         <span className="flex-1 text-left">{ns}</span>

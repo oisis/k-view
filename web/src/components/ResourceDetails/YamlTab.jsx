@@ -133,7 +133,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         <>
                             <button
                                 onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[var(--text-white)] transition-colors uppercase tracking-wider"
+                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[hsl(var(--foreground))] transition-colors uppercase tracking-wider"
                                 disabled={isSaving}
                             >
                                 {t('cancel')}
@@ -180,7 +180,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         </>
                     )}
                     {!isEditing && (
-                        <button className="text-text-muted hover:text-[var(--text-white)] transition-colors" onClick={() => {
+                        <button className="text-text-muted hover:text-[hsl(var(--foreground))] transition-colors" onClick={() => {
                             navigator.clipboard.writeText(yaml).then(() => {
                                 setShowSuccess(true);
                                 setTimeout(() => setShowSuccess(false), 2000);

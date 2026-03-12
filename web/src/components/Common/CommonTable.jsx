@@ -20,7 +20,7 @@ export default function CommonTable({
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr className="bg-white/5 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-text-muted">
+                        <tr className="bg-muted/50 border-b border-border/30 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
                             {columns.map((col, idx) => (
                                 <th 
                                     key={idx} 
@@ -36,7 +36,7 @@ export default function CommonTable({
                             <tr>
                                 <td 
                                     colSpan={columns.length} 
-                                    className="px-4 py-8 text-center text-text-muted italic bg-sidebar/5"
+                                    className="px-4 py-8 text-center text-muted-foreground italic bg-sidebar/5"
                                 >
                                     {t?.('no_data_available') || 'No data available'}
                                 </td>
@@ -45,7 +45,7 @@ export default function CommonTable({
                             data.map((item, rowIdx) => (
                                 <tr 
                                     key={rowIdx} 
-                                    className="hover:bg-white/5 transition-colors group"
+                                    className="hover:bg-muted/50 transition-colors group"
                                 >
                                     {columns.map((col, colIdx) => (
                                         <td 

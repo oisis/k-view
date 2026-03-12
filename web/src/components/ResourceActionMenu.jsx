@@ -216,7 +216,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
             <button
                 onClick={toggleMenu}
-                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary hover:bg-sidebar/20'}`}
+                className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-accent text-primary-foreground shadow-lg' : 'text-text-muted hover:text-primary hover:bg-sidebar/20'}`}
             >
                 {icons.more ? <icons.more size={16} /> : <span>•••</span>}
             </button>
@@ -235,16 +235,16 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 >
                     <div className="w-56 bg-[var(--bg-dropdown)]/80 backdrop-blur-xl glass border border-border rounded-xl shadow-2xl overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                         {(isPod || isWorkload) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-accent hover:text-white hover:bg-[var(--accent)] transition-colors uppercase tracking-wider group">
+                            <button onClick={(e) => handleActionTrigger(e, 'restart')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors uppercase tracking-wider group">
                                 {icons.refresh && <icons.refresh size={14} className="group-hover:rotate-180 transition-transform duration-500" />} {t('restart')}
                             </button>
                         )}
                         {isCronJob && (
-                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-emerald-400 hover:text-white hover:bg-emerald-500 transition-colors uppercase tracking-wider group">
+                            <button onClick={(e) => executeTrigger(e)} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-black text-emerald-400 hover:text-primary-foreground hover:bg-emerald-500 transition-colors uppercase tracking-wider group">
                                 {icons.zap && <icons.zap size={14} className="group-hover:scale-125 transition-transform" />} {t('run_now')}
                             </button>
                         )}
-                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                        <button onClick={(e) => handleActionTrigger(e, 'edit')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                             {icons.edit && <icons.edit size={14} />} {t('edit')}
                         </button>
                         <button onClick={(e) => handleActionTrigger(e, 'delete')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors group">
@@ -252,27 +252,27 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                         </button>
 
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'describe')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                                 {icons.external_link && <icons.external_link size={14} />} {t('view_details')}
                             </button>
                         )}
                         {isScalable && (
-                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'scale')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                                 {icons.activity && <icons.activity size={14} />} {t('scale_replicas')}
                             </button>
                         )}
                         {(isPod || isDaemonSet || isJob || isReplicaSet || isStatefulSet || isReplicationController) && (
-                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'logs')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('view_logs')}
                             </button>
                         )}
                         {isPod && (
-                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'exec')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                                 {icons.terminal && <icons.terminal size={14} />} {t('exec_shell')}
                             </button>
                         )}
                         {!isIngress && !isService && !isClusterRoleBinding && !isClusterRole && !isNamespace && !isNetworkPolicy && !isRoleBinding && !isRole && !isServiceAccount && (
-                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-accent hover:text-white hover:bg-[var(--accent)] transition-colors">
+                            <button onClick={(e) => handleActionTrigger(e, 'export')} className="w-full flex items-center gap-3 px-4 py-1.5 text-xs font-bold text-foreground hover:text-primary-foreground hover:bg-[var(--accent)] transition-colors">
                                 {icons.download && <icons.download size={14} />} {t('export_yaml')}
                             </button>
                         )}
@@ -294,7 +294,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             {icons.alert_triangle && <icons.alert_triangle size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-primary">{t('confirm_delete')}</h3>
+                                            <h3 className="text-lg font-bold text-foreground">{t('confirm_delete')}</h3>
                                             <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
@@ -306,16 +306,16 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             onChange={(e) => setForceDelete(e.target.checked)}
                                             className="w-4 h-4 rounded border-border bg-transparent text-rose-500 focus:ring-0"
                                         />
-                                        <span className="text-sm font-medium text-secondary group-hover:text-primary transition-colors">
+                                        <span className="text-sm font-medium text-secondary group-hover:text-foreground transition-colors">
                                             {t('force_delete')}
                                         </span>
                                     </label>
 
                                     <div className="flex gap-3">
-                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => { setConfirmAction(null); setForceDelete(false); }} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-foreground text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
-                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
+                                        <button onClick={executeDelete} disabled={isProcessing} className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-primary-foreground text-sm font-bold uppercase rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
                                             {isProcessing ? '...' : t('delete_now')}
                                         </button>
                                     </div>
@@ -329,15 +329,15 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             {icons.zap && <icons.zap size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-primary">{t('confirm_restart')}</h3>
+                                            <h3 className="text-lg font-bold text-foreground">{t('confirm_restart')}</h3>
                                             <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-foreground text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
-                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-bold uppercase rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">
+                                        <button onClick={executeRestart} disabled={isProcessing} className="flex-1 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-primary-foreground text-sm font-bold uppercase rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all">
                                             {isProcessing ? '...' : t('restart')}
                                         </button>
                                     </div>
@@ -351,7 +351,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             {icons.activity && <icons.activity size={24} />}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-primary">{t('set_replicas')}</h3>
+                                            <h3 className="text-lg font-bold text-foreground">{t('set_replicas')}</h3>
                                             <p className="text-sm text-secondary">{name}</p>
                                         </div>
                                     </div>
@@ -364,7 +364,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                             type="number"
                                             value={scaleValue}
                                             onChange={(e) => setScaleValue(parseInt(e.target.value) || 0)}
-                                            className="flex-1 bg-transparent text-center text-2xl font-black text-primary focus:outline-none"
+                                            className="flex-1 bg-transparent text-center text-2xl font-black text-foreground focus:outline-none"
                                         />
                                         <button onClick={() => setScaleValue(scaleValue + 1)} className="p-2 bg-card rounded-lg hover:text-accent border border-border transition-colors shadow-sm">
                                             {icons.chevron_up && <icons.chevron_up size={20} />}
@@ -372,7 +372,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                     </div>
 
                                     <div className="flex gap-3">
-                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-primary text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
+                                        <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-foreground text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
                                         <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">

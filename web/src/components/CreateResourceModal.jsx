@@ -233,15 +233,15 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-border">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[var(--accent)] text-white rounded-lg">
+                        <div className="p-2 bg-[var(--accent)] text-primary-foreground rounded-lg">
                             <ZapIcon size={20} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-primary">{t('create_resource')}</h2>
+                            <h2 className="text-xl font-bold text-foreground">{t('create_resource')}</h2>
                             <p className="text-xs text-text-muted mt-0.5 uppercase tracking-wider font-bold">Standard API v1.25+</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 text-text-muted hover:text-primary hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
+                    <button onClick={onClose} className="p-2 text-text-muted hover:text-foreground hover:bg-[var(--sidebar-hover)] rounded-lg transition-colors">
                         <CloseIcon size={20} />
                     </button>
                 </div>
@@ -250,13 +250,13 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="flex p-1 bg-sidebar/50 border-b border-border">
                     <button
                         onClick={() => setMode('template')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'template' ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'template' ? 'bg-accent text-primary-foreground shadow-lg' : 'text-text-muted hover:text-foreground'}`}
                     >
                         <LayoutIcon size={14} /> {t('template')}
                     </button>
                     <button
                         onClick={() => setMode('raw')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'raw' ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-primary'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${mode === 'raw' ? 'bg-accent text-primary-foreground shadow-lg' : 'text-text-muted hover:text-foreground'}`}
                     >
                         <FileIcon size={14} /> {t('raw_manifest')}
                     </button>
@@ -283,7 +283,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                             className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none cursor-pointer font-bold shadow-lg"
                                         >
                                             {Object.entries(TEMPLATES).map(([key, tmpl]) => (
-                                                <option key={key} value={key} className="bg-card text-primary">
+                                                <option key={key} value={key} className="bg-card text-foreground">
                                                     {t(tmpl.name)}
                                                 </option>
                                             ))}
@@ -314,7 +314,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                                                 className="w-full bg-[var(--bg-input)] border border-border rounded-xl px-4 py-3 text-sm text-[var(--text-input)] focus:outline-none focus:border-[var(--accent)] transition-all appearance-none"
                                             >
                                                 {namespaces?.map(ns => (
-                                                    <option key={ns} value={ns} className="bg-card text-primary">{ns}</option>
+                                                    <option key={ns} value={ns} className="bg-card text-foreground">{ns}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -323,7 +323,7 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
 
                                 <button
                                     onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="flex items-center gap-2 text-primary text-xs font-black uppercase tracking-wider hover:text-accent transition-colors"
+                                    className="flex items-center gap-2 text-foreground text-xs font-black uppercase tracking-wider hover:text-accent transition-colors"
                                 >
                                     <ChevronRightIcon size={16} className={`transition-transform ${showAdvanced ? 'rotate-90' : ''}`} />
                                     Advanced Options
@@ -428,14 +428,14 @@ export default function CreateResourceModal({ isOpen, onClose, onCreated, initia
                 <div className="p-6 bg-[var(--bg-sidebar)]/30 border-t border-border flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 text-xs font-black uppercase tracking-wider text-text-muted hover:text-primary transition-colors"
+                        className="px-6 py-2.5 text-xs font-black uppercase tracking-wider text-text-muted hover:text-foreground transition-colors"
                     >
                         {t('cancel')}
                     </button>
                     <button
                         onClick={handleCreate}
                         disabled={isSubmitting || (mode === 'template' && !name) || !rawContent}
-                        className={`px-8 py-2.5 bg-[var(--accent)] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`px-8 py-2.5 bg-[var(--accent)] text-primary-foreground text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {isSubmitting ? t('saving') : t('create')}
                     </button>

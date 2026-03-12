@@ -16,7 +16,7 @@ export default function ProbeDetail({ label, probe, t }) {
 
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs font-bold text-[var(--text-white)] uppercase tracking-wider">{label}</span>
+            <span className="text-xs font-bold text-[hsl(var(--foreground))] uppercase tracking-wider">{label}</span>
                          <div className="text-sm font-mono text-info bg-info/10 p-1.5 rounded">                {details || 'Unknown'}
             </div>
             <div className="text-xs text-text-muted mt-1 flex flex-wrap gap-x-3">

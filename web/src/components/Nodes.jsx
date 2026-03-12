@@ -107,7 +107,7 @@ function LabelsCell({ labels }) {
 
     const visibleLabels = expanded ? labelEntries : labelEntries.slice(0, 2);
     const hasMore = labelEntries.length > 2;
-    const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-white)';
+    const hideColor = activeTheme === 'light' ? 'var(--accent)' : 'var(--text-foreground)';
 
     return (
         <div className="flex flex-col gap-1 max-w-[250px] overflow-y-hidden mx-auto">

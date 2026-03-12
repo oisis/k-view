@@ -10,15 +10,15 @@ export default function ClusterRoleBindingOverview({ data, spec, t }) {
     const roleRef = spec?.roleRef || data.roleRef || {};
 
     const roleRefColumns = [
-        { header: 'Name', accessor: 'name', className: 'font-mono font-bold text-accent' },
-        { header: 'Kind', accessor: (r) => <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">{r.kind}</span> },
+        { header: 'Name', accessor: 'name', className: 'font-mono font-bold text-primary' },
+        { header: 'Kind', accessor: (r) => <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-black uppercase border border-primary/20">{r.kind}</span> },
         { header: 'API Group', accessor: 'apiGroup', className: 'font-mono text-xs text-text-muted' }
     ];
 
     const subColumns = [
         { header: 'Name', accessor: 'name', className: 'text-foreground' },
         { header: 'Namespaces', accessor: 'namespace', className: 'text-secondary font-medium' },
-        { header: 'Kind', accessor: (s) => <span className="px-2 py-0.5 bg-accent/10 text-accent rounded text-[10px] font-black uppercase border border-accent/20">{s.kind}</span> },
+        { header: 'Kind', accessor: (s) => <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-black uppercase border border-primary/20">{s.kind}</span> },
         { header: 'API Group', accessor: (s) => s.apiGroup || (s.kind === 'ServiceAccount' ? 'core' : 'rbac.authorization.k8s.io'), className: 'font-mono text-xs' }
     ];
 

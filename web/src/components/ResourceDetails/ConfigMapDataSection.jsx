@@ -73,7 +73,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                         ) : (
                             Object.entries(cmData || {}).map(([key, value]) => (
                                 <tr key={key} className="hover:bg-white/5 transition-colors group">
-                                    <td className="px-4 py-3 font-bold text-primary font-mono truncate" title={key}>{key}</td>
+                                    <td className="px-4 py-3 font-bold text-foreground font-mono truncate" title={key}>{key}</td>
                                     <td className="px-4 py-3 min-w-0">
                                         {editingKey === key ? (
                                             <div className="space-y-3">
@@ -103,7 +103,7 @@ export default function ConfigMapDataSection({ data, kind, namespace, name, t, o
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="font-mono text-sm text-secondary whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
+                                            <div className="font-mono text-sm text-foreground whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
                                                 {String(value)}
                                             </div>
                                         )}
