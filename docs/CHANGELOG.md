@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.48.0] - 2026-03-13
+
+### Added
+- **UI Modernization**: Switched to Shadcn/ui and Tailwind CSS for a more robust and professional interface.
+- **Animations**: Integrated Framer Motion for smooth transitions, staggered list loading, and interactive UI elements.
+- **Interactive Network Flow**: Replaced Mermaid.js with React Flow for the Network Trace view, enabling draggable nodes and animated traffic flows.
+- **Theming System**: Added a new "Soft Azure" light theme and a dedicated "Blue" K-View theme alongside the standard Zinc-based dark mode.
+
+### Fixed
+- **Contrast & Readability**: Conducted a project-wide audit to eliminate white-on-white and dark-on-dark text issues, especially in tables, logs, and modals.
+- **Table Grid Lines**: Standardized and strengthened vertical and horizontal lines across all resource views for better data structure visualization.
+- **Scroll Issues**: Fixed layout constraints that prevented vertical scrolling on long resource lists and detail pages.
+
 ## [0.47.0] - 2026-03-05
 
 ### Added
