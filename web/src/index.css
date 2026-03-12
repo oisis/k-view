@@ -3,41 +3,49 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   1. CORE VARIABLES (HSL Palette - Standard Shadcn Zinc)
+   1. CORE VARIABLES (HSL Palette)
    ========================================================================== */
 
 @layer base {
+  /* Vibrant Pastel Light Mode (Soft Azure) */
   :root, .light {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 210 40% 99%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 210 40% 99%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    /* Pastel Accents for Hovers */
+    --accent: 210 100% 96%; 
+    --accent-foreground: 221.2 83.2% 40%;
+    
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
 
-    --success: 142.1 76.2% 36.3%;
+    /* Saturated Pastel Status */
+    --success: 142.1 70.6% 45.3%;
     --warning: 38 92% 50%;
-    --info: 221.2 83.2% 53.3%;
+    --info: 199 89% 48%;
 
-    --wallpaper-opacity: 0.12;
-    --wallpaper-brightness: 0.95;
-    --wallpaper-grayscale: 0%;
+    --wallpaper-opacity: 0.08;
   }
 
+  /* Standard Dark Mode (Zinc) */
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -62,6 +70,7 @@
     --wallpaper-opacity: 0.2;
   }
 
+  /* K-View Theme (Blue) */
   .theme-k-view.dark, .theme-k-view {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -101,10 +110,6 @@
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
-  /* 
-     Legacy variable mapping: forcing all text variables to follow foreground.
-     We must override any inline styles or legacy CSS that uses these.
-  */
   :root, .dark, .theme-k-view, .light {
     --text-primary: hsl(var(--foreground));
     --text-secondary: hsl(var(--muted-foreground));
@@ -117,20 +122,26 @@
     --border-color: hsl(var(--border));
   }
 
-  /* Only in dark modes can 'white' actually be white for high contrast headers */
   .dark, .theme-k-view {
     --text-white: #ffffff;
     --color-text-white: #ffffff;
   }
 
-  /* Table Contrast Fixes */
+  /* Table Style with Pastel Colors */
   table { @apply w-full border-collapse text-sm; }
-  thead { @apply bg-muted/50 border-b border-border; }
+  thead { @apply bg-primary/5 border-b border-border; }
   th { @apply px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider; }
   td { @apply px-4 py-3 border-b border-border/50 text-foreground; }
+  
+  /* Highlight rows with pastel accent */
+  tr { @apply transition-colors hover:bg-accent/60; }
 }
 
 @layer utilities {
-  .glass { @apply backdrop-blur-md bg-background/80 border border-border/50; }
+  .glass { @apply backdrop-blur-md bg-background/80 border border-border/50 shadow-sm; }
   .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important; }
+  
+  /* Saturated pastel shadows for Light mode */
+  .light .shadow-pastel-blue { shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.1); }
+  .light .shadow-pastel-green { shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.1); }
 }
