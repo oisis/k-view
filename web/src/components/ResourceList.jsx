@@ -376,7 +376,7 @@ export default function ResourceList({ kind: propKind }) {
 
             <Card className="border-border/50 bg-card overflow-hidden shadow-xl transition-all duration-500">
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table style={{ width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0">
+                    <table style={{ minWidth: '100%', width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0">
                         <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
