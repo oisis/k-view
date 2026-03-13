@@ -86,14 +86,14 @@ function StatCard({ label, value, sub, iconKey, color }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
     return (
-        <div className="bg-glass glass border border-border rounded-2xl p-5 flex items-start gap-4 shadow-lg">
+        <div className="bg-card glass border border-border rounded-2xl p-5 flex items-start gap-4 shadow-lg">
             <div className={`p-2 rounded-lg ${color}`}>
                 <Icon size={20} />
             </div>
             <div>
-                <p className="text-2xl font-bold text-primary">{value}</p>
-                <p className="text-sm text-secondary">{label}</p>
-                {sub && <p className="text-xs text-text-muted mt-0.5">{sub}</p>}
+                <p className="text-2xl font-bold text-foreground">{value}</p>
+                <p className="text-sm text-muted-foreground font-semibold">{label}</p>
+                {sub && <p className="text-[10px] text-muted-foreground/70 mt-0.5 font-bold uppercase tracking-wider">{sub}</p>}
             </div>
         </div>
     );

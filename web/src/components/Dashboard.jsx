@@ -83,7 +83,7 @@ const containerVariants = {
   })
 };
 
-function MetricCard({ title, value, subValue, iconKey, color, children, index, isCollapsed }) {
+function MetricCard({ title, value, subValue, iconKey, color, children, index, isCollapsed, onClick }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
     
@@ -104,11 +104,14 @@ function MetricCard({ title, value, subValue, iconKey, color, children, index, i
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            whileHover={onClick ? { y: -4, transition: { duration: 0.2 } } : {}}
+            onClick={onClick}
+            className={cn("h-full", onClick && "cursor-pointer")}
         >
             <Card 
                 className={cn(
-                    "relative overflow-hidden border-border bg-card transition-all hover:border-primary/30 hover:shadow-lg"
+                    "relative h-full overflow-hidden border-border bg-card transition-all",
+                    onClick && "hover:border-primary/30 hover:shadow-lg"
                 )}
             >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -248,7 +251,7 @@ export default function Dashboard({ isCollapsed }) {
                     subValue={`K8s version: ${stats?.k8sVersion || '—'}`}
                     iconKey="clusterrole"
                     color="cyan"
-                    onClick={() => navigate('/nodes')}
+                    onClick={() => navigate('/resources/Nodes')}
                     isCollapsed={isCollapsed}
                 />
 
@@ -260,7 +263,7 @@ export default function Dashboard({ isCollapsed }) {
                     subValue={`${stats?.nodeCountReady || 0} ${t('ready_nodes')}`}
                     iconKey="nodes"
                     color="purple"
-                    onClick={() => navigate('/nodes')}
+                    onClick={() => navigate('/resources/Nodes')}
                     isCollapsed={isCollapsed}
                 />
 
@@ -272,7 +275,7 @@ export default function Dashboard({ isCollapsed }) {
                     subValue={`${stats?.podCountFailed || 0} ${t('failed_evicted')}`}
                     iconKey="pod"
                     color={stats?.podCountFailed > 0 ? "orange" : "green"}
-                    onClick={() => navigate('/workloads/Pods')}
+                    onClick={() => navigate('/resources/Pods')}
                     isCollapsed={isCollapsed}
                 >
                     <div className="mt-4 flex items-center gap-2">

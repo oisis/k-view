@@ -108,7 +108,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
             const nodePositions = {};
             const colCounts = {};
 
-            const newNodes = data.nodes.map((n, i) => {
+            const newNodes = (data.nodes || []).map((n, i) => {
                 const col = columns[n.type] ?? 2;
                 colCounts[col] = (colCounts[col] || 0) + 1;
                 
@@ -126,7 +126,7 @@ export default function NetworkTrace({ kind, namespace, name }) {
                 };
             });
 
-            const newEdges = data.edges.map((e, i) => ({
+            const newEdges = (data.edges || []).map((e, i) => ({
                 id: `e${i}`,
                 source: e.from,
                 target: e.to,

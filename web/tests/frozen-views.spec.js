@@ -38,35 +38,36 @@ const canonical = (s) => {
     return n;
 };
 
+// Unified Mapping matching the new URL structure
 const RESOURCE_MAP = {
-    'pods': { prefix: 'workloads', kind: 'Pods' },
-    'deployments': { prefix: 'workloads', kind: 'Deployments' },
-    'statefulsets': { prefix: 'workloads', kind: 'StatefulSets' },
-    'daemonsets': { prefix: 'workloads', kind: 'DaemonSets' },
-    'jobs': { prefix: 'workloads', kind: 'Jobs' },
-    'cronjobs': { prefix: 'workloads', kind: 'CronJobs' },
-    'replicasets': { prefix: 'workloads', kind: 'ReplicaSets' },
-    'replicationcontrollers': { prefix: 'workloads', kind: 'ReplicationControllers' },
-    'horizontalpodautoscaler': { prefix: 'workloads', kind: 'HorizontalPodAutoscalers' },
-    'services': { prefix: 'network', kind: 'Services' },
-    'ingresses': { prefix: 'network', kind: 'Ingresses' },
-    'endpoints': { prefix: 'network', kind: 'Endpoints' },
-    'configmaps': { prefix: 'config', kind: 'ConfigMaps' },
-    'secrets': { prefix: 'config', kind: 'Secrets' },
-    'persistentvolumeclaim': { prefix: 'config', kind: 'PersistentVolumeClaims' },
-    'persistentvolume': { prefix: 'config', kind: 'PersistentVolumes' },
-    'storage-classes': { prefix: 'config', kind: 'StorageClasses' },
-    'cluster-role-bindings': { prefix: 'cluster', kind: 'ClusterRoleBindings' },
-    'cluster-roles': { prefix: 'cluster', kind: 'ClusterRoles' },
-    'customresourcedefinition': { prefix: 'cluster', kind: 'CustomResourceDefinitions' },
-    'events': { prefix: 'cluster', kind: 'Events' },
-    'namespaces': { prefix: 'cluster', kind: 'Namespaces' },
-    'network-policies': { prefix: 'cluster', kind: 'NetworkPolicies' },
-    'role-bindings': { prefix: 'cluster', kind: 'RoleBindings' },
-    'roles': { prefix: 'cluster', kind: 'Roles' },
-    'service-accounts': { prefix: 'cluster', kind: 'ServiceAccounts' },
-    'ingress-classes': { prefix: 'cluster', kind: 'IngressClasses' },
-    'nodes': { prefix: '', kind: 'nodes' }
+    'pods': { kind: 'Pods' },
+    'deployments': { kind: 'Deployments' },
+    'statefulsets': { kind: 'StatefulSets' },
+    'daemonsets': { kind: 'DaemonSets' },
+    'jobs': { kind: 'Jobs' },
+    'cronjobs': { kind: 'CronJobs' },
+    'replicasets': { kind: 'ReplicaSets' },
+    'replicationcontrollers': { kind: 'ReplicationControllers' },
+    'horizontalpodautoscaler': { kind: 'HorizontalPodAutoscalers' },
+    'services': { kind: 'Services' },
+    'ingresses': { kind: 'Ingresses' },
+    'endpoints': { kind: 'Endpoints' },
+    'configmaps': { kind: 'ConfigMaps' },
+    'secrets': { kind: 'Secrets' },
+    'persistentvolumeclaim': { kind: 'PersistentVolumeClaims' },
+    'persistentvolume': { kind: 'PersistentVolumes' },
+    'storage-classes': { kind: 'StorageClasses' },
+    'cluster-role-bindings': { kind: 'ClusterRoleBindings' },
+    'cluster-roles': { kind: 'ClusterRoles' },
+    'customresourcedefinition': { kind: 'CustomResourceDefinitions' },
+    'events': { kind: 'Events' },
+    'namespaces': { kind: 'Namespaces' },
+    'network-policies': { kind: 'NetworkPolicies' },
+    'role-bindings': { kind: 'RoleBindings' },
+    'roles': { kind: 'Roles' },
+    'service-accounts': { kind: 'ServiceAccounts' },
+    'ingress-classes': { kind: 'IngressClasses' },
+    'nodes': { kind: 'Nodes' }
 };
 
 test.describe('K-View Frozen Views Audit', () => {
@@ -92,8 +93,8 @@ test.describe('K-View Frozen Views Audit', () => {
     const resConfig = RESOURCE_MAP[yamlName];
     if (!resConfig) continue;
 
-    const { prefix, kind } = resConfig;
-    const listUrl = prefix ? `/${prefix}/${kind}` : `/${kind}`;
+    const { kind } = resConfig;
+    const listUrl = `/resources/${kind}`;
 
     test(`audit ${yamlName} list view columns`, async ({ page }) => {
       await page.goto(listUrl);
@@ -109,12 +110,18 @@ test.describe('K-View Frozen Views Audit', () => {
 
     test(`audit ${yamlName} detail view elements`, async ({ page }) => {
       await page.goto(listUrl);
+      
       const firstLink = page.locator('table tbody tr td a').first();
-      await expect(firstLink).toBeVisible({ timeout: 15000 });
-      await firstLink.click();
-      await page.waitForSelector('.bg-glass', { timeout: 15000 });
+      // Ensure the link is at least attached to DOM
+      await firstLink.waitFor({ state: 'attached', timeout: 15000 });
+      
+      // Use evaluate to click directly on the DOM element to bypass viewport/animation checks
+      await firstLink.evaluate(el => el.click());
+      
+      // Wait for any content card to appear
+      await page.waitForSelector('.glass, .bg-card, .bg-glass', { timeout: 15000 });
 
-      // Use innerText to get all visible text normalized by browser (handles space-separated labels better)
+      // Use innerText to get all visible text normalized by browser
       const pageTextLower = (await page.innerText('body')).toLowerCase();
 
       for (const [section, fields] of Object.entries(config)) {

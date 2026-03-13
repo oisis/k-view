@@ -31,7 +31,7 @@ fi
 # 2. Frontend Tests (Vitest)
 echo -e "\n${BLUE}🧪 Running Frontend Tests (Vitest - Frozen Views)...${NC}"
 cd "$PROJECT_ROOT/web"
-if npm test -- run; then
+if npm test; then
     echo -e "${GREEN}✅ Frontend tests passed!${NC}"
 else
     echo -e "${RED}❌ Frontend tests failed!${NC}"

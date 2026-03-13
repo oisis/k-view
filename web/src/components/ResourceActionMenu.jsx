@@ -76,19 +76,19 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
         setIsOpen(false);
         switch (action) {
             case 'edit':
-                navigate(`/${kind}/${namespace || '-'}/${name}?tab=yaml&edit=true`);
+                navigate(`/resources/${kind}/${namespace || '-'}/${name}?tab=yaml&edit=true`);
                 break;
             case 'describe':
-                navigate(`/${kind}/${namespace || '-'}/${name}`);
+                navigate(`/resources/${kind}/${namespace || '-'}/${name}`);
                 break;
             case 'export':
                 exportResource();
                 break;
             case 'logs':
-                navigate(`/${kind}/${namespace || '-'}/${name}?tab=logs`);
+                navigate(`/resources/${kind}/${namespace || '-'}/${name}?tab=logs`);
                 break;
             case 'exec':
-                navigate(`/${kind}/${namespace || '-'}/${name}?exec=true`);
+                navigate(`/resources/${kind}/${namespace || '-'}/${name}?exec=true`);
                 break;
             default:
                 break;

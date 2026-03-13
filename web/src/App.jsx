@@ -170,6 +170,7 @@ function App() {
                     <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
                     
                     {/* Unified Resource Routes */}
+                    <Route path="resources/Nodes" element={<Nodes />} />
                     <Route path="resources/:kind" element={<ResourceList />} />
                     <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
 
