@@ -13,7 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import { createColumnHelper, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
+import { 
+    createColumnHelper, 
+    useReactTable, 
+    getCoreRowModel, 
+    getSortedRowModel,
+    flexRender 
+} from '@tanstack/react-table';
 
 import { PodListSchema } from './ResourceList/templates/PodList';
 import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
@@ -256,6 +262,12 @@ export default function ResourceList({ kind: propKind }) {
     const supportsTrace = false;
 
     // --- TanStack Table Definition ---
+    
+    // Map internal sortConfig to TanStack sorting state
+    const sorting = useMemo(() => [
+        { id: sortConfig.key, desc: sortConfig.direction === 'desc' }
+    ], [sortConfig]);
+
     const tanstackColumns = useMemo(() => {
         const baseCols = (schema.cols || []).map(col => {
             return columnHelper.accessor(row => getVal(row, col.key), {
@@ -354,7 +366,23 @@ export default function ResourceList({ kind: propKind }) {
     const table = useReactTable({
         data: paginatedItems,
         columns: tanstackColumns,
+        state: {
+            sorting,
+        },
+        // Enable manual sorting to sync with external state
+        manualSorting: true,
+        onSortingChange: (updater) => {
+            const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
+            if (newSorting.length > 0) {
+                const { id, desc } = newSorting[0];
+                setSortConfig({ key: id, direction: desc ? 'desc' : 'asc' });
+            } else {
+                // If sort was removed by TanStack cycle, force it back to default (asc)
+                setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }));
+            }
+        },
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     });
 
     const getColumnWidthClass = (columnId) => {
@@ -442,11 +470,7 @@ export default function ResourceList({ kind: propKind }) {
                                                 getColumnWidthClass(header.id),
                                                 header.id === 'actions' && "bg-muted/30"
                                             )}
-                                            onClick={() => {
-                                                const currentDir = sortConfig.key === header.id ? sortConfig.direction : null;
-                                                const nextDir = currentDir === 'asc' ? 'desc' : 'asc';
-                                                setSortConfig({ key: header.id, direction: nextDir });
-                                            }}
+                                            onClick={header.column.getToggleSortingHandler()}
                                         >
                                             <div className="flex items-center justify-center">
                                                 {flexRender(header.column.columnDef.header, header.getContext())}
@@ -495,7 +519,6 @@ export default function ResourceList({ kind: propKind }) {
                 </div>
             </Card>
 
-            {/* Pagination remains unchanged as it uses currentPage/totalPages state */}
             {totalPages > 1 && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl">
                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
