@@ -245,8 +245,8 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
             </div>
 
             {/* Scrollable nav */}
-            <nav className="flex-1 overflow-y-auto mt-4 px-3 custom-scrollbar">
-                <div className={cn("mb-6", isCollapsed && "flex flex-col items-center")}>
+            <nav className="flex-1 overflow-y-auto mt-2 px-3 custom-scrollbar">
+                <div className={cn("mb-2", isCollapsed && "flex flex-col items-center")}>
                     <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={isPathActive('/')} isCollapsed={isCollapsed} />
                 </div>
 
