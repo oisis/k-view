@@ -190,6 +190,78 @@ function ScheduleCell({ value, nextRun }) {
 
 import { useResourceData } from '../hooks/useResourceData';
 
+// --- Column Visibility Dropdown ---
+function VisibilityMenu({ table, t, icons }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) setIsOpen(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative" ref={menuRef}>
+            <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsOpen(!isOpen)}
+                className={cn("h-11 w-11 rounded-xl border-2 transition-all", isOpen ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground")}
+                title={t('column_visibility')}
+            >
+                <icons.eye size={18} />
+            </Button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl"
+                    >
+                        <div className="px-3 py-2 mb-1 border-b border-border/50">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Display Columns</span>
+                        </div>
+                        <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-0.5">
+                            {table.getAllLeafColumns().map(column => {
+                                if (column.id === 'actions') return null;
+                                return (
+                                    <label
+                                        key={column.id}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={column.getIsVisible()}
+                                            onChange={column.getToggleVisibilityHandler()}
+                                            className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20 accent-primary"
+                                        />
+                                        <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+                                            {typeof column.columnDef.header === 'function' ? column.id.replace('extra.', '').replace('_', ' ') : column.columnDef.header}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-border/50 flex justify-center">
+                            <button
+                                onClick={() => table.toggleAllColumnsVisible()}
+                                className="text-[9px] font-black uppercase tracking-widest text-primary hover:underline p-1"
+                            >
+                                Reset to all
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 export default function ResourceList({ kind: propKind }) {
     const { kind: paramKind } = useParams();
     const kind = propKind || paramKind;
@@ -212,6 +284,7 @@ export default function ResourceList({ kind: propKind }) {
     const scope = user?.email || 'anonymous';
     const nsKey = `kview-selected-namespace-${scope}`;
     const sizingKey = `kview-table-sizing-${kind}`;
+    const visibilityKey = `kview-table-visibility-${kind}`;
 
     const [namespace, setNamespace] = useState(() => {
         const saved = localStorage.getItem(nsKey);
@@ -221,12 +294,9 @@ export default function ResourceList({ kind: propKind }) {
 
     useEffect(() => {
         const saved = localStorage.getItem(nsKey);
-        if (saved === null) {
-            setNamespace(settings.defaultNamespace);
-        } else {
-            setNamespace(saved);
-        }
-    }, [nsKey, settings.defaultNamespace]);
+        if (saved === null) setNamespace(settings.defaultNamespace);
+        else setNamespace(saved);
+    }, [nsKey, settings.defaultNamespace, kind]); // Added kind to reset when switching resources
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
@@ -261,19 +331,39 @@ export default function ResourceList({ kind: propKind }) {
     const isEvent = kind === 'Events';
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
 
-    // --- Column Sizing Persistence ---
-    const [columnSizing, setColumnSizing] = useState(() => {
+    // --- Column State Isolation (Fix) ---
+    const [columnSizing, setColumnSizing] = useState({});
+    const [columnVisibility, setColumnVisibility] = useState({});
+    const lastKind = useRef(kind);
+
+    // Initial load from localStorage when kind changes
+    useEffect(() => {
         try {
-            const saved = localStorage.getItem(sizingKey);
-            return saved ? JSON.parse(saved) : {};
-        } catch (e) { return {}; }
-    });
+            const savedSizing = localStorage.getItem(sizingKey);
+            setColumnSizing(savedSizing ? JSON.parse(savedSizing) : {});
+            
+            const savedVisibility = localStorage.getItem(visibilityKey);
+            setColumnVisibility(savedVisibility ? JSON.parse(savedVisibility) : {});
+            
+            lastKind.current = kind;
+        } catch (e) {
+            setColumnSizing({});
+            setColumnVisibility({});
+        }
+    }, [kind, sizingKey, visibilityKey]);
+
+    // Persistent Save (Only if kind hasn't changed during update)
+    useEffect(() => {
+        if (lastKind.current === kind) {
+            localStorage.setItem(visibilityKey, JSON.stringify(columnVisibility));
+        }
+    }, [columnVisibility, visibilityKey, kind]);
 
     useEffect(() => {
-        if (Object.keys(columnSizing).length > 0) {
+        if (lastKind.current === kind && Object.keys(columnSizing).length > 0) {
             localStorage.setItem(sizingKey, JSON.stringify(columnSizing));
         }
-    }, [columnSizing, sizingKey]);
+    }, [columnSizing, sizingKey, kind]);
 
     // --- TanStack Table Definition ---
     const sorting = useMemo(() => [
@@ -335,12 +425,10 @@ export default function ResourceList({ kind: propKind }) {
     const table = useReactTable({
         data: paginatedItems,
         columns: tanstackColumns,
-        state: { 
-            sorting,
-            columnSizing,
-        },
+        state: { sorting, columnSizing, columnVisibility },
         columnResizeMode: 'onChange',
         onColumnSizingChange: setColumnSizing,
+        onColumnVisibilityChange: setColumnVisibility,
         manualSorting: true,
         onSortingChange: (updater) => {
             const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -384,6 +472,7 @@ export default function ResourceList({ kind: propKind }) {
                         <input type="text" placeholder={t('search_placeholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm" />
                     </div>
                     {isNamespaced && <NamespaceSelect namespaces={namespaces} selected={namespace} onChange={setNamespace} />}
+                    <VisibilityMenu table={table} t={t} icons={icons} />
                 </div>
             </div>
 
@@ -400,29 +489,9 @@ export default function ResourceList({ kind: propKind }) {
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
-                                        <th 
-                                            key={header.id} 
-                                            style={{ width: header.getSize() }}
-                                            className={cn(
-                                                "relative py-3 px-0 whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
-                                                header.id === 'actions' && "bg-muted/30"
-                                            )}
-                                        >
-                                            <div 
-                                                className="flex items-center justify-center h-full w-full px-4 cursor-pointer hover:text-primary transition-colors"
-                                                onClick={header.column.getToggleSortingHandler()}
-                                            >
-                                                {flexRender(header.column.columnDef.header, header.getContext())}
-                                            </div>
-                                            
-                                            <div
-                                                onMouseDown={header.getResizeHandler()}
-                                                onTouchStart={header.getResizeHandler()}
-                                                className={cn(
-                                                    "absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20",
-                                                    header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent"
-                                                )}
-                                            />
+                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative py-3 px-0 whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", header.id === 'actions' && "bg-muted/30")}>
+                                            <div className="flex items-center justify-center h-full w-full px-4 cursor-pointer hover:text-primary transition-colors" onClick={header.column.getToggleSortingHandler()}>{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                                            <div onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()} className={cn("absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20", header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent")} />
                                         </th>
                                     ))}
                                 </tr>
@@ -430,30 +499,13 @@ export default function ResourceList({ kind: propKind }) {
                         </thead>
                         <tbody className="divide-y divide-border/20">
                             {loading && paginatedItems.length === 0 ? (
-                                <tr>
-                                    <td colSpan={tanstackColumns.length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">
-                                        {t('loading')}...
-                                    </td>
-                                </tr>
+                                <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">{t('loading')}...</td></tr>
                             ) : table.getRowModel().rows.length === 0 ? (
-                                <tr>
-                                    <td colSpan={tanstackColumns.length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">
-                                        {t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}
-                                    </td>
-                                </tr>
+                                <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : table.getRowModel().rows.map((row, i) => (
                                 <motion.tr key={row.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="hover:bg-muted/50 transition-all group">
                                     {row.getVisibleCells().map(cell => (
-                                        <td 
-                                            key={cell.id} 
-                                            style={{ width: cell.column.getSize() }}
-                                            className={cn(
-                                                "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0",
-                                                getCellAlignmentClass(cell.column.id)
-                                            )}
-                                        >
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </td>
+                                        <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0", getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                                     ))}
                                 </motion.tr>
                             ))}
@@ -464,35 +516,23 @@ export default function ResourceList({ kind: propKind }) {
 
             {totalPages > 1 && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl">
-                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
-                        Showing {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} of {(items || []).length} items
-                    </div>
+                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Showing {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} of {(items || []).length} items</div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5 border-r border-border/30 pr-6 mr-2">
-                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(1)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
-                                <icons.chevrons_left size={16} />
-                            </Button>
-                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
-                                <icons.chevron_left size={16} />
-                            </Button>
+                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(1)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"><icons.chevrons_left size={16} /></Button>
+                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"><icons.chevron_left size={16} /></Button>
                         </div>
                         <div className="flex items-center gap-1.5">
                             {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1).map((p, i, arr) => (
                                 <React.Fragment key={p}>
                                     {i > 0 && arr[i - 1] !== p - 1 && <span className="text-muted-foreground/30 px-1 font-black">...</span>}
-                                    <button onClick={() => setCurrentPage(p)} className={cn("w-9 h-9 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 border", currentPage === p ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-110" : "bg-muted/10 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-foreground hover:bg-muted/30")}>
-                                        {p}
-                                    </button>
+                                    <button onClick={() => setCurrentPage(p)} className={cn("w-9 h-9 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 border", currentPage === p ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-110" : "bg-muted/10 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-foreground hover:bg-muted/30")}>{p}</button>
                                 </React.Fragment>
                             ))}
                         </div>
                         <div className="flex items-center gap-1.5 border-l border-border/30 pl-6 ml-2">
-                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
-                                <icons.chevron_right size={16} />
-                            </Button>
-                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
-                                <icons.chevrons_right size={16} />
-                            </Button>
+                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"><icons.chevron_right size={16} /></Button>
+                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"><icons.chevrons_right size={16} /></Button>
                         </div>
                     </div>
                 </motion.div>
