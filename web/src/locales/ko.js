@@ -386,5 +386,9 @@ export const ko = {
     "compact": "컴팩트",
     "table_density_desc": "리소스 테이블의 수직 간격과 글꼴 크기를 조정합니다。",
     "reset_tables": "테이블 레이아웃 초기화",
-    "reset_tables_desc": "모든 리소스 테이블을 기본 열 너비 및 가시성으로 복원합니다。"
+    "reset_tables_desc": "모든 리소스 테이블을 기본 열 너비 및 가시성으로 복원합니다。",
+    "add_resource": "리소스 추가",
+    "template": "템플릿",
+    "raw_manifest": "원시 매니페스트",
+    "resource_kind": "리소스 종류"
 };

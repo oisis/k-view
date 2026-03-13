@@ -386,5 +386,9 @@ export const de = {
     "compact": "Kompakt",
     "table_density_desc": "Passen Sie den vertikalen Abstand und die Schriftgröße der Ressourcentabellen an.",
     "reset_tables": "Tabellenlayouts zurücksetzen",
-    "reset_tables_desc": "Alle Ressourcentabellen auf Standardspaltenbreiten und -sichtbarkeit zurücksetzen."
+    "reset_tables_desc": "Alle Ressourcentabellen auf Standardspaltenbreiten und -sichtbarkeit zurücksetzen.",
+    "add_resource": "Ressource hinzufügen",
+    "template": "Vorlage",
+    "raw_manifest": "Roh-Manifest",
+    "resource_kind": "Ressourcenart"
 };

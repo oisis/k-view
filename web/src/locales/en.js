@@ -386,5 +386,9 @@ export const en = {
     "compact": "Compact",
     "table_density_desc": "Adjust the vertical spacing and font size of resource tables.",
     "reset_tables": "Reset Table Layouts",
-    "reset_tables_desc": "Restore all resource tables to their default column widths and visibility."
+    "reset_tables_desc": "Restore all resource tables to their default column widths and visibility.",
+    "add_resource": "Add Resource",
+    "template": "Template",
+    "raw_manifest": "Raw Manifest",
+    "resource_kind": "Resource Kind"
 };

@@ -386,5 +386,9 @@ export const es = {
     "compact": "Compacto",
     "table_density_desc": "Ajuste el espacio vertical y el tamaño de fuente de las tablas de recursos.",
     "reset_tables": "Restablecer diseños de tabla",
-    "reset_tables_desc": "Restaurar todas las tablas de recursos a sus anchos y visibilidad de columna predeterminados."
+    "reset_tables_desc": "Restaurar todas las tablas de recursos a sus anchos y visibilidad de columna predeterminados.",
+    "add_resource": "Agregar recurso",
+    "template": "Plantilla",
+    "raw_manifest": "Manifiesto bruto",
+    "resource_kind": "Tipo de recurso"
 };

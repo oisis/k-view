@@ -386,5 +386,9 @@ export const ja = {
     "compact": "コンパクト",
     "table_density_desc": "リソーステーブルの垂直方向の間隔とフォントサイズを調整します。",
     "reset_tables": "テーブルレイアウトのリセット",
-    "reset_tables_desc": "すべてのリソーステーブルをデフォルトの列幅と表示設定に戻します。"
+    "reset_tables_desc": "すべてのリソーステーブルをデフォルトの列幅と表示設定に戻します。",
+    "add_resource": "リソースを追加",
+    "template": "テンプレート",
+    "raw_manifest": "生のマニフェスト",
+    "resource_kind": "リソースの種類"
 };

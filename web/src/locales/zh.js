@@ -385,5 +385,9 @@ export const zh = {
     "compact": "紧凑",
     "table_density_desc": "调整资源表的垂直间距和字体大小。",
     "reset_tables": "重置表格布局",
-    "reset_tables_desc": "将所有资源表恢复为默认列宽和可见性。"
+    "reset_tables_desc": "将所有资源表恢复为默认列宽和可见性。",
+    "add_resource": "添加资源",
+    "template": "模板",
+    "raw_manifest": "原始清单",
+    "resource_kind": "资源类型"
 };

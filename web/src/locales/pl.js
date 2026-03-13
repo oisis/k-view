@@ -386,5 +386,9 @@ export const pl = {
     "compact": "Kompaktowy",
     "table_density_desc": "Dostosuj odstępy pionowe i rozmiar czcionki w tabelach zasobów.",
     "reset_tables": "Resetuj układy tabel",
-    "reset_tables_desc": "Przywróć domyślne szerokości i widoczność kolumn we wszystkich tabelach."
+    "reset_tables_desc": "Przywróć domyślne szerokości i widoczność kolumn we wszystkich tabelach.",
+    "add_resource": "Dodaj zasób",
+    "template": "Szablon",
+    "raw_manifest": "Manifest YAML",
+    "resource_kind": "Typ zasobu"
 };

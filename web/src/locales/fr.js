@@ -386,5 +386,9 @@ export const fr = {
     "compact": "Compact",
     "table_density_desc": "Ajustez l'espacement vertical et la taille de la police des tableaux de ressources.",
     "reset_tables": "Réinitialiser les mises en page des tableaux",
-    "reset_tables_desc": "Restaurer toutes les tables de ressources à leurs largeurs et visibilité de colonnes par défaut."
+    "reset_tables_desc": "Restaurer toutes les tables de ressources à leurs largeurs et visibilité de colonnes par défaut.",
+    "add_resource": "Ajouter une ressource",
+    "template": "Modèle",
+    "raw_manifest": "Manifeste brut",
+    "resource_kind": "Type de ressource"
 };
