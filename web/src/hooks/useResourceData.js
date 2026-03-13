@@ -1,12 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSettings } from '../SettingsContext';
 
 /**
  * Custom hook for fetching and managing Kubernetes resource data with automatic refreshing.
- * Updated to handle backend DTOs: name, namespace, status, age, extra.
+ * Optimized for performance: stops polling when tab is inactive, ensures visible feedback.
  */
 export function useResourceData(url, searchTerm = '', initialSort = { key: 'name', direction: 'asc' }, getVal = (item, key) => {
-    // Handle nested DTO structure for sorting
     if (key === 'name' || key === 'namespace' || key === 'status' || key === 'age') return item[key];
     if (item.extra && item.extra[key] !== undefined) return item.extra[key];
     return item[key];
@@ -14,12 +13,24 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
     const { settings } = useSettings();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [sortConfig, setSortConfig] = useState(initialSort);
+    const isVisible = useRef(document.visibilityState === 'visible');
 
-    const load = useCallback(() => {
-        setLoading(true);
+    const load = useCallback((isInitial = false) => {
+        // Double check visibility before execution
+        if (document.visibilityState !== 'visible') return;
+
+        if (isInitial) {
+            setLoading(true);
+        } else {
+            setIsRefreshing(true);
+        }
+        
         setError(null);
+        const startTime = Date.now();
+
         fetch(url)
             .then(async r => {
                 if (r.ok) return r.json();
@@ -32,13 +43,40 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
             })
             .then(data => setItems(data || []))
             .catch(e => setError(e.message))
-            .finally(() => setLoading(false));
+            .finally(() => {
+                // Ensure isRefreshing is visible for at least 600ms
+                const duration = Date.now() - startTime;
+                const delay = Math.max(0, 600 - duration);
+                
+                setTimeout(() => {
+                    setLoading(false);
+                    setIsRefreshing(false);
+                }, delay);
+            });
     }, [url]);
 
     useEffect(() => {
-        load();
+        const handleVisibilityChange = () => {
+            const visible = document.visibilityState === 'visible';
+            isVisible.current = visible;
+            if (visible && settings.resourceRefreshInterval > 0) {
+                load(false);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [load, settings.resourceRefreshInterval]);
+
+    useEffect(() => {
+        load(true);
+        
         if (settings.resourceRefreshInterval > 0) {
-            const interval = setInterval(load, settings.resourceRefreshInterval * 1000);
+            const interval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    load(false);
+                }
+            }, settings.resourceRefreshInterval * 1000);
             return () => clearInterval(interval);
         }
     }, [load, settings.resourceRefreshInterval]);
@@ -90,23 +128,31 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
         items: filteredItems,
         rawData: items,
         loading,
+        isRefreshing,
         error,
         sortConfig,
         setSortConfig,
-        refresh: load
+        refresh: () => load(false)
     };
 }
 
 /**
- * Custom hook for fetching single resource details DTO.
+ * Optimized Detail fetching with visibility check and minimum refresh indicator duration.
  */
 export function useResourceDetails(kind, namespace, name) {
+    const { settings } = useSettings();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
 
-    const load = useCallback(async () => {
-        setLoading(true);
+    const load = useCallback(async (isInitial = false) => {
+        if (document.visibilityState !== 'visible') return;
+
+        if (isInitial) setLoading(true);
+        else setIsRefreshing(true);
+        
+        const startTime = Date.now();
         try {
             const url = namespace && namespace !== '-' 
                 ? `/api/resources/${kind}/${namespace}/${name}` 
@@ -122,13 +168,36 @@ export function useResourceDetails(kind, namespace, name) {
         } catch (err) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, 600 - duration);
+            setTimeout(() => {
+                setLoading(false);
+                setIsRefreshing(false);
+            }, delay);
         }
     }, [kind, namespace, name]);
 
     useEffect(() => {
-        if (kind && name) load();
-    }, [load]);
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && settings.resourceRefreshInterval > 0) {
+                load(false);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [load, settings.resourceRefreshInterval]);
 
-    return { data, loading, error, refresh: load };
+    useEffect(() => {
+        if (kind && name) {
+            load(true);
+            if (settings.resourceRefreshInterval > 0) {
+                const interval = setInterval(() => {
+                    if (document.visibilityState === 'visible') load(false);
+                }, settings.resourceRefreshInterval * 1000);
+                return () => clearInterval(interval);
+            }
+        }
+    }, [load, kind, name, settings.resourceRefreshInterval]);
+
+    return { data, loading, isRefreshing, error, refresh: () => load(false) };
 }

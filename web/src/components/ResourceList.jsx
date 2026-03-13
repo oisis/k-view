@@ -214,7 +214,7 @@ export default function ResourceList({ kind: propKind }) {
     const navigate = useNavigate();
 
     const url = `/api/resources/${kind}${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`;
-    const { items, loading, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
+    const { items, loading, isRefreshing, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
 
     useEffect(() => {
         fetch('/api/namespaces')
@@ -258,8 +258,19 @@ export default function ResourceList({ kind: propKind }) {
         >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center">
                         {t(kind) || schema.title}
+                        <AnimatePresence>
+                            {isRefreshing && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.5 }}
+                                    className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-3"
+                                    title="Auto-refreshing..."
+                                />
+                            )}
+                        </AnimatePresence>
                     </h1>
                     <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1 opacity-70">
                         {loading ? t('loading') : `${(items || []).length} ${(items || []).length === 1 ? t('item') : t('items')}`}

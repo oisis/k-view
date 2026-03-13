@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation, useSettings } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
@@ -58,7 +58,9 @@ export default function ResourceDetails() {
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
+    const isVisible = useRef(true);
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
     const [relatedJobs, setRelatedJobs] = useState([]);
@@ -75,8 +77,12 @@ export default function ResourceDetails() {
     const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
     const [triggering, setTriggering] = useState(false);
 
-    const load = async () => {
-        setLoading(true);
+    const load = async (isInitial = false) => {
+        if (!isVisible.current) return;
+        if (isInitial) setLoading(true);
+        else setIsRefreshing(true);
+
+        const startTime = Date.now();
         try {
             const url = namespace && namespace !== '-' 
                 ? `/api/resources/${kind}/${namespace}/${name}` 
@@ -125,13 +131,33 @@ export default function ResourceDetails() {
         } catch (err) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            const duration = Date.now() - startTime;
+            const delay = Math.max(0, 600 - duration);
+
+            setTimeout(() => {
+                if (isInitial) setLoading(false);
+                else setIsRefreshing(false);
+            }, delay);
         }
     };
 
     useEffect(() => {
-        if (kind && name) load();
-    }, [kind, namespace, name, activeTab]);
+        const handleVisibilityChange = () => {
+            isVisible.current = document.visibilityState === 'visible';
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        if (kind && name) load(true);
+
+        const interval = setInterval(() => {
+            if (kind && name) load(false);
+        }, settings?.refreshInterval || 10000);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            clearInterval(interval);
+        };
+    }, [kind, namespace, name, activeTab, settings.refreshInterval]);
 
     if (loading && !data) return (
         <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
@@ -155,7 +181,7 @@ export default function ResourceDetails() {
                     <h3 className="text-2xl font-black tracking-tight text-destructive uppercase italic">{t('error')}</h3>
                 </div>
                 <p className="text-muted-foreground font-medium mb-6">{error}</p>
-                <Button onClick={load} variant="destructive" className="font-bold uppercase tracking-widest px-8">
+                <Button onClick={() => load(true)} variant="destructive" className="font-bold uppercase tracking-widest px-8">
                     {t('retry')}
                 </Button>
             </Card>
@@ -178,7 +204,7 @@ export default function ResourceDetails() {
             const res = await fetch(url, { method: 'POST' });
             if (!res.ok) throw new Error('Failed to trigger job');
             setIsTriggerModalOpen(false);
-            load();
+            load(false);
         } catch (err) {
             alert(err.message);
         } finally {
@@ -213,9 +239,20 @@ export default function ResourceDetails() {
                                 </Badge>
                             )}
                         </div>
-                        <h2 className="text-3xl font-black tracking-tighter text-foreground italic uppercase">
+                        <h1 className="text-3xl font-black tracking-tighter text-foreground italic uppercase flex items-center">
                             {name}
-                        </h2>
+                            <AnimatePresence>
+                                {isRefreshing && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.5 }}
+                                        className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-3"
+                                        title="Auto-refreshing..."
+                                    />
+                                )}
+                            </AnimatePresence>
+                        </h1>
                         <p className="text-[10px] font-mono text-muted-foreground mt-1.5 font-bold uppercase tracking-widest opacity-60">
                             UID: <span className="text-primary/70">{data.metadata?.uid || '—'}</span>
                         </p>
@@ -303,7 +340,7 @@ export default function ResourceDetails() {
                                 name={name} 
                                 canEdit={true}
                                 t={t}
-                                onRefresh={load}
+                                onRefresh={() => load(false)}
                             />
                         )}
                         {activeTab === 'logs' && (
@@ -382,8 +419,8 @@ export default function ResourceDetails() {
                                         {t('no')}
                                     </Button>
                                     <Button
-                                        onClick={handleSave}
-                                        disabled={isSubmitting}
+                                        onClick={handleTrigger}
+                                        disabled={triggering}
                                         className="rounded-2xl h-14 bg-emerald-500 hover:bg-emerald-600 text-primary-foreground font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/20"
                                     >
                                         {triggering ? (
