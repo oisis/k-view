@@ -22,7 +22,7 @@ export default function ImagePullSecretsTable({ imagePullSecrets, namespace, t }
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-mono text-sm">
                                         <Link
-                                            to={`/secrets/${namespace || '-'}/${s.name}`}
+                                            to={`/resources/Secrets/${namespace || '-'}/${s.name}`}
                                             className="text-purple-400 hover:underline font-bold"
                                         >
                                             {s.name}

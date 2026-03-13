@@ -67,7 +67,7 @@ export default function ResourceInfoSection({
                             <tbody>
                                 <tr className="align-middle">
                                     <td className={cellClass}>
-                                        <Link to={`/nodes/-/${spec?.nodeName}`} className="text-primary hover:underline font-mono">{spec?.nodeName || '—'}</Link>
+                                        <Link to={`/resources/Nodes/-/${spec?.nodeName}`} className="text-primary hover:underline font-mono">{spec?.nodeName || '—'}</Link>
                                     </td>
                                     <td className={cellClass}>
                                         <span className={status?.phase === 'Running' ? 'text-emerald-600 font-bold' : 'text-orange-600 font-bold'}>{status?.phase || '—'}</span>
@@ -76,7 +76,7 @@ export default function ResourceInfoSection({
                                     <td className={cellClass}>{status?.qosClass || '—'}</td>
                                     <td className={cellClass}>{data?.extra?.restarts || 0}</td>
                                     <td className={lastCellClass}>
-                                        <Link to={`/serviceaccounts/${data?.resource?.namespace}/${spec?.serviceAccountName}`} className="text-primary font-semibold hover:underline">{spec?.serviceAccountName || '—'}</Link>
+                                        <Link to={`/resources/ServiceAccounts/${data?.resource?.namespace || '-'}/${spec?.serviceAccountName}`} className="text-primary font-semibold hover:underline">{spec?.serviceAccountName || '—'}</Link>
                                     </td>
                                 </tr>
                             </tbody>

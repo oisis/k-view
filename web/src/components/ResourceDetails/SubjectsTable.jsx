@@ -24,7 +24,7 @@ export default function SubjectsTable({ subjects, t }) {
                             <tr key={i} className="hover:bg-white/5 transition-colors">
                                 <td className="px-4 py-2 font-bold text-accent font-mono">
                                     {sub.kind === 'ServiceAccount' ? (
-                                        <Link to={`/serviceaccounts/${sub.namespace || '-'}/${sub.name}`} className="hover:underline text-primary">
+                                        <Link to={`/resources/ServiceAccounts/${sub.namespace || '-'}/${sub.name}`} className="hover:underline text-primary">
                                             {sub.name}
                                         </Link>
                                     ) : (
@@ -33,7 +33,7 @@ export default function SubjectsTable({ subjects, t }) {
                                 </td>
                                 <td className="px-4 py-2 font-mono text-xs text-secondary">
                                     {sub.namespace ? (
-                                        <Link to={`/namespaces/-/${sub.namespace}`} className="text-accent hover:underline">
+                                        <Link to={`/resources/Namespaces/-/${sub.namespace}`} className="text-accent hover:underline">
                                             {sub.namespace}
                                         </Link>
                                     ) : '—'}

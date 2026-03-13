@@ -16,6 +16,27 @@ import MainLayout from './components/MainLayout';
 import { useTranslation, useSettings } from './SettingsContext';
 import { useTheme } from './ThemeContext';
 
+// ── Helper Components for Redirects (Defined before App to avoid Scope issues) ──
+function RedirectToResources() {
+    const { kind } = useParams();
+    return <Navigate to={`/resources/${kind}`} replace />;
+}
+
+function RedirectToDetails() {
+    const { kind, namespace, name } = useParams();
+    // Prevent redirect loops for already correct paths or known routes
+    const knownRoutes = ['resources', 'login', 'settings', 'about', 'console', 'access', 'nodes'];
+    if (knownRoutes.includes(kind)) {
+        return null; 
+    }
+    return <Navigate to={`/resources/${kind}/${namespace}/${name}`} replace />;
+}
+
+function NavigateToNamespace() {
+    const { name } = useParams();
+    return <Navigate to={`/resources/Namespaces/-/${name}`} replace />;
+}
+
 // ── Global Fetch Interceptor ───────────────────────────────────────────────
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
@@ -159,10 +180,10 @@ function App() {
                     <Route path="config/:kind" element={<RedirectToResources />} />
                     <Route path="cluster/:kind" element={<RedirectToResources />} />
                     
-                    {/* Legacy details redirect */}
+                    {/* Legacy details redirect (e.g. /Pods/default/pod-name) */}
                     <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
 
-                    {/* Compatibility for Namespaces path used in lists */}
+                    {/* Compatibility for Namespaces path used in older links */}
                     <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
                 </Route>
 
@@ -171,26 +192,6 @@ function App() {
             </Routes>
         </Router>
     );
-}
-
-// ── Helper Components for Redirects ────────────────────────────────────────
-function RedirectToResources() {
-    const { kind } = useParams();
-    return <Navigate to={`/resources/${kind}`} replace />;
-}
-
-function RedirectToDetails() {
-    const { kind, namespace, name } = useParams();
-    // Prevent redirect loops for already correct paths
-    if (kind === 'resources' || kind === 'login' || kind === 'settings' || kind === 'about' || kind === 'console' || kind === 'access') {
-        return null; 
-    }
-    return <Navigate to={`/resources/${kind}/${namespace}/${name}`} replace />;
-}
-
-function NavigateToNamespace() {
-    const { name } = useParams();
-    return <Navigate to={`/resources/Namespaces/-/${name}`} replace />;
 }
 
 export default App;

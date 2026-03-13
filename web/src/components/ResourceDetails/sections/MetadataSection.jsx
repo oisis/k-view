@@ -81,7 +81,7 @@ export default function MetadataSection({
                                 <td className="px-4 py-3 border-r border-border align-middle">
                                     <div className="flex items-center min-h-[3rem]">
                                         {metadata?.namespace ? (
-                                            <Link to={`/namespaces/-/${metadata.namespace}`} className="text-primary font-semibold hover:underline truncate block w-full">
+                                            <Link to={`/resources/Namespaces/-/${metadata.namespace}`} className="text-primary font-semibold hover:underline truncate block w-full">
                                                 {metadata.namespace}
                                             </Link>
                                         ) : (
