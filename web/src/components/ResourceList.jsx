@@ -211,6 +211,7 @@ export default function ResourceList({ kind: propKind }) {
 
     const scope = user?.email || 'anonymous';
     const nsKey = `kview-selected-namespace-${scope}`;
+    const sizingKey = `kview-table-sizing-${kind}`;
 
     const [namespace, setNamespace] = useState(() => {
         const saved = localStorage.getItem(nsKey);
@@ -259,6 +260,20 @@ export default function ResourceList({ kind: propKind }) {
 
     const isEvent = kind === 'Events';
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
+
+    // --- Column Sizing Persistence ---
+    const [columnSizing, setColumnSizing] = useState(() => {
+        try {
+            const saved = localStorage.getItem(sizingKey);
+            return saved ? JSON.parse(saved) : {};
+        } catch (e) { return {}; }
+    });
+
+    useEffect(() => {
+        if (Object.keys(columnSizing).length > 0) {
+            localStorage.setItem(sizingKey, JSON.stringify(columnSizing));
+        }
+    }, [columnSizing, sizingKey]);
 
     // --- TanStack Table Definition ---
     const sorting = useMemo(() => [
@@ -320,8 +335,12 @@ export default function ResourceList({ kind: propKind }) {
     const table = useReactTable({
         data: paginatedItems,
         columns: tanstackColumns,
-        state: { sorting },
+        state: { 
+            sorting,
+            columnSizing,
+        },
         columnResizeMode: 'onChange',
+        onColumnSizingChange: setColumnSizing,
         manualSorting: true,
         onSortingChange: (updater) => {
             const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -376,7 +395,7 @@ export default function ResourceList({ kind: propKind }) {
 
             <Card className="border-border/50 bg-card overflow-hidden shadow-xl transition-all duration-500">
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table style={{ minWidth: '100%', width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0">
+                    <table style={{ minWidth: '100%', width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
                         <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
@@ -385,21 +404,22 @@ export default function ResourceList({ kind: propKind }) {
                                             key={header.id} 
                                             style={{ width: header.getSize() }}
                                             className={cn(
-                                                "relative py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
+                                                "relative py-3 px-0 whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
                                                 header.id === 'actions' && "bg-muted/30"
                                             )}
-                                            onClick={header.column.getToggleSortingHandler()}
                                         >
-                                            <div className="flex items-center justify-center">
+                                            <div 
+                                                className="flex items-center justify-center h-full w-full px-4 cursor-pointer hover:text-primary transition-colors"
+                                                onClick={header.column.getToggleSortingHandler()}
+                                            >
                                                 {flexRender(header.column.columnDef.header, header.getContext())}
                                             </div>
                                             
-                                            {/* Resize Handle */}
                                             <div
                                                 onMouseDown={header.getResizeHandler()}
                                                 onTouchStart={header.getResizeHandler()}
                                                 className={cn(
-                                                    "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/30 transition-colors",
+                                                    "absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20",
                                                     header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent"
                                                 )}
                                             />
