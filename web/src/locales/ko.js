@@ -380,5 +380,9 @@ export const ko = {
     "yes": "예",
     "no": "아니요",
     "scale_replicas": "레플리카 스케일링",
-    "exec_shell": "셸 실행"
-    };
+    "exec_shell": "셸 실행",
+    "table_density": "테이블 밀도",
+    "comfortable": "편안함",
+    "compact": "컴팩트",
+    "table_density_desc": "리소스 테이블의 수직 간격과 글꼴 크기를 조정합니다。"
+};

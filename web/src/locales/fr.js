@@ -380,5 +380,9 @@ export const fr = {
     "yes": "Oui",
     "no": "Non",
     "scale_replicas": "Mise à l'échelle des réplicas",
-    "exec_shell": "Exécuter le shell"
+    "exec_shell": "Exécuter le shell",
+    "table_density": "Densité du tableau",
+    "comfortable": "Confortable",
+    "compact": "Compact",
+    "table_density_desc": "Ajustez l'espacement vertical et la taille de la police des tableaux de ressources."
 };

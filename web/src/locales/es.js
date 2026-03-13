@@ -380,5 +380,9 @@ export const es = {
     "yes": "Sí",
     "no": "No",
     "scale_replicas": "Escalar réplicas",
-    "exec_shell": "Ejecutar shell"
+    "exec_shell": "Ejecutar shell",
+    "table_density": "Densidad de la tabla",
+    "comfortable": "Cómodo",
+    "compact": "Compacto",
+    "table_density_desc": "Ajuste el espacio vertical y el tamaño de fuente de las tablas de recursos."
 };

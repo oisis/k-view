@@ -380,5 +380,9 @@ export const pl = {
     "confirm_trigger_message": "Czy na pewno chcesz ręcznie uruchomić Joba dla tego CronJoba?",
     "yes": "Tak",
     "no": "Nie",
-    "exec_shell": "Uruchom powłokę"
+    "exec_shell": "Uruchom powłokę",
+    "table_density": "Zagęszczenie tabeli",
+    "comfortable": "Komfortowy",
+    "compact": "Kompaktowy",
+    "table_density_desc": "Dostosuj odstępy pionowe i rozmiar czcionki w tabelach zasobów."
 };

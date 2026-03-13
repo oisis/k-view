@@ -380,5 +380,9 @@ export const de = {
     "confirm_trigger_message": "Sind Sie sicher, dass Sie einen Job für diesen CronJob manuell auslösen möchten?",
     "yes": "Ja",
     "no": "Nein",
-    "exec_shell": "Shell ausführen"
+    "exec_shell": "Shell ausführen",
+    "table_density": "Tabellendichte",
+    "comfortable": "Komfortabel",
+    "compact": "Kompakt",
+    "table_density_desc": "Passen Sie den vertikalen Abstand und die Schriftgröße der Ressourcentabellen an."
 };

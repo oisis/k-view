@@ -380,5 +380,9 @@ export const ja = {
     "yes": "はい",
     "no": "いいえ",
     "scale_replicas": "レプリカのスケーリング",
-    "exec_shell": "シェルを実行"
+    "exec_shell": "シェルを実行",
+    "table_density": "テーブルの密度",
+    "comfortable": "快適",
+    "compact": "コンパクト",
+    "table_density_desc": "リソーステーブルの垂直方向の間隔とフォントサイズを調整します。"
 };

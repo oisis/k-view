@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
     labelsLimit: 5,
     logsRefreshInterval: 5,
     resourceRefreshInterval: 5,
+    tableDensity: 'comfortable',
     locale: 'en'
 };
 

@@ -380,5 +380,9 @@ export const en = {
     "confirm_trigger_message": "Are you sure you want to manually trigger a Job for this CronJob?",
     "yes": "Yes",
     "no": "No",
-    "exec_shell": "Exec Shell"
+    "exec_shell": "Exec Shell",
+    "table_density": "Table Density",
+    "comfortable": "Comfortable",
+    "compact": "Compact",
+    "table_density_desc": "Adjust the vertical spacing and font size of resource tables."
 };

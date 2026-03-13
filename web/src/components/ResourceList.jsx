@@ -270,6 +270,7 @@ export default function ResourceList({ kind: propKind }) {
     const { t } = useTranslation();
     const { icons } = useTheme();
     const schema = SCHEMAS[kind] || { title: kind, cols: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }] };
+    const density = settings.tableDensity || 'comfortable';
     
     const [namespaces, setNamespaces] = useState([]);
     const [user, setUser] = useState(null);
@@ -296,7 +297,7 @@ export default function ResourceList({ kind: propKind }) {
         const saved = localStorage.getItem(nsKey);
         if (saved === null) setNamespace(settings.defaultNamespace);
         else setNamespace(saved);
-    }, [nsKey, settings.defaultNamespace, kind]); // Added kind to reset when switching resources
+    }, [nsKey, settings.defaultNamespace, kind]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
@@ -331,20 +332,17 @@ export default function ResourceList({ kind: propKind }) {
     const isEvent = kind === 'Events';
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
 
-    // --- Column State Isolation (Fix) ---
+    // --- Column Persistence ---
     const [columnSizing, setColumnSizing] = useState({});
     const [columnVisibility, setColumnVisibility] = useState({});
     const lastKind = useRef(kind);
 
-    // Initial load from localStorage when kind changes
     useEffect(() => {
         try {
             const savedSizing = localStorage.getItem(sizingKey);
             setColumnSizing(savedSizing ? JSON.parse(savedSizing) : {});
-            
             const savedVisibility = localStorage.getItem(visibilityKey);
             setColumnVisibility(savedVisibility ? JSON.parse(savedVisibility) : {});
-            
             lastKind.current = kind;
         } catch (e) {
             setColumnSizing({});
@@ -352,23 +350,16 @@ export default function ResourceList({ kind: propKind }) {
         }
     }, [kind, sizingKey, visibilityKey]);
 
-    // Persistent Save (Only if kind hasn't changed during update)
     useEffect(() => {
-        if (lastKind.current === kind) {
-            localStorage.setItem(visibilityKey, JSON.stringify(columnVisibility));
-        }
+        if (lastKind.current === kind) localStorage.setItem(visibilityKey, JSON.stringify(columnVisibility));
     }, [columnVisibility, visibilityKey, kind]);
 
     useEffect(() => {
-        if (lastKind.current === kind && Object.keys(columnSizing).length > 0) {
-            localStorage.setItem(sizingKey, JSON.stringify(columnSizing));
-        }
+        if (lastKind.current === kind && Object.keys(columnSizing).length > 0) localStorage.setItem(sizingKey, JSON.stringify(columnSizing));
     }, [columnSizing, sizingKey, kind]);
 
     // --- TanStack Table Definition ---
-    const sorting = useMemo(() => [
-        { id: sortConfig.key, desc: sortConfig.direction === 'desc' }
-    ], [sortConfig]);
+    const sorting = useMemo(() => [{ id: sortConfig.key, desc: sortConfig.direction === 'desc' }], [sortConfig]);
 
     const getInitialSize = (columnId) => {
         if (columnId === 'name') return kind === 'Pods' ? 400 : 300;
@@ -395,18 +386,19 @@ export default function ResourceList({ kind: propKind }) {
                 cell: info => {
                     const item = info.row.original;
                     let val = info.getValue();
-                    if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
-                        val = formatK8sDate(val);
-                    }
+                    if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) val = formatK8sDate(val);
                     const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                     if (expandableKeys.includes(col.key)) return <ExpandableCell value={val} type={col.key.split('.')[1]} />;
                     if (col.key === 'extra.schedule') return <ScheduleCell value={val} item={item} />;
                     if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') return <span className="text-primary font-semibold">{val}</span>;
                     if (col.badge) return <StatusBadge value={val} />;
-                    if (col.key === 'name') return <Link to={`/resources/${kind}/${item.namespace || '-'}/${val}`} className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary" title={val}>{val}</Link>;
-                    if (col.key === 'namespace' && val !== '-') return <Link to={`/resources/Namespaces/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs" title={val}>{val}</Link>;
-                    if (col.key === 'extra.node') return <Link to={`/resources/Nodes/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold" title={val}>{val}</Link>;
-                    return <span className="text-muted-foreground font-medium truncate block text-xs" title={val}>{val}</span>;
+                    
+                    const textClass = density === 'compact' ? "text-[11px]" : "text-[13px]";
+
+                    if (col.key === 'name') return <Link to={`/resources/${kind}/${item.namespace || '-'}/${val}`} className={cn("font-mono font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary", textClass)} title={val}>{val}</Link>;
+                    if (col.key === 'namespace' && val !== '-') return <Link to={`/resources/Namespaces/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-[11px]" title={val}>{val}</Link>;
+                    if (col.key === 'extra.node') return <Link to={`/resources/Nodes/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block font-mono text-[11px] text-center font-semibold" title={val}>{val}</Link>;
+                    return <span className={cn("text-muted-foreground font-medium truncate block", density === 'compact' ? "text-[10px]" : "text-xs")} title={val}>{val}</span>;
                 },
             });
         });
@@ -420,7 +412,7 @@ export default function ResourceList({ kind: propKind }) {
             }));
         }
         return baseCols;
-    }, [schema, t, kind, refresh, icons]);
+    }, [schema, t, kind, refresh, icons, density]);
 
     const table = useReactTable({
         data: paginatedItems,
@@ -444,11 +436,15 @@ export default function ResourceList({ kind: propKind }) {
     });
 
     const getCellAlignmentClass = (columnId) => {
-        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas', 'actions'].includes(columnId)) return "text-center px-4 font-mono text-[13px]";
-        if (columnId === 'name') return "text-left px-6";
-        if (columnId === 'extra.message') return "text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
-        return "px-4";
+        const base = density === 'compact' ? "text-[11px] px-3 font-mono" : "text-[13px] px-4 font-mono";
+        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas', 'actions'].includes(columnId)) return `text-center ${base}`;
+        if (columnId === 'name') return density === 'compact' ? "text-left px-4" : "text-left px-6";
+        if (columnId === 'extra.message') return density === 'compact' ? "text-left px-4 text-[10px] leading-tight text-muted-foreground font-medium" : "text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
+        return density === 'compact' ? "px-3" : "px-4";
     };
+
+    const headerHeight = density === 'compact' ? "py-2 px-3" : "py-3 px-4";
+    const rowHeight = density === 'compact' ? "py-1.5" : "py-3";
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:p-8">
@@ -489,8 +485,8 @@ export default function ResourceList({ kind: propKind }) {
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
-                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative py-3 px-0 whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", header.id === 'actions' && "bg-muted/30")}>
-                                            <div className="flex items-center justify-center h-full w-full px-4 cursor-pointer hover:text-primary transition-colors" onClick={header.column.getToggleSortingHandler()}>{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", headerHeight, header.id === 'actions' && "bg-muted/30")}>
+                                            <div className="flex items-center justify-center h-full w-full cursor-pointer hover:text-primary transition-colors" onClick={header.column.getToggleSortingHandler()}>{flexRender(header.column.columnDef.header, header.getContext())}</div>
                                             <div onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()} className={cn("absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20", header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent")} />
                                         </th>
                                     ))}
@@ -505,7 +501,7 @@ export default function ResourceList({ kind: propKind }) {
                             ) : table.getRowModel().rows.map((row, i) => (
                                 <motion.tr key={row.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="hover:bg-muted/50 transition-all group">
                                     {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0", getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                                        <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0 transition-all duration-300", rowHeight, getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                                     ))}
                                 </motion.tr>
                             ))}

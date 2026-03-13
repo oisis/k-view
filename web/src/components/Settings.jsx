@@ -267,6 +267,17 @@ export default function Settings() {
                             description={t('logs_refresh_desc')}
                         />
                         <SelectField
+                            label={t('table_density')}
+                            icon={icons.list}
+                            value={draftSettings.tableDensity}
+                            onChange={(v) => handleUpdateDraft({ tableDensity: v })}
+                            options={[
+                                { value: 'comfortable', label: t('comfortable') },
+                                { value: 'compact', label: t('compact') }
+                            ]}
+                            description={t('table_density_desc')}
+                        />
+                        <SelectField
                             label={t('localization')}
                             icon={icons.languages}
                             value={draftSettings.locale}

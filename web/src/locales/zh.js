@@ -379,5 +379,9 @@ export const zh = {
     "yes": "是",
     "no": "不",
     "scale_replicas": "扩展副本",
-    "exec_shell": "执行 Shell"
-    };
+    "exec_shell": "执行 Shell",
+    "table_density": "表格密度",
+    "comfortable": "舒适",
+    "compact": "紧凑",
+    "table_density_desc": "调整资源表的垂直间距和字体大小。"
+};
