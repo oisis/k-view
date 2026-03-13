@@ -23,7 +23,7 @@ export default function HpaOverview({ data, spec, status, t }) {
             header: 'name', 
             accessor: (row) => {
                 const pluralKind = KIND_MAP[row.kind] || row.kind;
-                return <Link to={`/${pluralKind}/${data.resource.namespace}/${row.name}`} className="hover:underline text-accent font-bold font-mono">{row.name}</Link>
+                return <Link to={`/resources/${pluralKind}/${data.resource.namespace}/${row.name}`} className="hover:underline text-accent font-bold font-mono">{row.name}</Link>
             } 
         }
     ];

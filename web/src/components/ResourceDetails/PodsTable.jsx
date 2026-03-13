@@ -34,12 +34,12 @@ export default function PodsTable({ pods, onRefresh }) {
                             (pods || []).map((pod, i) => (
                                 <tr key={i} className="hover:bg-[var(--bg-sidebar)]/10 transition-colors group">
                                     <td className="px-4 py-3 font-mono font-bold text-accent truncate">
-                                        <Link to={`/pods/${pod.namespace}/${pod.name}`} className="hover:underline block truncate" title={pod.name}>
+                                        <Link to={`/resources/Pods/${pod.namespace}/${pod.name}`} className="hover:underline block truncate" title={pod.name}>
                                             {pod.name}
                                         </Link>
                                     </td>
                                     <td className="px-4 py-3 text-secondary truncate">
-                                        <Link to={`/namespaces/-/${pod.namespace}`} className="hover:underline block truncate" title={pod.namespace}>
+                                        <Link to={`/resources/Namespaces/-/${pod.namespace}`} className="hover:underline block truncate" title={pod.namespace}>
                                             {pod.namespace}
                                         </Link>
                                     </td>

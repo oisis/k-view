@@ -211,7 +211,7 @@ export default function Nodes() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-primary justify-center">
                                                 <Link
-                                                    to={`/nodes/-/${node.name}`}
+                                                    to={`/resources/Nodes/-/${node.name}`}
                                                     className="text-info hover:text-info/80 transition-colors underline decoration-info/30 underline-offset-4"
                                                 >
                                                     {node.name}

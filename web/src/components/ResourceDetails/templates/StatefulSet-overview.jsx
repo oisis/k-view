@@ -10,7 +10,7 @@ export default function StatefulSetOverview({ data, spec, status, relatedPods = 
     const { icons: themeIcons } = useTheme();
 
     const podColumns = [
-        { header: t('label_name'), accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
+        { header: t('label_name'), accessor: (p) => <Link to={`/resources/Pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: t('images'), accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: t('label_labels'), accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },

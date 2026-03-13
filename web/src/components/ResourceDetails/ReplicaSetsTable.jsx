@@ -27,7 +27,7 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
                             (replicaSets || []).map((rs, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono">
-                                        <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="hover:underline">{rs.name}</Link>
+                                        <Link to={`/resources/ReplicaSets/${rs.namespace}/${rs.name}`} className="hover:underline">{rs.name}</Link>
                                     </td>
                                     <td className="px-4 py-2 text-secondary">{rs.namespace}</td>
                                     <td className="px-4 py-2 text-text-muted text-xs">{rs.age}</td>

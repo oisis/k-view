@@ -25,7 +25,7 @@ export default function PersistenceVolumeClaimsTable({ pvcNames, namespace, t })
                             (pvcNames || []).map((pvc, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono text-xs">
-                                        <Link to={`/pvcs/${namespace}/${pvc}`} className="hover:underline">{pvc}</Link>
+                                        <Link to={`/resources/PersistentVolumeClaims/${namespace}/${pvc}`} className="hover:underline">{pvc}</Link>
                                     </td>
                                     <td className="px-4 py-2 text-secondary">{namespace}</td>
                                     <td className="px-4 py-2 text-center text-text-muted">—</td>

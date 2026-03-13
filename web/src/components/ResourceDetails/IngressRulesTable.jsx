@@ -31,7 +31,7 @@ export default function IngressRulesTable({ spec, t }) {
                                         <td className="px-4 py-3 text-xs text-text-muted">{path.pathType || 'ImplementationSpecific'}</td>
                                         <td className="px-4 py-3 font-bold text-accent font-mono text-xs">
                                             {path.backend?.service?.name ? (
-                                                <Link to={`/services/${spec.namespace || '-'}/${path.backend.service.name}`} className="hover:underline">
+                                                <Link to={`/resources/Services/${spec.namespace || '-'}/${path.backend.service.name}`} className="hover:underline">
                                                     {path.backend.service.name}
                                                 </Link>
                                             ) : '—'}

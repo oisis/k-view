@@ -21,7 +21,7 @@ export default function NodeOverview({ data, spec, status, relatedPods = [], t, 
     const podsPercent = (allocation.pods?.allocation / allocation.pods?.capacity) * 100 || 0;
 
     const podColumns = [
-        { header: 'Name', accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="text-info hover:underline font-mono">{p.name}</Link> },
+        { header: 'Name', accessor: (p) => <Link to={`/resources/Pods/${p.namespace}/${p.name}`} className="text-info hover:underline font-mono">{p.name}</Link> },
         { header: 'Namespace', accessor: 'namespace' },
         { header: 'Images', accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: 'Labels', accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },

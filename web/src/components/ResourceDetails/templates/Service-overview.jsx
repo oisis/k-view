@@ -9,7 +9,7 @@ export default function ServiceOverview({ data, spec, status, relatedEndpoints =
     const { icons: themeIcons } = useTheme();
 
     const podColumns = [
-        { header: t('label_name'), accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="text-info hover:underline">{p.name}</Link> },
+        { header: t('label_name'), accessor: (p) => <Link to={`/resources/Pods/${p.namespace}/${p.name}`} className="text-info hover:underline">{p.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: t('images'), accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: t('label_labels'), accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
@@ -22,7 +22,7 @@ export default function ServiceOverview({ data, spec, status, relatedEndpoints =
     ];
 
     const ingressColumns = [
-        { header: t('label_name'), accessor: (i) => <Link to={`/ingresses/${i.namespace}/${i.name}`} className="text-accent hover:underline">{i.name}</Link> },
+        { header: t('label_name'), accessor: (i) => <Link to={`/resources/Ingresses/${i.namespace}/${i.name}`} className="text-accent hover:underline">{i.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: t('label_labels'), accessor: (i) => <ExpandableCell value={i.extra?.labels || {}} type="labels" icons={themeIcons} /> },
         { header: t('endpoints'), accessor: (i) => <ExpandableCell value={i.extra?.endpoints || []} type="endpoints" icons={themeIcons} /> },

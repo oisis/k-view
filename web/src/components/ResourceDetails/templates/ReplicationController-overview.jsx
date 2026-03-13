@@ -15,7 +15,7 @@ export default function ReplicationControllerOverview({ data, spec, status, rela
     const services = Array.isArray(relatedServices) ? relatedServices : [];
 
     const podColumns = [
-        { header: t('label_name'), accessor: (p) => <Link to={`/pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
+        { header: t('label_name'), accessor: (p) => <Link to={`/resources/Pods/${p.namespace}/${p.name}`} className="hover:underline text-accent font-bold font-mono">{p.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: 'Images', accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: 'Labels', accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
@@ -28,7 +28,7 @@ export default function ReplicationControllerOverview({ data, spec, status, rela
     ];
 
     const svcColumns = [
-        { header: t('label_name'), accessor: (s) => <Link to={`/services/${s.namespace}/${s.name}`} className="hover:underline text-accent font-bold font-mono">{s.name}</Link> },
+        { header: t('label_name'), accessor: (s) => <Link to={`/resources/Services/${s.namespace}/${s.name}`} className="hover:underline text-accent font-bold font-mono">{s.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: t('label_labels'), accessor: (s) => <ExpandableCell value={s.extra?.labels || {}} type="labels" icons={themeIcons} /> },
         { header: t('type'), accessor: (s) => s.extra?.type || '—' },

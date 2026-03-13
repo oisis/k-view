@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function ServiceAccountOverview({ data, metadata, spec, namespace, relatedSecrets = [], relatedImagePullSecrets = [], t, icons }) {
     const secretColumns = [
-        { header: 'Name', accessor: (s) => <Link to={`/secrets/${s.namespace}/${s.name}`} className="text-warning hover:underline font-mono">{s.name}</Link> },
+        { header: 'Name', accessor: (s) => <Link to={`/resources/Secrets/${s.namespace}/${s.name}`} className="text-warning hover:underline font-mono">{s.name}</Link> },
         { header: 'Type', accessor: (s) => s.extra?.type || '—', className: 'text-xs' },
         { header: 'Created', accessor: 'age' }
     ];

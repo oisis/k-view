@@ -14,7 +14,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
     const relatedPvcs = data?.relatedPvcs || [];
 
     const ownerColumns = [
-        { header: 'Name', accessor: (o) => <Link to={`/${o.extra?.kind || 'unknown'}s/${namespace}/${o.name}`} className="text-primary font-semibold hover:underline font-mono">{o.name}</Link> },
+        { header: 'Name', accessor: (o) => <Link to={`/resources/${o.extra?.kind || 'unknown'}s/${namespace}/${o.name}`} className="text-primary font-semibold hover:underline font-mono">{o.name}</Link> },
         { header: 'Kind', accessor: (o) => o.extra?.kind || '—', className: 'text-xs' },
         { header: 'Pods', accessor: (o) => o.extra?.readyReplicas || '—', className: 'text-center' },
         { header: 'Age', accessor: 'age' },
@@ -23,7 +23,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
     ];
 
     const pvcColumns = [
-        { header: 'Name', accessor: (p) => <Link to={`/persistentvolumeclaims/${p.namespace}/${p.name}`} className="text-primary font-semibold hover:underline font-mono">{p.name}</Link> },
+        { header: 'Name', accessor: (p) => <Link to={`/resources/PersistentVolumeClaims/${p.namespace}/${p.name}`} className="text-primary font-semibold hover:underline font-mono">{p.name}</Link> },
         { header: 'Namespace', accessor: 'namespace' },
         { header: 'Labels', accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
         { header: 'Status', accessor: 'status', badge: true },

@@ -27,7 +27,7 @@ export default function EndpointsTable({ endpoints, t }) {
                                     </td>
                                     <td className="px-4 py-3">
                                         {ep.node ? (
-                                            <Link to={`/nodes/${ep.node}`} className="text-xs text-accent hover:underline font-mono font-bold">
+                                            <Link to={`/resources/Nodes/-/${ep.node}`} className="text-xs text-accent hover:underline font-mono font-bold">
                                                 {ep.node}
                                             </Link>
                                         ) : '—'}

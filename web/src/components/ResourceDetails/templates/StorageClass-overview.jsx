@@ -9,7 +9,7 @@ export default function StorageClassOverview({ data, relatedPvs = [], t, icons }
     const { icons: themeIcons } = useTheme();
 
     const pvColumns = [
-        { header: 'Name', accessor: (p) => <Link to={`/persistentvolumes/-/${p.name}`} className="text-info hover:underline font-mono">{p.name}</Link> },
+        { header: 'Name', accessor: (p) => <Link to={`/resources/PersistentVolumes/-/${p.name}`} className="text-info hover:underline font-mono">{p.name}</Link> },
         { header: 'Capacity', accessor: (p) => p.extra?.storage || p.extra?.capacity || '—' },
         { header: 'Status', accessor: 'status', badge: true },
         { header: 'Claim', accessor: (p) => p.extra?.claim || p.extra?.claimRef || '—', className: 'text-xs opacity-70' },

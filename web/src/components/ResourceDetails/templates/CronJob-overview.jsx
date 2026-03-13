@@ -8,7 +8,7 @@ export default function CronJobOverview({ data, metadata, spec, status, relatedJ
     const jobs = Array.isArray(relatedJobs) ? relatedJobs : [];
 
     const jobColumns = [
-        { header: t('label_name'), accessor: (j) => <Link to={`/jobs/${j.namespace}/${j.name}`} className="hover:underline text-accent font-bold font-mono">{j.name}</Link> },
+        { header: t('label_name'), accessor: (j) => <Link to={`/resources/Jobs/${j.namespace}/${j.name}`} className="hover:underline text-accent font-bold font-mono">{j.name}</Link> },
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: 'Images', accessor: (j) => Array.isArray(j.extra?.images) ? j.extra.images.join(', ') : (j.extra?.images || '—'), className: 'text-xs font-mono' },
         { header: 'Labels', accessor: (j) => {

@@ -27,7 +27,7 @@ export default function HpaTable({ hpas, t }) {
                             (hpas || []).map((hpa, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono">
-                                        <Link to={`/hpas/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>
+                                        <Link to={`/resources/HorizontalPodAutoscalers/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>
                                     </td>
                                     <td className="px-4 py-2 text-secondary">{hpa.namespace}</td>
                                     <td className="px-4 py-2 text-center">{hpa.extra?.min || '—'}</td>

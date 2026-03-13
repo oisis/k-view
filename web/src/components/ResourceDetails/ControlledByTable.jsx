@@ -22,7 +22,7 @@ export default function ControlledByTable({ owners, namespace, t }) {
                             (owners || []).map((ref, i) => (
                                 <tr key={i} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-3 font-bold text-accent font-mono text-xs">
-                                        <Link to={`/${ref.kind.toLowerCase()}s/${namespace}/${ref.name}`} className="hover:underline">{ref.name}</Link>
+                                        <Link to={`/resources/${ref.kind}/${namespace}/${ref.name}`} className="hover:underline">{ref.name}</Link>
                                     </td>
                                     <td className="px-4 py-3 text-xs font-bold uppercase text-text-muted tracking-wider">{ref.kind}</td>
                                     <td className="px-4 py-3 text-xs text-text-muted font-mono">{ref.apiVersion}</td>

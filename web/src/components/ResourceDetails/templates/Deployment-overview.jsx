@@ -54,7 +54,7 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
     };
 
     const rsColumns = [
-        { header: 'Name', accessor: (rs) => <Link to={`/replicasets/${rs.namespace}/${rs.name}`} className="text-info hover:underline font-mono">{rs.name}</Link> },
+        { header: 'Name', accessor: (rs) => <Link to={`/resources/ReplicaSets/${rs.namespace}/${rs.name}`} className="text-info hover:underline font-mono">{rs.name}</Link> },
         { header: 'Namespace', accessor: 'namespace' },
         { header: 'Age', accessor: 'age' },
         { header: 'Labels', accessor: (rs) => renderLabelsCell(rs.extra?.labels, `rs-${rs.name}`), className: 'w-48' },
@@ -116,7 +116,7 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
             <CommonTable 
                 title="Horizontal Pod Autoscalers" 
                 columns={[
-                    { header: 'Name', accessor: (h) => <Link to={`/horizontalpodautoscalers/${h.namespace}/${h.name}`} className="text-accent hover:underline">{h.name}</Link> },
+                    { header: 'Name', accessor: (h) => <Link to={`/resources/HorizontalPodAutoscalers/${h.namespace}/${h.name}`} className="text-accent hover:underline">{h.name}</Link> },
                     { header: 'Type', accessor: (h) => h.extra?.type || 'Resource' },
                     { header: 'Resource / Name', accessor: (h) => h.extra?.reference || '—' },
                     { header: 'Target', accessor: (h) => h.extra?.targets || '—' },
