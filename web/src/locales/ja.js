@@ -378,5 +378,7 @@ export const ja = {
     "confirm_trigger_title": "実行の確認",
     "confirm_trigger_message": "このCronJobのジョブを手動で実行してもよろしいですか？",
     "yes": "はい",
-    "no": "いいえ"
+    "no": "いいえ",
+    "scale_replicas": "レプリカのスケーリング",
+    "exec_shell": "シェルを実行"
 };

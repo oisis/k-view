@@ -34,9 +34,9 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     const isNetworkPolicy = safeKindLower === 'network-policies' || safeKindLower === 'networkpolicy';
     const isRoleBinding = safeKindLower === 'role-bindings' || safeKindLower === 'rolebinding';
     const isRole = safeKindLower === 'roles' || safeKindLower === 'role';
-    const isServiceAccount = safeKindLower === 'service-accounts' || safeKindLower === 'serviceaccount' || safeKindLower === 'serviceaccounts';
-    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs', 'deployment', 'statefulset', 'daemonset', 'replicationcontroller', 'job', 'cronjob'].includes(safeKindLower);
-    const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'deployment', 'statefulset', 'replicationcontroller'].includes(safeKindLower);
+    const isServiceAccount = safeKindLower.includes('serviceaccount');
+    const isWorkload = ['deployments', 'statefulsets', 'daemonsets', 'replicationcontrollers', 'jobs', 'cronjobs'].some(k => safeKindLower.includes(k));
+    const isScalable = ['deployments', 'statefulsets', 'replicationcontrollers', 'replicasets'].some(k => safeKindLower.includes(k));
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -375,7 +375,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                                         <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 bg-[var(--bg-muted)] hover:bg-[var(--sidebar-hover)] text-foreground text-sm font-bold uppercase rounded-xl transition-all active:scale-95">
                                             {t('cancel')}
                                         </button>
-                                        <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-bold uppercase rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+                                        <button onClick={executeScale} disabled={isProcessing} className="flex-1 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-cyan-950 text-sm font-bold uppercase rounded-xl shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
                                             {isProcessing ? '...' : t('scale_now')}
                                         </button>
                                     </div>

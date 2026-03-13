@@ -24,17 +24,13 @@ export default function Login() {
         fetch('/api/auth/providers')
             .then(r => r.ok ? r.json() : { oidc: false, local: false, dev: false })
             .then(data => {
-                console.log('Auth providers received:', data);
                 setProviders(data);
-                // If only local is available, show it immediately
                 if (data.local && !data.oidc) {
-                    console.log('Force showing local login because OIDC is missing');
                     setShowLocalLogin(true);
                 }
                 setLoading(false);
             })
-            .catch((err) => {
-                console.error('Failed to fetch auth providers:', err);
+            .catch(() => {
                 setProviders({ oidc: false, local: false, dev: false });
                 setLoading(false);
             });
@@ -65,9 +61,7 @@ export default function Login() {
 
             const data = await res.json();
             if (data.token) {
-                // Store token in localStorage
                 localStorage.setItem('token', data.token);
-                // Redirect will be handled organically by App.jsx mounting or refreshing
                 window.location.href = '/';
             }
         } catch (err) {
@@ -92,29 +86,35 @@ export default function Login() {
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center min-h-screen text-secondary">Checking authentication settings...</div>;
+        return <div className="flex justify-center items-center min-h-screen text-muted-foreground">Checking authentication settings...</div>;
     }
 
     return (
         <div className="flex items-center justify-center min-h-screen">
             <div className="bg-card p-8 rounded-2xl shadow-2xl max-w-sm w-full border border-border glass relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
                 <div className="text-center mb-8 relative z-10">
-                    <h1 className="text-3xl font-bold text-blue-400 mb-2">K-View</h1>
-                    <p className="text-secondary">Kubernetes Dashboard</p>
+                    <h1 className="text-3xl font-black text-primary mb-2 tracking-tight italic">K-View</h1>
+                    <p className="text-muted-foreground font-medium text-sm uppercase tracking-widest opacity-70">Kubernetes Dashboard</p>
                 </div>
 
                 {loginError && (
-                    <div className="mb-6 p-4 bg-red-900/40 border border-red-500/50 rounded-lg flex items-start gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-alert text-red-400 mt-0.5 shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
-                        <p className="text-red-200 text-sm leading-relaxed">{loginError}</p>
-                    </div>
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }} 
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-start gap-3"
+                    >
+                        <div className="text-destructive mt-0.5 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
+                        </div>
+                        <p className="text-destructive text-xs font-bold leading-relaxed">{loginError}</p>
+                    </motion.div>
                 )}
 
                 {providers.oidc && (
                     <button
                         onClick={handleGoogleLogin}
-                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-button)] bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors mb-4"
+                        className="w-full flex justify-center py-3 px-4 rounded-xl shadow-lg text-sm font-black uppercase tracking-widest text-white bg-blue-600 hover:bg-blue-500 active:scale-95 transition-all mb-4"
                     >
                         Sign in with Google OIDC
                     </button>
@@ -125,69 +125,68 @@ export default function Login() {
                         {!showLocalLogin ? (
                             <button
                                 onClick={() => setShowLocalLogin(true)}
-                                className="text-xs text-secondary hover:text-blue-400 transition-colors flex items-center justify-center gap-1 mx-auto"
+                                className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-all flex items-center justify-center gap-2 mx-auto bg-muted/30 px-4 py-2 rounded-lg border border-border/50 active:scale-95"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
                                 Local user login
                             </button>
                         ) : providers.oidc && (
-                            <div className="relative my-4 text-center">
-                                <span className="text-xs uppercase tracking-wider font-bold text-text-muted">Local Authentication</span>
+                            <div className="relative my-6 text-center border-t border-border/50">
+                                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground">Local Auth</span>
                             </div>
                         )}
                     </div>
                 )}
 
                 {providers.local && showLocalLogin && (
-                    <form onSubmit={handleLocalSubmit} className="space-y-4 mb-4">
+                    <form onSubmit={handleLocalSubmit} className="space-y-4 mb-4 mt-4">
                         <div>
-                            <label className="block text-xs font-medium text-secondary mb-1">Username</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1.5 ml-1">Username</label>
                             <input
                                 type="text"
                                 required
                                 autoFocus
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
-                                className="w-full px-3 py-2 bg-main border border-border rounded-md text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full px-4 py-2.5 bg-background border-2 border-border rounded-xl text-sm text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-secondary mb-1">Password</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1.5 ml-1">Password</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                className="w-full px-3 py-2 bg-main border border-border rounded-md text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full px-4 py-2.5 bg-background border-2 border-border rounded-xl text-sm text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-button)] bg-[#238636] hover:bg-[#2ea043] focus:outline-none transition-colors disabled:opacity-50"
+                            className="w-full flex justify-center py-3 px-4 rounded-xl shadow-lg text-sm font-black uppercase tracking-widest text-white bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-all disabled:opacity-50"
                         >
-                            {submitting ? 'Signing in...' : 'Sign In'}
+                            {submitting ? '...' : 'Sign In'}
                         </button>
                     </form>
                 )}
 
-                {!providers.oidc && !providers.local && (
-                    <div className="text-center p-4 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400 text-sm mb-4">
-                        No authentication providers are configured on the server.
+                {!providers.oidc && !providers.local && !loading && (
+                    <div className="text-center p-4 bg-destructive/10 border border-destructive/30 rounded-xl text-destructive text-xs font-bold uppercase tracking-widest mb-4">
+                        No auth providers configured
                     </div>
                 )}
 
                 {providers.dev && (
-                    <div className="border-t border-border mt-6 pt-4 relative z-10">
-                        <p className="text-xs text-text-muted text-center mb-3 uppercase font-bold tracking-wider">Development</p>
+                    <div className="border-t border-border mt-8 pt-6 relative z-10 text-center">
                         <button
                             onClick={handleDevLogin}
-                            className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-bold text-[var(--text-button)] bg-[var(--bg-warning)] hover:brightness-110 transition-all shadow-lg"
+                            className="w-full py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary-foreground bg-primary hover:opacity-90 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                         >
-                            ⚡ Dev Login (admin@kview.local)
+                            <span className="text-lg">⚡</span> Dev Login
                         </button>
                         {devError && (
-                            <p className="text-red-400 text-xs text-center mt-2">{devError}</p>
+                            <p className="text-destructive text-[10px] font-bold uppercase tracking-wider mt-3">{devError}</p>
                         )}
                     </div>
                 )}

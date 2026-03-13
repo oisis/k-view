@@ -378,5 +378,7 @@ export const ko = {
     "confirm_trigger_title": "실행 확인",
     "confirm_trigger_message": "이 CronJob에 대한 Job을 수동으로 실행하시겠습니까?",
     "yes": "예",
-    "no": "아니오"
-};
+    "no": "아니요",
+    "scale_replicas": "레플리카 스케일링",
+    "exec_shell": "셸 실행"
+    };

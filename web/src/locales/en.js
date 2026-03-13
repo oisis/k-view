@@ -211,6 +211,7 @@ export const en = {
     "cancel": "Cancel",
     "force_delete": "Force (Grace Period 0)",
     "set_replicas": "Set Replicas",
+    "scale_replicas": "Scale Replicas",
     "scale_now": "Scale Now",
     "view_details": "View Details",
     "view_logs": "View Logs",
@@ -378,5 +379,6 @@ export const en = {
     "confirm_trigger_title": "Confirm Trigger",
     "confirm_trigger_message": "Are you sure you want to manually trigger a Job for this CronJob?",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "exec_shell": "Exec Shell"
 };

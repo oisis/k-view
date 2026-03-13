@@ -209,11 +209,12 @@ export const de = {
     "confirm_restart": "Neustart bestätigen?",
     "delete_now": "Jetzt löschen",
     "cancel": "Abbrechen",
-    "force_delete": "Erzwingen (Grace Period 0)",
+    "force_delete": "Erzwingen (Gnadenfrist 0)",
     "set_replicas": "Replikas festlegen",
-    "scale_now": "Skalieren",
+    "scale_replicas": "Repliken skalieren",
+    "scale_now": "Jetzt skalieren",
     "view_details": "Details anzeigen",
-    "view_logs": "Protokolle anzeigen",
+    "view_logs": "Logs anzeigen",
     "exec": "Exec",
     "export_yaml": "YAML exportieren",
     "add_resource": "Ressource hinzufügen",
@@ -378,5 +379,6 @@ export const de = {
     "confirm_trigger_title": "Trigger bestätigen",
     "confirm_trigger_message": "Sind Sie sicher, dass Sie einen Job für diesen CronJob manuell auslösen möchten?",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "exec_shell": "Shell ausführen"
 };

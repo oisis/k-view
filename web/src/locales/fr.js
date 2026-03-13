@@ -378,5 +378,7 @@ export const fr = {
     "confirm_trigger_title": "Confirmer le déclenchement",
     "confirm_trigger_message": "Êtes-vous sûr de vouloir déclencher manuellement un Job pour ce CronJob ?",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "scale_replicas": "Mise à l'échelle des réplicas",
+    "exec_shell": "Exécuter le shell"
 };

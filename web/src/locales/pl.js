@@ -211,9 +211,10 @@ export const pl = {
     "cancel": "Anuluj",
     "force_delete": "Wymuś (Grace Period 0)",
     "set_replicas": "Ustaw repliki",
+    "scale_replicas": "Skaluj repliki",
     "scale_now": "Skaluj teraz",
-    "view_details": "Szczegóły",
-    "view_logs": "Logi",
+    "view_details": "Pokaż szczegóły",
+    "view_logs": "Pokaż logi",
     "exec": "Exec",
     "export_yaml": "Eksportuj YAML",
     "add_resource": "Dodaj zasób",
@@ -378,5 +379,6 @@ export const pl = {
     "confirm_trigger_title": "Potwierdź uruchomienie",
     "confirm_trigger_message": "Czy na pewno chcesz ręcznie uruchomić Joba dla tego CronJoba?",
     "yes": "Tak",
-    "no": "Nie"
+    "no": "Nie",
+    "exec_shell": "Uruchom powłokę"
 };

@@ -42,7 +42,7 @@
     --warning: 38 92% 50%;
     --info: 199 89% 48%;
 
-    --wallpaper-opacity: 0.18;
+    --wallpaper-opacity: 0.25;
   }
 
   /* Standard Dark Mode (Zinc) */
@@ -67,7 +67,7 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
 
-    --wallpaper-opacity: 0.2;
+    --wallpaper-opacity: 0.35;
   }
 
   /* K-View Theme (Blue) */
@@ -92,7 +92,7 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
 
-    --wallpaper-opacity: 0.15;
+    --wallpaper-opacity: 0.3;
   }
 }
 

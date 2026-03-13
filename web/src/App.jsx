@@ -15,8 +15,9 @@ import MainLayout from './components/MainLayout';
 
 import { useTranslation, useSettings } from './SettingsContext';
 import { useTheme } from './ThemeContext';
+import background from './assets/background.png';
 
-// ── Helper Components for Redirects (Defined before App to avoid Scope issues) ──
+// ── Helper Components for Redirects ──
 function RedirectToResources() {
     const { kind } = useParams();
     return <Navigate to={`/resources/${kind}`} replace />;
@@ -24,7 +25,6 @@ function RedirectToResources() {
 
 function RedirectToDetails() {
     const { kind, namespace, name } = useParams();
-    // Prevent redirect loops for already correct paths or known routes
     const knownRoutes = ['resources', 'login', 'settings', 'about', 'console', 'access', 'nodes'];
     if (knownRoutes.includes(kind)) {
         return null; 
@@ -136,7 +136,7 @@ function App() {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-background text-primary gap-4">
+            <div className="flex flex-col items-center justify-center h-screen w-full bg-background text-primary gap-4">
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                     <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full shadow-lg" />
                 </motion.div>
@@ -146,52 +146,64 @@ function App() {
     }
 
     return (
-        <Router>
-            <Routes>
-                {/* Public Route */}
-                <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+        <div className="h-screen w-full text-foreground relative overflow-hidden transition-colors duration-200 font-sans selection:bg-primary/30">
+            {/* Global Background Layer */}
+            <div
+                className="fixed inset-0 pointer-events-none z-0 transition-all duration-500"
+                style={{
+                    backgroundImage: `url(${background})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: 'var(--wallpaper-opacity, 0.6)',
+                    filter: `grayscale(var(--wallpaper-grayscale, 0%)) brightness(var(--wallpaper-brightness, 0.6))`,
+                }}
+            />
+            <div className="fixed inset-0 pointer-events-none z-0 bg-background/15 backdrop-blur-[1px]" />
 
-                {/* Protected Routes via MainLayout */}
-                <Route element={
-                    <MainLayout 
-                        user={user}
-                        onLogout={handleLogout}
-                        isCollapsed={isCollapsed}
-                        setIsCollapsed={setIsCollapsed}
-                        isCreateModalOpen={isCreateModalOpen}
-                        setIsCreateModalOpen={setIsCreateModalOpen}
-                        namespaces={namespaces}
-                    />
-                }>
-                    <Route index element={<Dashboard isCollapsed={isCollapsed} />} />
-                    <Route path="console" element={<Console />} />
-                    <Route path="about" element={<About />} />
-                    <Route path="settings" element={<Settings theme={theme} setTheme={setTheme} />} />
-                    <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
-                    
-                    {/* Unified Resource Routes */}
-                    <Route path="resources/Nodes" element={<Nodes />} />
-                    <Route path="resources/:kind" element={<ResourceList />} />
-                    <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
+            <Router>
+                <div className="relative z-10 w-full h-screen overflow-hidden">
+                    <Routes>
+                        {/* Public Route */}
+                        <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
 
-                    {/* Backward Compatibility Redirects */}
-                    <Route path="nodes" element={<Navigate to="/resources/Nodes" replace />} />
-                    <Route path="workloads/:kind" element={<RedirectToResources />} />
-                    <Route path="network/:kind" element={<RedirectToResources />} />
-                    <Route path="config/:kind" element={<RedirectToResources />} />
-                    <Route path="cluster/:kind" element={<RedirectToResources />} />
-                    
-                    {/* Legacy details redirect (e.g. /Pods/default/pod-name) */}
-                    <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
+                        {/* Protected Routes via MainLayout */}
+                        <Route element={
+                            <MainLayout 
+                                user={user}
+                                onLogout={handleLogout}
+                                isCollapsed={isCollapsed}
+                                setIsCollapsed={setIsCollapsed}
+                                isCreateModalOpen={isCreateModalOpen}
+                                setIsCreateModalOpen={setIsCreateModalOpen}
+                                namespaces={namespaces}
+                            />
+                        }>
+                            <Route index element={<Dashboard isCollapsed={isCollapsed} />} />
+                            <Route path="console" element={<Console />} />
+                            <Route path="about" element={<About />} />
+                            <Route path="settings" element={<Settings theme={theme} setTheme={setTheme} />} />
+                            <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
+                            
+                            <Route path="resources/Nodes" element={<Nodes />} />
+                            <Route path="resources/:kind" element={<ResourceList />} />
+                            <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
 
-                    {/* Compatibility for Namespaces path used in older links */}
-                    <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
-                </Route>
+                            {/* Backward Compatibility */}
+                            <Route path="nodes" element={<Navigate to="/resources/Nodes" replace />} />
+                            <Route path="workloads/:kind" element={<RedirectToResources />} />
+                            <Route path="network/:kind" element={<RedirectToResources />} />
+                            <Route path="config/:kind" element={<RedirectToResources />} />
+                            <Route path="cluster/:kind" element={<RedirectToResources />} />
+                            <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
+                            <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
+                        </Route>
 
-                {/* Catch-all redirect */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </Router>
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                </div>
+            </Router>
+        </div>
     );
 }
 

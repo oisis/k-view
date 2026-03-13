@@ -378,5 +378,7 @@ export const es = {
     "confirm_trigger_title": "Confirmar activación",
     "confirm_trigger_message": "¿Está seguro de que desea activar manualmente un Job para este CronJob?",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "scale_replicas": "Escalar réplicas",
+    "exec_shell": "Ejecutar shell"
 };

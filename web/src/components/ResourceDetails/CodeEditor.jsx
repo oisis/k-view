@@ -51,7 +51,7 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
                     <textarea
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className={`flex-1 p-4 font-mono bg-transparent outline-none resize-none focus:ring-0 overflow-hidden ${isLightTheme ? 'text-slate-900' : 'text-[var(--text-editor-code)]'}`}
+                        className={`flex-1 p-4 font-mono bg-transparent outline-none resize-none focus:ring-0 overflow-hidden ${isLightTheme ? 'text-foreground' : 'text-[var(--text-editor-code)]'}`}
                         spellCheck="false"
                         rows={lineCount}
                         style={{ lineHeight: LINE_HEIGHT, display: 'block', fontSize: `${fontSize}px` }}

@@ -382,9 +382,9 @@ export default function ResourceDetails() {
                                         {t('no')}
                                     </Button>
                                     <Button
-                                        onClick={handleTrigger}
-                                        disabled={triggering}
-                                        className="rounded-2xl h-14 bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/20"
+                                        onClick={handleSave}
+                                        disabled={isSubmitting}
+                                        className="rounded-2xl h-14 bg-emerald-500 hover:bg-emerald-600 text-primary-foreground font-black uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/20"
                                     >
                                         {triggering ? (
                                             <motion.div
