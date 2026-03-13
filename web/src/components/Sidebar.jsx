@@ -103,17 +103,18 @@ function NavItem({ href, iconKey, label, active, isCollapsed }) {
     const { icons } = useTheme();
     const Icon = icons[iconKey] || icons.pod;
     
-    const clusterScopedPaths = [
-        '/nodes', 
-        '/config/PersistentVolumes', 
-        '/config/StorageClasses', 
-        '/cluster/ClusterRoleBindings', 
-        '/cluster/ClusterRoles', 
-        '/cluster/CustomResourceDefinitions', 
-        '/cluster/Namespaces', 
-        '/cluster/IngressClasses'
+    const clusterScopedKinds = [
+        'Nodes', 
+        'PersistentVolumes', 
+        'StorageClasses', 
+        'ClusterRoleBindings', 
+        'ClusterRoles', 
+        'CustomResourceDefinitions', 
+        'Namespaces', 
+        'IngressClasses'
     ];
-    const isClusterResource = clusterScopedPaths.some(p => href === p);
+    const kind = href.split('/').pop();
+    const isClusterResource = clusterScopedKinds.includes(kind);
     const iconColor = ICON_COLORS[iconKey] || "text-muted-foreground";
 
     return (
@@ -173,17 +174,15 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
 
     const isPathActive = (href) => {
         if (p === href) return true;
-        if (href === '/') return p === '/';
+        if (href === '/' && p === '/') return true;
 
-        const parts = href.split('/');
-        const kind = parts[parts.length - 1]; 
-
-        const isCrd = kind === 'CustomResourceDefinitions';
-        if (isCrd) {
-            return p.startsWith('/CustomResourceDefinitions/') || p.startsWith('/cluster/CustomResourceDefinitions') || p === '/CustomResourceDefinition';
+        if (href.startsWith('/resources/')) {
+            const targetKind = href.split('/').pop();
+            // Match /resources/:kind or /resources/:kind/:ns/:name
+            return p.startsWith(`/resources/${targetKind}`);
         }
 
-        return p.startsWith(`/${kind}/`) || p.startsWith(`/workloads/${kind}`) || p.startsWith(`/network/${kind}`) || p.startsWith(`/config/${kind}`) || p.startsWith(`/cluster/${kind}`);
+        return p === href;
     };
 
     return (
@@ -255,43 +254,43 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
                 </div>
 
                 <Section id="workloads" label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/workloads/CronJobs" iconKey="cronjob" label={t('CronJobs')} active={isPathActive('/workloads/CronJobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/DaemonSets" iconKey="daemonset" label={t('DaemonSets')} active={isPathActive('/workloads/DaemonSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/Deployments" iconKey="deployment" label={t('Deployments')} active={isPathActive('/workloads/Deployments')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/Jobs" iconKey="job" label={t('Jobs')} active={isPathActive('/workloads/Jobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/Pods" iconKey="pod" label={t('Pods')} active={isPathActive('/workloads/Pods')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/ReplicaSets" iconKey="replicaset" label={t('ReplicaSets')} active={isPathActive('/workloads/ReplicaSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/ReplicationControllers" iconKey="replicationcontroller" label={t('ReplicationControllers')} active={isPathActive('/workloads/ReplicationControllers')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/StatefulSets" iconKey="statefulset" label={t('StatefulSets')} active={isPathActive('/workloads/StatefulSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/workloads/HorizontalPodAutoscalers" iconKey="hpa" label={t('HorizontalPodAutoscalers')} active={isPathActive('/workloads/HorizontalPodAutoscalers')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/CronJobs" iconKey="cronjob" label={t('CronJobs')} active={isPathActive('/resources/CronJobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/DaemonSets" iconKey="daemonset" label={t('DaemonSets')} active={isPathActive('/resources/DaemonSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Deployments" iconKey="deployment" label={t('Deployments')} active={isPathActive('/resources/Deployments')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Jobs" iconKey="job" label={t('Jobs')} active={isPathActive('/resources/Jobs')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Pods" iconKey="pod" label={t('Pods')} active={isPathActive('/resources/Pods')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ReplicaSets" iconKey="replicaset" label={t('ReplicaSets')} active={isPathActive('/resources/ReplicaSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ReplicationControllers" iconKey="replicationcontroller" label={t('ReplicationControllers')} active={isPathActive('/resources/ReplicationControllers')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/StatefulSets" iconKey="statefulset" label={t('StatefulSets')} active={isPathActive('/resources/StatefulSets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/HorizontalPodAutoscalers" iconKey="hpa" label={t('HorizontalPodAutoscalers')} active={isPathActive('/resources/HorizontalPodAutoscalers')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="network" label={t('Services')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/IngressClasses" iconKey="ingressclass" label={t('IngressClasses')} active={isPathActive('/cluster/IngressClasses')} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/Ingresses" iconKey="ingress" label={t('Ingresses')} active={isPathActive('/network/Ingresses')} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/Services" iconKey="service" label={t('Services')} active={isPathActive('/network/Services')} isCollapsed={isCollapsed} />
-                    <NavItem href="/network/Endpoints" iconKey="network" label={t('Endpoints')} active={isPathActive('/network/Endpoints')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/IngressClasses" iconKey="ingressclass" label={t('IngressClasses')} active={isPathActive('/resources/IngressClasses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Ingresses" iconKey="ingress" label={t('Ingresses')} active={isPathActive('/resources/Ingresses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Services" iconKey="service" label={t('Services')} active={isPathActive('/resources/Services')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Endpoints" iconKey="network" label={t('Endpoints')} active={isPathActive('/resources/Endpoints')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/config/ConfigMaps" iconKey="configmap" label={t('ConfigMaps')} active={isPathActive('/config/ConfigMaps')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/PersistentVolumeClaims" iconKey="pvc" label={t('PersistentVolumeClaims')} active={isPathActive('/config/PersistentVolumeClaims')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/Secrets" iconKey="secret" label={t('Secrets')} active={isPathActive('/config/Secrets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/StorageClasses" iconKey="storageclass" label={t('StorageClasses')} active={isPathActive('/config/StorageClasses')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ConfigMaps" iconKey="configmap" label={t('ConfigMaps')} active={isPathActive('/resources/ConfigMaps')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/PersistentVolumeClaims" iconKey="pvc" label={t('PersistentVolumeClaims')} active={isPathActive('/resources/PersistentVolumeClaims')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Secrets" iconKey="secret" label={t('Secrets')} active={isPathActive('/resources/Secrets')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/StorageClasses" iconKey="storageclass" label={t('StorageClasses')} active={isPathActive('/resources/StorageClasses')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/cluster/ClusterRoleBindings" iconKey="clusterrolebinding" label={t('ClusterRoleBindings')} active={isPathActive('/cluster/ClusterRoleBindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/ClusterRoles" iconKey="clusterrole" label={t('ClusterRoles')} active={isPathActive('/cluster/ClusterRoles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/CustomResourceDefinitions" iconKey="crd" label={t('CustomResourceDefinitions')} active={isPathActive('/cluster/CustomResourceDefinitions')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/Events" iconKey="event" label={t('Events')} active={isPathActive('/cluster/Events')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/Namespaces" iconKey="namespace" label={t('Namespaces')} active={isPathActive('/cluster/Namespaces')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/NetworkPolicies" iconKey="networkpolicy" label={t('NetworkPolicies')} active={isPathActive('/cluster/NetworkPolicies')} isCollapsed={isCollapsed} />
-                    <NavItem href="/nodes" iconKey="nodes" label={t('Nodes')} active={isPathActive('/nodes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/config/PersistentVolumes" iconKey="pv" label={t('PersistentVolumes')} active={isPathActive('/config/PersistentVolumes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/RoleBindings" iconKey="rolebinding" label={t('RoleBindings')} active={isPathActive('/cluster/RoleBindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/Roles" iconKey="role" label={t('Roles')} active={isPathActive('/cluster/Roles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/cluster/ServiceAccounts" iconKey="serviceaccount" label={t('ServiceAccounts')} active={isPathActive('/cluster/ServiceAccounts')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ClusterRoleBindings" iconKey="clusterrolebinding" label={t('ClusterRoleBindings')} active={isPathActive('/resources/ClusterRoleBindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ClusterRoles" iconKey="clusterrole" label={t('ClusterRoles')} active={isPathActive('/resources/ClusterRoles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/CustomResourceDefinitions" iconKey="crd" label={t('CustomResourceDefinitions')} active={isPathActive('/resources/CustomResourceDefinitions')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Events" iconKey="event" label={t('Events')} active={isPathActive('/resources/Events')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Namespaces" iconKey="namespace" label={t('Namespaces')} active={isPathActive('/resources/Namespaces')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/NetworkPolicies" iconKey="networkpolicy" label={t('NetworkPolicies')} active={isPathActive('/resources/NetworkPolicies')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Nodes" iconKey="nodes" label={t('Nodes')} active={isPathActive('/resources/Nodes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/PersistentVolumes" iconKey="pv" label={t('PersistentVolumes')} active={isPathActive('/resources/PersistentVolumes')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/RoleBindings" iconKey="rolebinding" label={t('RoleBindings')} active={isPathActive('/resources/RoleBindings')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/Roles" iconKey="role" label={t('Roles')} active={isPathActive('/resources/Roles')} isCollapsed={isCollapsed} />
+                    <NavItem href="/resources/ServiceAccounts" iconKey="serviceaccount" label={t('ServiceAccounts')} active={isPathActive('/resources/ServiceAccounts')} isCollapsed={isCollapsed} />
                 </Section>
 
                 <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>

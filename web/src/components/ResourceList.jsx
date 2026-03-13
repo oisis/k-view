@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSettings, useTranslation } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
@@ -171,7 +171,10 @@ function ScheduleCell({ value, nextRun }) {
 
 import { useResourceData } from '../hooks/useResourceData';
 
-export default function ResourceList({ kind }) {
+export default function ResourceList({ kind: propKind }) {
+    const { kind: paramKind } = useParams();
+    const kind = propKind || paramKind;
+
     const { settings } = useSettings();
     const { t } = useTranslation();
     const { icons } = useTheme();
@@ -399,7 +402,6 @@ export default function ResourceList({ kind }) {
 
                                         const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
                                         if ((expandableKeys || []).includes(col.key || '')) {
-                                            // Ensure borders are preserved even for expandable cells
                                             content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} item={item} />;
@@ -412,7 +414,7 @@ export default function ResourceList({ kind }) {
                                         } else if (col.key === 'name') {
                                             content = (
                                                 <Link
-                                                    to={`/${kind}/${item.namespace || '-'}/${val}`}
+                                                    to={`/resources/${kind}/${item.namespace || '-'}/${val}`}
                                                     className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary"
                                                     title={val}
                                                 >
@@ -422,7 +424,7 @@ export default function ResourceList({ kind }) {
                                         } else if (col.key === 'namespace' && val !== '-') {
                                             content = (
                                                 <Link
-                                                    to={`/namespaces/-/${val}`}
+                                                    to={`/resources/Namespaces/-/${val}`}
                                                     className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs"
                                                     title={val}
                                                 >
@@ -432,7 +434,7 @@ export default function ResourceList({ kind }) {
                                         } else if (col.key === 'extra.node') {
                                             content = (
                                                 <Link
-                                                    to={`/nodes/-/${val}`}
+                                                    to={`/resources/Nodes/-/${val}`}
                                                     className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold"
                                                     title={val}
                                                 >
@@ -456,7 +458,7 @@ export default function ResourceList({ kind }) {
                                                 size="icon"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    navigate(`/${kind}/${item.namespace || '-'}/${item.name}?tab=trace`);
+                                                    navigate(`/resources/${kind}/${item.namespace || '-'}/${item.name}?tab=trace`);
                                                 }}
                                                 className="h-8 w-8 text-primary/40 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                                                 title="Visual Trace"

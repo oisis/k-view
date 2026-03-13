@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 import Login from './components/Login';
@@ -143,52 +143,27 @@ function App() {
                     />
                 }>
                     <Route index element={<Dashboard isCollapsed={isCollapsed} />} />
-                    <Route path="nodes" element={<Nodes />} />
                     <Route path="console" element={<Console />} />
                     <Route path="about" element={<About />} />
                     <Route path="settings" element={<Settings theme={theme} setTheme={setTheme} />} />
-                    
-                    {/* Workloads */}
-                    <Route path="workloads/Pods" element={<ResourceList kind="Pods" />} />
-                    <Route path="workloads/Deployments" element={<ResourceList kind="Deployments" />} />
-                    <Route path="workloads/StatefulSets" element={<ResourceList kind="StatefulSets" />} />
-                    <Route path="workloads/DaemonSets" element={<ResourceList kind="DaemonSets" />} />
-                    <Route path="workloads/Jobs" element={<ResourceList kind="Jobs" />} />
-                    <Route path="workloads/CronJobs" element={<ResourceList kind="CronJobs" />} />
-                    <Route path="workloads/ReplicaSets" element={<ResourceList kind="ReplicaSets" />} />
-                    <Route path="workloads/ReplicationControllers" element={<ResourceList kind="ReplicationControllers" />} />
-                    <Route path="workloads/HorizontalPodAutoscalers" element={<ResourceList kind="HorizontalPodAutoscalers" />} />
-                    
-                    {/* Network */}
-                    <Route path="network/Services" element={<ResourceList kind="Services" />} />
-                    <Route path="network/Ingresses" element={<ResourceList kind="Ingresses" />} />
-                    <Route path="network/Endpoints" element={<ResourceList kind="Endpoints" />} />
-                    
-                    {/* Config & Storage */}
-                    <Route path="config/ConfigMaps" element={<ResourceList kind="ConfigMaps" />} />
-                    <Route path="config/Secrets" element={<ResourceList kind="Secrets" />} />
-                    <Route path="config/PersistentVolumeClaims" element={<ResourceList kind="PersistentVolumeClaims" />} />
-                    <Route path="config/PersistentVolumes" element={<ResourceList kind="PersistentVolumes" />} />
-                    <Route path="config/StorageClasses" element={<ResourceList kind="StorageClasses" />} />
-                    
-                    {/* Cluster Resources */}
-                    <Route path="cluster/CustomResourceDefinitions" element={<ResourceList kind="CustomResourceDefinitions" />} />
-                    <Route path="CustomResourceDefinition" element={<Navigate to="/cluster/CustomResourceDefinitions" replace />} />
-                    <Route path="cluster/ClusterRoleBindings" element={<ResourceList kind="ClusterRoleBindings" />} />
-                    <Route path="cluster/ClusterRoles" element={<ResourceList kind="ClusterRoles" />} />
-                    <Route path="cluster/Namespaces" element={<ResourceList kind="Namespaces" />} />
-                    <Route path="cluster/Events" element={<ResourceList kind="Events" />} />
-                    <Route path="cluster/IngressClasses" element={<ResourceList kind="IngressClasses" />} />
-                    <Route path="cluster/NetworkPolicies" element={<ResourceList kind="NetworkPolicies" />} />
-                    <Route path="cluster/RoleBindings" element={<ResourceList kind="RoleBindings" />} />
-                    <Route path="cluster/Roles" element={<ResourceList kind="Roles" />} />
-                    <Route path="cluster/ServiceAccounts" element={<ResourceList kind="ServiceAccounts" />} />
-                    
-                    {/* Details View */}
-                    <Route path=":kind/:namespace/:name" element={<ResourceDetails user={user} />} />
-                    
-                    {/* Admin/Access */}
                     <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
+                    
+                    {/* Unified Resource Routes */}
+                    <Route path="resources/:kind" element={<ResourceList />} />
+                    <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
+
+                    {/* Backward Compatibility Redirects */}
+                    <Route path="nodes" element={<Navigate to="/resources/Nodes" replace />} />
+                    <Route path="workloads/:kind" element={<RedirectToResources />} />
+                    <Route path="network/:kind" element={<RedirectToResources />} />
+                    <Route path="config/:kind" element={<RedirectToResources />} />
+                    <Route path="cluster/:kind" element={<RedirectToResources />} />
+                    
+                    {/* Legacy details redirect */}
+                    <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
+
+                    {/* Compatibility for Namespaces path used in lists */}
+                    <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
                 </Route>
 
                 {/* Catch-all redirect */}
@@ -196,6 +171,26 @@ function App() {
             </Routes>
         </Router>
     );
+}
+
+// ── Helper Components for Redirects ────────────────────────────────────────
+function RedirectToResources() {
+    const { kind } = useParams();
+    return <Navigate to={`/resources/${kind}`} replace />;
+}
+
+function RedirectToDetails() {
+    const { kind, namespace, name } = useParams();
+    // Prevent redirect loops for already correct paths
+    if (kind === 'resources' || kind === 'login' || kind === 'settings' || kind === 'about' || kind === 'console' || kind === 'access') {
+        return null; 
+    }
+    return <Navigate to={`/resources/${kind}/${namespace}/${name}`} replace />;
+}
+
+function NavigateToNamespace() {
+    const { name } = useParams();
+    return <Navigate to={`/resources/Namespaces/-/${name}`} replace />;
 }
 
 export default App;
