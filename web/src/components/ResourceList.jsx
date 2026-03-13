@@ -337,7 +337,11 @@ export default function ResourceList({ kind: propKind }) {
                             <tr>
                                 {(schema.cols || []).map(col => {
                                     let widthCls = "";
-                                    if (col.key === 'name') widthCls = kind === 'CronJobs' ? "w-1/6" : "w-1/4";
+                                    if (col.key === 'name') {
+                                        if (kind === 'CronJobs') widthCls = "w-1/6";
+                                        else if (kind === 'Pods') widthCls = "w-1/3";
+                                        else widthCls = "w-1/4";
+                                    }
                                     else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-52";
                                     else if (col.key === 'extra.images' || col.key === 'extra.address' || col.key === 'extra.endpoints' || col.key === 'extra.external') widthCls = "w-48";
                                     else if (col.key === 'extra.cluster-ip' || col.key === 'extra.access-modes' || col.key === 'extra.reclaim-policy' || col.key === 'extra.storage-class') widthCls = "w-32";
@@ -345,7 +349,7 @@ export default function ResourceList({ kind: propKind }) {
                                     else if (col.key === 'extra.type' || col.key === 'extra.controller') widthCls = "w-32";
                                     else if (col.key === 'extra.schedule') widthCls = "w-40";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
-                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-36";
+                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = kind === 'Pods' ? "w-24" : "w-36";
                                     else if (col.key === 'extra.scope') widthCls = "w-32";
                                     else if (col.key === 'extra.version') widthCls = "w-20";
                                     else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas' || col.key === 'extra.readyReplicas') widthCls = "w-20";

@@ -3,9 +3,7 @@ Section: Workloads
 General overview:
   - Name
   - Namespace
-  - Images
   - Labels
-  - Node
   - Status
   - Restarts
   - CPU(usage)

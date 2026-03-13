@@ -3,9 +3,7 @@ export const PodListSchema = {
     cols: [
         { key: 'name', label: 'Name' },
         { key: 'namespace', label: 'Namespace' },
-        { key: 'extra.images', label: 'Images' },
         { key: 'extra.labels', label: 'Labels' },
-        { key: 'extra.nodeName', label: 'Node' },
         { key: 'status', label: 'Status', badge: true },
         { key: 'extra.restarts', label: 'Restarts' },
         { key: 'extra.cpu', label: 'CPU(usage)' },
