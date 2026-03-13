@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSettings, useTranslation } from '../SettingsContext';
 import { useTheme } from '../ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from "@/lib/utils";
 
 const InputField = ({ label, icon: Icon, value, onChange, type = "text", min, max, placeholder, description }) => (
     <div className="space-y-2">
@@ -27,15 +29,20 @@ const SelectField = ({ label, icon: Icon, value, onChange, options, description 
         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <Icon size={14} /> {label}
         </label>
-        <select
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer"
-        >
-            {options.map(opt => (
-                <option key={opt.value} value={opt.value} className="bg-card text-foreground">{opt.label}</option>
-            ))}
-        </select>
+        <div className="relative">
+            <select
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer"
+            >
+                {options.map(opt => (
+                    <option key={opt.value} value={opt.value} className="bg-card text-foreground">{opt.label}</option>
+                ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+        </div>
         {description && <p className="text-xs text-muted-foreground italic">{description}</p>}
     </div>
 );
@@ -49,7 +56,6 @@ export default function Settings() {
     const [error, setError] = useState(null);
     const [namespaces, setNamespaces] = useState([]);
 
-    // Draft state for "Save/Reload" pattern
     const [draftSettings, setDraftSettings] = useState(settings);
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -75,12 +81,19 @@ export default function Settings() {
         resetSettings();
     };
 
+    const handleResetTables = () => {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith('kview-table-sizing-') || key.startsWith('kview-table-visibility-')) {
+                localStorage.removeItem(key);
+            }
+        });
+        window.location.reload();
+    };
+
     useEffect(() => {
         Promise.all([
-            fetch('/api/auth/details').then(res => {
-                if (!res.ok) throw new Error('Failed to fetch user details');
-                return res.json();
-            }),
+            fetch('/api/auth/details').then(res => res.ok ? res.json() : null),
             fetch('/api/namespaces').then(res => res.ok ? res.json() : [])
         ])
             .then(([userData, nsData]) => {
@@ -105,276 +118,258 @@ export default function Settings() {
         );
     }
 
-    if (error) {
-        return (
-            <div className="flex-1 p-8">
-                <div className="bg-destructive/10 rounded-xl p-4 text-destructive text-sm">
-                    Error: {error}
+    return (
+        <div className="flex flex-col h-full relative">
+            <div className="flex-1 overflow-auto text-foreground pb-32 custom-scrollbar">
+                <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
+                    
+                    {/* Header - Cleaned */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+                                <icons.palette size={20} />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('settings')}</h1>
+                                <p className="text-sm text-muted-foreground mt-1">{t('settings_desc')}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Theme Selection */}
+                    <div className="space-y-4">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                            <icons.layers size={14} /> {t('interface_theme')}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {Object.entries(themes || {}).map(([id, themeCfg]) => {
+                                const isSelected = activeTheme === id;
+                                let tileStyle = isSelected ? "border-primary ring-2 ring-primary/20" : "border-border";
+                                let iconBoxStyle = isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground";
+
+                                return (
+                                    <button
+                                        key={id}
+                                        onClick={() => setTheme(id)}
+                                        className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md bg-card ${tileStyle}`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`p-2 w-fit rounded-lg transition-colors ${iconBoxStyle}`}>
+                                                {id.includes('light') ? <icons.sun size={36} /> : <icons.moon size={36} />}
+                                            </div>
+                                            <h3 className="text-lg font-bold text-foreground">{themeCfg.name}</h3>
+                                        </div>
+                                        {isSelected && <div className="absolute top-4 right-4 text-primary"><icons.check size={16} /></div>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Cluster Config */}
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                        <div className="p-6 border-b border-border">
+                            <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                                <icons.nodes size={18} className="text-info" /> {t('cluster_configuration')}
+                            </h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InputField
+                                label={t('custom_cluster_name')}
+                                icon={icons.fingerprint}
+                                value={draftSettings.clusterName}
+                                onChange={(v) => handleUpdateDraft({ clusterName: v })}
+                                placeholder="My Dev Cluster"
+                                description={t('custom_cluster_name_desc')}
+                            />
+                            <SelectField
+                                label={t('default_namespace')}
+                                icon={icons.namespace}
+                                value={draftSettings.defaultNamespace}
+                                onChange={(v) => handleUpdateDraft({ defaultNamespace: v })}
+                                options={[
+                                    { value: '', label: t('all_namespaces') },
+                                    ...namespaces.map(ns => ({ value: ns, label: ns }))
+                                ]}
+                                description={t('default_namespace_desc')}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Interface Prefs */}
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+                        <div className="p-6 border-b border-border">
+                            <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                                <icons.dashboard size={18} className="text-purple-500" /> {t('interface_preferences')}
+                            </h2>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InputField
+                                label={t('items_per_page')}
+                                icon={icons.list}
+                                type="number"
+                                min={5}
+                                value={draftSettings.itemsPerPage}
+                                onChange={(v) => handleUpdateDraft({ itemsPerPage: v })}
+                                description={t('items_per_page_desc')}
+                            />
+                            <SelectField
+                                label={t('table_density')}
+                                icon={icons.list}
+                                value={draftSettings.tableDensity}
+                                onChange={(v) => handleUpdateDraft({ tableDensity: v })}
+                                options={[
+                                    { value: 'comfortable', label: t('comfortable') },
+                                    { value: 'compact', label: t('compact') }
+                                ]}
+                                description={t('table_density_desc')}
+                            />
+                            <InputField
+                                label={t('resource_refresh')}
+                                icon={icons.refresh}
+                                type="number"
+                                min={1}
+                                value={draftSettings.resourceRefreshInterval}
+                                onChange={(v) => handleUpdateDraft({ resourceRefreshInterval: v })}
+                                description={t('resource_refresh_desc')}
+                            />
+                            <SelectField
+                                label={t('localization')}
+                                icon={icons.languages}
+                                value={draftSettings.locale}
+                                onChange={(v) => handleUpdateDraft({ locale: v })}
+                                options={[
+                                    { value: 'en', label: 'English' },
+                                    { value: 'pl', label: 'Polski' },
+                                    { value: 'de', label: 'Deutsch' },
+                                    { value: 'fr', label: 'Français' },
+                                    { value: 'es', label: 'Español' },
+                                    { value: 'ja', label: '日本語' },
+                                    { value: 'ko', label: '한국어' },
+                                    { value: 'zh', label: '简体中文' }
+                                ]}
+                                description={t('localization_desc')}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Identity Card */}
+                        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                            <div className="p-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-info/10 text-info rounded-xl">
+                                        <icons.user size={24} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-foreground">{t('user_identity')}</h2>
+                                        <p className="text-sm text-muted-foreground">{t('user_identity_desc')}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 space-y-4">
+                                    <div>
+                                        <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('email_username')}</dt>
+                                        <dd className="mt-1 text-base font-mono flex items-center gap-2 text-foreground">
+                                            <icons.fingerprint size={14} className="text-info" />
+                                            {details?.email}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('namespace_scope')}</dt>
+                                        <dd className="mt-1 text-base font-mono flex items-center gap-2 text-foreground">
+                                            <icons.globe size={14} className="text-info" />
+                                            {details?.namespace || '<all namespaces>'}
+                                        </dd>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Role Card */}
+                        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                            <div className="p-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+                                        <icons.clusterrole size={24} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-foreground">{t('cluster_permissions')}</h2>
+                                        <p className="text-sm text-muted-foreground">{t('cluster_permissions_desc')}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6">
+                                    <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('assigned_role')}</dt>
+                                    <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-500">
+                                        {details?.role}
+                                    </dd>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Permissions Table */}
+                    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                        <div className="p-6 border-b border-border">
+                            <h2 className="text-lg font-semibold text-foreground">{t('effective_permissions')}</h2>
+                            <p className="text-sm text-muted-foreground">{t('effective_permissions_desc')}</p>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-muted/50">
+                                        <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('resources')}</th>
+                                        <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('allowed_verbs')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {details?.rules?.map((rule, idx) => (
+                                        <tr key={idx} className="hover:bg-muted transition-colors">
+                                            <td className="px-6 py-4 text-sm font-medium text-foreground">{rule.resource}</td>
+                                            <td className="px-6 py-4 text-sm font-mono text-info">{rule.verbs}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-        );
-    }
 
+            {/* Unified Floating Action Panel - Centered in content area */}
+            <div className="sticky bottom-8 left-0 w-full flex justify-center z-[100] mt-4">
+                <div className="bg-card/80 backdrop-blur-2xl border-2 border-border/50 rounded-2xl p-3 flex items-center gap-6 shadow-2xl">
+                    <button
+                        onClick={handleResetTables}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 transition-all active:scale-95 whitespace-nowrap"
+                        title={t('reset_tables_desc')}
+                    >
+                        <icons.refresh size={16} />
+                        {t('reset_tables')}
+                    </button>
 
-    return (
-        <div className="flex-1 overflow-auto text-foreground">
-            <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-                            <icons.palette size={20} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('settings')}</h1>
-                            <p className="text-sm text-muted-foreground mt-1">{t('settings_desc')}</p>
-                        </div>
-                    </div>
+                    <div className="h-6 w-px bg-border" />
 
-                    <div className="flex items-center gap-2 shrink-0">
-                        <button
-                            onClick={handleReset}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-border bg-card text-foreground hover:bg-muted active:scale-95 whitespace-nowrap"
-                        >
-                            <icons.trash size={16} />
-                            {t('reset_defaults')}
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={!hasChanges}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-black transition-all shadow-lg
-                                ${hasChanges
-                                    ? 'bg-primary text-primary-foreground hover:opacity-90 active:scale-95 whitespace-nowrap'
-                                    : 'opacity-40 cursor-default bg-muted text-muted-foreground whitespace-nowrap'}`}
-                        >
-                            <icons.shield_check size={16} />
-                            {t('save_settings')}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Theme Selection */}
-                <div className="space-y-4">
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                        <icons.layers size={14} /> {t('interface_theme')}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Object.entries(themes || {}).map(([id, themeCfg]) => {
-                            const isSelected = activeTheme === id;
-                            const isLight = id === 'light';
-                            
-                            let tileStyle = isSelected ? "border-primary ring-2 ring-primary/20" : "border-border";
-                            let iconBoxStyle = isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground";
-                            let textStyle = "text-foreground";
-
-                            return (
-                                <button
-                                    key={id}
-                                    onClick={() => setTheme(id)}
-                                    className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md bg-card ${tileStyle}`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2 w-fit rounded-lg transition-colors ${iconBoxStyle}`}>
-                                            {id.includes('light') ? <icons.sun size={36} /> : (id.includes('dark') || id.includes('k-view')) ? <icons.moon size={36} /> : <icons.layers size={36} />}
-                                        </div>
-                                        <h3 className={`text-lg font-bold transition-colors ${textStyle}`}>{themeCfg.name}</h3>
-                                    </div>
-
-                                    {isSelected && (
-                                        <div className="absolute top-4 right-4 text-primary">
-                                            <icons.check size={16} />
-                                        </div>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-border">
-                        <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
-                            <icons.nodes size={18} className="text-info" /> {t('cluster_configuration')}
-                        </h2>
-                    </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputField
-                            label={t('custom_cluster_name')}
-                            icon={icons.fingerprint}
-                            value={draftSettings.clusterName}
-                            onChange={(v) => handleUpdateDraft({ clusterName: v })}
-                            placeholder="My Dev Cluster"
-                            description={t('custom_cluster_name_desc')}
-                        />
-                        <SelectField
-                            label={t('default_namespace')}
-                            icon={icons.namespace}
-                            value={draftSettings.defaultNamespace}
-                            onChange={(v) => handleUpdateDraft({ defaultNamespace: v })}
-                            options={[
-                                { value: '', label: t('all_namespaces') },
-                                ...namespaces.map(ns => ({ value: ns, label: ns }))
-                            ]}
-                            description={t('default_namespace_desc')}
-                        />
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-border">
-                        <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
-                            <icons.dashboard size={18} className="text-purple-500" /> {t('interface_preferences')}
-                        </h2>
-                    </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputField
-                            label={t('items_per_page')}
-                            icon={icons.list}
-                            type="number"
-                            min={5}
-                            max={100}
-                            value={draftSettings.itemsPerPage}
-                            onChange={(v) => handleUpdateDraft({ itemsPerPage: v })}
-                            description={t('items_per_page_desc')}
-                        />
-                        <InputField
-                            label={t('labels_limit')}
-                            icon={icons.shield}
-                            type="number"
-                            min={1}
-                            max={50}
-                            value={draftSettings.labelsLimit}
-                            onChange={(v) => handleUpdateDraft({ labelsLimit: v })}
-                            description={t('labels_limit_desc')}
-                        />
-                        <InputField
-                            label={t('resource_refresh')}
-                            icon={icons.refresh}
-                            type="number"
-                            min={1}
-                            max={300}
-                            value={draftSettings.resourceRefreshInterval}
-                            onChange={(v) => handleUpdateDraft({ resourceRefreshInterval: v })}
-                            description={t('resource_refresh_desc')}
-                        />
-                        <InputField
-                            label={t('logs_refresh')}
-                            icon={icons.activity}
-                            type="number"
-                            min={0}
-                            max={300}
-                            value={draftSettings.logsRefreshInterval}
-                            onChange={(v) => handleUpdateDraft({ logsRefreshInterval: v })}
-                            description={t('logs_refresh_desc')}
-                        />
-                        <SelectField
-                            label={t('table_density')}
-                            icon={icons.list}
-                            value={draftSettings.tableDensity}
-                            onChange={(v) => handleUpdateDraft({ tableDensity: v })}
-                            options={[
-                                { value: 'comfortable', label: t('comfortable') },
-                                { value: 'compact', label: t('compact') }
-                            ]}
-                            description={t('table_density_desc')}
-                        />
-                        <SelectField
-                            label={t('localization')}
-                            icon={icons.languages}
-                            value={draftSettings.locale}
-                            onChange={(v) => handleUpdateDraft({ locale: v })}
-                            options={[
-                                { value: 'en', label: 'English' },
-                                { value: 'pl', label: 'Polski' },
-                                { value: 'de', label: 'Deutsch' },
-                                { value: 'fr', label: 'Français' },
-                                { value: 'es', label: 'Español' },
-                                { value: 'ja', label: '日本語' },
-                                { value: 'ko', label: '한국어' },
-                                { value: 'zh', label: '简体中文' }
-                            ]}
-                            description={t('localization_desc')}
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Identity Card */}
-                    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                        <div className="p-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-info/10 text-info rounded-xl">
-                                    <icons.user size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-lg font-semibold text-foreground">{t('user_identity')}</h2>
-                                    <p className="text-sm text-muted-foreground">{t('user_identity_desc')}</p>
-                                </div>
-                            </div>
-                            <div className="mt-6 space-y-4">
-                                <div>
-                                    <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('email_username')}</dt>
-                                    <dd className="mt-1 text-base font-mono flex items-center gap-2 text-foreground">
-                                        <icons.fingerprint size={14} className="text-info" />
-                                        {details?.email}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('namespace_scope')}</dt>
-                                    <dd className="mt-1 text-base font-mono flex items-center gap-2 text-foreground">
-                                        <icons.globe size={14} className="text-info" />
-                                        {details?.namespace || '<all namespaces>'}
-                                    </dd>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Role Card */}
-                    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                        <div className="p-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
-                                    <icons.clusterrole size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-lg font-semibold text-foreground">{t('cluster_permissions')}</h2>
-                                    <p className="text-sm text-muted-foreground">{t('cluster_permissions_desc')}</p>
-                                </div>
-                            </div>
-                            <div className="mt-6">
-                                <dt className="text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('assigned_role')}</dt>
-                                <dd className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-500">
-                                    {details?.role}
-                                </dd>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Permissions Table */}
-                <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-border">
-                        <h2 className="text-lg font-semibold text-foreground">{t('effective_permissions')}</h2>
-                        <p className="text-sm text-muted-foreground">{t('effective_permissions_desc')}</p>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-muted/50">
-                                    <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('resources')}</th>
-                                    <th className="px-6 py-3 text-xs font-bold tracking-wider uppercase text-muted-foreground">{t('allowed_verbs')}</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {details?.rules?.map((rule, idx) => (
-                                    <tr key={idx} className="hover:bg-muted transition-colors">
-                                        <td className="px-6 py-4 text-sm font-medium text-foreground">{rule.resource}</td>
-                                        <td className="px-6 py-4 text-sm font-mono text-info">{rule.verbs}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <button
+                        onClick={handleReset}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted transition-all active:scale-95 whitespace-nowrap"
+                    >
+                        <icons.trash size={16} />
+                        {t('reset_defaults')}
+                    </button>
+                    
+                    <button
+                        onClick={handleSave}
+                        disabled={!hasChanges}
+                        className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-xl text-xs font-black transition-all shadow-lg active:scale-95 whitespace-nowrap",
+                            hasChanges 
+                                ? "bg-primary text-primary-foreground hover:opacity-90" 
+                                : "bg-muted text-muted-foreground opacity-40 cursor-not-allowed"
+                        )}
+                    >
+                        <icons.shield_check size={16} />
+                        {t('save_settings')}
+                    </button>
                 </div>
             </div>
         </div>

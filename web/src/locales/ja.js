@@ -384,5 +384,7 @@ export const ja = {
     "table_density": "テーブルの密度",
     "comfortable": "快適",
     "compact": "コンパクト",
-    "table_density_desc": "リソーステーブルの垂直方向の間隔とフォントサイズを調整します。"
+    "table_density_desc": "リソーステーブルの垂直方向の間隔とフォントサイズを調整します。",
+    "reset_tables": "テーブルレイアウトのリセット",
+    "reset_tables_desc": "すべてのリソーステーブルをデフォルトの列幅と表示設定に戻します。"
 };

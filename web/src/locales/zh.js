@@ -383,5 +383,7 @@ export const zh = {
     "table_density": "表格密度",
     "comfortable": "舒适",
     "compact": "紧凑",
-    "table_density_desc": "调整资源表的垂直间距和字体大小。"
+    "table_density_desc": "调整资源表的垂直间距和字体大小。",
+    "reset_tables": "重置表格布局",
+    "reset_tables_desc": "将所有资源表恢复为默认列宽和可见性。"
 };

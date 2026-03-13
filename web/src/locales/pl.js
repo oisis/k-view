@@ -384,5 +384,7 @@ export const pl = {
     "table_density": "Zagęszczenie tabeli",
     "comfortable": "Komfortowy",
     "compact": "Kompaktowy",
-    "table_density_desc": "Dostosuj odstępy pionowe i rozmiar czcionki w tabelach zasobów."
+    "table_density_desc": "Dostosuj odstępy pionowe i rozmiar czcionki w tabelach zasobów.",
+    "reset_tables": "Resetuj układy tabel",
+    "reset_tables_desc": "Przywróć domyślne szerokości i widoczność kolumn we wszystkich tabelach."
 };

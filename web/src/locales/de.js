@@ -384,5 +384,7 @@ export const de = {
     "table_density": "Tabellendichte",
     "comfortable": "Komfortabel",
     "compact": "Kompakt",
-    "table_density_desc": "Passen Sie den vertikalen Abstand und die Schriftgröße der Ressourcentabellen an."
+    "table_density_desc": "Passen Sie den vertikalen Abstand und die Schriftgröße der Ressourcentabellen an.",
+    "reset_tables": "Tabellenlayouts zurücksetzen",
+    "reset_tables_desc": "Alle Ressourcentabellen auf Standardspaltenbreiten und -sichtbarkeit zurücksetzen."
 };

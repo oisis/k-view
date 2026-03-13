@@ -384,5 +384,7 @@ export const fr = {
     "table_density": "Densité du tableau",
     "comfortable": "Confortable",
     "compact": "Compact",
-    "table_density_desc": "Ajustez l'espacement vertical et la taille de la police des tableaux de ressources."
+    "table_density_desc": "Ajustez l'espacement vertical et la taille de la police des tableaux de ressources.",
+    "reset_tables": "Réinitialiser les mises en page des tableaux",
+    "reset_tables_desc": "Restaurer toutes les tables de ressources à leurs largeurs et visibilité de colonnes par défaut."
 };

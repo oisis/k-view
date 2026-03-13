@@ -384,5 +384,7 @@ export const es = {
     "table_density": "Densidad de la tabla",
     "comfortable": "Cómodo",
     "compact": "Compacto",
-    "table_density_desc": "Ajuste el espacio vertical y el tamaño de fuente de las tablas de recursos."
+    "table_density_desc": "Ajuste el espacio vertical y el tamaño de fuente de las tablas de recursos.",
+    "reset_tables": "Restablecer diseños de tabla",
+    "reset_tables_desc": "Restaurar todas las tablas de recursos a sus anchos y visibilidad de columna predeterminados."
 };
