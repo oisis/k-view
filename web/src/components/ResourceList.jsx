@@ -257,83 +257,50 @@ export default function ResourceList({ kind: propKind }) {
         return (items || []).slice(start, start + (settings?.itemsPerPage || 15));
     }, [items, currentPage, settings.itemsPerPage]);
 
-    const isNamespaced = schema.cols.some(col => col.key === 'namespace');
     const isEvent = kind === 'Events';
-    const supportsTrace = false;
+    const isNamespaced = schema.cols.some(col => col.key === 'namespace');
 
     // --- TanStack Table Definition ---
-    
-    // Map internal sortConfig to TanStack sorting state
     const sorting = useMemo(() => [
         { id: sortConfig.key, desc: sortConfig.direction === 'desc' }
     ], [sortConfig]);
+
+    const getInitialSize = (columnId) => {
+        if (columnId === 'name') return kind === 'Pods' ? 400 : 300;
+        if (columnId === 'extra.labels' || columnId === 'extra.annotations') return 208;
+        if (['extra.images', 'extra.address', 'extra.endpoints', 'extra.external'].includes(columnId)) return 192;
+        if (['extra.cluster-ip', 'extra.access-modes', 'extra.reclaim-policy', 'extra.storage-class'].includes(columnId)) return 128;
+        if (columnId === 'extra.schedule') return 160;
+        if (['age', 'extra.last-schedule', 'extra.restarts'].includes(columnId)) return 100;
+        if (['status', 'pod_status'].includes(columnId)) return 120;
+        if (columnId === 'namespace') return 192;
+        if (['extra.ready', 'extra.up-to-date', 'extra.available', 'extra.pods', 'extra.desired', 'extra.current', 'extra.replicas', 'extra.readyReplicas'].includes(columnId)) return 80;
+        if (['extra.activeJobsCount', 'extra.active'].includes(columnId)) return 64;
+        if (columnId === 'actions') return 50;
+        return 150;
+    };
 
     const tanstackColumns = useMemo(() => {
         const baseCols = (schema.cols || []).map(col => {
             return columnHelper.accessor(row => getVal(row, col.key), {
                 id: col.key,
+                size: getInitialSize(col.key),
+                minSize: 50,
                 header: () => t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label,
                 cell: info => {
                     const item = info.row.original;
                     let val = info.getValue();
-                    
                     if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
                         val = formatK8sDate(val);
                     }
-
                     const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
-                    if (expandableKeys.includes(col.key)) {
-                        return <ExpandableCell value={val} type={col.key.split('.')[1]} />;
-                    }
-                    
-                    if (col.key === 'extra.schedule') {
-                        return <ScheduleCell value={val} item={item} />;
-                    }
-                    
-                    if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') {
-                        return <span className="text-primary font-semibold">{val}</span>;
-                    }
-                    
-                    if (col.badge) {
-                        return <StatusBadge value={val} />;
-                    }
-                    
-                    if (col.key === 'name') {
-                        return (
-                            <Link
-                                to={`/resources/${kind}/${item.namespace || '-'}/${val}`}
-                                className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary"
-                                title={val}
-                            >
-                                {val}
-                            </Link>
-                        );
-                    }
-                    
-                    if (col.key === 'namespace' && val !== '-') {
-                        return (
-                            <Link
-                                to={`/resources/Namespaces/-/${val}`}
-                                className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs"
-                                title={val}
-                            >
-                                {val}
-                            </Link>
-                        );
-                    }
-                    
-                    if (col.key === 'extra.node') {
-                        return (
-                            <Link
-                                to={`/resources/Nodes/-/${val}`}
-                                className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold"
-                                title={val}
-                            >
-                                {val}
-                            </Link>
-                        );
-                    }
-
+                    if (expandableKeys.includes(col.key)) return <ExpandableCell value={val} type={col.key.split('.')[1]} />;
+                    if (col.key === 'extra.schedule') return <ScheduleCell value={val} item={item} />;
+                    if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') return <span className="text-primary font-semibold">{val}</span>;
+                    if (col.badge) return <StatusBadge value={val} />;
+                    if (col.key === 'name') return <Link to={`/resources/${kind}/${item.namespace || '-'}/${val}`} className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary" title={val}>{val}</Link>;
+                    if (col.key === 'namespace' && val !== '-') return <Link to={`/resources/Namespaces/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs" title={val}>{val}</Link>;
+                    if (col.key === 'extra.node') return <Link to={`/resources/Nodes/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold" title={val}>{val}</Link>;
                     return <span className="text-muted-foreground font-medium truncate block text-xs" title={val}>{val}</span>;
                 },
             });
@@ -342,34 +309,19 @@ export default function ResourceList({ kind: propKind }) {
         if (!isEvent) {
             baseCols.push(columnHelper.display({
                 id: 'actions',
-                header: () => (
-                    <div className="flex items-center justify-center text-primary/60">
-                        <icons.settings size={14} strokeWidth={3} />
-                    </div>
-                ),
-                cell: info => (
-                    <div className="flex justify-center">
-                        <ResourceActionMenu
-                            kind={kind}
-                            namespace={info.row.original.namespace}
-                            name={info.row.original.name}
-                            onRefresh={refresh}
-                        />
-                    </div>
-                ),
+                size: 50,
+                header: () => <div className="flex items-center justify-center text-primary/60"><icons.settings size={14} strokeWidth={3} /></div>,
+                cell: info => <div className="flex justify-center"><ResourceActionMenu kind={kind} namespace={info.row.original.namespace} name={info.row.original.name} onRefresh={refresh} /></div>,
             }));
         }
-
         return baseCols;
     }, [schema, t, kind, refresh, icons]);
 
     const table = useReactTable({
         data: paginatedItems,
         columns: tanstackColumns,
-        state: {
-            sorting,
-        },
-        // Enable manual sorting to sync with external state
+        state: { sorting },
+        columnResizeMode: 'onChange',
         manualSorting: true,
         onSortingChange: (updater) => {
             const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -377,7 +329,6 @@ export default function ResourceList({ kind: propKind }) {
                 const { id, desc } = newSorting[0];
                 setSortConfig({ key: id, direction: desc ? 'desc' : 'asc' });
             } else {
-                // If sort was removed by TanStack cycle, force it back to default (asc)
                 setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }));
             }
         },
@@ -385,35 +336,8 @@ export default function ResourceList({ kind: propKind }) {
         getSortedRowModel: getSortedRowModel(),
     });
 
-    const getColumnWidthClass = (columnId) => {
-        if (columnId === 'name') {
-            if (kind === 'CronJobs') return "w-1/6";
-            if (kind === 'Pods') return "w-1/3";
-            return "w-1/4";
-        }
-        if (columnId === 'extra.labels' || columnId === 'extra.annotations') return "w-52";
-        if (['extra.images', 'extra.address', 'extra.endpoints', 'extra.external'].includes(columnId)) return "w-48";
-        if (['extra.cluster-ip', 'extra.access-modes', 'extra.reclaim-policy', 'extra.storage-class'].includes(columnId)) return "w-32";
-        if (columnId === 'extra.suspend') return "w-24";
-        if (['extra.type', 'extra.controller'].includes(columnId)) return "w-32";
-        if (columnId === 'extra.schedule') return "w-40";
-        if (['age', 'extra.last-schedule'].includes(columnId)) return "w-24";
-        if (['status', 'pod_status'].includes(columnId)) return kind === 'Pods' ? "w-24" : "w-36";
-        if (columnId === 'extra.scope') return "w-32";
-        if (columnId === 'extra.version') return "w-20";
-        if (['extra.ready', 'extra.up-to-date', 'extra.available', 'extra.pods', 'extra.desired', 'extra.current', 'extra.replicas', 'extra.readyReplicas'].includes(columnId)) return "w-20";
-        if (['extra.activeJobsCount', 'extra.active'].includes(columnId)) return "w-16";
-        if (columnId === 'extra.restarts') return "w-24";
-        if (['extra.cpu', 'extra.ram'].includes(columnId)) return "w-20";
-        if (columnId === 'namespace') return kind === 'DaemonSets' ? "w-64" : "w-48";
-        if (columnId === 'actions') return "w-10";
-        return "";
-    };
-
     const getCellAlignmentClass = (columnId) => {
-        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas', 'actions'].includes(columnId)) {
-            return "text-center px-4 font-mono text-[13px]";
-        }
+        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas', 'actions'].includes(columnId)) return "text-center px-4 font-mono text-[13px]";
         if (columnId === 'name') return "text-left px-6";
         if (columnId === 'extra.message') return "text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
         return "px-4";
@@ -426,9 +350,7 @@ export default function ResourceList({ kind: propKind }) {
                     <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
                         {t(kind) || schema.title}
                         <AnimatePresence>
-                            {isRefreshing && (
-                                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-1" title="Auto-refreshing..." />
-                            )}
+                            {isRefreshing && <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-1" title="Auto-refreshing..." />}
                         </AnimatePresence>
                     </h1>
                     <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mt-1 opacity-70">
@@ -449,25 +371,21 @@ export default function ResourceList({ kind: propKind }) {
             <CreateResourceModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreated={handleCreated} initialKind={kind} namespaces={namespaces} />
 
             <AnimatePresence>
-                {error && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest">
-                        {error}
-                    </motion.div>
-                )}
+                {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest">{error}</motion.div>}
             </AnimatePresence>
 
             <Card className="border-border/50 bg-card overflow-hidden shadow-xl transition-all duration-500">
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table className="w-full text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
+                    <table style={{ width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0">
                         <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
                                         <th 
                                             key={header.id} 
+                                            style={{ width: header.getSize() }}
                                             className={cn(
-                                                "py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
-                                                getColumnWidthClass(header.id),
+                                                "relative py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
                                                 header.id === 'actions' && "bg-muted/30"
                                             )}
                                             onClick={header.column.getToggleSortingHandler()}
@@ -475,6 +393,16 @@ export default function ResourceList({ kind: propKind }) {
                                             <div className="flex items-center justify-center">
                                                 {flexRender(header.column.columnDef.header, header.getContext())}
                                             </div>
+                                            
+                                            {/* Resize Handle */}
+                                            <div
+                                                onMouseDown={header.getResizeHandler()}
+                                                onTouchStart={header.getResizeHandler()}
+                                                className={cn(
+                                                    "absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary/30 transition-colors",
+                                                    header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent"
+                                                )}
+                                            />
                                         </th>
                                     ))}
                                 </tr>
@@ -494,16 +422,11 @@ export default function ResourceList({ kind: propKind }) {
                                     </td>
                                 </tr>
                             ) : table.getRowModel().rows.map((row, i) => (
-                                <motion.tr 
-                                    key={row.id} 
-                                    initial={{ opacity: 0, x: -10 }} 
-                                    animate={{ opacity: 1, x: 0 }} 
-                                    transition={{ delay: i * 0.03 }} 
-                                    className="hover:bg-muted/50 transition-all group"
-                                >
+                                <motion.tr key={row.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="hover:bg-muted/50 transition-all group">
                                     {row.getVisibleCells().map(cell => (
                                         <td 
                                             key={cell.id} 
+                                            style={{ width: cell.column.getSize() }}
                                             className={cn(
                                                 "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0",
                                                 getCellAlignmentClass(cell.column.id)
