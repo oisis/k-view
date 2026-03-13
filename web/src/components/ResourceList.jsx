@@ -348,11 +348,11 @@ export default function ResourceList({ kind: propKind }) {
                                     else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-36";
                                     else if (col.key === 'extra.scope') widthCls = "w-32";
                                     else if (col.key === 'extra.version') widthCls = "w-20";
-                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas') widthCls = "w-20";
+                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas' || col.key === 'extra.readyReplicas') widthCls = "w-20";
                                     else if (col.key === 'extra.activeJobsCount' || col.key === 'extra.active') widthCls = "w-16";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
-                                    else if (col.key === 'namespace') widthCls = "w-48";
+                                    else if (col.key === 'namespace') widthCls = kind === 'DaemonSets' ? "w-64" : "w-48";
                                     else if (col.key === 'extra.reason') widthCls = "w-32";
                                     else if (col.key === 'extra.message') widthCls = "w-1/3";
                                     else if (col.key === 'extra.source') widthCls = "w-32";
@@ -416,7 +416,7 @@ export default function ResourceList({ kind: propKind }) {
                                         let content;
                                         let cellClass = "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule'].includes(col.key || '')) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas'].includes(col.key || '')) {
                                             cellClass += " text-center px-4 font-mono text-[13px]";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-6";
