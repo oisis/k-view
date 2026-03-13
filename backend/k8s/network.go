@@ -231,12 +231,18 @@ func TraceFlow(ctx context.Context, client KubernetesProvider, resType, namespac
 							"Ingress Host": rule.Host,
 						}
 
+						// Try to find the port number
+						portMsg := protocol
+						if path.Backend.Service != nil && path.Backend.Service.Port.Number != 0 {
+							portMsg = fmt.Sprintf("Port %d", path.Backend.Service.Port.Number)
+						}
+
 						res.Edges = append(res.Edges, TraceEdge{From: "External:" + entryName, To: "Ingress:" + ing.Name, Healthy: true, Message: protocol})
 						res.Edges = append(res.Edges, TraceEdge{
 							From:    "Ingress:" + ing.Name,
 							To:      "Service:" + svc.Name,
 							Healthy: true,
-							Message: "Points to Service",
+							Message: portMsg,
 							Details: details,
 						})
 					}
