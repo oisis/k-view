@@ -11,12 +11,12 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
     const terminalInstance = useRef(null);
     const wsRef = useRef(null);
     const fitAddonRef = useRef(null);
-    const [isDarkMode, setIsDarkMode] = useState(!document.documentElement.classList.contains('theme-light'));
+    const [isDarkMode, setIsDarkMode] = useState(!document.documentElement.classList.contains('light'));
 
     // Theme detection logic
     useEffect(() => {
         const observer = new MutationObserver(() => {
-            const isLight = document.documentElement.classList.contains('theme-light');
+            const isLight = document.documentElement.classList.contains('light');
             setIsDarkMode(!isLight);
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -39,7 +39,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 blue: isLight ? '#1D4ED8' : '#58a6ff',
                 magenta: isLight ? '#7E22CE' : '#bc8cff',
                 cyan: isLight ? '#0369A1' : '#39c5cf',
-                white: isLight ? '#475569' : '#b1bac4',
+                white: isLight ? '#FFFFFF' : '#b1bac4',
                 brightBlack: isLight ? '#64748B' : '#6e7681',
                 brightRed: isLight ? '#DC2626' : '#ffa198',
                 brightGreen: isLight ? '#16A34A' : '#56d364',
@@ -47,7 +47,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 brightBlue: isLight ? '#2563EB' : '#79c0ff',
                 brightMagenta: isLight ? '#9333EA' : '#d2a8ff',
                 brightCyan: isLight ? '#0891B2' : '#56d4dd',
-                brightWhite: isLight ? '#F8FAFC' : '#ffffff',
+                brightWhite: isLight ? '#0F172A' : '#ffffff',
             };
         }
     }, [isDarkMode]);
@@ -90,7 +90,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                     blue: isLight ? '#1D4ED8' : '#58a6ff',
                     magenta: isLight ? '#7E22CE' : '#bc8cff',
                     cyan: isLight ? '#0369A1' : '#39c5cf',
-                    white: isLight ? '#475569' : '#b1bac4',
+                    white: isLight ? '#FFFFFF' : '#b1bac4',
                     brightBlack: isLight ? '#64748B' : '#6e7681',
                     brightRed: isLight ? '#DC2626' : '#ffa198',
                     brightGreen: isLight ? '#16A34A' : '#56d364',
@@ -98,7 +98,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                     brightBlue: isLight ? '#2563EB' : '#79c0ff',
                     brightMagenta: isLight ? '#9333EA' : '#d2a8ff',
                     brightCyan: isLight ? '#0891B2' : '#56d4dd',
-                    brightWhite: isLight ? '#F8FAFC' : '#ffffff',
+                    brightWhite: isLight ? '#0F172A' : '#ffffff',
                 },
                 fontFamily: 'Menlo, Monaco, "Courier New", monospace',
                 fontSize: 13,
@@ -283,6 +283,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 {/* xTerm Container */}
                 <div
                     ref={terminalRef}
+                    style={{ backgroundColor: isDarkMode ? '#0d1117' : '#FFFFFF' }}
                     className={`absolute inset-0 w-full h-full p-2 pl-4 transition-opacity duration-300 ${status === "idle" || (status === "error" && !terminalInstance.current) ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 />
             </div>
