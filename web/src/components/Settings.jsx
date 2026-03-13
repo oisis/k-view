@@ -71,11 +71,6 @@ export default function Settings() {
         setHasChanges(false);
     };
 
-    const handleReload = () => {
-        setDraftSettings(settings);
-        setHasChanges(false);
-    };
-
     const handleReset = () => {
         resetSettings();
     };
@@ -142,17 +137,6 @@ export default function Settings() {
                         >
                             <icons.trash size={16} />
                             {t('reset_defaults')}
-                        </button>
-                        <button
-                            onClick={handleReload}
-                            disabled={!hasChanges}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border
-                                ${hasChanges
-                                    ? 'bg-card border-border text-foreground hover:bg-muted active:scale-95 whitespace-nowrap'
-                                    : 'opacity-40 cursor-default border-transparent text-muted-foreground whitespace-nowrap'}`}
-                        >
-                            <icons.refresh size={16} />
-                            {t('reload')}
                         </button>
                         <button
                             onClick={handleSave}

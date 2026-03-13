@@ -112,7 +112,6 @@ export const ko = {
     "tools": "도구",
     "save_settings": "설정 저장",
     "reset_defaults": "기본값으로 재설정",
-    "reload": "새로고침",
     "cluster_configuration": "클러스터 구성",
     "interface_preferences": "인터페이스 기본 설정",
     "custom_cluster_name": "사용자 정의 클러스터 이름",

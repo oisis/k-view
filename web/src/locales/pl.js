@@ -112,7 +112,6 @@ export const pl = {
     "tools": "Narzędzia",
     "save_settings": "Zapisz ustawienia",
     "reset_defaults": "Ustawienia domyślne",
-    "reload": "Przeładuj",
     "cluster_configuration": "Konfiguracja klastra",
     "interface_preferences": "Preferencje interfejsu",
     "custom_cluster_name": "Niestandardowa nazwa klastra",

@@ -112,7 +112,6 @@ export const en = {
     "tools": "Tools",
     "save_settings": "Save Settings",
     "reset_defaults": "Reset to Defaults",
-    "reload": "Reload",
     "cluster_configuration": "Cluster Configuration",
     "interface_preferences": "Interface Preferences",
     "custom_cluster_name": "Custom Cluster Name",
