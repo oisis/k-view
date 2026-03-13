@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+import { createColumnHelper, useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
+
 import { PodListSchema } from './ResourceList/templates/PodList';
 import { DeploymentListSchema } from './ResourceList/templates/DeploymentList';
 import { ServiceListSchema } from './ResourceList/templates/ServiceList';
@@ -37,7 +39,6 @@ import { ReplicationControllerListSchema } from './ResourceList/templates/Replic
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
 import { EndpointsListSchema } from './ResourceList/templates/EndpointsList';
-import { createColumnHelper } from '@tanstack/react-table';
 
 const columnHelper = createColumnHelper();
 
@@ -92,7 +93,6 @@ function getVal(item, key) {
 function formatK8sDate(val) {
     if (typeof val !== 'string' || !val.includes('T') || !val.endsWith('Z')) return val;
     try {
-        // Format YYYY-MM-DDTHH:MM:SSZ -> YYYY-MM-DD HH:MM:SS
         return val.replace('T', ' ').replace('Z', '').split('.')[0];
     } catch (e) {
         return val;
@@ -229,24 +229,6 @@ export default function ResourceList({ kind: propKind }) {
     const url = `/api/resources/${kind}${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`;
     const { items, loading, isRefreshing, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
 
-    // Transform old schema to TanStack Table columns
-    const tanstackColumns = useMemo(() => {
-        const baseCols = (schema.cols || []).map(col => {
-            return columnHelper.accessor(row => getVal(row, col.key), {
-                id: col.key,
-                header: () => t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label,
-                cell: info => {
-                    let val = info.getValue();
-                    if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
-                        val = formatK8sDate(val);
-                    }
-                    return val;
-                },
-            });
-        });
-        return baseCols;
-    }, [schema, t]);
-
     useEffect(() => {
         fetch('/api/namespaces')
             .then(r => r.ok ? r.json() : Promise.reject())
@@ -269,37 +251,155 @@ export default function ResourceList({ kind: propKind }) {
         return (items || []).slice(start, start + (settings?.itemsPerPage || 15));
     }, [items, currentPage, settings.itemsPerPage]);
 
-    const requestSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
-    };
-
     const isNamespaced = schema.cols.some(col => col.key === 'namespace');
     const isEvent = kind === 'Events';
     const supportsTrace = false;
 
+    // --- TanStack Table Definition ---
+    const tanstackColumns = useMemo(() => {
+        const baseCols = (schema.cols || []).map(col => {
+            return columnHelper.accessor(row => getVal(row, col.key), {
+                id: col.key,
+                header: () => t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label,
+                cell: info => {
+                    const item = info.row.original;
+                    let val = info.getValue();
+                    
+                    if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
+                        val = formatK8sDate(val);
+                    }
+
+                    const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
+                    if (expandableKeys.includes(col.key)) {
+                        return <ExpandableCell value={val} type={col.key.split('.')[1]} />;
+                    }
+                    
+                    if (col.key === 'extra.schedule') {
+                        return <ScheduleCell value={val} item={item} />;
+                    }
+                    
+                    if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') {
+                        return <span className="text-primary font-semibold">{val}</span>;
+                    }
+                    
+                    if (col.badge) {
+                        return <StatusBadge value={val} />;
+                    }
+                    
+                    if (col.key === 'name') {
+                        return (
+                            <Link
+                                to={`/resources/${kind}/${item.namespace || '-'}/${val}`}
+                                className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary"
+                                title={val}
+                            >
+                                {val}
+                            </Link>
+                        );
+                    }
+                    
+                    if (col.key === 'namespace' && val !== '-') {
+                        return (
+                            <Link
+                                to={`/resources/Namespaces/-/${val}`}
+                                className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs"
+                                title={val}
+                            >
+                                {val}
+                            </Link>
+                        );
+                    }
+                    
+                    if (col.key === 'extra.node') {
+                        return (
+                            <Link
+                                to={`/resources/Nodes/-/${val}`}
+                                className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold"
+                                title={val}
+                            >
+                                {val}
+                            </Link>
+                        );
+                    }
+
+                    return <span className="text-muted-foreground font-medium truncate block text-xs" title={val}>{val}</span>;
+                },
+            });
+        });
+
+        if (!isEvent) {
+            baseCols.push(columnHelper.display({
+                id: 'actions',
+                header: () => (
+                    <div className="flex items-center justify-center text-primary/60">
+                        <icons.settings size={14} strokeWidth={3} />
+                    </div>
+                ),
+                cell: info => (
+                    <div className="flex justify-center">
+                        <ResourceActionMenu
+                            kind={kind}
+                            namespace={info.row.original.namespace}
+                            name={info.row.original.name}
+                            onRefresh={refresh}
+                        />
+                    </div>
+                ),
+            }));
+        }
+
+        return baseCols;
+    }, [schema, t, kind, refresh, icons]);
+
+    const table = useReactTable({
+        data: paginatedItems,
+        columns: tanstackColumns,
+        getCoreRowModel: getCoreRowModel(),
+    });
+
+    const getColumnWidthClass = (columnId) => {
+        if (columnId === 'name') {
+            if (kind === 'CronJobs') return "w-1/6";
+            if (kind === 'Pods') return "w-1/3";
+            return "w-1/4";
+        }
+        if (columnId === 'extra.labels' || columnId === 'extra.annotations') return "w-52";
+        if (['extra.images', 'extra.address', 'extra.endpoints', 'extra.external'].includes(columnId)) return "w-48";
+        if (['extra.cluster-ip', 'extra.access-modes', 'extra.reclaim-policy', 'extra.storage-class'].includes(columnId)) return "w-32";
+        if (columnId === 'extra.suspend') return "w-24";
+        if (['extra.type', 'extra.controller'].includes(columnId)) return "w-32";
+        if (columnId === 'extra.schedule') return "w-40";
+        if (['age', 'extra.last-schedule'].includes(columnId)) return "w-24";
+        if (['status', 'pod_status'].includes(columnId)) return kind === 'Pods' ? "w-24" : "w-36";
+        if (columnId === 'extra.scope') return "w-32";
+        if (columnId === 'extra.version') return "w-20";
+        if (['extra.ready', 'extra.up-to-date', 'extra.available', 'extra.pods', 'extra.desired', 'extra.current', 'extra.replicas', 'extra.readyReplicas'].includes(columnId)) return "w-20";
+        if (['extra.activeJobsCount', 'extra.active'].includes(columnId)) return "w-16";
+        if (columnId === 'extra.restarts') return "w-24";
+        if (['extra.cpu', 'extra.ram'].includes(columnId)) return "w-20";
+        if (columnId === 'namespace') return kind === 'DaemonSets' ? "w-64" : "w-48";
+        if (columnId === 'actions') return "w-10";
+        return "";
+    };
+
+    const getCellAlignmentClass = (columnId) => {
+        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas', 'actions'].includes(columnId)) {
+            return "text-center px-4 font-mono text-[13px]";
+        }
+        if (columnId === 'name') return "text-left px-6";
+        if (columnId === 'extra.message') return "text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
+        return "px-4";
+    };
+
     return (
-        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-4 md:p-8"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
                         {t(kind) || schema.title}
                         <AnimatePresence>
                             {isRefreshing && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                    className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-1"
-                                    title="Auto-refreshing..."
-                                />
+                                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-1" title="Auto-refreshing..." />
                             )}
                         </AnimatePresence>
                     </h1>
@@ -312,40 +412,17 @@ export default function ResourceList({ kind: propKind }) {
                 <div className="flex items-center gap-4">
                     <div className="relative group">
                         <icons.search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
-                        <input
-                            type="text"
-                            placeholder={t('search_placeholder')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm"
-                        />
+                        <input type="text" placeholder={t('search_placeholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm" />
                     </div>
-                    {isNamespaced && (
-                        <NamespaceSelect
-                            namespaces={namespaces}
-                            selected={namespace}
-                            onChange={setNamespace}
-                        />
-                    )}
+                    {isNamespaced && <NamespaceSelect namespaces={namespaces} selected={namespace} onChange={setNamespace} />}
                 </div>
             </div>
 
-            <CreateResourceModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onCreated={handleCreated}
-                initialKind={kind}
-                namespaces={namespaces}
-            />
+            <CreateResourceModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreated={handleCreated} initialKind={kind} namespaces={namespaces} />
 
             <AnimatePresence>
                 {error && (
-                    <motion.div 
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest"
-                    >
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest">
                         {error}
                     </motion.div>
                 )}
@@ -355,181 +432,62 @@ export default function ResourceList({ kind: propKind }) {
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
                         <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
-                            <tr>
-                                {(schema.cols || []).map(col => {
-                                    let widthCls = "";
-                                    if (col.key === 'name') {
-                                        if (kind === 'CronJobs') widthCls = "w-1/6";
-                                        else if (kind === 'Pods') widthCls = "w-1/3";
-                                        else widthCls = "w-1/4";
-                                    }
-                                    else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-52";
-                                    else if (col.key === 'extra.images' || col.key === 'extra.address' || col.key === 'extra.endpoints' || col.key === 'extra.external') widthCls = "w-48";
-                                    else if (col.key === 'extra.cluster-ip' || col.key === 'extra.access-modes' || col.key === 'extra.reclaim-policy' || col.key === 'extra.storage-class') widthCls = "w-32";
-                                    else if (col.key === 'extra.suspend') widthCls = "w-24";
-                                    else if (col.key === 'extra.type' || col.key === 'extra.controller') widthCls = "w-32";
-                                    else if (col.key === 'extra.schedule') widthCls = "w-40";
-                                    else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
-                                    else if (col.key === 'status' || col.key === 'pod_status') widthCls = kind === 'Pods' ? "w-24" : "w-36";
-                                    else if (col.key === 'extra.scope') widthCls = "w-32";
-                                    else if (col.key === 'extra.version') widthCls = "w-20";
-                                    else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas' || col.key === 'extra.readyReplicas') widthCls = "w-20";
-                                    else if (col.key === 'extra.activeJobsCount' || col.key === 'extra.active') widthCls = "w-16";
-                                    else if (col.key === 'extra.restarts') widthCls = "w-24";
-                                    else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
-                                    else if (col.key === 'namespace') widthCls = kind === 'DaemonSets' ? "w-64" : "w-48";
-                                    else if (col.key === 'extra.reason') widthCls = "w-32";
-                                    else if (col.key === 'extra.message') widthCls = "w-1/3";
-                                    else if (col.key === 'extra.source') widthCls = "w-32";
-                                    else if (col.key === 'extra.involvedObject') widthCls = "w-48";
-                                    else if (col.key === 'extra.count') widthCls = "w-16";
-                                    else if (col.key === 'extra.firstTimestamp' || col.key === 'extra.lastTimestamp') widthCls = "w-32";
-
-                                    return (
-                                        <th
-                                            key={col.key}
-                                            onClick={() => requestSort(col.key)}
+                            {table.getHeaderGroups().map(headerGroup => (
+                                <tr key={headerGroup.id}>
+                                    {headerGroup.headers.map(header => (
+                                        <th 
+                                            key={header.id} 
                                             className={cn(
                                                 "py-3 px-4 whitespace-nowrap cursor-pointer group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0",
-                                                widthCls
+                                                getColumnWidthClass(header.id),
+                                                header.id === 'actions' && "bg-muted/30"
                                             )}
+                                            onClick={() => {
+                                                const currentDir = sortConfig.key === header.id ? sortConfig.direction : null;
+                                                const nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+                                                setSortConfig({ key: header.id, direction: nextDir });
+                                            }}
                                         >
                                             <div className="flex items-center justify-center">
-                                                {t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label}
+                                                {flexRender(header.column.columnDef.header, header.getContext())}
                                             </div>
                                         </th>
-                                    );
-                                })}
-                                {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-12 border-b border-border/30 border-r border-border/10"></th>}
-                                {!isEvent && (
-                                    <th className="px-2 py-3 whitespace-nowrap w-10 border-b border-border/30 text-center bg-muted/30">
-                                        <div className="flex items-center justify-center text-primary/60">
-                                            <icons.settings size={14} strokeWidth={3} />
-                                        </div>
-                                    </th>
-                                )}
-                            </tr>
+                                    ))}
+                                </tr>
+                            ))}
                         </thead>
                         <tbody className="divide-y divide-border/20">
                             {loading && paginatedItems.length === 0 ? (
                                 <tr>
-                                    <td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">
+                                    <td colSpan={tanstackColumns.length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">
                                         {t('loading')}...
                                     </td>
                                 </tr>
-                            ) : paginatedItems.length === 0 ? (
+                            ) : table.getRowModel().rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={schema.cols.length + (supportsTrace ? 1 : 0) + (isEvent ? 0 : 1)} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">
+                                    <td colSpan={tanstackColumns.length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">
                                         {t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}
                                     </td>
                                 </tr>
-                            ) : paginatedItems.map((item, i) => (
+                            ) : table.getRowModel().rows.map((row, i) => (
                                 <motion.tr 
-                                    key={i} 
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.03 }}
+                                    key={row.id} 
+                                    initial={{ opacity: 0, x: -10 }} 
+                                    animate={{ opacity: 1, x: 0 }} 
+                                    transition={{ delay: i * 0.03 }} 
                                     className="hover:bg-muted/50 transition-all group"
                                 >
-                                    {(schema.cols || []).map(col => {                                        
-                                        let val = getVal(item, col.key);
-                                        // Apply date formatting
-                                        if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
-                                            val = formatK8sDate(val);
-                                        }
-
-                                        let content;
-                                        let cellClass = "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0";
-
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule', 'extra.readyReplicas'].includes(col.key || '')) {
-                                            cellClass += " text-center px-4 font-mono text-[13px]";
-                                        } else if (col.key === 'name') {
-                                            cellClass += " text-left px-6";
-                                        } else if (col.key === 'extra.message') {
-                                            cellClass += " text-left px-6 text-xs leading-tight text-muted-foreground font-medium";
-                                        } else {
-                                            cellClass += " px-4";
-                                        }
-
-                                        const expandableKeys = ['extra.labels', 'extra.annotations', 'extra.images', 'extra.endpoints', 'extra.external', 'extra.parameters', 'extra.access-modes'];
-                                        if ((expandableKeys || []).includes(col.key || '')) {
-                                            content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
-                                        } else if (col.key === 'extra.schedule') {
-                                            content = <ScheduleCell value={val} item={item} />;
-                                        } else if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') {
-                                            cellClass = cn(cellClass, "whitespace-nowrap w-16 text-center font-mono");
-                                            content = <span className="text-primary font-semibold">{val}</span>;
-                                        } else if (col.badge) {
-                                            cellClass = cn(cellClass, "text-center px-4");
-                                            content = <StatusBadge value={val} />;
-                                        } else if (col.key === 'name') {
-                                            content = (
-                                                <Link
-                                                    to={`/resources/${kind}/${item.namespace || '-'}/${val}`}
-                                                    className="font-mono text-[13px] font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary"
-                                                    title={val}
-                                                >
-                                                    {val}
-                                                </Link>
-                                            );
-                                        } else if (col.key === 'namespace' && val !== '-') {
-                                            content = (
-                                                <Link
-                                                    to={`/resources/Namespaces/-/${val}`}
-                                                    className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-xs"
-                                                    title={val}
-                                                >
-                                                    {val}
-                                                </Link>
-                                            );
-                                        } else if (col.key === 'extra.node') {
-                                            content = (
-                                                <Link
-                                                    to={`/resources/Nodes/-/${val}`}
-                                                    className="text-primary hover:text-primary hover:underline truncate block font-mono text-xs text-center font-semibold"
-                                                    title={val}
-                                                >
-                                                    {val}
-                                                </Link>
-                                            );
-                                        } else {
-                                            content = <span className="text-muted-foreground font-medium truncate block text-xs" title={val}>{val}</span>;
-                                        }
-
-                                        return (
-                                            <td key={col.key} className={cellClass}>
-                                                {content}
-                                            </td>
-                                        );
-                                    })}
-                                    {supportsTrace && (
-                                        <td className="px-4 py-4 whitespace-nowrap text-center border-r border-border/10">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/resources/${kind}/${item.namespace || '-'}/${item.name}?tab=trace`);
-                                                }}
-                                                className="h-8 w-8 text-primary/40 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
-                                                title="Visual Trace"
-                                            >
-                                                <icons.activity size={14} />
-                                            </Button>
+                                    {row.getVisibleCells().map(cell => (
+                                        <td 
+                                            key={cell.id} 
+                                            className={cn(
+                                                "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0",
+                                                getCellAlignmentClass(cell.column.id)
+                                            )}
+                                        >
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
-                                    )}
-                                    {!isEvent && (
-                                        <td className="px-2 py-4 whitespace-nowrap text-center">
-                                            <div className="flex justify-center">
-                                                <ResourceActionMenu
-                                                    kind={kind}
-                                                    namespace={item.namespace}
-                                                    name={item.name}
-                                                    onRefresh={refresh}
-                                                />
-                                            </div>
-                                        </td>
-                                    )}
+                                    ))}
                                 </motion.tr>
                             ))}
                         </tbody>
@@ -537,77 +495,36 @@ export default function ResourceList({ kind: propKind }) {
                 </div>
             </Card>
 
-            {/* Pagination */}
+            {/* Pagination remains unchanged as it uses currentPage/totalPages state */}
             {totalPages > 1 && (
-                <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl"
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl">
                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
                         Showing {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} of {(items || []).length} items
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5 border-r border-border/30 pr-6 mr-2">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(1)}
-                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
-                            >
+                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(1)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
                                 <icons.chevrons_left size={16} />
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
-                            >
+                            <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
                                 <icons.chevron_left size={16} />
                             </Button>
                         </div>
-
                         <div className="flex items-center gap-1.5">
-                            {(Array.from({ length: totalPages }, (_, i) => i + 1) || [])
-                                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                                .map((p, i, arr) => (
-                                    <React.Fragment key={p}>
-                                        {i > 0 && arr[i - 1] !== p - 1 && <span className="text-muted-foreground/30 px-1 font-black">...</span>}
-                                        <button
-                                            onClick={() => setCurrentPage(p)}
-                                            className={cn(
-                                                "w-9 h-9 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 border",
-                                                currentPage === p
-                                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-110"
-                                                    : "bg-muted/10 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-foreground hover:bg-muted/30"
-                                            )}
-                                        >
-                                            {p}
-                                        </button>
-                                    </React.Fragment>
-                                ))
-                            }
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1).map((p, i, arr) => (
+                                <React.Fragment key={p}>
+                                    {i > 0 && arr[i - 1] !== p - 1 && <span className="text-muted-foreground/30 px-1 font-black">...</span>}
+                                    <button onClick={() => setCurrentPage(p)} className={cn("w-9 h-9 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-all active:scale-95 border", currentPage === p ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-110" : "bg-muted/10 text-muted-foreground border-border/50 hover:border-primary/30 hover:text-foreground hover:bg-muted/30")}>
+                                        {p}
+                                    </button>
+                                </React.Fragment>
+                            ))}
                         </div>
-
                         <div className="flex items-center gap-1.5 border-l border-border/30 pl-6 ml-2">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
-                            >
+                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
                                 <icons.chevron_right size={16} />
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage(totalPages)}
-                                className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30"
-                            >
+                            <Button variant="outline" size="icon" disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)} className="h-9 w-9 rounded-xl border-border/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all active:scale-90 disabled:opacity-30">
                                 <icons.chevrons_right size={16} />
                             </Button>
                         </div>
