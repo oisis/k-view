@@ -37,6 +37,9 @@ import { ReplicationControllerListSchema } from './ResourceList/templates/Replic
 import { StatefulSetListSchema } from './ResourceList/templates/StatefulSetList';
 import { JobListSchema } from './ResourceList/templates/JobList';
 import { EndpointsListSchema } from './ResourceList/templates/EndpointsList';
+import { createColumnHelper } from '@tanstack/react-table';
+
+const columnHelper = createColumnHelper();
 
 const SCHEMAS = {
     Pods: PodListSchema,
@@ -225,6 +228,24 @@ export default function ResourceList({ kind: propKind }) {
 
     const url = `/api/resources/${kind}${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`;
     const { items, loading, isRefreshing, error, sortConfig, setSortConfig, refresh } = useResourceData(url, searchTerm, { key: 'name', direction: 'asc' }, getVal);
+
+    // Transform old schema to TanStack Table columns
+    const tanstackColumns = useMemo(() => {
+        const baseCols = (schema.cols || []).map(col => {
+            return columnHelper.accessor(row => getVal(row, col.key), {
+                id: col.key,
+                header: () => t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label,
+                cell: info => {
+                    let val = info.getValue();
+                    if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
+                        val = formatK8sDate(val);
+                    }
+                    return val;
+                },
+            });
+        });
+        return baseCols;
+    }, [schema, t]);
 
     useEffect(() => {
         fetch('/api/namespaces')
