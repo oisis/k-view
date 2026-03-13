@@ -6,6 +6,7 @@ import { useTheme } from '../ThemeContext';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logo from '../assets/k-view-logo.png';
+import { NAVIGATION_CONFIG, TOOLS_CONFIG } from '../lib/navigation';
 
 // ── Collapsible section ────────────────────────────────────────────────────
 function Section({ id, label, children, defaultOpen = false, isCollapsed, userEmail }) {
@@ -178,7 +179,6 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
 
         if (href.startsWith('/resources/')) {
             const targetKind = href.split('/').pop();
-            // Match /resources/:kind or /resources/:kind/:ns/:name
             return p.startsWith(`/resources/${targetKind}`);
         }
 
@@ -192,13 +192,11 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="bg-card border-r border-border/50 flex flex-col hidden md:flex h-full shrink-0 relative z-20 overflow-hidden shadow-2xl"
         >
-            {/* Header: Logo (left) + Buttons (right stack) */}
+            {/* Header: Logo + Buttons */}
             <div className={cn(
                 "border-b border-border/30 flex items-center transition-all duration-300 py-6",
                 isCollapsed ? "flex-col gap-6 px-0" : "flex-row justify-between px-6 gap-2"
             )}>
-                
-                {/* Logo Area */}
                 <AnimatePresence mode="wait">
                     {!isCollapsed ? (
                         <motion.div 
@@ -223,7 +221,6 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
                     )}
                 </AnimatePresence>
 
-                {/* Buttons Stack */}
                 <div className={cn("flex flex-col items-center gap-3", !isCollapsed && "ml-auto")}>
                     <Button
                         variant="ghost"
@@ -253,54 +250,42 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
                     <NavItem href="/" iconKey="dashboard" label={t('dashboard')} active={isPathActive('/')} isCollapsed={isCollapsed} />
                 </div>
 
-                <Section id="workloads" label={t('workloads')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/resources/CronJobs" iconKey="cronjob" label={t('CronJobs')} active={isPathActive('/resources/CronJobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/DaemonSets" iconKey="daemonset" label={t('DaemonSets')} active={isPathActive('/resources/DaemonSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Deployments" iconKey="deployment" label={t('Deployments')} active={isPathActive('/resources/Deployments')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Jobs" iconKey="job" label={t('Jobs')} active={isPathActive('/resources/Jobs')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Pods" iconKey="pod" label={t('Pods')} active={isPathActive('/resources/Pods')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/ReplicaSets" iconKey="replicaset" label={t('ReplicaSets')} active={isPathActive('/resources/ReplicaSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/ReplicationControllers" iconKey="replicationcontroller" label={t('ReplicationControllers')} active={isPathActive('/resources/ReplicationControllers')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/StatefulSets" iconKey="statefulset" label={t('StatefulSets')} active={isPathActive('/resources/StatefulSets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/HorizontalPodAutoscalers" iconKey="hpa" label={t('HorizontalPodAutoscalers')} active={isPathActive('/resources/HorizontalPodAutoscalers')} isCollapsed={isCollapsed} />
-                </Section>
-
-                <Section id="network" label={t('Services')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/resources/IngressClasses" iconKey="ingressclass" label={t('IngressClasses')} active={isPathActive('/resources/IngressClasses')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Ingresses" iconKey="ingress" label={t('Ingresses')} active={isPathActive('/resources/Ingresses')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Services" iconKey="service" label={t('Services')} active={isPathActive('/resources/Services')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Endpoints" iconKey="network" label={t('Endpoints')} active={isPathActive('/resources/Endpoints')} isCollapsed={isCollapsed} />
-                </Section>
-
-                <Section id="config" label={t('config')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/resources/ConfigMaps" iconKey="configmap" label={t('ConfigMaps')} active={isPathActive('/resources/ConfigMaps')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/PersistentVolumeClaims" iconKey="pvc" label={t('PersistentVolumeClaims')} active={isPathActive('/resources/PersistentVolumeClaims')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Secrets" iconKey="secret" label={t('Secrets')} active={isPathActive('/resources/Secrets')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/StorageClasses" iconKey="storageclass" label={t('StorageClasses')} active={isPathActive('/resources/StorageClasses')} isCollapsed={isCollapsed} />
-                </Section>
-
-                <Section id="cluster" label={t('cluster')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
-                    <NavItem href="/resources/ClusterRoleBindings" iconKey="clusterrolebinding" label={t('ClusterRoleBindings')} active={isPathActive('/resources/ClusterRoleBindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/ClusterRoles" iconKey="clusterrole" label={t('ClusterRoles')} active={isPathActive('/resources/ClusterRoles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/CustomResourceDefinitions" iconKey="crd" label={t('CustomResourceDefinitions')} active={isPathActive('/resources/CustomResourceDefinitions')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Events" iconKey="event" label={t('Events')} active={isPathActive('/resources/Events')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Namespaces" iconKey="namespace" label={t('Namespaces')} active={isPathActive('/resources/Namespaces')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/NetworkPolicies" iconKey="networkpolicy" label={t('NetworkPolicies')} active={isPathActive('/resources/NetworkPolicies')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Nodes" iconKey="nodes" label={t('Nodes')} active={isPathActive('/resources/Nodes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/PersistentVolumes" iconKey="pv" label={t('PersistentVolumes')} active={isPathActive('/resources/PersistentVolumes')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/RoleBindings" iconKey="rolebinding" label={t('RoleBindings')} active={isPathActive('/resources/RoleBindings')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/Roles" iconKey="role" label={t('Roles')} active={isPathActive('/resources/Roles')} isCollapsed={isCollapsed} />
-                    <NavItem href="/resources/ServiceAccounts" iconKey="serviceaccount" label={t('ServiceAccounts')} active={isPathActive('/resources/ServiceAccounts')} isCollapsed={isCollapsed} />
-                </Section>
+                {NAVIGATION_CONFIG.map(section => (
+                    <Section 
+                        key={section.id} 
+                        id={section.id} 
+                        label={t(section.label)} 
+                        isCollapsed={isCollapsed} 
+                        userEmail={user?.email}
+                    >
+                        {section.items.map(item => (
+                            <NavItem 
+                                key={item.kind}
+                                href={`/resources/${item.kind}`} 
+                                iconKey={item.iconKey} 
+                                label={t(item.kind)} 
+                                active={isPathActive(`/resources/${item.kind}`)} 
+                                isCollapsed={isCollapsed} 
+                            />
+                        ))}
+                    </Section>
+                ))}
 
                 <Section id="tools" label={t('tools')} defaultOpen={false} isCollapsed={isCollapsed} userEmail={user?.email}>
                     <NavActionButton onClick={onCreateResource} iconKey="plus" label={t('add_resource')} isCollapsed={isCollapsed} />
-                    {user.role === 'kview-cluster-admin' && (
-                        <NavItem href="/access" iconKey="admin_panel" label={t('admin_panel')} active={isPathActive('/access')} isCollapsed={isCollapsed} />
-                    )}
-                    <NavItem href="/about" iconKey="about" label={t('about')} active={isPathActive('/about')} isCollapsed={isCollapsed} />
-                    <NavItem href="/console" iconKey="console" label={t('console')} active={isPathActive('/console')} isCollapsed={isCollapsed} />
-                    <NavItem href="/settings" iconKey="settings" label={t('settings')} active={isPathActive('/settings')} isCollapsed={isCollapsed} />
+                    {TOOLS_CONFIG.map(tool => {
+                        if (tool.adminOnly && user.role !== 'kview-cluster-admin') return null;
+                        return (
+                            <NavItem 
+                                key={tool.id}
+                                href={tool.href} 
+                                iconKey={tool.iconKey} 
+                                label={t(tool.label)} 
+                                active={isPathActive(tool.href)} 
+                                isCollapsed={isCollapsed} 
+                            />
+                        );
+                    })}
                 </Section>
             </nav>
 
