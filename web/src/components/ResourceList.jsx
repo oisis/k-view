@@ -86,6 +86,16 @@ function getVal(item, key) {
     return rawVal;
 }
 
+function formatK8sDate(val) {
+    if (typeof val !== 'string' || !val.includes('T') || !val.endsWith('Z')) return val;
+    try {
+        // Format YYYY-MM-DDTHH:MM:SSZ -> YYYY-MM-DD HH:MM:SS
+        return val.replace('T', ' ').replace('Z', '').split('.')[0];
+    } catch (e) {
+        return val;
+    }
+}
+
 function StatusBadge({ value }) {
     const { t } = useTranslation();
     const v = String(value || '');
@@ -132,7 +142,7 @@ function ScheduleCell({ value, nextRun }) {
     };
 
     return (
-        <div className="relative inline-block">
+        <div className="relative inline-block w-full text-center">
             <span
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
@@ -258,7 +268,7 @@ export default function ResourceList({ kind: propKind }) {
         >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
                         {t(kind) || schema.title}
                         <AnimatePresence>
                             {isRefreshing && (
@@ -266,7 +276,7 @@ export default function ResourceList({ kind: propKind }) {
                                     initial={{ opacity: 0, scale: 0.5 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.5 }}
-                                    className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-3"
+                                    className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse ml-1"
                                     title="Auto-refreshing..."
                                 />
                             )}
@@ -328,19 +338,21 @@ export default function ResourceList({ kind: propKind }) {
                                 {(schema.cols || []).map(col => {
                                     let widthCls = "";
                                     if (col.key === 'name') widthCls = kind === 'CronJobs' ? "w-1/6" : "w-1/4";
-                                    else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-40";
+                                    else if (col.key === 'extra.labels' || col.key === 'extra.annotations') widthCls = "w-52";
                                     else if (col.key === 'extra.images' || col.key === 'extra.address' || col.key === 'extra.endpoints' || col.key === 'extra.external') widthCls = "w-48";
                                     else if (col.key === 'extra.cluster-ip' || col.key === 'extra.access-modes' || col.key === 'extra.reclaim-policy' || col.key === 'extra.storage-class') widthCls = "w-32";
                                     else if (col.key === 'extra.suspend') widthCls = "w-24";
                                     else if (col.key === 'extra.type' || col.key === 'extra.controller') widthCls = "w-32";
+                                    else if (col.key === 'extra.schedule') widthCls = "w-40";
                                     else if (col.key === 'age' || col.key === 'extra.last-schedule') widthCls = "w-24";
                                     else if (col.key === 'status' || col.key === 'pod_status') widthCls = "w-36";
                                     else if (col.key === 'extra.scope') widthCls = "w-32";
                                     else if (col.key === 'extra.version') widthCls = "w-20";
                                     else if (col.key === 'extra.ready' || col.key === 'extra.up-to-date' || col.key === 'extra.available' || col.key === 'extra.pods' || col.key === 'extra.desired' || col.key === 'extra.current' || col.key === 'extra.replicas') widthCls = "w-20";
+                                    else if (col.key === 'extra.activeJobsCount' || col.key === 'extra.active') widthCls = "w-16";
                                     else if (col.key === 'extra.restarts') widthCls = "w-24";
                                     else if (col.key === 'extra.cpu' || col.key === 'extra.ram') widthCls = "w-20";
-                                    else if (col.key === 'namespace') widthCls = "w-32";
+                                    else if (col.key === 'namespace') widthCls = "w-48";
                                     else if (col.key === 'extra.reason') widthCls = "w-32";
                                     else if (col.key === 'extra.message') widthCls = "w-1/3";
                                     else if (col.key === 'extra.source') widthCls = "w-32";
@@ -357,22 +369,20 @@ export default function ResourceList({ kind: propKind }) {
                                                 widthCls
                                             )}
                                         >
-
-                                            <div className="flex items-center justify-center gap-2">
+                                            <div className="flex items-center justify-center">
                                                 {t(col.label?.toLowerCase()?.replace(' ', '_')) || col.label}
-                                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary">
-                                                    {sortConfig.key === col.key ? (
-                                                        sortConfig.direction === 'asc' ? <icons.chevron_up size={14} /> : <icons.chevron_down size={14} />
-                                                    ) : (
-                                                        <icons.sort size={12} />
-                                                    )}
-                                                </span>
                                             </div>
                                         </th>
                                     );
                                 })}
                                 {supportsTrace && <th className="px-4 py-3 whitespace-nowrap w-12 border-b border-border/30 border-r border-border/10"></th>}
-                                {!isEvent && <th className="px-4 py-3 whitespace-nowrap w-16 border-b border-border/30 text-right"></th>}
+                                {!isEvent && (
+                                    <th className="px-2 py-3 whitespace-nowrap w-10 border-b border-border/30 text-center bg-muted/30">
+                                        <div className="flex items-center justify-center text-primary/60">
+                                            <icons.settings size={14} strokeWidth={3} />
+                                        </div>
+                                    </th>
+                                )}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/20">
@@ -397,11 +407,16 @@ export default function ResourceList({ kind: propKind }) {
                                     className="hover:bg-muted/50 transition-all group"
                                 >
                                     {(schema.cols || []).map(col => {                                        
-                                        const val = getVal(item, col.key);
+                                        let val = getVal(item, col.key);
+                                        // Apply date formatting
+                                        if (['extra.lastScheduleTime', 'extra.lastTimestamp', 'extra.firstTimestamp', 'extra.last-schedule'].includes(col.key)) {
+                                            val = formatK8sDate(val);
+                                        }
+
                                         let content;
                                         let cellClass = "py-3 overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0";
 
-                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp'].includes(col.key || '')) {
+                                        if (['age', 'extra.restarts', 'extra.node', 'namespace', 'status', 'pod_status', 'extra.suspend', 'extra.type', 'extra.ready', 'extra.desired', 'extra.current', 'extra.available', 'extra.replicas', 'extra.pods', 'extra.controller', 'extra.count', 'extra.firstTimestamp', 'extra.lastTimestamp', 'extra.active', 'extra.activeJobsCount', 'extra.schedule'].includes(col.key || '')) {
                                             cellClass += " text-center px-4 font-mono text-[13px]";
                                         } else if (col.key === 'name') {
                                             cellClass += " text-left px-6";
@@ -416,7 +431,7 @@ export default function ResourceList({ kind: propKind }) {
                                             content = <ExpandableCell value={val} type={(col.key || '').split('.')[1]} />;
                                         } else if (col.key === 'extra.schedule') {
                                             content = <ScheduleCell value={val} item={item} />;
-                                        } else if (col.key === 'extra.active') {
+                                        } else if (col.key === 'extra.active' || col.key === 'extra.activeJobsCount') {
                                             cellClass = cn(cellClass, "whitespace-nowrap w-16 text-center font-mono");
                                             content = <span className="text-primary font-semibold">{val}</span>;
                                         } else if (col.badge) {
@@ -479,8 +494,8 @@ export default function ResourceList({ kind: propKind }) {
                                         </td>
                                     )}
                                     {!isEvent && (
-                                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                                            <div className="flex justify-end pr-2">
+                                        <td className="px-2 py-4 whitespace-nowrap text-center">
+                                            <div className="flex justify-center">
                                                 <ResourceActionMenu
                                                     kind={kind}
                                                     namespace={item.namespace}

@@ -2,7 +2,6 @@ Section: Workloads
 General overview:
   - Name
   - Namespace
-  - Images
   - Labels
   - Schedule
   - Suspend
