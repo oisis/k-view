@@ -190,7 +190,7 @@ export default function Sidebar({ user, onLogout, isCollapsed, setIsCollapsed, o
             initial={false}
             animate={{ width: isCollapsed ? 80 : 256 }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="bg-card/60 backdrop-blur-xl border-r border-border/50 flex flex-col hidden md:flex h-full shrink-0 relative z-20 overflow-hidden shadow-2xl"
+            className="bg-card/30 backdrop-blur-xl border-r border-border/50 flex flex-col hidden md:flex h-full shrink-0 relative z-20 overflow-hidden shadow-2xl"
         >
             {/* Header: Logo + Buttons */}
             <div className={cn(
