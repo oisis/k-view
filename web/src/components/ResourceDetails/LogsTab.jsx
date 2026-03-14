@@ -241,9 +241,8 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                             {filteredLines.length} {t('matches')}
                         </span>
                         {logRefreshInterval > 0 && (
-                            <span className="flex items-center gap-1.5 text-success font-bold animate-pulse">
-                                <icons.refresh size={10} className="animate-spin-slow" />
-                                {t('live')}
+                            <span className="text-success font-bold animate-pulse cursor-help" title={t('live')}>
+                                <icons.refresh size={12} strokeWidth={3} className="animate-spin-slow" />
                             </span>
                         )}
                     </div>
