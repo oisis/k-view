@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 IMAGE_NAME="k-view"
 NAMESPACE="k-view"
 CHART_PATH="$PROJECT_ROOT/charts/k-view"
-VALUES_FILE="$PROJECT_ROOT/tmp-gemini/my-values.yaml"
+VALUES_FILE="$PROJECT_ROOT/gemini/my-values.yaml"
 PORT=8080
 
 echo -e "${BLUE}🚀 Starting Local Deployment for $IMAGE_NAME...${NC}"
