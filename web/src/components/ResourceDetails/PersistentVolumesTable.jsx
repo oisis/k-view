@@ -31,7 +31,7 @@ export default function PersistentVolumesTable({ title, pvs, t, icons }) {
                             </tr>
                         ) : (
                             (pvs || []).map((pv, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors group">
+                                <tr key={pv.uid || `${pv.namespace || '-'}/${pv.name}`} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/resources/PersistentVolumes/${pv.namespace || '-'}/${pv.name}`} className="font-bold text-accent hover:underline font-mono">
                                             {pv.name}
@@ -60,6 +60,7 @@ export default function PersistentVolumesTable({ title, pvs, t, icons }) {
                                             kind="persistentvolumes"
                                             namespace="-"
                                             name={pv.name}
+                                            uid={pv.uid}
                                             onRefresh={() => window.location.reload()}
                                         />
                                     </td>

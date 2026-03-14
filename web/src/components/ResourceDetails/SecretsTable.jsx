@@ -28,7 +28,7 @@ export default function SecretsTable({ title, secrets, t, icons }) {
                             </tr>
                         ) : (
                             (secrets || []).map((s, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors group">
+                                <tr key={s.uid || `${s.namespace}/${s.name}`} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/resources/Secrets/${s.namespace}/${s.name}`} className="font-bold text-accent hover:underline font-mono">
                                             {s.name}
@@ -49,6 +49,7 @@ export default function SecretsTable({ title, secrets, t, icons }) {
                                             kind="secrets"
                                             namespace={s.namespace}
                                             name={s.name}
+                                            uid={s.uid}
                                             onRefresh={() => window.location.reload()}
                                         />
                                     </td>

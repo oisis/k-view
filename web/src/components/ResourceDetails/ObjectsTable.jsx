@@ -25,7 +25,7 @@ export default function ObjectsTable({ title, objects, t, icons, kind }) {
                             </tr>
                         ) : (
                             (objects || []).map((obj, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors group">
+                                <tr key={obj.uid || `${obj.namespace || '-'}/${obj.name}`} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <span className="font-bold text-accent font-mono">{obj.name}</span>
                                     </td>
@@ -36,6 +36,7 @@ export default function ObjectsTable({ title, objects, t, icons, kind }) {
                                             kind={kind}
                                             namespace={obj.namespace || '-'}
                                             name={obj.name}
+                                            uid={obj.uid}
                                             onRefresh={() => window.location.reload()}
                                         />
                                     </td>

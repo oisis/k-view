@@ -25,7 +25,7 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
                             <tr><td colSpan="7" className="px-4 py-8 text-center text-text-muted italic">No replica sets found.</td></tr>
                         ) : (
                             (replicaSets || []).map((rs, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <tr key={rs.uid || `${rs.namespace}/${rs.name}`} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono">
                                         <Link to={`/resources/ReplicaSets/${rs.namespace}/${rs.name}`} className="hover:underline">{rs.name}</Link>
                                     </td>
@@ -37,7 +37,7 @@ export default function ReplicaSetsTable({ title, replicaSets, t }) {
                                     <td className="px-4 py-2"><ExpandableCell value={rs.extra?.labels} type="labels" /></td>
                                     <td className="px-4 py-2"><ExpandableCell value={rs.extra?.images} type="images" /></td>
                                     <td className="px-4 py-2 text-right">
-                                        <ResourceActionMenu kind="replicasets" namespace={rs.namespace} name={rs.name} onRefresh={() => window.location.reload()} />
+                                        <ResourceActionMenu kind="replicasets" namespace={rs.namespace} name={rs.name} uid={rs.uid} onRefresh={() => window.location.reload()} />
                                     </td>
                                 </tr>
                             ))

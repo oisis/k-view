@@ -29,7 +29,7 @@ export default function IngressTable({ title, ingresses, t, icons }) {
                             </tr>
                         ) : (
                             (ingresses || []).map((ing, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors group">
+                                <tr key={ing.uid || `${ing.namespace}/${ing.name}`} className="hover:bg-white/5 transition-colors group">
                                     <td className="px-4 py-3">
                                         <Link to={`/resources/Ingresses/${ing.namespace}/${ing.name}`} className="font-bold text-accent hover:underline font-mono">
                                             {ing.name}
@@ -51,6 +51,7 @@ export default function IngressTable({ title, ingresses, t, icons }) {
                                             kind="ingresses"
                                             namespace={ing.namespace}
                                             name={ing.name}
+                                            uid={ing.uid}
                                             onRefresh={() => window.location.reload()}
                                         />
                                     </td>

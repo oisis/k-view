@@ -206,8 +206,8 @@ export default function Nodes() {
                             ) : filteredNodes.length === 0 ? (
                                 <tr><td colSpan="12" className="px-4 py-8 text-center text-text-muted">{searchTerm ? 'No nodes matching search criteria' : 'No nodes found.'}</td></tr>
                             ) : (
-                                (filteredNodes || []).map((node, i) => (
-                                    <tr key={i} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
+                                (filteredNodes || []).map((node) => (
+                                    <tr key={node.uid || node.name} className="border-b border-border hover:bg-[var(--sidebar-hover)]/30 transition-colors text-primary">
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2 font-mono font-medium text-primary justify-center">
                                                 <Link
@@ -244,6 +244,7 @@ export default function Nodes() {
                                                     namespace="-"
                                                     name={node.name}
                                                     onRefresh={refresh}
+                                                    uid={node.uid}
                                                 />
                                             </div>
                                         </td>

@@ -1,20 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
 import { useTranslation } from '../SettingsContext';
+import { useMenu } from '../MenuContext';
 
-export default function ResourceActionMenu({ kind, namespace, name, onRefresh }) {
-    const [isOpen, setIsOpen] = useState(false);
+const ResourceActionMenu = memo(function ResourceActionMenu({ kind, namespace, name, onRefresh, uid }) {
+    const { activeMenuId, activeMenuRect, toggleMenu, closeMenu } = useMenu();
     const [isProcessing, setIsProcessing] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null); // 'delete', 'restart', 'scale'
     const [forceDelete, setForceDelete] = useState(false);
     const [scaleValue, setScaleValue] = useState(1);
-    const [menuRect, setMenuRect] = useState(null);
     const menuRef = useRef(null);
     const navigate = useNavigate();
     const { icons } = useTheme();
     const { t } = useTranslation();
+
+    // Use a stable ID for the menu. If uid is not provided, fallback to kind/ns/name
+    const menuId = uid || `${kind}-${namespace || '-'}-${name}`;
+    const isOpen = activeMenuId === menuId;
+    const menuRect = activeMenuRect;
 
     const safeKindLower = (kind || '').toLowerCase();
     
@@ -40,28 +45,25 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+            if (isOpen && menuRef.current && !menuRef.current.contains(event.target)) {
                 // Check if the click is inside any portal root
                 const dropdownPortal = document.getElementById('menu-portal-root');
                 const modalPortal = document.getElementById('modal-portal-root');
                 if (dropdownPortal && dropdownPortal.contains(event.target)) return;
                 if (modalPortal && modalPortal.contains(event.target)) return;
 
-                setIsOpen(false);
+                closeMenu();
                 setConfirmAction(null);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [isOpen, closeMenu]);
 
-    const toggleMenu = (e) => {
+    const handleToggle = (e) => {
         e.stopPropagation();
-        if (!isOpen) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            setMenuRect(rect);
-        }
-        setIsOpen(!isOpen);
+        const rect = e.currentTarget.getBoundingClientRect();
+        toggleMenu(menuId, rect);
         setConfirmAction(null);
     };
 
@@ -73,7 +75,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
             return;
         }
 
-        setIsOpen(false);
+        closeMenu();
         switch (action) {
             case 'edit':
                 navigate(`/resources/${kind}/${namespace || '-'}/${name}?tab=yaml&edit=true`);
@@ -132,7 +134,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 throw new Error(data.error || 'Failed to restart');
             }
             if (onRefresh) onRefresh();
-            setIsOpen(false);
+            closeMenu();
         } catch (err) {
             alert('Restart failed: ' + err.message);
         } finally {
@@ -154,7 +156,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 throw new Error(data.error || 'Failed to trigger');
             }
             if (onRefresh) onRefresh();
-            setIsOpen(false);
+            closeMenu();
         } catch (err) {
             alert('Trigger failed: ' + err.message);
         } finally {
@@ -180,7 +182,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 throw new Error(data.error || 'Failed to scale');
             }
             if (onRefresh) onRefresh();
-            setIsOpen(false);
+            closeMenu();
         } catch (err) {
             alert('Scale failed: ' + err.message);
         } finally {
@@ -202,7 +204,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
                 throw new Error(data.error || 'Failed to delete');
             }
             if (onRefresh) onRefresh();
-            setIsOpen(false);
+            closeMenu();
         } catch (err) {
             alert('Delete failed: ' + err.message);
         } finally {
@@ -215,7 +217,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
     return (
         <div className={`relative ${isOpen ? 'z-[110]' : ''}`} ref={menuRef}>
             <button
-                onClick={toggleMenu}
+                onClick={handleToggle}
                 className={`p-1.5 rounded-lg transition-all ${isOpen ? 'bg-accent text-primary-foreground shadow-lg' : 'text-text-muted hover:text-primary hover:bg-sidebar/20'}`}
             >
                 {icons.more ? <icons.more size={16} /> : <span>•••</span>}
@@ -284,7 +286,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
             {/* Confirmation Modal */}
             {isOpen && confirmAction && createPortal(
                 <div id="modal-portal-root" className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setConfirmAction(null); setIsOpen(false); }} />
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setConfirmAction(null); closeMenu(); }} />
                     <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl glass overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6">
                             {confirmAction === 'delete' && (
@@ -388,4 +390,7 @@ export default function ResourceActionMenu({ kind, namespace, name, onRefresh })
             )}
         </div>
     );
-}
+});
+
+export default ResourceActionMenu;
+

@@ -408,7 +408,7 @@ export default function ResourceList({ kind: propKind }) {
                 id: 'actions',
                 size: 50,
                 header: () => <div className="flex items-center justify-center text-primary/60"><icons.settings size={14} strokeWidth={3} /></div>,
-                cell: info => <div className="flex justify-center"><ResourceActionMenu kind={kind} namespace={info.row.original.namespace} name={info.row.original.name} onRefresh={refresh} /></div>,
+                cell: info => <div className="flex justify-center"><ResourceActionMenu kind={kind} namespace={info.row.original.namespace} name={info.row.original.name} onRefresh={refresh} uid={info.row.original.uid} /></div>,
             }));
         }
         return baseCols;
@@ -417,6 +417,7 @@ export default function ResourceList({ kind: propKind }) {
     const table = useReactTable({
         data: paginatedItems,
         columns: tanstackColumns,
+        getRowId: (row) => row.uid || `${row.namespace}/${row.name}`,
         state: { sorting, columnSizing, columnVisibility },
         columnResizeMode: 'onChange',
         onColumnSizingChange: setColumnSizing,
@@ -498,12 +499,12 @@ export default function ResourceList({ kind: propKind }) {
                                 <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">{t('loading')}...</td></tr>
                             ) : table.getRowModel().rows.length === 0 ? (
                                 <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
-                            ) : table.getRowModel().rows.map((row, i) => (
-                                <motion.tr key={row.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="hover:bg-muted/50 transition-all group">
+                            ) : table.getRowModel().rows.map((row) => (
+                                <tr key={row.id} className="hover:bg-muted/50 transition-all group border-b border-border/20">
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0 transition-all duration-300", rowHeight, getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                                     ))}
-                                </motion.tr>
+                                </tr>
                             ))}
                         </tbody>
                     </table>

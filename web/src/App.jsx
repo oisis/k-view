@@ -15,6 +15,7 @@ import MainLayout from './components/MainLayout';
 
 import { useTranslation, useSettings } from './SettingsContext';
 import { useTheme } from './ThemeContext';
+import { MenuProvider } from './MenuContext';
 import background from './assets/background.png';
 
 // ── Helper Components for Redirects ──
@@ -161,48 +162,50 @@ function App() {
             />
             <div className="fixed inset-0 pointer-events-none z-0 bg-background/15 backdrop-blur-[1px]" />
 
-            <Router>
-                <div className="relative z-10 w-full h-screen overflow-hidden">
-                    <Routes>
-                        {/* Public Route */}
-                        <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+            <MenuProvider>
+                <Router>
+                    <div className="relative z-10 w-full h-screen overflow-hidden">
+                        <Routes>
+                            {/* Public Route */}
+                            <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
 
-                        {/* Protected Routes via MainLayout */}
-                        <Route element={
-                            <MainLayout 
-                                user={user}
-                                onLogout={handleLogout}
-                                isCollapsed={isCollapsed}
-                                setIsCollapsed={setIsCollapsed}
-                                isCreateModalOpen={isCreateModalOpen}
-                                setIsCreateModalOpen={setIsCreateModalOpen}
-                                namespaces={namespaces}
-                            />
-                        }>
-                            <Route index element={<Dashboard isCollapsed={isCollapsed} />} />
-                            <Route path="console" element={<Console />} />
-                            <Route path="about" element={<About />} />
-                            <Route path="settings" element={<Settings theme={theme} setTheme={setTheme} />} />
-                            <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
-                            
-                            <Route path="resources/Nodes" element={<Nodes />} />
-                            <Route path="resources/:kind" element={<ResourceList />} />
-                            <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
+                            {/* Protected Routes via MainLayout */}
+                            <Route element={
+                                <MainLayout 
+                                    user={user}
+                                    onLogout={handleLogout}
+                                    isCollapsed={isCollapsed}
+                                    setIsCollapsed={setIsCollapsed}
+                                    isCreateModalOpen={isCreateModalOpen}
+                                    setIsCreateModalOpen={setIsCreateModalOpen}
+                                    namespaces={namespaces}
+                                />
+                            }>
+                                <Route index element={<Dashboard isCollapsed={isCollapsed} />} />
+                                <Route path="console" element={<Console />} />
+                                <Route path="about" element={<About />} />
+                                <Route path="settings" element={<Settings theme={theme} setTheme={setTheme} />} />
+                                <Route path="access" element={user && (user.role === 'kview-cluster-admin' || user.role === 'admin') ? <AdminPanel /> : <Navigate to="/" />} />
+                                
+                                <Route path="resources/Nodes" element={<Nodes />} />
+                                <Route path="resources/:kind" element={<ResourceList />} />
+                                <Route path="resources/:kind/:namespace/:name" element={<ResourceDetails />} />
 
-                            {/* Backward Compatibility */}
-                            <Route path="nodes" element={<Navigate to="/resources/Nodes" replace />} />
-                            <Route path="workloads/:kind" element={<RedirectToResources />} />
-                            <Route path="network/:kind" element={<RedirectToResources />} />
-                            <Route path="config/:kind" element={<RedirectToResources />} />
-                            <Route path="cluster/:kind" element={<RedirectToResources />} />
-                            <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
-                            <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
-                        </Route>
+                                {/* Backward Compatibility */}
+                                <Route path="nodes" element={<Navigate to="/resources/Nodes" replace />} />
+                                <Route path="workloads/:kind" element={<RedirectToResources />} />
+                                <Route path="network/:kind" element={<RedirectToResources />} />
+                                <Route path="config/:kind" element={<RedirectToResources />} />
+                                <Route path="cluster/:kind" element={<RedirectToResources />} />
+                                <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
+                                <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
+                            </Route>
 
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                </div>
-            </Router>
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </div>
+                </Router>
+            </MenuProvider>
         </div>
     );
 }

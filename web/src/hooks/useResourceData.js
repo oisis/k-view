@@ -19,18 +19,15 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
     const isVisible = useRef(document.visibilityState === 'visible');
 
     const load = useCallback((isInitial = false) => {
-        // Double check visibility before execution
         if (document.visibilityState !== 'visible') return;
 
         if (isInitial) {
             setLoading(true);
-        } else {
+        } else if (items.length === 0) {
             setIsRefreshing(true);
         }
         
         setError(null);
-        const startTime = Date.now();
-
         fetch(url)
             .then(async r => {
                 if (r.ok) return r.json();
@@ -41,19 +38,19 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
                 } catch (e) {}
                 throw new Error(errorMessage);
             })
-            .then(data => setItems(data || []))
+            .then(data => {
+                setItems(prev => {
+                    // Only update if data actually changed to prevent unnecessary renders
+                    if (JSON.stringify(prev) === JSON.stringify(data)) return prev;
+                    return data || [];
+                });
+            })
             .catch(e => setError(e.message))
             .finally(() => {
-                // Ensure isRefreshing is visible for at least 600ms
-                const duration = Date.now() - startTime;
-                const delay = Math.max(0, 600 - duration);
-                
-                setTimeout(() => {
-                    setLoading(false);
-                    setIsRefreshing(false);
-                }, delay);
+                setLoading(false);
+                setIsRefreshing(false);
             });
-    }, [url]);
+    }, [url, items.length]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -124,6 +121,8 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
         return sortedItems.filter(item => searchInObj(item));
     }, [sortedItems, searchTerm]);
 
+    const refresh = useCallback(() => load(false), [load]);
+
     return {
         items: filteredItems,
         rawData: items,
@@ -132,7 +131,7 @@ export function useResourceData(url, searchTerm = '', initialSort = { key: 'name
         error,
         sortConfig,
         setSortConfig,
-        refresh: () => load(false)
+        refresh
     };
 }
 

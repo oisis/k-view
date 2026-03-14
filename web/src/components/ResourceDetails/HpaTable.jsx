@@ -25,7 +25,7 @@ export default function HpaTable({ hpas, t }) {
                             <tr><td colSpan="8" className="px-4 py-8 text-center text-text-muted italic">No HPAs found.</td></tr>
                         ) : (
                             (hpas || []).map((hpa, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <tr key={hpa.uid || `${hpa.namespace}/${hpa.name}`} className="hover:bg-white/5 transition-colors">
                                     <td className="px-4 py-2 font-bold text-accent font-mono">
                                         <Link to={`/resources/HorizontalPodAutoscalers/${hpa.namespace}/${hpa.name}`} className="hover:underline">{hpa.name}</Link>
                                     </td>
@@ -36,7 +36,7 @@ export default function HpaTable({ hpas, t }) {
                                     <td className="px-4 py-2 text-xs font-mono">{hpa.extra?.target || '—'}</td>
                                     <td className="px-4 py-2 text-text-muted text-xs">{hpa.age}</td>
                                     <td className="px-4 py-2 text-right">
-                                        <ResourceActionMenu kind="hpas" namespace={hpa.namespace} name={hpa.name} onRefresh={() => window.location.reload()} />
+                                        <ResourceActionMenu kind="hpas" namespace={hpa.namespace} name={hpa.name} uid={hpa.uid} onRefresh={() => window.location.reload()} />
                                     </td>
                                 </tr>
                             ))

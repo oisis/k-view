@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { translations } from './translations';
 
 const SettingsContext = createContext();
@@ -113,7 +113,7 @@ export function useTranslation() {
     const { settings } = useSettings();
     const locale = settings.locale || 'en';
 
-    const t = (key, params = {}) => {
+    const t = useCallback((key, params = null) => {
         const langDict = translations[locale] || translations.en;
         let val = langDict[key] || translations.en[key] || key;
 
@@ -124,7 +124,7 @@ export function useTranslation() {
         }
 
         return val;
-    };
+    }, [locale]);
 
     return { t, locale };
 }
