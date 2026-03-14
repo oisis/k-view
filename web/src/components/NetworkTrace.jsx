@@ -372,12 +372,21 @@ export default function NetworkTrace({ kind, namespace, name }) {
     }, [fetchTrace]);
 
     return (
-        <div className="flex flex-col flex-1 h-[750px] gap-4">
+        <div className="flex flex-col flex-1 h-[640px] gap-4">
             <style>{`
+                .react-flow__controls {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    box-shadow: none !important;
+                }
                 .react-flow__controls-button {
                     background-color: hsl(var(--card)) !important;
-                    border-bottom: 1px solid hsl(var(--border)) !important;
+                    border-right: 1px solid hsl(var(--border)) !important;
+                    border-bottom: none !important;
                     fill: hsl(var(--foreground)) !important;
+                }
+                .react-flow__controls-button:last-child {
+                    border-right: none !important;
                 }
                 .react-flow__controls-button:hover {
                     background-color: hsl(var(--muted)) !important;
@@ -387,32 +396,10 @@ export default function NetworkTrace({ kind, namespace, name }) {
                 }
             `}</style>
 
-            <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between mb-2"
-            >
-                <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-inner">
-                        <icons.activity size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black tracking-tight text-foreground uppercase italic">Network Flow Trace</h3>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Deep Packet Topology Mapping</p>
-                    </div>
-                </div>
-                <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={fetchTrace} 
-                    className="rounded-xl border-border/50 font-black uppercase tracking-widest text-[10px] h-10 px-4 hover:bg-accent transition-all"
-                >
-                    <icons.refresh size={14} className={cn("mr-2", loading && "animate-spin")} />
-                    Refresh
-                </Button>
-            </motion.div>
-
-            <div className="flex-1 bg-card/30 border border-border/50 rounded-[2.5rem] overflow-hidden relative shadow-2xl backdrop-blur-md">
+            <div className={cn(
+                "flex-1 bg-card/30 border border-border/50 rounded-2xl relative shadow-2xl backdrop-blur-md mt-2",
+                expandedEdgeId ? "overflow-visible" : "overflow-hidden"
+            )}>
                 {loading && !nodes.length ? (
                     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/60 backdrop-blur-lg">
                         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
@@ -443,16 +430,23 @@ export default function NetworkTrace({ kind, namespace, name }) {
                     >
                         <Background color="var(--primary)" opacity={0.04} gap={24} variant="dots" />
                         
-                        <Controls position="top-right" className="bg-card/90 border-border fill-foreground m-6 shadow-2xl rounded-xl overflow-hidden backdrop-blur-md" />
+                        <Controls position="top-right" className="bg-card/90 border-border fill-foreground m-4 shadow-2xl rounded-xl overflow-hidden backdrop-blur-md flex flex-row" />
                         
-                        <Panel position="top-left" className="flex gap-5 p-3.5 bg-background/90 backdrop-blur-xl border border-border/50 rounded-[1.25rem] m-6 shadow-2xl pointer-events-none select-none">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)] animate-pulse" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-foreground">Healthy</span>
+                        <Panel position="top-center" className="m-4">
+                            <div className="px-6 py-2 bg-background/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl flex flex-col items-center">
+                                <h3 className="text-sm font-black tracking-[0.2em] text-foreground uppercase italic leading-none">Network Flow Trace</h3>
+                                <p className="text-[8px] font-black uppercase tracking-[0.1em] text-muted-foreground opacity-50 mt-1">Deep Packet Topology Mapping</p>
                             </div>
-                            <div className="flex items-center gap-2.5 border-l border-border/50 pl-5">
-                                <div className="w-3 h-3 rounded-full bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-foreground">Error</span>
+                        </Panel>
+
+                        <Panel position="top-left" className="flex gap-3 px-3 py-1.5 bg-background/90 backdrop-blur-xl border border-border/50 rounded-xl m-4 shadow-2xl pointer-events-none select-none">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-foreground">Healthy</span>
+                            </div>
+                            <div className="flex items-center gap-2 border-l border-border/50 pl-3">
+                                <div className="w-2.5 h-2.5 rounded-full bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.6)]" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-foreground">Error</span>
                             </div>
                         </Panel>
                     </ReactFlow>
