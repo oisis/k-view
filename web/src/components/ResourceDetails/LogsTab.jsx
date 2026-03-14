@@ -100,8 +100,8 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
 
     return (
         <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-1 min-h-[500px]">
-            <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-border flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+            <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-border flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
                     <div className="relative group">
                         <icons.search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
                         <input
@@ -120,8 +120,10 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                                 </button>
                                             </div>
                         
-                                            <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50">
-                                                <span className="text-xs uppercase font-black text-text-muted pl-2">{t('refresh')}</span>
+                                            <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title={t('refresh')}>
+                                                <div className="pl-1.5 text-text-muted">
+                                                    <icons.refresh size={12} />
+                                                </div>
                                                 <select
                                                     value={logRefreshInterval}
                                                     onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
@@ -136,8 +138,10 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                                 </select>
                                             </div>
                         
-                                            <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50">
-                                                <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
+                                            <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title="Font Size">
+                                                <div className="pl-1.5 text-text-muted">
+                                                    <icons.hash size={12} />
+                                                </div>
                                                 <select
                                                     value={logFontSize}
                                                     onChange={(e) => setLogFontSize(parseInt(e.target.value))}
@@ -150,8 +154,10 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                             </div>
                         
                                             {containers && containers.length > 1 && (
-                                                <div className="flex items-center gap-2 bg-bg-muted/50 p-1 rounded-md border border-border/50 ml-2">
-                                                    <span className="text-xs uppercase font-bold text-text-muted pl-2">{t('label_container')}</span>
+                                                <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50 ml-1" title={t('label_container')}>
+                                                    <div className="pl-1.5 text-text-muted">
+                                                        <icons.box size={12} />
+                                                    </div>
                                                     <select
                                                         value={logContainer}
                                                         onChange={(e) => {
@@ -169,24 +175,24 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                             )}
                                         </div>
                         
-                                        <div className="flex items-center gap-4">
-                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                        <div className="flex items-center gap-2">
+                                            <label className="flex items-center gap-1.5 cursor-pointer group" title={t('wrap_lines')}>
                                                 <div
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                                                    className={`w-7 h-3.5 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
                                                     onClick={() => setLogWrapLines(!logWrapLines)}
                                                 >
-                                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-4' : ''}`} />
+                                                    <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-3' : ''}`} />
                                                 </div>
-                                                <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('wrap_lines')}</span>
+                                                <icons.list size={14} className="text-text-muted group-hover:text-primary transition-colors" />
                                             </label>
-                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                            <label className="flex items-center gap-1.5 cursor-pointer group" title={t('pagination')}>
                                                 <div
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                                                    className={`w-7 h-3.5 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
                                                     onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
                                                 >
-                                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-4' : ''}`} />
+                                                    <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-3' : ''}`} />
                                                 </div>
-                                                <span className="text-xs uppercase font-bold text-text-muted group-hover:text-primary transition-colors">{t('pagination')}</span>
+                                                <icons.layers size={14} className="text-text-muted group-hover:text-primary transition-colors" />
                                             </label>
 
                     {logPaginationEnabled && totalPages > 1 && (
