@@ -1,28 +1,51 @@
 # Gemini CLI ignore file
-# Ignores files and directories to speed up searches and indexing
 
-# Build artifacts
+# Build artifacts & Binaries
 dist/
 build/
 bin/
 k-view-server
+*.exe
+*.o
+*.so
 
 # Dependencies
 node_modules/
 vendor/
 
-# Temporary files
+# Temporary & System files
 tmp/
 *.log
+*.swp
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon
 
-# Git
+# Git & VCS
 .git/
+.gitignore
+.gitattributes
 
-# Environment
+# Secrets & Environment (Crucial!)
 .env
-.env.local
+.env.*
+*.pem
+*.key
+*.crt
+*.pub
+kubeconfig
+*.p12
 
-# Kubernetes/Helm
+# Kubernetes/Helm specific
 charts/*/charts/
 charts/*/tmp/
+.helmignore
+
+# Python (Since you read Python)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
