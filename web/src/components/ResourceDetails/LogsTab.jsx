@@ -99,8 +99,8 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
         : filteredLines;
 
     return (
-        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-1 min-h-[500px]">
-            <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-border flex flex-wrap items-center justify-between gap-2">
+        <div className="bg-glass glass rounded-2xl border border-border flex flex-col h-[620px] resize-y overflow-hidden shadow-xl">
+            <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-border flex flex-wrap items-center justify-between gap-2 flex-none">
                 <div className="flex items-center gap-2">
                     <div className="relative group">
                         <icons.search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent transition-colors" />
