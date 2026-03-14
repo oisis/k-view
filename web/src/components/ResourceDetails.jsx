@@ -91,7 +91,11 @@ export default function ResourceDetails() {
             const res = await fetch(url);
             if (!res.ok) throw new Error('Failed to fetch resource');
             const detailsData = await res.json();
-            setData(detailsData);
+            
+            setData(prev => {
+                if (prev && JSON.stringify(prev) === JSON.stringify(detailsData)) return prev;
+                return detailsData;
+            });
 
             if (activeTab === 'overview') {
                 if (kind === 'Namespaces') {
@@ -150,7 +154,7 @@ export default function ResourceDetails() {
         if (kind && name) load(true);
 
         const interval = setInterval(() => {
-            if (kind && name) load(false);
+            if (kind && name && activeTab !== 'exec') load(false);
         }, settings?.refreshInterval || 10000);
 
         return () => {
@@ -301,82 +305,88 @@ export default function ResourceDetails() {
             </motion.div>
 
             <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="w-full"
-                >
-                    <ErrorBoundary>
-                        {activeTab === 'overview' && (
-                            <OverviewTab 
-                                data={data} 
-                                kind={kind} 
-                                namespace={namespace} 
-                                name={name}
-                                quotas={quotas}
-                                limits={limits}
-                                relatedJobs={relatedJobs}
-                                relatedPods={relatedPods}
-                                relatedServices={relatedServices}
-                                relatedReplicaSets={relatedReplicaSets}
-                                relatedHpas={relatedHpas}
-                                relatedIngresses={relatedIngresses}
-                                relatedCrdObjects={relatedCrdObjects}
-                                relatedSecrets={relatedSecrets}
-                                relatedImagePullSecrets={relatedImagePullSecrets}
-                                relatedEndpoints={relatedEndpoints}
-                                relatedPvs={relatedPvs}
-                                t={t}
-                                settings={settings}
-                            />
-                        )}
-                        {activeTab === 'yaml' && (
-                            <YamlTab 
-                                kind={kind} 
-                                namespace={namespace} 
-                                name={name} 
-                                canEdit={true}
-                                t={t}
-                                onRefresh={() => load(false)}
-                            />
-                        )}
-                        {activeTab === 'logs' && (
-                            <LogsTab 
-                                kind={kind}
-                                namespace={namespace} 
-                                name={name} 
-                                containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
-                                t={t} 
-                            />
-                        )}
-                        {activeTab === 'events' && (
-                            <EventsTab 
-                                kind={kind === 'Pods' ? 'Pod' : kind}
-                                namespace={namespace && namespace !== '-' ? namespace : ''}
-                                name={name}
-                                t={t}
-                            />
-                        )}
-                        {activeTab === 'trace' && (
-                            <NetworkTrace 
-                                kind={kind}
-                                namespace={namespace}
-                                name={name}
-                            />
-                        )}
-                        {activeTab === 'exec' && (
-                            <PodTerminal 
-                                namespace={namespace}
-                                pod={name}
-                                containers={data?.spec?.containers || []}
-                            />
-                        )}
-                    </ErrorBoundary>
-                </motion.div>
+                {activeTab !== 'exec' && (
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full"
+                    >
+                        <ErrorBoundary>
+                            {activeTab === 'overview' && (
+                                <OverviewTab 
+                                    data={data} 
+                                    kind={kind} 
+                                    namespace={namespace} 
+                                    name={name}
+                                    quotas={quotas}
+                                    limits={limits}
+                                    relatedJobs={relatedJobs}
+                                    relatedPods={relatedPods}
+                                    relatedServices={relatedServices}
+                                    relatedReplicaSets={relatedReplicaSets}
+                                    relatedHpas={relatedHpas}
+                                    relatedIngresses={relatedIngresses}
+                                    relatedCrdObjects={relatedCrdObjects}
+                                    relatedSecrets={relatedSecrets}
+                                    relatedImagePullSecrets={relatedImagePullSecrets}
+                                    relatedEndpoints={relatedEndpoints}
+                                    relatedPvs={relatedPvs}
+                                    t={t}
+                                    settings={settings}
+                                />
+                            )}
+                            {activeTab === 'yaml' && (
+                                <YamlTab 
+                                    kind={kind} 
+                                    namespace={namespace} 
+                                    name={name} 
+                                    canEdit={true}
+                                    t={t}
+                                    onRefresh={() => load(false)}
+                                />
+                            )}
+                            {activeTab === 'logs' && (
+                                <LogsTab 
+                                    kind={kind}
+                                    namespace={namespace} 
+                                    name={name} 
+                                    containers={data?.spec?.containers || data?.spec?.template?.spec?.containers || []}
+                                    t={t} 
+                                />
+                            )}
+                            {activeTab === 'events' && (
+                                <EventsTab 
+                                    kind={kind === 'Pods' ? 'Pod' : kind}
+                                    namespace={namespace && namespace !== '-' ? namespace : ''}
+                                    name={name}
+                                    t={t}
+                                />
+                            )}
+                            {activeTab === 'trace' && (
+                                <NetworkTrace 
+                                    kind={kind}
+                                    namespace={namespace}
+                                    name={name}
+                                />
+                            )}
+                        </ErrorBoundary>
+                    </motion.div>
+                )}
             </AnimatePresence>
+
+            {/* Persistent Terminal Session */}
+            <div className={cn("w-full", activeTab !== 'exec' && "hidden")}>
+                <ErrorBoundary>
+                    <PodTerminal 
+                        namespace={namespace}
+                        pod={name}
+                        containers={data?.spec?.containers || []}
+                    />
+                </ErrorBoundary>
+            </div>
 
             {/* Trigger Confirmation Modal */}
             <AnimatePresence>

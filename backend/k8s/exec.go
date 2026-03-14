@@ -19,7 +19,7 @@ type PtyHandler interface {
 }
 
 // Exec opens a shell in a pod container and connects it to the pty
-func (c *Client) Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error {
+func (c *Client) Exec(ctx context.Context, namespace, pod, container, shell string, pty PtyHandler) error {
 	defer pty.Done()
 
 	clientset, err := c.getClientset(ctx)
@@ -33,9 +33,20 @@ func (c *Client) Exec(ctx context.Context, namespace, pod, container string, pty
 		Namespace(namespace).
 		SubResource("exec")
 
+	// Determine the command to run
+	var command []string
+	if shell == "bash" {
+		command = []string{"/bin/bash"}
+	} else if shell == "sh" {
+		command = []string{"/bin/sh"}
+	} else {
+		// Default auto-detection logic
+		command = []string{"/bin/sh", "-c", "TERM=xterm-256color; export TERM; [ -x /bin/bash ] && /bin/bash || /bin/sh"}
+	}
+
 	req.VersionedParams(&corev1.PodExecOptions{
 		Container: container,
-		Command:   []string{"/bin/sh", "-c", "TERM=xterm-256color; export TERM; [ -x /bin/bash ] && /bin/bash || /bin/sh"},
+		Command:   command,
 		Stdin:     true,
 		Stdout:    true,
 		Stderr:    true,

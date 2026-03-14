@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { useTheme } from '../ThemeContext';
 
-export default function PodTerminal({ pod, namespace, containers = [] }) {
+const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] }) {
     const { icons } = useTheme();
-    const [selectedContainer, setSelectedContainer] = useState(containers.length === 1 ? containers[0].name : "");
+    const [selectedContainer, setSelectedContainer] = useState(containers.length > 0 ? containers[0].name : "");
+    const [selectedShell, setSelectedShell] = useState("bash");
     const [status, setStatus] = useState("idle"); // idle, connecting, connected, error
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -64,7 +65,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
         }
     }, []);
 
-    const connectTerminal = useCallback(async (containerName) => {
+    const connectTerminal = useCallback(async (containerName, shell) => {
         if (!pod || !namespace || !containerName) return;
 
         setStatus("connecting");
@@ -119,8 +120,9 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
 
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const token = localStorage.getItem('token');
-            const tokenParam = token ? `?token=${encodeURIComponent(token)}` : '';
-            const wsUrl = `${protocol}//${window.location.host}/api/exec/${namespace}/${pod}/${containerName}${tokenParam}`;
+            const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+            const shellParam = shell ? `&shell=${shell}` : '';
+            const wsUrl = `${protocol}//${window.location.host}/api/exec/${namespace}/${pod}/${containerName}?ws=true${tokenParam}${shellParam}`;
             const ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
@@ -183,22 +185,30 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             setStatus("error");
             setErrorMsg(err.message || "Failed to load terminal script");
         }
-    }, [pod, namespace]);
+    }, [pod, namespace, isDarkMode]);
 
     useEffect(() => {
-        if (containers.length === 1) {
+        if (selectedContainer) {
+            connectTerminal(selectedContainer, selectedShell);
+        } else if (containers.length > 0) {
             const cName = containers[0].name;
             setSelectedContainer(cName);
-            connectTerminal(cName);
+            connectTerminal(cName, selectedShell);
         } else {
             setStatus("idle");
-            setSelectedContainer("");
         }
         return cleanupTerminal;
     }, [pod, namespace, containers, connectTerminal, cleanupTerminal]);
 
+    const handleReconnect = () => {
+        if (selectedContainer) {
+            cleanupTerminal();
+            connectTerminal(selectedContainer, selectedShell);
+        }
+    };
+
     return (
-        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col flex-1 min-h-[500px] shadow-2xl relative">
+        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col h-[600px] resize-y shadow-2xl relative">
             {/* Toolbar */}
             <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-border shrink-0 backdrop-blur-md">
                 <div className="flex items-center gap-3">
@@ -215,30 +225,48 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {containers.length > 1 && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-text-muted uppercase tracking-wider whitespace-nowrap">Container:</span>
-                            <select
-                                className="bg-card border border-border text-xs font-bold text-info rounded px-3 py-1 outline-none focus:border-info min-w-[150px] cursor-pointer"
-                                value={selectedContainer}
-                                onChange={(e) => {
-                                    const newContainer = e.target.value;
-                                    setSelectedContainer(newContainer);
-                                    if (newContainer) {
-                                        cleanupTerminal();
-                                        connectTerminal(newContainer);
-                                    }
-                                }}
-                            >
-                                <option value="" disabled>Select Container</option>
-                                {(containers || []).map(c => (
-                                    <option key={c.name} value={c.name}>{c.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">Shell:</span>
+                        <select
+                            className="bg-card border border-border text-[10px] font-black text-info rounded px-2 py-1 outline-none focus:border-info cursor-pointer uppercase"
+                            value={selectedShell}
+                            onChange={(e) => {
+                                const newShell = e.target.value;
+                                setSelectedShell(newShell);
+                                if (selectedContainer) {
+                                    cleanupTerminal();
+                                    connectTerminal(selectedContainer, newShell);
+                                }
+                            }}
+                        >
+                            <option value="bash">bash</option>
+                            <option value="sh">sh</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-text-muted uppercase tracking-widest whitespace-nowrap">Container:</span>
+                        <select
+                            className="bg-card border border-border text-[10px] font-black text-info rounded px-2 py-1 outline-none focus:border-info min-w-[120px] cursor-pointer"
+                            value={selectedContainer}
+                            onChange={(e) => {
+                                const newContainer = e.target.value;
+                                setSelectedContainer(newContainer);
+                                if (newContainer) {
+                                    cleanupTerminal();
+                                    connectTerminal(newContainer, selectedShell);
+                                }
+                            }}
+                        >
+                            <option value="" disabled>Select Container</option>
+                            {(containers || []).map(c => (
+                                <option key={c.name} value={c.name}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     <button
-                        onClick={() => { if (selectedContainer) { cleanupTerminal(); connectTerminal(selectedContainer); } }}
+                        onClick={handleReconnect}
                         className="p-1.5 text-text-muted hover:text-info hover:bg-info/10 rounded transition-colors"
                         title="Reconnect"
                     >
@@ -249,12 +277,12 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
 
             {/* Terminal Body */}
             <div className="flex-1 relative w-full overflow-hidden bg-transparent">
-                {(status === "idle" && containers.length > 1) ? (
+                {(status === "idle" && containers.length === 0) ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center p-8 border border-border rounded-xl bg-card/50 max-w-sm w-full">
                             {icons.terminal && <icons.terminal size={48} className="mx-auto text-text-muted mb-4 opacity-50" />}
-                            <h3 className="text-foreground font-medium mb-2">Multiple Containers</h3>
-                            <p className="text-sm text-secondary mb-6">Select a container from the toolbar to start a remote shell session.</p>
+                            <h3 className="text-foreground font-medium mb-2">No Containers</h3>
+                            <p className="text-sm text-secondary mb-6">This pod has no containers to connect to.</p>
                         </div>
                     </div>
                 ) : status === "connecting" ? (
@@ -271,7 +299,7 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
                             <h3 className="text-error font-medium mb-2">Connection Failed</h3>
                             <p className="text-sm text-error/80 mb-6">{errorMsg || "Failed to establish terminal session."}</p>
                             <button
-                                onClick={() => { if (selectedContainer) { cleanupTerminal(); connectTerminal(selectedContainer); } }}
+                                onClick={handleReconnect}
                                 className="px-4 py-2 border border-error/50 text-error hover:bg-error/20 rounded text-sm transition-colors"
                             >
                                 Retry Connection
@@ -289,4 +317,6 @@ export default function PodTerminal({ pod, namespace, containers = [] }) {
             </div>
         </div>
     );
-}
+});
+
+export default PodTerminal;

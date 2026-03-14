@@ -25,7 +25,7 @@ type KubernetesProvider interface {
 	ListPods(ctx context.Context, namespace string) ([]corev1.Pod, error)
 	ListNamespaces(ctx context.Context) ([]string, error)
 	ListNodes(ctx context.Context) ([]corev1.Node, error)
-	Exec(ctx context.Context, namespace, pod, container string, pty PtyHandler) error
+	Exec(ctx context.Context, namespace, pod, container, shell string, pty PtyHandler) error
 	GetPodLogs(ctx context.Context, namespace, pod, container string, tailLines int64) (string, error)
 	GetPodMetrics(ctx context.Context, namespace, pod string) (map[string]interface{}, error)
 	ListPodMetrics(ctx context.Context, namespace string) ([]unstructured.Unstructured, error)

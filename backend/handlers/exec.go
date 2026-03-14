@@ -97,6 +97,7 @@ func (h *ExecHandler) HandleExec(c *gin.Context) {
 	namespace := c.Param("namespace")
 	pod := c.Param("name")
 	container := c.Param("container")
+	shell := c.Query("shell")
 
 	if namespace == "" || pod == "" || container == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "namespace, pod, and container are required"})
@@ -117,7 +118,7 @@ func (h *ExecHandler) HandleExec(c *gin.Context) {
 	}
 
 	// We pass the gin request context which has the 'user' injected by auth middleware
-	err = h.k8sClient.Exec(c.Request.Context(), namespace, pod, container, pty)
+	err = h.k8sClient.Exec(c.Request.Context(), namespace, pod, container, shell, pty)
 	if err != nil {
 		log.Printf("Exec error on %s/%s/%s: %v", namespace, pod, container, err)
 		_ = conn.WriteMessage(websocket.TextMessage, []byte("\r\n\033[31mTerminal Disconnected: "+err.Error()+"\033[0m\r\n"))
