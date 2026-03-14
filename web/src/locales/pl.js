@@ -390,5 +390,7 @@ export const pl = {
     "add_resource": "Dodaj zasób",
     "template": "Szablon",
     "raw_manifest": "Manifest YAML",
-    "resource_kind": "Typ zasobu"
+    "resource_kind": "Typ zasobu",
+    "managed_fields": "Zarządzane pola",
+    "hide_managed_fields_desc": "Ukryj pola managedFields dla lepszej czytelności"
 };

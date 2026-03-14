@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTheme } from '../../ThemeContext';
 import CodeEditor from './CodeEditor';
+import yamlParser from 'js-yaml';
+import { cn } from "@/lib/utils";
 
 export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }) {
     const { icons } = useTheme();
@@ -13,6 +15,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
     const [showSuccess, setShowSuccess] = useState(false);
     const [editorFontSize, setEditorFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
+    const [showManagedFields, setShowManagedFields] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -36,6 +39,24 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
             setLoading(false);
         }
     };
+
+    const displayContent = useMemo(() => {
+        if (showManagedFields || isEditing) return isEditing ? editedYaml : yaml;
+        
+        try {
+            const obj = format === 'yaml' ? yamlParser.load(yaml) : JSON.parse(yaml);
+            if (obj && obj.metadata && obj.metadata.managedFields) {
+                const cleanObj = { ...obj, metadata: { ...obj.metadata } };
+                delete cleanObj.metadata.managedFields;
+                return format === 'yaml' 
+                    ? yamlParser.dump(cleanObj, { indent: 2, noRefs: true }) 
+                    : JSON.stringify(cleanObj, null, 2);
+            }
+            return yaml;
+        } catch (e) {
+            return yaml;
+        }
+    }, [yaml, editedYaml, isEditing, showManagedFields, format]);
 
     useEffect(() => {
         let mounted = true;
@@ -91,24 +112,42 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}
                     </span>
                     {!isEditing && (
-                        <div className="flex bg-background/50 rounded p-0.5 ml-2 border border-border/50">
-                            <button
-                                onClick={() => setFormat('yaml')}
-                                className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'yaml' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
-                            >
-                                YAML
-                            </button>
-                            <button
-                                onClick={() => setFormat('json')}
-                                className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'json' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
-                            >
-                                JSON
-                            </button>
-                        </div>
+                        <>
+                            <div className="flex bg-background/50 rounded p-0.5 ml-2 border border-border/50">
+                                <button
+                                    onClick={() => setFormat('yaml')}
+                                    className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'yaml' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                                >
+                                    YAML
+                                </button>
+                                <button
+                                    onClick={() => setFormat('json')}
+                                    className={`px-3 py-0.5 text-[10px] font-semibold rounded transition-all ${format === 'json' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                                >
+                                    JSON
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-2 ml-4 px-3 py-1 bg-background/30 rounded-lg border border-border/30 group cursor-pointer hover:border-primary/30 transition-colors" 
+                                 onClick={() => setShowManagedFields(!showManagedFields)}
+                                 title={t('hide_managed_fields_desc')}>
+                                <div className={cn(
+                                    "w-7 h-3.5 rounded-full relative transition-colors",
+                                    showManagedFields ? "bg-primary" : "bg-slate-400/40"
+                                )}>
+                                    <div className={cn(
+                                        "absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform",
+                                        showManagedFields ? "translate-x-3.5" : ""
+                                    )} />
+                                </div>
+                                <span className="text-[10px] font-black uppercase text-muted-foreground group-hover:text-primary transition-colors">{t('managed_fields')}</span>
+                            </div>
+                        </>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                                         <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
+                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">
+                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
                         <select
                             value={editorFontSize}
                             onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
@@ -181,7 +220,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                     {!isEditing && (
                         <button className="text-text-muted hover:text-[hsl(var(--foreground))] transition-colors" onClick={() => {
-                            navigator.clipboard.writeText(yaml).then(() => {
+                            navigator.clipboard.writeText(displayContent).then(() => {
                                 setShowSuccess(true);
                                 setTimeout(() => setShowSuccess(false), 2000);
                             });
@@ -192,7 +231,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                 </div>
             </div>
             <CodeEditor
-                value={isEditing ? editedYaml : yaml}
+                value={displayContent}
                 onChange={isEditing ? setEditedYaml : null}
                 readOnly={!isEditing}
                 fontSize={editorFontSize}
