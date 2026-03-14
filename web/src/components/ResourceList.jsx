@@ -512,7 +512,7 @@ export default function ResourceList({ kind: propKind }) {
             </Card>
 
             {totalPages > 1 && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6 bg-card/30 backdrop-blur-md rounded-[2rem] border border-border/50 px-10 py-6 shadow-xl">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/30 backdrop-blur-md rounded-2xl border border-border/50 px-6 py-3 shadow-xl">
                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">Showing {Math.min((items || []).length, (currentPage - 1) * (settings?.itemsPerPage || 15) + 1)} - {Math.min((items || []).length, currentPage * (settings?.itemsPerPage || 15))} of {(items || []).length} items</div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5 border-r border-border/30 pr-6 mr-2">
