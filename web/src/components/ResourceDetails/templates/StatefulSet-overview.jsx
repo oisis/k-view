@@ -14,7 +14,7 @@ export default function StatefulSetOverview({ data, spec, status, relatedPods = 
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: t('images'), accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: t('label_labels'), accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
-        { header: t('node'), accessor: (p) => p.extra?.nodeName || '—' },
+        { header: t('node'), accessor: (p) => p.extra?.node || '—' },
         { header: t('label_status'), accessor: 'status', badge: true },
         { header: t('label_restarts'), accessor: (p) => p.extra?.restarts || 0, className: 'text-center' },
         { header: 'CPU', accessor: (p) => p.extra?.cpu || '—', className: 'text-center' },

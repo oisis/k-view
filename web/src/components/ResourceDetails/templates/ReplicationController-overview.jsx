@@ -19,7 +19,7 @@ export default function ReplicationControllerOverview({ data, spec, status, rela
         { header: t('label_namespace'), accessor: 'namespace' },
         { header: 'Images', accessor: (p) => <ExpandableCell value={p.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: 'Labels', accessor: (p) => <ExpandableCell value={p.extra?.labels || {}} type="labels" icons={themeIcons} /> },
-        { header: 'Node', accessor: (p) => p.extra?.nodeName || '—' },
+        { header: 'Node', accessor: (p) => p.extra?.node || '—' },
         { header: 'Status', accessor: 'status', badge: true },
         { header: 'Restarts', accessor: (p) => p.extra?.restarts || 0, className: 'text-center' },
         { header: 'CPU', accessor: (p) => p.extra?.cpu || '—', className: 'text-center' },

@@ -99,7 +99,12 @@ func (m *ReplicaSetManager) GetDetails(ctx context.Context, dynClient dynamic.In
 		for _, pod := range pods.Items {
 			for _, owner := range pod.GetOwnerReferences() {
 				if owner.UID == item.GetUID() {
-					relatedPods = append(relatedPods, podMgr.MapItem(pod, metricsMap))
+					mappedPod := podMgr.MapItem(pod, metricsMap)
+					// Explicitly ensure node name is present
+					if nodeName, ok, _ := unstructured.NestedString(pod.Object, "spec", "nodeName"); ok {
+						mappedPod.Extra["node"] = nodeName
+					}
+					relatedPods = append(relatedPods, mappedPod)
 					break
 				}
 			}
