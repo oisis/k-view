@@ -148,3 +148,4 @@ tmp-gemini/
 # Gemini CLI local settings and state
 .gemini/
 GEMINI.md
+gemini/
