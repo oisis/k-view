@@ -213,11 +213,11 @@ export default function ResourceDetails() {
     };
 
     return (
-        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto">
+        <div className="p-4 md:pt-8 md:px-8 md:pb-8 w-full max-w-[1600px] mx-auto">
             <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10"
+                className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-1"
             >
                 <div className="flex items-center gap-6">
                     <Button 
@@ -264,14 +264,14 @@ export default function ResourceDetails() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-wrap items-center gap-2 bg-muted/30 border border-border/50 p-1.5 rounded-2xl w-fit mb-10 backdrop-blur-sm"
+                className="flex flex-wrap items-center gap-1 bg-muted/30 border border-border/50 p-1 rounded-xl w-fit mb-4 ml-auto backdrop-blur-sm"
             >
                 {tabsToDisplay.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setSearchParams({ tab: tab.id })}
                         className={cn(
-                            "relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
+                            "relative px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-300",
                             activeTab === tab.id 
                                 ? "text-primary-foreground" 
                                 : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
