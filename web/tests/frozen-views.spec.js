@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const resourcesPath = path.resolve(__dirname, './resources');
 const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yaml'));
 
-const normalize = (s) => (s || '').toLowerCase().replace('label_', '').replace(/:/g, '').replace(/_/g, ' ').replace(/-/g, ' ').trim();
+const normalize = (s) => (s || '').toLowerCase().replace('label_', '').replace(/:/g, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
 
 const SYNONYMS = {
     'created': ['age', 'create', 'created'],
@@ -27,7 +27,9 @@ const SYNONYMS = {
     'concurrency policy': ['concurrency policy', 'concurrentcy policy'],
     'default request': ['default request', 'def req'],
     'resource type': ['resource type', 'type'],
-    'resource name': ['resource name', 'name']
+    'resource name': ['resource name', 'name'],
+    'non-resource url': ['non-resource url', 'non-resource urls'],
+    'resource names': ['resource names', 'resource name']
 };
 
 const canonical = (s) => {
@@ -152,9 +154,18 @@ test.describe('K-View Frozen Views Audit', () => {
               for (const field of fields) {
                   const normField = normalize(field);
                   const fieldSynonyms = SYNONYMS[normField] || [normField];
-                  const isFieldFound = fieldSynonyms.some(s => pageTextLower.includes(s));
                   
-                  expect(isFieldFound, `Field "${field}" missing in section "${section}" for ${yamlName}`).toBe(true);
+                  // Check if the field label exists
+                  const isFieldLabelFound = fieldSynonyms.some(s => pageTextLower.includes(s));
+                  
+                  if (!isFieldLabelFound) {
+                      expect(isFieldLabelFound, `Field label "${field}" missing in section "${section}" for ${yamlName}`).toBe(true);
+                  }
+
+                  // If the field label is found, we don't necessarily need the value to be present 
+                  // if it's our placeholder '—'. innerText will include it.
+                  // The current check pageTextLower.includes(s) already covers this 
+                  // because it finds the label.
               }
           }
       }
