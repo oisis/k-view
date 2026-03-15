@@ -122,7 +122,8 @@ test.describe('K-View Frozen Views Audit', () => {
       await page.waitForSelector('.glass, .bg-card, .bg-glass', { timeout: 15000 });
 
       // Use innerText to get all visible text normalized by browser
-      const pageTextLower = (await page.innerText('body')).toLowerCase();
+      const pageTextRaw = await page.innerText('body');
+      const pageTextLower = pageTextRaw.toLowerCase();
 
       for (const [section, fields] of Object.entries(config)) {
           if (['Section', 'General overview', 'detail_tabs'].includes(section)) continue;
@@ -132,19 +133,28 @@ test.describe('K-View Frozen Views Audit', () => {
           const isSectionFound = sectionSynonyms.some(s => pageTextLower.includes(s));
           
           if (!isSectionFound) {
-              console.warn(`[Audit Warning] Section skipped: ${section} for ${yamlName} (Reason: Section not found in UI, likely no data in cluster)`);
+              // If section is not found, it's only an error if the page doesn't say "no data" or "no specialized overview"
+              const noData = pageTextLower.includes('no data available') || pageTextLower.includes('no specialized overview');
+              if (!noData) {
+                  expect(isSectionFound, `Section "${section}" not found in ${yamlName} detail view and no "no data" message present`).toBe(true);
+              }
               continue; 
           }
 
           if (Array.isArray(fields)) {
+              // If section is found, but it says "no data available", we don't check for fields
+              // We need to find the section content. This is tricky with innerText.
+              // As a heuristic, if "no data available" is present anywhere, we skip field checks for sections that might be empty.
+              if (pageTextLower.includes('no data available') && ['resource quotas', 'resource limits', 'conditions', 'pods', 'services', 'rules'].includes(normSection)) {
+                  continue;
+              }
+
               for (const field of fields) {
                   const normField = normalize(field);
                   const fieldSynonyms = SYNONYMS[normField] || [normField];
                   const isFieldFound = fieldSynonyms.some(s => pageTextLower.includes(s));
                   
-                  if (!isFieldFound) {
-                      console.warn(`[Audit Warning] Field missing: ${field} in section ${section} for ${yamlName} (Reason: Field label not found, likely empty data)`);
-                  }
+                  expect(isFieldFound, `Field "${field}" missing in section "${section}" for ${yamlName}`).toBe(true);
               }
           }
       }
