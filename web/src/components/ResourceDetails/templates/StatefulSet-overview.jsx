@@ -24,14 +24,15 @@ export default function StatefulSetOverview({ data, spec, status, relatedPods = 
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <DetailSection title={t('resource_info')}>
+            <DetailSection title="Resource Info">
                 <div className="glass rounded-2xl border border-border overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse table-fixed">
                         <thead>
                             <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
-                                <th className="px-6 py-2 text-center border-r border-border">{t('label_selector')}</th>
-                                <th className="px-6 py-2 text-center border-r border-border">{t('images')}</th>
-                                <th className="px-6 py-2 text-center">{t('label_resource_name')}</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Selector</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Images</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Init Images</th>
+                                <th className="px-6 py-2 text-center">Service Name</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,6 +43,9 @@ export default function StatefulSetOverview({ data, spec, status, relatedPods = 
                                 <td className="px-6 py-4 text-center border-r border-border">
                                     <ExpandableCell value={data?.extra?.images || []} type="images" icons={themeIcons} />
                                 </td>
+                                <td className="px-6 py-4 text-center border-r border-border">
+                                    <ExpandableCell value={data?.extra?.initImages || []} type="images" icons={themeIcons} />
+                                </td>
                                 <td className="px-6 py-4 text-center">
                                     {spec?.serviceName || '—'}
                                 </td>
@@ -51,20 +55,20 @@ export default function StatefulSetOverview({ data, spec, status, relatedPods = 
                 </div>
             </DetailSection>
 
-            <DetailSection title={t('pod_status')}>
+            <DetailSection title="Pods status">
                 <div className="grid grid-cols-2 divide-x divide-border bg-sidebar/10 rounded-xl border border-border py-4">
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">{t('label_ready')}</span>
+                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">Running</span>
                         <span className="text-lg font-bold text-success">{status?.readyReplicas || 0}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">{t('label_desired')}</span>
+                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">Desired</span>
                         <span className="text-lg font-bold text-primary">{spec?.replicas || 0}</span>
                     </div>
                 </div>
             </DetailSection>
 
-            <CommonTable title={t('pods')} columns={podColumns} data={relatedPods} t={t} />
+            <CommonTable title="Pods" columns={podColumns} data={relatedPods} t={t} />
         </div>
     );
 }
