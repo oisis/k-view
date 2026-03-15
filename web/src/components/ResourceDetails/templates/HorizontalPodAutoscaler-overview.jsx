@@ -36,7 +36,7 @@ export default function HpaOverview({ data, spec, status, t }) {
 
     const metricColumns = [
         { header: t('type'), accessor: 'type', className: 'font-bold' },
-        { header: t('label_resource_name'), accessor: (m) => m.resource?.name || '—' },
+        { header: 'Resource / Name', accessor: (m) => m.resource?.name || '—' },
         { header: t('targets'), accessor: (m) => m.resource?.target?.averageUtilization ? `${m.resource.target.averageUtilization}%` : '—', className: 'text-center' },
         { header: t('current'), accessor: () => data?.extra?.targets || '—', className: 'text-center text-info font-bold' }
     ];
