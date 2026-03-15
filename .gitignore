@@ -149,3 +149,4 @@ tmp-gemini/
 .gemini/
 GEMINI.md
 gemini/
+.geminiignore
