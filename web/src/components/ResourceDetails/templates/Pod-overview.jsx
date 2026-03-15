@@ -43,9 +43,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <ResourceInfoSection isPod={true} data={data} spec={spec} status={status} t={t} />
 
-            {controlledBy.length > 0 && (
-                <CommonTable title="Controlled by" columns={ownerColumns} data={controlledBy} t={t} />
-            )}
+            <CommonTable title="Controlled by" columns={ownerColumns} data={controlledBy} t={t} />
 
             <CommonTable 
                 title="Persistent Volume Claims" 
@@ -84,19 +82,17 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
                                         <span className="text-xs font-mono text-foreground break-all block bg-muted/30 p-2 rounded-lg border border-border/50">{c.image}</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-border/30">
-                                        <span className="text-muted-foreground font-medium">Ready</span>
+                                        <span className="text-muted-foreground font-medium">Status Ready</span>
                                         <span className={c.ready ? 'text-emerald-600 font-bold' : 'text-orange-600 font-bold'}>{c.ready ? 'True' : 'False'}</span>
                                     </div>
                                     <div className="flex justify-between items-center py-2 border-b border-border/30">
-                                        <span className="text-muted-foreground font-medium">Started</span>
+                                        <span className="text-muted-foreground font-medium">Status Started</span>
                                         <span className={c.started ? 'text-emerald-600 font-bold' : 'text-orange-600 font-bold'}>{c.started ? 'True' : 'False'}</span>
                                     </div>
-                                    {c.stateReason && (
-                                        <div className="flex justify-between items-center py-2 border-b border-border/30">
-                                            <span className="text-muted-foreground font-medium">Status Reason</span>
-                                            <span className="text-destructive font-bold">{c.stateReason}</span>
-                                        </div>
-                                    )}
+                                    <div className="flex justify-between items-center py-2 border-b border-border/30">
+                                        <span className="text-muted-foreground font-medium">Status Reason</span>
+                                        <span className={c.stateReason ? "text-destructive font-bold" : "text-muted-foreground italic"}>{c.stateReason || '—'}</span>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
