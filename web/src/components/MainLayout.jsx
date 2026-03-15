@@ -18,12 +18,12 @@ export default function MainLayout({
     }
 
     return (
-        <div className="flex h-screen w-full relative overflow-hidden bg-background">
+        <div className="flex h-screen w-full relative overflow-hidden">
             {/* Animated Background Blobs */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px] animate-mesh" />
-                <div className="absolute bottom-[-10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-info/10 blur-[120px] animate-mesh [animation-delay:2s]" />
-                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-accent/10 blur-[100px] animate-mesh [animation-delay:4s]" />
+                <div className="absolute top-[-10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/25 blur-[120px] animate-mesh" />
+                <div className="absolute bottom-[-10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-info/25 blur-[120px] animate-mesh [animation-delay:2s]" />
+                <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-accent/25 blur-[100px] animate-mesh [animation-delay:4s]" />
             </div>
 
             {/* Persistent Sidebar */}

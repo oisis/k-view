@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import RadialChart from './ui/RadialChart';
 
 // --- Mini Chart Component (SVG) ---
 function MiniChart({ data, color, label }) {
@@ -110,7 +111,7 @@ function MetricCard({ title, value, subValue, iconKey, color, children, index, i
         >
             <Card 
                 className={cn(
-                    "relative h-full overflow-hidden border-border bg-card transition-all",
+                    "relative h-full overflow-hidden border-border bg-card/50 backdrop-blur-md transition-all",
                     onClick && "hover:border-primary/30 hover:shadow-lg"
                 )}
             >
@@ -318,22 +319,28 @@ export default function Dashboard({ isCollapsed }) {
                             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                 {t('compute_load')}
                             </CardTitle>
-                            <div className="rounded-lg p-2 border text-blue-400 bg-blue-400/10 border-blue-400/20">
+                            <div className="rounded-lg p-2 border text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
                                 <icons.cpu size={18} />
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <h3 className={cn(
-                                "text-4xl font-black tracking-tighter flex items-baseline gap-3",
-                                (stats?.cpuUsage >= 80) ? 'text-red-400' : 'text-emerald-400'
-                            )}>
-                                {stats?.cpuUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-muted-foreground font-bold">{t('of_cores', { count: stats?.cpuTotal || '—' })}</span>
-                            </h3>
+                            <div className="flex items-center gap-8">
+                                <RadialChart 
+                                    value={stats?.cpuUsage || 0} 
+                                    color={stats?.cpuUsage >= 80 ? "#f87171" : "#10b981"} 
+                                    size={110}
+                                    strokeWidth={12}
+                                />
+                                <div className="flex flex-col justify-center">
+                                    <span className="text-xl font-black tracking-tight text-foreground">
+                                        Used {Number(stats?.cpuUsage || 0) && Number(stats?.cpuTotal || 0) ? ((Number(stats.cpuUsage) / 100) * Number(stats.cpuTotal)).toFixed(2) : "0.00"} of total {Number(stats?.cpuTotal) || "0"} Cores
+                                    </span>
+                                </div>
+                            </div>
                             <MiniChart
                                 data={stats?.cpuHistory}
                                 color="#10b981"
-                                label={t('load')}
+                                label="History"
                             />
                         </CardContent>
                     </Card>
@@ -357,17 +364,23 @@ export default function Dashboard({ isCollapsed }) {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <h3 className={cn(
-                                "text-4xl font-black tracking-tighter flex items-baseline gap-3",
-                                (stats?.ramUsage >= 80) ? 'text-red-400' : 'text-purple-400'
-                            )}>
-                                {stats?.ramUsage?.toFixed(2) || "0.00"}%
-                                <span className="text-xs text-muted-foreground font-bold">{t('of_ram', { total: stats?.ramTotal || '—' })}</span>
-                            </h3>
+                            <div className="flex items-center gap-8">
+                                <RadialChart 
+                                    value={stats?.ramUsage || 0} 
+                                    color={stats?.ramUsage >= 80 ? "#f87171" : "#a78bfa"} 
+                                    size={110}
+                                    strokeWidth={12}
+                                />
+                                <div className="flex flex-col justify-center">
+                                    <span className="text-xl font-black tracking-tight text-foreground">
+                                        Used {Number(stats?.ramUsage || 0) && Number(stats?.ramTotal || 0) ? ((Number(stats.ramUsage) / 100) * parseFloat(stats.ramTotal)).toFixed(1) : "0.0"} of total {stats?.ramTotal || "0"}
+                                    </span>
+                                </div>
+                            </div>
                             <MiniChart
                                 data={stats?.ramHistory}
                                 color="#a78bfa"
-                                label={t('used')}
+                                label="History"
                             />
                         </CardContent>
                     </Card>
