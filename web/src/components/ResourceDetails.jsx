@@ -217,7 +217,7 @@ export default function ResourceDetails() {
     };
 
     return (
-        <div className="p-4 md:pt-8 md:px-8 md:pb-8 w-full max-w-[1600px] mx-auto">
+        <div className="p-4 md:pt-4 md:px-8 md:pb-8 w-full max-w-[1600px] mx-auto">
             <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -237,11 +237,6 @@ export default function ResourceDetails() {
                             <Badge variant="outline" className="font-black uppercase tracking-widest text-[10px] bg-primary/5 text-primary border-primary/20">
                                 {KIND_DISPLAY_MAP[kind] || data?.extra?.kind || kind}
                             </Badge>
-                            {namespace && namespace !== '-' && (
-                                <Badge variant="secondary" className="font-mono text-[10px] font-bold">
-                                    ns: {namespace}
-                                </Badge>
-                            )}
                         </div>
                         <h1 className="text-3xl font-black tracking-tighter text-foreground italic uppercase flex items-center">
                             {name}

@@ -448,7 +448,7 @@ export default function ResourceList({ kind: propKind }) {
     const rowHeight = density === 'compact' ? "py-1.5" : "py-3";
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:p-8">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:pt-4 md:px-8 md:pb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">

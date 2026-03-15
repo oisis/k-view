@@ -176,7 +176,7 @@ export default function Dashboard({ isCollapsed }) {
     }
 
     return (
-        <div className="p-4 md:p-8 w-full">
+        <div className="p-4 md:pt-4 md:px-8 md:pb-8 w-full">
             {/* Header */}
             <motion.div 
                 initial={{ opacity: 0, x: -20 }}

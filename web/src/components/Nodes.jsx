@@ -145,7 +145,7 @@ export default function Nodes() {
     const workers = nodes.filter(n => n.role === 'worker').length;
 
     return (
-        <div className="p-4">
+        <div className="p-4 md:pt-4 md:px-8 md:pb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
                 <div>
                     <h2 className="text-2xl font-bold text-primary mb-1">Nodes</h2>

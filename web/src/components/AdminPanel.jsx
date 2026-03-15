@@ -90,13 +90,12 @@ export default function AdminPanel() {
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="p-4 md:p-8 space-y-10 max-w-[1600px] mx-auto"
-        >
-            <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            className="p-4 md:pt-4 md:px-8 md:pb-8 space-y-10 max-w-[1600px] mx-auto"
+        >            <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                     <h2 className="text-3xl font-black text-foreground tracking-tighter italic uppercase underline decoration-primary/30 decoration-4 underline-offset-8 flex items-center gap-4">
                         {icons.role && React.createElement(icons.role, { className: "text-primary", size: 32 })} 

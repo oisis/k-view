@@ -116,7 +116,14 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
             <CommonTable 
                 title="Horizontal Pod Autoscalers" 
                 columns={[
-                    { header: 'Name', accessor: (h) => <Link to={`/resources/HorizontalPodAutoscalers/${h.namespace}/${h.name}`} className="text-accent hover:underline">{h.name}</Link> },
+                    { 
+                        header: 'Name', 
+                        accessor: (h) => {
+                            const hName = h.name || h.extra?.name || '—';
+                            const hNs = h.namespace || h.extra?.namespace || metadata?.namespace || '—';
+                            return <Link to={`/resources/HorizontalPodAutoscalers/${hNs}/${hName}`} className="text-accent hover:underline font-bold">{hName}</Link>
+                        } 
+                    },
                     { header: 'Type', accessor: (h) => h.extra?.type || 'Resource' },
                     { header: 'Resource / Name', accessor: (h) => h.extra?.reference || '—' },
                     { header: 'Target', accessor: (h) => h.extra?.targets || '—' },
