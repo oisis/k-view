@@ -21,6 +21,15 @@ export default function JobOverview({ data, spec, status, relatedPods = [], t, i
         { header: 'Created', accessor: 'age' }
     ];
 
+    const conditionColumns = [
+        { header: 'Type', accessor: 'type', className: 'font-bold' },
+        { header: 'Status', accessor: 'status', className: 'text-center' },
+        { header: 'Last probe time', accessor: 'lastProbeTime' },
+        { header: 'Last transition time', accessor: 'lastTransitionTime' },
+        { header: 'Reason', accessor: 'reason' },
+        { header: 'Message', accessor: 'message', className: 'text-xs opacity-70' }
+    ];
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
@@ -30,19 +39,38 @@ export default function JobOverview({ data, spec, status, relatedPods = [], t, i
                             <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
                                 <th className="px-6 py-2 text-center border-r border-border">Completions</th>
                                 <th className="px-6 py-2 text-center border-r border-border">Parallelism</th>
-                                <th className="px-6 py-2 text-center">Active Deadline</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Active Deadline</th>
+                                <th className="px-6 py-2 text-center">Images</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr className="text-foreground align-middle">
                                 <td className="px-6 py-4 text-center border-r border-border">{spec?.completions || '—'}</td>
                                 <td className="px-6 py-4 text-center border-r border-border">{spec?.parallelism || '—'}</td>
-                                <td className="px-6 py-4 text-center">{spec?.activeDeadlineSeconds ? `${spec.activeDeadlineSeconds}s` : '—'}</td>
+                                <td className="px-6 py-4 text-center border-r border-border">{spec?.activeDeadlineSeconds ? `${spec.activeDeadlineSeconds}s` : '—'}</td>
+                                <td className="px-6 py-4 text-center">
+                                    <ExpandableCell value={data?.extra?.images || []} type="images" icons={themeIcons} />
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </DetailSection>
+
+            <DetailSection title="Pods status">
+                <div className="grid grid-cols-2 divide-x divide-border bg-sidebar/10 rounded-xl border border-border py-4">
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">Running</span>
+                        <span className="text-lg font-bold text-success">{status?.active || 0}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <span className="text-[10px] uppercase font-black text-text-muted mb-1">Desired</span>
+                        <span className="text-lg text-foreground">{spec?.completions || 0}</span>
+                    </div>
+                </div>
+            </DetailSection>
+
+            <CommonTable title="Conditions" columns={conditionColumns} data={status?.conditions || []} t={t} />
 
             <CommonTable title="Pods" columns={podColumns} data={relatedPods} t={t} />
         </div>
