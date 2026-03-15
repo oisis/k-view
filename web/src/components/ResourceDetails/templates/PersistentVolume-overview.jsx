@@ -59,7 +59,7 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
                                 <th className="px-4 py-2 text-center border-r border-border">Type</th>
                                 <th className="px-4 py-2 text-center border-r border-border">Driver</th>
                                 <th className="px-4 py-2 text-center border-r border-border">Volume Handle</th>
-                                <th className="px-4 py-2 text-center">Volume Attributes (Key, Value)</th>
+                                <th className="px-4 py-2 text-center">Volume Attributes(Key, Value)</th>
                             </tr>
                         </thead>
                         <tbody>
