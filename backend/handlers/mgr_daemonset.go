@@ -112,5 +112,32 @@ func (m *DaemonSetManager) GetDetails(ctx context.Context, dynClient dynamic.Int
 		response["relatedPods"] = relatedPods
 	}
 
+	// Fetch related Services based on selector
+	selector, found, _ := unstructured.NestedMap(item.Object, "spec", "selector", "matchLabels")
+	if found {
+		svcMgr := NewServiceManager()
+		services, err := dynClient.Resource(svcMgr.GetGVR()).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+		if err == nil {
+			var relatedServices []ResourceItem
+			for _, svc := range services.Items {
+				svcSelector, found, _ := unstructured.NestedMap(svc.Object, "spec", "selector")
+				if found {
+					// Check if Service selector is a subset of DaemonSet selector
+					isMatch := true
+					for k, v := range svcSelector {
+						if val, ok := selector[k]; !ok || val != v {
+							isMatch = false
+							break
+						}
+					}
+					if isMatch && len(svcSelector) > 0 {
+						relatedServices = append(relatedServices, svcMgr.MapItem(svc, nil))
+					}
+				}
+			}
+			response["relatedServices"] = relatedServices
+		}
+	}
+
 	return response, nil
 }

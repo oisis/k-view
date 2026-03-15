@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import CommonTable from '../../Common/CommonTable';
 import DetailSection from '../DetailSection';
 import ExpandableCell from '../ExpandableCell';
 import { useTheme } from '../../../ThemeContext';
 
-export default function DaemonSetOverview({ data, spec, status, relatedPods = [], t, icons }) {
+export default function DaemonSetOverview({ data, spec, status, relatedPods = [], relatedServices = [], t, icons }) {
     const { icons: themeIcons } = useTheme();
 
     const podColumns = [
@@ -18,6 +19,14 @@ export default function DaemonSetOverview({ data, spec, status, relatedPods = []
         { header: 'CPU', accessor: (p) => p.extra?.cpu || '—', className: 'text-center' },
         { header: 'RAM', accessor: (p) => p.extra?.memory || '—', className: 'text-center' },
         { header: 'Created', accessor: 'age' }
+    ];
+
+    const serviceColumns = [
+        { header: 'Name', accessor: (s) => <Link to={`/resources/Services/${s.namespace}/${s.name}`} className="hover:underline text-accent font-bold font-mono">{s.name}</Link> },
+        { header: 'Type', accessor: (s) => s.extra?.type || '—', className: 'text-center font-bold uppercase text-[10px]' },
+        { header: 'Cluster IP', accessor: (s) => s.extra?.clusterIP || '—', className: 'font-mono text-xs' },
+        { header: 'Internal Endpoints', accessor: (s) => (s.extra?.endpoints || []).join(', ') || '—', className: 'font-mono text-[10px]' },
+        { header: 'External Endpoints', accessor: (s) => (s.extra?.external || []).join(', ') || '—', className: 'font-mono text-[10px]' }
     ];
 
     return (
@@ -59,6 +68,7 @@ export default function DaemonSetOverview({ data, spec, status, relatedPods = []
             </DetailSection>
 
             <CommonTable title="Pods" columns={podColumns} data={relatedPods} t={t} />
+            <CommonTable title="Services" columns={serviceColumns} data={relatedServices} t={t} />
         </div>
     );
 }
