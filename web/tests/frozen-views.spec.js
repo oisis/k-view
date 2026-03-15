@@ -13,8 +13,9 @@ const resourceFiles = fs.readdirSync(resourcesPath).filter(f => f.endsWith('.yam
 const normalize = (s) => (s || '').toLowerCase().replace('label_', '').replace(/:/g, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
 
 const SYNONYMS = {
-    'created': ['age', 'create', 'created'],
-    'age': ['age', 'create', 'created'],
+    'metadata': ['metadata', 'metadane', 'metadaten', 'métadonnées', 'metadatos', 'メタデータ', '메타데이터', '元数据'],
+    'resource info': ['resource info', 'informacje o zasobie', 'ressourcen info', 'informations sur la ressource', 'información del recurso', 'リソース情報', '리소스 정보', '资源信息'],
+    'created': ['age', 'create', 'created', 'wiek', 'utworzono'],
     'status': ['status', 'phase', 'ready'],
     'phase': ['status', 'phase', 'ready'],
     'ram': ['memory', 'ram', 'ram(usage)', 'ram capacity', 'ram limits', 'ram requests'],
@@ -120,11 +121,19 @@ test.describe('K-View Frozen Views Audit', () => {
       // Use evaluate to click directly on the DOM element to bypass viewport/animation checks
       await firstLink.evaluate(el => el.click());
       
-      // Wait for any content card to appear
-      await page.waitForSelector('.glass, .bg-card, .bg-glass', { timeout: 15000 });
+      // Wait for any content card to appear and loading to finish
+      const contentSelector = 'main';
+      await page.waitForSelector(contentSelector, { timeout: 15000 });
+      
+      // Wait for loading indicator to disappear if present
+      await page.waitForFunction(() => {
+          const main = document.querySelector('main');
+          return main && !main.innerText.toLowerCase().includes('loading...');
+      }, { timeout: 15000 });
 
-      // Use innerText to get all visible text normalized by browser
-      const pageTextRaw = await page.innerText('body');
+      // Use innerText from the main content area only to avoid sidebar interference
+      const mainContent = page.locator(contentSelector);
+      const pageTextRaw = await mainContent.innerText();
       const pageTextLower = pageTextRaw.toLowerCase();
 
       for (const [section, fields] of Object.entries(config)) {
@@ -132,22 +141,29 @@ test.describe('K-View Frozen Views Audit', () => {
 
           const normSection = normalize(section);
           const sectionSynonyms = SYNONYMS[normSection] || [normSection];
+          
+          // Check if the section header exists in the main content
           const isSectionFound = sectionSynonyms.some(s => pageTextLower.includes(s));
           
           if (!isSectionFound) {
-              // If section is not found, it's only an error if the page doesn't say "no data" or "no specialized overview"
-              const noData = pageTextLower.includes('no data available') || pageTextLower.includes('no specialized overview');
-              if (!noData) {
-                  expect(isSectionFound, `Section "${section}" not found in ${yamlName} detail view and no "no data" message present`).toBe(true);
+              // If section is not found, it's only an error if the page doesn't say "no specialized overview"
+              // We are more strict now: if a section is in YAML, it should at least be present or show "no data"
+              const noSpecialized = pageTextLower.includes('no specialized overview');
+              if (!noSpecialized) {
+                  expect(isSectionFound, `Section "${section}" not found in ${yamlName} detail view content`).toBe(true);
               }
               continue; 
           }
 
           if (Array.isArray(fields)) {
-              // If section is found, but it says "no data available", we don't check for fields
-              // We need to find the section content. This is tricky with innerText.
-              // As a heuristic, if "no data available" is present anywhere, we skip field checks for sections that might be empty.
-              if (pageTextLower.includes('no data available') && ['resource quotas', 'resource limits', 'conditions', 'pods', 'services', 'rules'].includes(normSection)) {
+              // Check if THIS SPECIFIC section has "no data available"
+              // This is still a bit heuristic with innerText, but better than global body check
+              // We check if "no data available" appears after the section name
+              const sectionPos = pageTextLower.indexOf(normSection);
+              const nextSectionPos = 5000; // heuristic end of search
+              const sectionContext = pageTextLower.substring(sectionPos, sectionPos + 1000);
+              
+              if (sectionContext.includes('no data available') && ['resource quotas', 'resource limits', 'conditions', 'pods', 'services', 'rules', 'events'].includes(normSection)) {
                   continue;
               }
 
@@ -161,11 +177,6 @@ test.describe('K-View Frozen Views Audit', () => {
                   if (!isFieldLabelFound) {
                       expect(isFieldLabelFound, `Field label "${field}" missing in section "${section}" for ${yamlName}`).toBe(true);
                   }
-
-                  // If the field label is found, we don't necessarily need the value to be present 
-                  // if it's our placeholder '—'. innerText will include it.
-                  // The current check pageTextLower.includes(s) already covers this 
-                  // because it finds the label.
               }
           }
       }
