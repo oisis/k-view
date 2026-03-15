@@ -56,6 +56,7 @@ export default function DeploymentOverview({ data, metadata, spec, status, relat
     const rsColumns = [
         { header: 'Name', accessor: (rs) => <Link to={`/resources/ReplicaSets/${rs.namespace}/${rs.name}`} className="text-info hover:underline font-mono">{rs.name}</Link> },
         { header: 'Namespace', accessor: 'namespace' },
+        { header: 'Images', accessor: (rs) => <ExpandableCell value={rs.extra?.images || []} type="images" icons={themeIcons} /> },
         { header: 'Age', accessor: 'age' },
         { header: 'Labels', accessor: (rs) => renderLabelsCell(rs.extra?.labels, `rs-${rs.name}`), className: 'w-48' },
         { header: 'Pods', accessor: (rs) => rs.extra?.readyReplicas || 0, className: 'text-center' }
