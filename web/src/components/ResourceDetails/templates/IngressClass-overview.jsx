@@ -8,7 +8,7 @@ export default function IngressClassOverview({ spec, t }) {
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-            <DetailSection title="Resource Info">
+            <DetailSection title="Specification">
                 <div className="glass rounded-2xl border border-border overflow-hidden">
                     <table className="w-full text-sm text-left border-collapse table-fixed">
                         <thead>
