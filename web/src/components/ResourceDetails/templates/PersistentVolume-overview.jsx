@@ -57,16 +57,16 @@ export default function PvOverview({ data, metadata, spec, status, t }) {
                         <thead>
                             <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
                                 <th className="px-4 py-2 text-center border-r border-border">Type</th>
-                                <th className="px-4 py-2 text-center border-r border-border">Driver</th>
-                                <th className="px-4 py-2 text-center border-r border-border">Volume Handle</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Driver / Server</th>
+                                <th className="px-4 py-2 text-center border-r border-border">Volume Handle / Path</th>
                                 <th className="px-4 py-2 text-center">Volume Attributes(Key, Value)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr className="text-primary font-bold align-middle text-center">
                                 <td className="px-4 py-4 border-r border-border text-accent">{source.type || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{source.driver || '—'}</td>
-                                <td className="px-4 py-4 border-r border-border font-mono text-xs truncate" title={source.volumeHandle}>{source.volumeHandle || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs">{source.driver || source.server || '—'}</td>
+                                <td className="px-4 py-4 border-r border-border font-mono text-xs truncate" title={source.volumeHandle || source.path}>{source.volumeHandle || source.path || '—'}</td>
                                 <td className="px-4 py-4">
                                     <ExpandableCell value={source.attributes || {}} type="labels" icons={themeIcons} />
                                 </td>
