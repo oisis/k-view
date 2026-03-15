@@ -41,11 +41,25 @@ func (m *ReplicaSetManager) MapItem(item unstructured.Unstructured, metricsMap m
 		}
 	}
 
+	// Extract init images from spec -> template -> spec -> initContainers
+	var initImages []string
+	initContainers, found, _ := unstructured.NestedSlice(item.Object, "spec", "template", "spec", "initContainers")
+	if found {
+		for _, c := range initContainers {
+			if container, ok := c.(map[string]interface{}); ok {
+				if image, ok := container["image"].(string); ok {
+					initImages = append(initImages, image)
+				}
+			}
+		}
+	}
+
 	resItem.Extra["replicas"] = replicas
 	resItem.Extra["fullyLabeledReplicas"] = fullyLabeledReplicas
 	resItem.Extra["readyReplicas"] = readyReplicas
 	resItem.Extra["availableReplicas"] = availableReplicas
 	resItem.Extra["images"] = images
+	resItem.Extra["initImages"] = initImages
 
 	// Map revision for Deployment relationship
 	if rev, ok := item.GetAnnotations()["deployment.kubernetes.io/revision"]; ok {
@@ -110,6 +124,33 @@ func (m *ReplicaSetManager) GetDetails(ctx context.Context, dynClient dynamic.In
 			}
 		}
 		response["relatedPods"] = relatedPods
+	}
+
+	// Fetch related Services based on selector
+	selector, found, _ := unstructured.NestedMap(item.Object, "spec", "selector", "matchLabels")
+	if found {
+		svcMgr := NewServiceManager()
+		services, err := dynClient.Resource(svcMgr.GetGVR()).Namespace(item.GetNamespace()).List(ctx, metav1.ListOptions{})
+		if err == nil {
+			var relatedServices []ResourceItem
+			for _, svc := range services.Items {
+				svcSelector, found, _ := unstructured.NestedMap(svc.Object, "spec", "selector")
+				if found {
+					// Check if Service selector is a subset of ReplicaSet selector
+					isMatch := true
+					for k, v := range svcSelector {
+						if val, ok := selector[k]; !ok || val != v {
+							isMatch = false
+							break
+						}
+					}
+					if isMatch && len(svcSelector) > 0 {
+						relatedServices = append(relatedServices, svcMgr.MapItem(svc, nil))
+					}
+				}
+			}
+			response["relatedServices"] = relatedServices
+		}
 	}
 
 	return response, nil

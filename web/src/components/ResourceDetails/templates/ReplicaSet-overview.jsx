@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import CommonTable from '../../Common/CommonTable';
 import DetailSection from '../DetailSection';
 import ExpandableCell from '../ExpandableCell';
 import { useTheme } from '../../../ThemeContext';
 
-export default function ReplicaSetOverview({ data, spec, status, relatedPods = [], t, icons }) {
+export default function ReplicaSetOverview({ data, spec, status, relatedPods = [], relatedServices = [], t, icons }) {
     const { icons: themeIcons } = useTheme();
 
     const podColumns = [
@@ -20,6 +21,17 @@ export default function ReplicaSetOverview({ data, spec, status, relatedPods = [
         { header: 'Created', accessor: 'age' }
     ];
 
+    const serviceColumns = [
+        { header: 'Name', accessor: (s) => <Link to={`/resources/Services/${s.namespace}/${s.name}`} className="hover:underline text-accent font-bold font-mono">{s.name}</Link> },
+        { header: 'Namespace', accessor: 'namespace' },
+        { header: 'Labels', accessor: (s) => <ExpandableCell value={s.extra?.labels || {}} type="labels" icons={themeIcons} /> },
+        { header: 'Type', accessor: (s) => s.extra?.type || '—', className: 'text-center font-bold uppercase text-[10px]' },
+        { header: 'Cluster IP', accessor: (s) => s.extra?.clusterIP || '—', className: 'font-mono text-xs' },
+        { header: 'Internal Endpoints', accessor: (s) => (s.extra?.endpoints || []).join(', ') || '—', className: 'font-mono text-[10px]' },
+        { header: 'External Endpoints', accessor: (s) => (s.extra?.external || []).join(', ') || '—', className: 'font-mono text-[10px]' },
+        { header: 'Created', accessor: 'age' }
+    ];
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
@@ -28,7 +40,8 @@ export default function ReplicaSetOverview({ data, spec, status, relatedPods = [
                         <thead>
                             <tr className="bg-[var(--bg-sidebar)]/10 text-[10px] font-black uppercase tracking-widest text-text-muted border-b border-border">
                                 <th className="px-6 py-2 text-center border-r border-border">Selector</th>
-                                <th className="px-6 py-2 text-center">Images</th>
+                                <th className="px-6 py-2 text-center border-r border-border">Images</th>
+                                <th className="px-6 py-2 text-center">Init Images</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,8 +49,11 @@ export default function ReplicaSetOverview({ data, spec, status, relatedPods = [
                                 <td className="px-6 py-4 text-center border-r border-border">
                                     <ExpandableCell value={spec?.selector?.matchLabels || {}} type="labels" icons={themeIcons} />
                                 </td>
-                                <td className="px-6 py-4 text-center">
+                                <td className="px-6 py-4 text-center border-r border-border">
                                     <ExpandableCell value={data?.extra?.images || []} type="images" icons={themeIcons} />
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <ExpandableCell value={data?.extra?.initImages || []} type="images" icons={themeIcons} />
                                 </td>
                             </tr>
                         </tbody>
@@ -59,6 +75,7 @@ export default function ReplicaSetOverview({ data, spec, status, relatedPods = [
             </DetailSection>
 
             <CommonTable title="Pods" columns={podColumns} data={relatedPods} t={t} />
+            <CommonTable title="Services" columns={serviceColumns} data={relatedServices} t={t} />
         </div>
     );
 }
