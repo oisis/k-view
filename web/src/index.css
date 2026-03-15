@@ -139,10 +139,23 @@
 }
 
 @layer utilities {
-  .glass { @apply backdrop-blur-md bg-background/80 border border-border/50 shadow-sm; }
+  .glass { @apply backdrop-blur-xl bg-background/60 border border-white/10 shadow-2xl; }
+  .glass-glow { @apply shadow-[0_0_20px_rgba(var(--primary),0.1)] border-primary/20; }
   .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important; }
   
   /* Saturated pastel shadows for Light mode */
   .light .shadow-pastel-blue { shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.1); }
   .light .shadow-pastel-green { shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.1); }
+
+  /* Mesh Gradient Animation */
+  @keyframes mesh-gradient {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  .animate-mesh {
+    animation: mesh-gradient 20s ease-in-out infinite;
+  }
 }
