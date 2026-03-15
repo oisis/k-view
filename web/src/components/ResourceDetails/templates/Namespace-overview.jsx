@@ -65,13 +65,23 @@ export default function NamespaceOverview({ data, metadata, status, quotas = [],
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
             <DetailSection title="Resource Info">
-                <div className="p-6">
-                    <div className="flex items-center gap-2 text-sm">
-                        <span className="font-bold text-muted-foreground uppercase tracking-widest">Status:</span>
-                        <span className={`font-mono font-bold ${status?.phase === 'Active' ? 'text-emerald-400' : 'text-orange-400'}`}>
-                            {status?.phase || 'Unknown'}
-                        </span>
-                    </div>
+                <div className="glass rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm text-left border-collapse table-fixed">
+                        <thead>
+                            <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border">
+                                <th className="px-4 py-2 w-1/3 border-r border-border">Field</th>
+                                <th className="px-4 py-2">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="border-b border-border/40 hover:bg-white/5 transition-colors">
+                                <td className="px-4 py-3 font-bold text-muted-foreground uppercase tracking-wider text-[10px] border-r border-border/40">Status</td>
+                                <td className={`px-4 py-3 font-mono font-bold ${status?.phase === 'Active' ? 'text-emerald-400' : 'text-orange-400'}`}>
+                                    {status?.phase || 'Unknown'}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </DetailSection>
 
