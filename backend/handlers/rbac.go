@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"k-view/rbac"
+	"k-view/pkg/audit"
 
 	"k-view/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -194,6 +195,12 @@ func (h *RBACHandler) ListRoles(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, roles)
+}
+
+// GetAuditLogs returns the last 100 audit events from memory.
+func (h *RBACHandler) GetAuditLogs(c *gin.Context) {
+	entries := audit.GetStore().GetEntries()
+	c.JSON(http.StatusOK, entries)
 }
 
 // GetMyDetails returns the current user's computed permissions.

@@ -169,9 +169,11 @@ func main() {
 			admin := protected.Group("/rbac")
 			admin.Use(authHandler.AdminMiddleware())
 			{
-				admin.GET("/status", rbacHandler.GetStatus)
-				admin.GET("/roles", rbacHandler.ListRoles)
+			        admin.GET("/status", rbacHandler.GetStatus)
+			        admin.GET("/roles", rbacHandler.ListRoles)
+			        admin.GET("/audit", rbacHandler.GetAuditLogs)
 			}
+
 		}
 	}
 

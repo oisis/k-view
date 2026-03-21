@@ -18,6 +18,7 @@ import (
 	"k-view/rbac"
 	"k-view/k8s"
 	"k-view/auth"
+	"k-view/pkg/audit"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
@@ -514,6 +515,19 @@ func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
 		if payload != "" {
 			fields["payload"] = payload
 		}
+
+		// Add to in-memory AuditStore
+		audit.GetStore().Add(audit.AuditEntry{
+			Timestamp: start,
+			User:      fmt.Sprintf("%v", email),
+			Role:      fmt.Sprintf("%v", role),
+			Method:    method,
+			Path:      path,
+			Status:    status,
+			Latency:   latency.String(),
+			IP:        c.ClientIP(),
+			Payload:   payload,
+		})
 
 		entry := logrus.WithFields(fields)
 
