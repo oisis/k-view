@@ -396,5 +396,6 @@ export const pl = {
     "raw_manifest": "Manifest YAML",
     "resource_kind": "Typ zasobu",
     "managed_fields": "Zarządzane pola",
-    "hide_managed_fields_desc": "Ukryj pola managedFields dla lepszej czytelności"
+    "hide_managed_fields_desc": "Ukryj pola managedFields dla lepszej czytelności",
+    "download_logs": "Pobierz logi"
 };

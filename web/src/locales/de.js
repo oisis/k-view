@@ -394,5 +394,6 @@ export const de = {
     "add_resource": "Ressource hinzufügen",
     "template": "Vorlage",
     "raw_manifest": "Roh-Manifest",
-    "resource_kind": "Ressourcenart"
+    "resource_kind": "Ressourcenart",
+    "download_logs": "Logs herunterladen"
 };

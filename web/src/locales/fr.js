@@ -394,5 +394,6 @@ export const fr = {
     "add_resource": "Ajouter une ressource",
     "template": "Modèle",
     "raw_manifest": "Manifeste brut",
-    "resource_kind": "Type de ressource"
+    "resource_kind": "Type de ressource",
+    "download_logs": "Télécharger les logs"
 };

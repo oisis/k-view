@@ -396,5 +396,6 @@ export const en = {
     "raw_manifest": "Raw Manifest",
     "resource_kind": "Resource Kind",
     "managed_fields": "Managed Fields",
-    "hide_managed_fields_desc": "Hide Kubernetes managed fields for better readability"
+    "hide_managed_fields_desc": "Hide Kubernetes managed fields for better readability",
+    "download_logs": "Download Logs"
 };

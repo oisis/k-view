@@ -394,5 +394,6 @@ export const ja = {
     "add_resource": "リソースを追加",
     "template": "テンプレート",
     "raw_manifest": "生のマニフェスト",
-    "resource_kind": "リソースの種類"
+    "resource_kind": "リソースの種類",
+    "download_logs": "ログをダウンロード"
 };

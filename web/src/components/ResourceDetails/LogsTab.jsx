@@ -17,6 +17,19 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const [logFontSize, setLogFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
 
+    const downloadLogs = () => {
+        if (!logs) return;
+        const blob = new Blob([logs], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${name}-${logContainer || 'logs'}.log`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     // Update logContainer when containers list changes (e.g. after async load)
     useEffect(() => {
         if (containers && containers.length > 0 && !logContainer) {
@@ -176,6 +189,14 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                                         </div>
                         
                                         <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={downloadLogs}
+                                                disabled={!logs}
+                                                className="p-1.5 text-text-muted hover:text-accent disabled:opacity-30 transition-colors"
+                                                title={t('download_logs')}
+                                            >
+                                                <icons.download size={16} />
+                                            </button>
                                             <label className="flex items-center gap-1.5 cursor-pointer group" title={t('wrap_lines')}>
                                                 <div
                                                     className={`w-7 h-3.5 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}

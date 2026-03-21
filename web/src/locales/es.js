@@ -394,5 +394,6 @@ export const es = {
     "add_resource": "Agregar recurso",
     "template": "Plantilla",
     "raw_manifest": "Manifiesto bruto",
-    "resource_kind": "Tipo de recurso"
+    "resource_kind": "Tipo de recurso",
+    "download_logs": "Descargar registros"
 };
