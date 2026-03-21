@@ -1,4 +1,12 @@
-# Build Frontend
+# Stage 1: Build the Go backend
+FROM golang:1.25-alpine AS backend-builder
+WORKDIR /app/backend
+COPY backend/go.mod backend/go.sum* ./
+RUN go mod tidy
+COPY backend/ .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o k-view-server .
+
+# Stage 2: Build the React frontend
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json* ./
@@ -6,38 +14,24 @@ RUN npm install
 COPY web/ .
 RUN npm run build
 
-# Build Backend
-FROM golang:1.23-alpine AS backend-builder
-WORKDIR /app/backend
-ARG TARGETARCH
-COPY backend/go.mod backend/go.sum* ./
-COPY backend/ .
-RUN go mod tidy
-# Build purely static binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -a -o k-view-server .
-
-
-# Final Image
+# Stage 3: Final image
 FROM alpine:3.19
 WORKDIR /app
 
-# Install ca-certificates, timezone data, and kubectl
+# Install kubectl for terminal features and ca-certificates for OIDC
 RUN apk add --no-cache ca-certificates tzdata curl && \
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$([ $(uname -m) = x86_64 ] && echo amd64 || echo arm64)/kubectl" && \
-    chmod +x kubectl && mv kubectl /usr/local/bin/
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/
 
-# Copy built artifacts
+# Copy backend binary
 COPY --from=backend-builder /app/backend/k-view-server /app/
+
+# Copy frontend build
 COPY --from=frontend-builder /app/web/dist /app/web/dist
 
-# Set user
-USER 1000:1000
-
-ENV PORT=8080
-ENV GIN_MODE=release
-ARG VERSION=dev
-ENV APP_VERSION=${VERSION}
-
+# Expose the port the app runs on
 EXPOSE 8080
 
-CMD ["/app/k-view-server"]
+# Run the binary
+CMD ["./k-view-server"]

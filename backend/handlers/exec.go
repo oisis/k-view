@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -48,6 +49,10 @@ type wsPtyHandler struct {
 func (t *wsPtyHandler) Read(p []byte) (int, error) {
 	_, msg, err := t.conn.ReadMessage()
 	if err != nil {
+		// Handle normal websocket closure gracefully by returning io.EOF
+		if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived) {
+			return 0, io.EOF
+		}
 		return 0, err
 	}
 
@@ -120,8 +125,11 @@ func (h *ExecHandler) HandleExec(c *gin.Context) {
 	// We pass the gin request context which has the 'user' injected by auth middleware
 	err = h.k8sClient.Exec(c.Request.Context(), namespace, pod, container, shell, pty)
 	if err != nil {
-		log.Printf("Exec error on %s/%s/%s: %v", namespace, pod, container, err)
-		_ = conn.WriteMessage(websocket.TextMessage, []byte("\r\n\033[31mTerminal Disconnected: "+err.Error()+"\033[0m\r\n"))
+		// Check if the error is just a websocket closure or EOF
+		if !websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived) && err != io.EOF {
+			log.Printf("Exec error on %s/%s/%s: %v", namespace, pod, container, err)
+			_ = conn.WriteMessage(websocket.TextMessage, []byte("\r\n\033[31mTerminal Disconnected: "+err.Error()+"\033[0m\r\n"))
+		}
 	} else {
 		// Graceful close for normal termination
 		_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
