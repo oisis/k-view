@@ -122,5 +122,8 @@ func (h *ExecHandler) HandleExec(c *gin.Context) {
 	if err != nil {
 		log.Printf("Exec error on %s/%s/%s: %v", namespace, pod, container, err)
 		_ = conn.WriteMessage(websocket.TextMessage, []byte("\r\n\033[31mTerminal Disconnected: "+err.Error()+"\033[0m\r\n"))
+	} else {
+		// Graceful close for normal termination
+		_ = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	}
 }
