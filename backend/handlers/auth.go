@@ -122,7 +122,7 @@ func NewAuthHandler() (*AuthHandler, error) {
 }
 
 // generateStateOauthCookie generates a random state value and stores it in a cookie.
-func generateStateOauthCookie(w http.ResponseWriter) string {
+func generateStateOauthCookie(w http.ResponseWriter, devMode bool) string {
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -131,6 +131,8 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
 		Value:    state,
 		Expires:  time.Now().Add(1 * time.Hour),
 		HttpOnly: true,
+		Secure:   !devMode,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 	return state
@@ -147,7 +149,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "OIDC is not configured"})
 		return
 	}
-	state := generateStateOauthCookie(c.Writer)
+	state := generateStateOauthCookie(c.Writer, h.devMode)
 	c.Redirect(http.StatusTemporaryRedirect, h.oauth2Config.AuthCodeURL(state))
 }
 
@@ -216,6 +218,8 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 		Value:    rawIDToken,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
+		Secure:   !h.devMode,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 	c.Redirect(http.StatusTemporaryRedirect, "/")
@@ -245,6 +249,8 @@ func (h *AuthHandler) DevLogin(c *gin.Context) {
 		Value:    token,
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 
@@ -258,6 +264,8 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		Value:    "",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   !h.devMode,
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
