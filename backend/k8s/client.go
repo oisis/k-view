@@ -16,8 +16,9 @@ import (
 
 // UserContext represents the impersonation context for a request.
 type UserContext struct {
-	Email string
-	Role  string
+	Email  string
+	Role   string
+	Groups []string
 }
 
 // KubernetesProvider is the interface that wraps all Kubernetes operations.
@@ -65,6 +66,7 @@ func (c *Client) GetConfig(ctx context.Context) *rest.Config {
 		if !isAdmin {
 			config.Impersonate = rest.ImpersonationConfig{
 				UserName: user.Email,
+				Groups:   user.Groups,
 			}
 		}
 	}

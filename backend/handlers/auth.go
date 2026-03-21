@@ -384,8 +384,9 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		role, namespace := h.rbacConfig.GetRoleForUser(email, groups)
 		
 		userCtx := k8s.UserContext{
-			Email: email,
-			Role:  role,
+			Email:  email,
+			Role:   role,
+			Groups: groups,
 		}
 
 		// Store in Gin context for handlers
