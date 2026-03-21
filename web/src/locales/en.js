@@ -133,8 +133,11 @@ export const en = {
     "theme_light": "Crisp Light",
     "theme_light_desc": "Professional clean light interface",
     "theme_midnight": "Midnight",
-    "theme_midnight_desc": "Pure dark for focused work",
+    "theme_midnight_desc": "Pure darkness for focused work",
+    "theme_system": "System",
+    "theme_system_desc": "Follow your operating system appearance",
     "template_k-view": "K-view",
+
     "template_light": "Light",
     "template_dark": "Dark",
     "theme_dark": "Dark",

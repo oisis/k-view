@@ -134,6 +134,8 @@ export const ja = {
     "theme_light_desc": "プロフェッショナルでクリーンなライトインターフェース",
     "theme_midnight": "ミッドナイト",
     "theme_midnight_desc": "集中作業のためのピュアダーク",
+    "theme_system": "システム",
+    "theme_system_desc": "OSの外観設定に従う",
     "template_k-view": "K-view",
     "template_light": "ライト",
     "template_dark": "ダーク",

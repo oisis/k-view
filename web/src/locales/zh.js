@@ -134,6 +134,8 @@ export const zh = {
     "theme_light_desc": "专业、干净的明亮界面",
     "theme_midnight": "午夜",
     "theme_midnight_desc": "纯粹的黑暗，助您专注",
+    "theme_system": "系统",
+    "theme_system_desc": "跟随操作系统外观设置",
     "template_k-view": "K-view",
     "template_light": "明亮",
     "template_dark": "黑暗",

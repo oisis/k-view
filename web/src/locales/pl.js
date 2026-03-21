@@ -134,6 +134,8 @@ export const pl = {
     "theme_light_desc": "Profesjonalny, czysty jasny interfejs",
     "theme_midnight": "Północ",
     "theme_midnight_desc": "Czysta ciemność dla skupionej pracy",
+    "theme_system": "Systemowy",
+    "theme_system_desc": "Dostosuj do ustawień systemu operacyjnego",
     "template_k-view": "K-view",
     "template_light": "Jasny",
     "template_dark": "Ciemny",

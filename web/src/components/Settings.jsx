@@ -141,24 +141,36 @@ export default function Settings() {
                         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                             <icons.layers size={14} /> {t('interface_theme')}
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {Object.entries(themes || {}).map(([id, themeCfg]) => {
                                 const isSelected = activeTheme === id;
                                 let tileStyle = isSelected ? "border-primary ring-2 ring-primary/20" : "border-border";
                                 let iconBoxStyle = isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground";
 
+                                const getIcon = () => {
+                                    if (id === 'light') return <icons.sun size={28} />;
+                                    if (id === 'system') return <icons.palette size={28} />;
+                                    return <icons.moon size={28} />;
+                                };
+
                                 return (
                                     <button
                                         key={id}
-                                        onClick={() => setTheme(id)}
-                                        className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md bg-card ${tileStyle}`}
+                                        onClick={() => {
+                                            setTheme(id);
+                                            handleUpdateDraft({ theme: id });
+                                        }}
+                                        className={`flex flex-col text-left p-4 rounded-xl transition-all duration-300 group relative border shadow-md bg-card hover:border-primary/50 ${tileStyle}`}
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-3 mb-3">
                                             <div className={`p-2 w-fit rounded-lg transition-colors ${iconBoxStyle}`}>
-                                                {id.includes('light') ? <icons.sun size={36} /> : <icons.moon size={36} />}
+                                                {getIcon()}
                                             </div>
-                                            <h3 className="text-lg font-bold text-foreground">{themeCfg.name}</h3>
+                                            <h3 className="text-base font-bold text-foreground">{t(`theme_${id.replace('-', '')}`)}</h3>
                                         </div>
+                                        <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">
+                                            {t(`theme_${id.replace('-', '')}_desc`)}
+                                        </p>
                                         {isSelected && <div className="absolute top-4 right-4 text-primary"><icons.check size={16} /></div>}
                                     </button>
                                 );

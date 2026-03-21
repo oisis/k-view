@@ -134,6 +134,8 @@ export const ko = {
     "theme_light_desc": "전문적이고 깔끔한 라이트 인터페이스",
     "theme_midnight": "미드나잇",
     "theme_midnight_desc": "집중 작업을 위한 순수한 어둠",
+    "theme_system": "시스템",
+    "theme_system_desc": "운영 체제 설정에 따라 테마 변경",
     "template_k-view": "K-view",
     "template_light": "라이트",
     "template_dark": "다크",

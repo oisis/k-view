@@ -133,8 +133,11 @@ export const de = {
     "theme_light": "Hell",
     "theme_light_desc": "Professionelle, saubere helle Oberfläche",
     "theme_midnight": "Mitternacht",
-    "theme_midnight_desc": "Reine Dunkelheit für fokussiertes Arbeiten",
+    "theme_midnight_desc": "Reine Dunkelheit für konzentriertes Arbeiten",
+    "theme_system": "System",
+    "theme_system_desc": "Folgen Sie dem Erscheinungsbild Ihres Betriebssystems",
     "template_k-view": "K-view",
+
     "template_light": "Hell",
     "template_dark": "Dunkel",
     "theme_dark": "Dunkel",

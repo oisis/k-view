@@ -111,6 +111,16 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
     // Default to 'k-view' theme if no saved theme, matching the :root definition
     const [activeTheme, setActiveTheme] = useState(localStorage.getItem('kview-theme') || 'k-view');
+    const [systemTheme, setSystemTheme] = useState(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    // System theme listener
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
 
     // Effect to apply theme class and update localStorage
     useEffect(() => {
@@ -119,11 +129,13 @@ export function ThemeProvider({ children }) {
         // Remove all possible theme classes
         root.classList.remove('dark', 'light', 'theme-dark', 'theme-light', 'theme-k-view');
         
+        const effectiveTheme = activeTheme === 'system' ? systemTheme : activeTheme;
+
         // Apply only the one specific class for the active theme
         // If it's a dark theme variant, we still add 'dark' for Tailwind's dark: prefix
-        if (activeTheme === 'dark') {
+        if (effectiveTheme === 'dark') {
             root.classList.add('dark');
-        } else if (activeTheme === 'k-view') {
+        } else if (effectiveTheme === 'k-view') {
             root.classList.add('theme-k-view');
             root.classList.add('dark'); // We keep 'dark' so Shadcn components know it's a dark background
         } else {
@@ -132,7 +144,7 @@ export function ThemeProvider({ children }) {
 
         // Update local storage
         localStorage.setItem('kview-theme', activeTheme);
-    }, [activeTheme]);
+    }, [activeTheme, systemTheme]);
 
     // Sync theme across tabs
     useEffect(() => {
@@ -149,7 +161,8 @@ export function ThemeProvider({ children }) {
         themes: {
             'dark': { id: 'dark', name: 'Dark' },
             'k-view': { id: 'k-view', name: 'K-View' },
-            'light': { id: 'light', name: 'Light' }
+            'light': { id: 'light', name: 'Light' },
+            'system': { id: 'system', name: 'System' }
         }, // Provide theme options based on CSS classes
         activeTheme,
         setTheme: setActiveTheme,
