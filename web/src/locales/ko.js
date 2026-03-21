@@ -402,5 +402,10 @@ export const ko = {
     "raw_manifest": "원시 매니페스트",
     "resource_kind": "리소스 종류",
     "download_logs": "로그 다운로드",
-    "shell_auto": "자동"
+    "shell_auto": "자동",
+    "show_diff": "차이 표시",
+    "hide_diff": "에디터 숨기기",
+    "original_version": "원본",
+    "modified_version": "수정됨",
+    "save_changes": "변경 사항 저장"
 };

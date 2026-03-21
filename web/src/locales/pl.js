@@ -404,5 +404,10 @@ export const pl = {
     "managed_fields": "Zarządzane pola",
     "hide_managed_fields_desc": "Ukryj pola managedFields dla lepszej czytelności",
     "download_logs": "Pobierz logi",
-    "shell_auto": "Auto"
+    "shell_auto": "Auto",
+    "show_diff": "Pokaż zmiany",
+    "hide_diff": "Ukryj edytor",
+    "original_version": "Oryginał",
+    "modified_version": "Zmodyfikowano",
+    "save_changes": "Zapisz zmiany"
 };

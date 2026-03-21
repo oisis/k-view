@@ -402,5 +402,10 @@ export const zh = {
     "raw_manifest": "原始清单",
     "resource_kind": "资源类型",
     "download_logs": "下载日志",
-    "shell_auto": "自动"
+    "shell_auto": "自动",
+    "show_diff": "显示差异",
+    "hide_diff": "隐藏编辑器",
+    "original_version": "原始版本",
+    "modified_version": "修改版本",
+    "save_changes": "保存更改"
 };

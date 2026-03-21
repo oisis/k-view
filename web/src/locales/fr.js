@@ -402,5 +402,10 @@ export const fr = {
     "raw_manifest": "Manifeste brut",
     "resource_kind": "Type de ressource",
     "download_logs": "Télécharger les logs",
-    "shell_auto": "Auto"
+    "shell_auto": "Auto",
+    "show_diff": "Afficher le diff",
+    "hide_diff": "Masquer l'éditeur",
+    "original_version": "Original",
+    "modified_version": "Modifié",
+    "save_changes": "Enregistrer les modifications"
 };

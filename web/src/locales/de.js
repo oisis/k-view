@@ -403,5 +403,10 @@ export const de = {
     "raw_manifest": "Roh-Manifest",
     "resource_kind": "Ressourcenart",
     "download_logs": "Logs herunterladen",
-    "shell_auto": "Auto"
+    "shell_auto": "Auto",
+    "show_diff": "Diff anzeigen",
+    "hide_diff": "Editor ausblenden",
+    "original_version": "Original",
+    "modified_version": "Geändert",
+    "save_changes": "Änderungen speichern"
 };

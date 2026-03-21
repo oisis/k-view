@@ -405,5 +405,10 @@ export const en = {
     "managed_fields": "Managed Fields",
     "hide_managed_fields_desc": "Hide Kubernetes managed fields for better readability",
     "download_logs": "Download Logs",
-    "shell_auto": "Auto"
+    "shell_auto": "Auto",
+    "show_diff": "Show Diff",
+    "hide_diff": "Hide Editor",
+    "original_version": "Original",
+    "modified_version": "Modified",
+    "save_changes": "Save Changes"
 };

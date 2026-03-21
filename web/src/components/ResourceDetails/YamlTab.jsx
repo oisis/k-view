@@ -3,6 +3,7 @@ import { useTheme } from '../../ThemeContext';
 import CodeEditor from './CodeEditor';
 import yamlParser from 'js-yaml';
 import { cn } from "@/lib/utils";
+import ReactDiffViewer from 'react-diff-viewer-continued';
 
 export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }) {
     const { icons } = useTheme();
@@ -16,6 +17,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
     const [editorFontSize, setEditorFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
     const [showManagedFields, setShowManagedFields] = useState(false);
+    const [showDiff, setShowDiff] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
@@ -104,6 +106,62 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
         );
     }
 
+    const diffStyles = {
+        variables: {
+            dark: {
+                diffViewerBackground: 'transparent',
+                diffViewerColor: 'var(--foreground)',
+                addedBackground: 'rgba(16, 185, 129, 0.15)',
+                addedColor: '#10b981',
+                removedBackground: 'rgba(239, 68, 68, 0.15)',
+                removedColor: '#ef4444',
+                wordAddedBackground: 'rgba(16, 185, 129, 0.3)',
+                wordRemovedBackground: 'rgba(239, 68, 68, 0.3)',
+                addedGutterBackground: 'rgba(16, 185, 129, 0.1)',
+                removedGutterBackground: 'rgba(239, 68, 68, 0.1)',
+                gutterBackground: 'transparent',
+                gutterColor: 'var(--muted-foreground)',
+                emptyLineBackground: 'transparent',
+                codeFoldGutterBackground: 'transparent',
+                codeFoldBackground: 'rgba(255, 255, 255, 0.05)',
+                codeFoldContentColor: 'var(--muted-foreground)',
+            },
+            light: {
+                diffViewerBackground: 'transparent',
+                diffViewerColor: '#1e293b',
+                addedBackground: 'rgba(16, 185, 129, 0.1)',
+                addedColor: '#059669',
+                removedBackground: 'rgba(239, 68, 68, 0.1)',
+                removedColor: '#dc2626',
+                gutterColor: '#64748b',
+            }
+        },
+        line: {
+            padding: '0px 8px',
+            lineHeight: '1.0',
+            fontSize: `${editorFontSize}px`,
+        },
+        gutter: {
+            padding: '0px 8px',
+            minWidth: '36px',
+            textAlign: 'right',
+            lineHeight: '1.0',
+        },
+        contentText: {
+            fontFamily: 'var(--font-mono)',
+            lineHeight: '1.0',
+        },
+        wordDiff: {
+            padding: '0px',
+        },
+        wordAdded: {
+            padding: '0px',
+        },
+        wordRemoved: {
+            padding: '0px',
+        }
+    };
+
     return (
         <div className="bg-card rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
             <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border/20">
@@ -171,8 +229,15 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     {isEditing && (
                         <>
                             <button
-                                onClick={() => { setIsEditing(false); setEditedYaml(yaml); setSaveError(null); }}
-                                className="text-xs font-bold px-3 py-1 text-text-muted hover:text-[hsl(var(--foreground))] transition-colors uppercase tracking-wider"
+                                onClick={() => setShowDiff(!showDiff)}
+                                className={`text-xs font-bold px-3 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1.5 ${showDiff ? 'bg-accent text-primary-foreground shadow-lg' : 'bg-muted text-foreground hover:bg-accent hover:text-primary-foreground'}`}
+                            >
+                                <icons.list size={12} />
+                                {showDiff ? t('hide_diff') : t('show_diff')}
+                            </button>
+                            <button
+                                onClick={() => { setIsEditing(false); setShowDiff(false); setEditedYaml(yaml); setSaveError(null); }}
+                                className="text-xs font-bold px-3 py-1 text-foreground hover:text-primary transition-colors uppercase tracking-wider"
                                 disabled={isSaving}
                             >
                                 {t('cancel')}
@@ -200,6 +265,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                                         }
                                         setYaml(editedYaml);
                                         setIsEditing(false);
+                                        setShowDiff(false);
                                         setShowSuccess(true);
                                         setTimeout(() => setShowSuccess(false), 5000);
                                         fetchData();
@@ -230,13 +296,30 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                 </div>
             </div>
-            <CodeEditor
-                value={displayContent}
-                onChange={isEditing ? setEditedYaml : null}
-                readOnly={!isEditing}
-                fontSize={editorFontSize}
-                language={format}
-            />
+            
+            <div className="relative flex-1 min-h-[500px]">
+                {showDiff && isEditing ? (
+                    <div className="absolute inset-0 z-10 bg-card overflow-auto custom-scrollbar p-1">
+                        <ReactDiffViewer
+                            oldValue={yaml}
+                            newValue={editedYaml}
+                            splitView={true}
+                            leftTitle={t('original_version')}
+                            rightTitle={t('modified_version')}
+                            useDarkTheme={document.documentElement.classList.contains('dark')}
+                            styles={diffStyles}
+                        />
+                    </div>
+                ) : (
+                    <CodeEditor
+                        value={displayContent}
+                        onChange={isEditing ? setEditedYaml : null}
+                        readOnly={!isEditing}
+                        fontSize={editorFontSize}
+                        language={format}
+                    />
+                )}
+            </div>
         </div>
     );
 }

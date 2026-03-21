@@ -403,5 +403,10 @@ export const ja = {
     "raw_manifest": "生のマニフェスト",
     "resource_kind": "リソースの種類",
     "download_logs": "ログをダウンロード",
-    "shell_auto": "自動"
+    "shell_auto": "自動",
+    "show_diff": "差分を表示",
+    "hide_diff": "エディタを非表示",
+    "original_version": "オリジナル",
+    "modified_version": "修正済み",
+    "save_changes": "変更を保存"
 };
