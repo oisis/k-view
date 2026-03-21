@@ -81,6 +81,9 @@ func main() {
 
 	router := gin.Default()
 
+	// Global Security Headers
+	router.Use(handlers.SecurityHeadersMiddleware())
+
 	// Health check endpoints
 	h, _ := health.New()
 	// Basic Liveness
