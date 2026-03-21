@@ -12,9 +12,10 @@ The fastest way to deploy K-View is using pre-built charts from GHCR.
 
 ```bash
 helm install k-view oci://ghcr.io/oisis/charts/k-view \
-  --version main \
-  --set oidc.clientId=YOUR_CLIENT_ID \
-  --set oidc.clientSecret=YOUR_CLIENT_SECRET \
+  --version v0.49.0 \
+  --set enable_sso=true \
+  --set secrets.googleClientId=YOUR_CLIENT_ID \
+  --set secrets.googleClientSecret=YOUR_CLIENT_SECRET \
   --set ingress.host=kview.yourdomain.com \
   -n k-view --create-namespace
 ```
@@ -28,14 +29,14 @@ The development environment is natively integrated with Kubernetes. Legacy mocku
    git clone https://github.com/oisis/k-view.git
    cd k-view
    ```
-2. Configure your local settings in `tmp-gemini/my-values.yaml`.
+2. Configure your local settings in `gemini/my-values.yaml`.
 
 ### 2. Streamlined Deployment
 Use our automation script to build, deploy, and start a port-forward tunnel:
 ```bash
 ./scripts/local-deploy.sh
 ```
-The application will be available at **http://localhost:8081**.
+The application will be available at **http://localhost:8081** (default port-forward).
 
 ### 3. Deploying Metrics Server
 To see CPU/RAM charts locally, ensure Metrics Server is installed:
@@ -69,4 +70,4 @@ Ensure UI stability and backend correctness before contributing:
 ```bash
 ./scripts/run-tests.sh
 ```
-This script runs both Go backend tests and Vitest frontend tests (Frozen Views).
+This script runs Go backend tests and **Playwright** frontend tests (Frozen Views).

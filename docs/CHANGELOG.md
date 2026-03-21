@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2026-03-21
+
+### Added
+- **Documentation Sync**: Comprehensive audit and update of all documentation files (`docs/*.md`) to match the current implementation.
+- **Local Auth Reference**: Added detailed configuration for `KVIEW_STATIC_USERS` and `KVIEW_JWT_SECRET` in `configuration.md`.
+- **RBAC Role Expansion**: Documented all supported internal roles including `cluster-developer` and `namespace-*` variants.
+
+### Changed
+- **Architecture Update**: Updated `architecture.md` to reflect the switch from Mermaid.js to React Flow and from Vitest to Playwright.
+- **Helm Configuration**: Synchronized `configuration.md` with the latest `values.yaml` structure.
+
 ## [0.48.0] - 2026-03-13
 
 ### Added
