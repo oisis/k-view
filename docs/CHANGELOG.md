@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.50.0] - 2026-03-21
+
+### Added
+- **Command Palette**: Global search (Cmd+K) for quick resource navigation.
+- **Topology Graph**: Visual representation of resource relationships (Deployment -> ReplicaSet -> Pod).
+- **Radial Charts**: Enhanced metrics visualization for resource usage.
+- **Theme Auto-Detection**: Support for system-wide dark mode preference.
+
 ## [0.49.0] - 2026-03-21
 
 ### Added
