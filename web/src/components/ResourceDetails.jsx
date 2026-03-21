@@ -13,6 +13,7 @@ import YamlTab from './ResourceDetails/YamlTab';
 import LogsTab from './ResourceDetails/LogsTab';
 import EventsTab from './ResourceDetails/EventsTab';
 import NetworkTrace from './NetworkTrace';
+import TopologyTab from './ResourceDetails/TopologyTab';
 import PodTerminal from './PodTerminal';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -370,15 +371,12 @@ export default function ResourceDetails() {
                                 />
                             )}
                             {activeTab === 'topology' && (
-                                <div className="bg-glass glass rounded-2xl border border-border flex flex-col items-center justify-center p-12 min-h-[500px] text-center">
-                                    <div className="p-6 rounded-full bg-primary/10 text-primary mb-6">
-                                        {icons.network ? <icons.network size={48} /> : <div className="w-12 h-12 bg-primary/20 rounded-full" />}
-                                    </div>
-                                    <h3 className="text-2xl font-black italic uppercase tracking-tight mb-2">Resource Topology</h3>
-                                    <p className="text-muted-foreground font-medium max-w-md">
-                                        Coming Soon: Interactive graph visualization of resource dependencies and relationships.
-                                    </p>
-                                </div>
+                                <TopologyTab 
+                                    kind={kind}
+                                    namespace={namespace}
+                                    name={name}
+                                    t={t}
+                                />
                             )}
                         </ErrorBoundary>
                     </motion.div>

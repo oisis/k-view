@@ -373,56 +373,76 @@ func (h *ResourceHandler) GetTopology(c *gin.Context) {
 		return
 	}
 
+	rootID := fmt.Sprintf("%s/%s/%s", rootItem.GetKind(), rootItem.GetNamespace(), rootItem.GetName())
 	nodes := make([]TopologyNode, 0)
 	edges := make([]TopologyEdge, 0)
 	nodeMap := make(map[string]bool)
+	processedUIDs := make(map[string]bool)
+
+	// Helper to add node
+	addNode := func(item *unstructured.Unstructured) string {
+		id := fmt.Sprintf("%s/%s/%s", item.GetKind(), item.GetNamespace(), item.GetName())
+		if !nodeMap[id] {
+			nodes = append(nodes, TopologyNode{
+				ID:        id,
+				Name:      item.GetName(),
+				Kind:      item.GetKind(),
+				Namespace: item.GetNamespace(),
+				Status:    "Active",
+			})
+			nodeMap[id] = true
+		}
+		return id
+	}
 
 	// Add root node
-	rootID := fmt.Sprintf("%s/%s/%s", rootItem.GetKind(), rootItem.GetNamespace(), rootItem.GetName())
-	nodes = append(nodes, TopologyNode{
-		ID:        rootID,
-		Name:      rootItem.GetName(),
-		Kind:      rootItem.GetKind(),
-		Namespace: rootItem.GetNamespace(),
-		Status:    "Active",
-	})
-	nodeMap[rootID] = true
+	addNode(rootItem)
+	processedUIDs[string(rootItem.GetUID())] = true
 
-	// 1. Find Children (via OwnerReferences)
-	// We search for resources that have this rootItem as owner
-	childKinds := []string{"ReplicaSets", "Pods", "Jobs"}
-	for _, ck := range childKinds {
-		cgvr := getGVR(ck)
-		list, err := dynClient.Resource(cgvr).Namespace(ns).List(ctx, metav1.ListOptions{})
-		if err == nil {
-			for _, item := range list.Items {
-				for _, owner := range item.GetOwnerReferences() {
-					if owner.UID == rootItem.GetUID() {
-						childID := fmt.Sprintf("%s/%s/%s", item.GetKind(), item.GetNamespace(), item.GetName())
-						if !nodeMap[childID] {
-							nodes = append(nodes, TopologyNode{
-								ID:        childID,
-								Name:      item.GetName(),
-								Kind:      item.GetKind(),
-								Namespace: item.GetNamespace(),
+	// Queue for recursive discovery
+	type task struct {
+		item *unstructured.Unstructured
+		id   string
+	}
+	queue := []task{{item: rootItem, id: rootID}}
+
+	childKinds := []string{"ReplicaSets", "Pods", "Jobs", "PersistentVolumeClaims"}
+
+	// 1. Discover Children Recursively
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+
+		for _, ck := range childKinds {
+			cgvr := getGVR(ck)
+			list, err := dynClient.Resource(cgvr).Namespace(ns).List(ctx, metav1.ListOptions{})
+			if err == nil {
+				for _, item := range list.Items {
+					for _, owner := range item.GetOwnerReferences() {
+						if owner.UID == current.item.GetUID() {
+							childID := addNode(&item)
+							edges = append(edges, TopologyEdge{
+								ID:     fmt.Sprintf("e-%s-%s", current.id, childID),
+								Source: current.id,
+								Target: childID,
+								Type:   "owner",
 							})
-							nodeMap[childID] = true
+							
+							if !processedUIDs[string(item.GetUID())] {
+								processedUIDs[string(item.GetUID())] = true
+								queue = append(queue, task{item: &item, id: childID})
+							}
 						}
-						edges = append(edges, TopologyEdge{
-							ID:     fmt.Sprintf("e-%s-%s", rootID, childID),
-							Source: rootID,
-							Target: childID,
-							Type:   "owner",
-						})
 					}
 				}
 			}
 		}
 	}
 
-	// 2. Find Parents (via OwnerReferences of the root item)
+	// 2. Find Parents (only for the root item)
 	for _, owner := range rootItem.GetOwnerReferences() {
 		parentID := fmt.Sprintf("%s/%s/%s", owner.Kind, rootItem.GetNamespace(), owner.Name)
+		
 		if !nodeMap[parentID] {
 			nodes = append(nodes, TopologyNode{
 				ID:        parentID,
