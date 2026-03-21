@@ -75,6 +75,10 @@ spec:
                   name: {{ include "k-view.secretName" . }}
                   key: KVIEW_STATIC_USERS
             {{- end }}
+            - name: KVIEW_AUDIT_ENABLED
+              value: {{ .Values.audit.enabled | quote }}
+            - name: KVIEW_AUDIT_LEVEL
+              value: {{ .Values.audit.level | quote }}
           volumeMounts:
             {{- if .Values.persistence.enabled }}
             - name: data

@@ -196,3 +196,13 @@ probes:
     timeoutSeconds: 5
     failureThreshold: 3
 
+# -- Audit logging configuration
+audit:
+  # -- Enable or disable the internal audit logging system
+  enabled: false
+  # -- Audit logging level. 
+  # basic: logs only failed requests (status >= 400)
+  # mutation: logs mutations (POST, PUT, DELETE, PATCH) and failures
+  # full: logs all requests including read actions
+  level: "basic"
+

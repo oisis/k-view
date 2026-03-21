@@ -479,7 +479,18 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 
 // AuditMiddleware logs every request with user identity and action details.
 func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
+	auditEnabled := os.Getenv("KVIEW_AUDIT_ENABLED") != "false"
+	auditLevel := strings.ToLower(os.Getenv("KVIEW_AUDIT_LEVEL"))
+	if auditLevel == "" {
+		auditLevel = "full"
+	}
+
 	return func(c *gin.Context) {
+		if !auditEnabled {
+			c.Next()
+			return
+		}
+
 		start := time.Now()
 		path := c.Request.URL.Path
 		method := c.Request.Method
@@ -547,12 +558,29 @@ func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
 
 		entry := logrus.WithFields(fields)
 
-		if method == http.MethodPost || method == http.MethodDelete || method == http.MethodPut || method == http.MethodPatch {
-			entry.Info("Audit: mutation action")
-		} else if status >= 400 {
-			entry.Warn("Audit: failed request")
-		} else {
-			entry.Info("Audit: read action")
+		isMutation := method == http.MethodPost || method == http.MethodDelete || method == http.MethodPut || method == http.MethodPatch
+		isError := status >= 400
+
+		shouldLog := false
+		switch auditLevel {
+		case "basic":
+			shouldLog = isError
+		case "mutation":
+			shouldLog = isMutation || isError
+		case "full":
+			shouldLog = true
+		default:
+			shouldLog = true
+		}
+
+		if shouldLog {
+			if isMutation {
+				entry.Info("Audit: mutation action")
+			} else if isError {
+				entry.Warn("Audit: failed request")
+			} else {
+				entry.Info("Audit: read action")
+			}
 		}
 	}
 }
