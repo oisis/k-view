@@ -141,6 +141,7 @@ func main() {
 		// Protected routes — require a valid auth token
 		protected := api.Group("/")
 		protected.Use(authHandler.AuthMiddleware())
+		protected.Use(authHandler.AuditMiddleware())
 		{
 			// /auth/me needs to be here so AuthMiddleware populates the email context
 			protected.GET("/auth/me", authHandler.Me)

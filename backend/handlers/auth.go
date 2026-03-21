@@ -19,6 +19,7 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"context"
 )
@@ -455,4 +456,40 @@ func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})
+}
+
+// AuditMiddleware logs every request with user identity and action details.
+func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		method := c.Request.Method
+
+		// Process request
+		c.Next()
+
+		// After request
+		latency := time.Since(start)
+		status := c.Writer.Status()
+		email, _ := c.Get("email")
+		role, _ := c.Get("role")
+
+		entry := logrus.WithFields(logrus.Fields{
+			"status":  status,
+			"method":  method,
+			"path":    path,
+			"ip":      c.ClientIP(),
+			"latency": latency.String(),
+			"user":    email,
+			"role":    role,
+		})
+
+		if method == http.MethodPost || method == http.MethodDelete || method == http.MethodPut || method == http.MethodPatch {
+			entry.Info("Audit: mutation action")
+		} else if status >= 400 {
+			entry.Warn("Audit: failed request")
+		} else {
+			entry.Info("Audit: read action")
+		}
+	}
 }
