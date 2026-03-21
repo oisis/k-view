@@ -88,6 +88,12 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 
 	// 4. Response
 	now := time.Now().Format("15:04:05")
+	
+	cpuTotalCores := float64(totalCPUCapacity) / 1000
+	ramTotalBytes := totalRAMCapacity
+	cpuUsedCores := float64(totalCPUUsage) / 1000
+	ramUsedBytes := totalRAMUsage
+
 	c.JSON(http.StatusOK, gin.H{
 		"metricsServer":   metricsAvailable,
 		"nodeCount":       len(nodes),
@@ -97,8 +103,10 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 		"namespaceCount": len(namespaces),
 		"cpuUsage":        cpuPercent,
 		"ramUsage":        ramPercent,
-		"cpuTotal":        fmt.Sprintf("%.1f cores", float64(totalCPUCapacity)/1000),
-		"ramTotal":        fmt.Sprintf("%.1f Gi", float64(totalRAMCapacity)/(1024*1024*1024)),
+		"cpuTotal":        cpuTotalCores,
+		"ramTotal":        ramTotalBytes,
+		"cpuUsed":         cpuUsedCores,
+		"ramUsed":         ramUsedBytes,
 		"clusterName":     "Local Cluster",
 		"k8sVersion":      "v1.29+",
 		"cpuHistory": []MetricHistory{

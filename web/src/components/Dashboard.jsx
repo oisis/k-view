@@ -333,7 +333,7 @@ export default function Dashboard({ isCollapsed }) {
                                 />
                                 <div className="flex flex-col justify-center">
                                     <span className="text-xl font-black tracking-tight text-foreground">
-                                        Used {Number(stats?.cpuUsage || 0) && Number(stats?.cpuTotal || 0) ? ((Number(stats.cpuUsage) / 100) * Number(stats.cpuTotal)).toFixed(2) : "0.00"} of total {Number(stats?.cpuTotal) || "0"} Cores
+                                        Used {(stats?.cpuUsed || 0).toFixed(2)} of total {(stats?.cpuTotal || 0).toFixed(1)} Cores
                                     </span>
                                 </div>
                             </div>
@@ -373,7 +373,7 @@ export default function Dashboard({ isCollapsed }) {
                                 />
                                 <div className="flex flex-col justify-center">
                                     <span className="text-xl font-black tracking-tight text-foreground">
-                                        Used {Number(stats?.ramUsage || 0) && Number(stats?.ramTotal || 0) ? ((Number(stats.ramUsage) / 100) * parseFloat(stats.ramTotal)).toFixed(1) : "0.0"} of total {stats?.ramTotal || "0"}
+                                        Used {( (stats?.ramUsed || 0) / (1024*1024*1024) ).toFixed(1)} of total {( (stats?.ramTotal || 0) / (1024*1024*1024) ).toFixed(1)} Gi
                                     </span>
                                 </div>
                             </div>
