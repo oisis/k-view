@@ -178,3 +178,16 @@ rbac:
   # "namespace" restricts K-View to its own namespace only.
   scope: "cluster"
 
+# -- Health and Readiness probe configurations
+probes:
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
