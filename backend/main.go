@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hellofresh/health-go/v5"
+	"github.com/sirupsen/logrus"
 )
 
 func loadEnv(path string) {
@@ -38,6 +39,17 @@ func loadEnv(path string) {
 }
 
 func main() {
+	// Configure global logger
+	logrus.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: time.RFC3339,
+	})
+	logrus.SetOutput(os.Stdout)
+	if os.Getenv("KVIEW_DEBUG") == "true" {
+		logrus.SetLevel(logrus.DebugLevel)
+	} else {
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+
 	loadEnv(".env")
 
 	devMode := os.Getenv("DEV_MODE") == "true"
@@ -166,6 +178,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("Starting K-View on port %s", port)
+	logrus.WithField("port", port).Info("Starting K-View server")
 	router.Run(":" + port)
 }
