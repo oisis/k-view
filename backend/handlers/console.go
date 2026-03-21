@@ -12,6 +12,31 @@ import (
 	"k-view/k8s"
 )
 
+var allowedKubectlCommands = map[string]bool{
+	"get":          true,
+	"describe":     true,
+	"logs":         true,
+	"top":          true,
+	"explain":      true,
+	"version":      true,
+	"cluster-info": true,
+}
+
+var forbiddenKubectlFlags = []string{
+	"--as",
+	"--token",
+	"--server",
+	"--certificate-authority",
+	"--client-certificate",
+	"--client-key",
+	"--kubeconfig",
+	"--username",
+	"--password",
+	"--proxy-url",
+	"--tls-server-name",
+	"--insecure-skip-tls-verify",
+}
+
 // ConsoleHandler handles kubectl command execution.
 type ConsoleHandler struct {
 	devMode bool
@@ -46,10 +71,35 @@ func (h *ConsoleHandler) Exec(c *gin.Context) {
 	// Security: only allow kubectl commands
 	if !strings.HasPrefix(cmd, "kubectl") {
 		c.JSON(http.StatusForbidden, gin.H{
-			"output": fmt.Sprintf("bash: %s: command not found\nOnly kubectl commands are supported.", strings.Fields(cmd)[0]),
+			"output":   fmt.Sprintf("bash: %s: command not found\nOnly kubectl commands are supported.", strings.Fields(cmd)[0]),
 			"exitCode": 127,
 		})
 		return
+	}
+
+	parts := strings.Fields(cmd)
+	if len(parts) > 1 {
+		subCmd := parts[1]
+		if !allowedKubectlCommands[subCmd] {
+			c.JSON(http.StatusForbidden, gin.H{
+				"output":   fmt.Sprintf("error: command '%s' is not allowed in this console.", subCmd),
+				"exitCode": 1,
+			})
+			return
+		}
+
+		// Check for forbidden flags
+		for _, arg := range parts[1:] {
+			for _, forbidden := range forbiddenKubectlFlags {
+				if strings.HasPrefix(arg, forbidden) {
+					c.JSON(http.StatusForbidden, gin.H{
+						"output":   fmt.Sprintf("error: flag '%s' is forbidden for security reasons.", forbidden),
+						"exitCode": 1,
+					})
+					return
+				}
+			}
+		}
 	}
 
 	// Extract user context from Gin
@@ -61,7 +111,7 @@ func (h *ConsoleHandler) Exec(c *gin.Context) {
 		}
 	}
 
-	output, exitCode := realKubectl(cmd, user)
+	output, exitCode := realKubectl(parts, user)
 
 	c.JSON(http.StatusOK, gin.H{
 		"output":   output,
@@ -71,8 +121,7 @@ func (h *ConsoleHandler) Exec(c *gin.Context) {
 
 // realKubectl executes kubectl against the real cluster using the in-cluster service account,
 // while impersonating the logged-in user if they are not an administrator.
-func realKubectl(cmd string, user k8s.UserContext) (string, int) {
-	parts := strings.Fields(cmd)
+func realKubectl(parts []string, user k8s.UserContext) (string, int) {
 	if len(parts) == 0 {
 		return "", 0
 	}
