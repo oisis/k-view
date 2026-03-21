@@ -397,5 +397,6 @@ export const pl = {
     "resource_kind": "Typ zasobu",
     "managed_fields": "Zarządzane pola",
     "hide_managed_fields_desc": "Ukryj pola managedFields dla lepszej czytelności",
-    "download_logs": "Pobierz logi"
+    "download_logs": "Pobierz logi",
+    "shell_auto": "Auto"
 };

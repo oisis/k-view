@@ -394,5 +394,6 @@ export const zh = {
     "template": "模板",
     "raw_manifest": "原始清单",
     "resource_kind": "资源类型",
-    "download_logs": "下载日志"
+    "download_logs": "下载日志",
+    "shell_auto": "自动"
 };

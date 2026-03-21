@@ -395,5 +395,6 @@ export const es = {
     "template": "Plantilla",
     "raw_manifest": "Manifiesto bruto",
     "resource_kind": "Tipo de recurso",
-    "download_logs": "Descargar registros"
+    "download_logs": "Descargar registros",
+    "shell_auto": "Auto"
 };

@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { useTheme } from '../ThemeContext';
+import { useTranslation } from '../SettingsContext';
 
 const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] }) {
     const { icons } = useTheme();
+    const { t } = useTranslation();
     const [selectedContainer, setSelectedContainer] = useState(containers.length > 0 ? containers[0].name : "");
-    const [selectedShell, setSelectedShell] = useState("bash");
+    const [selectedShell, setSelectedShell] = useState("");
     const [status, setStatus] = useState("idle"); // idle, connecting, connected, error
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -239,6 +241,7 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
                                 }
                             }}
                         >
+                            <option value="">{t('shell_auto')}</option>
                             <option value="bash">bash</option>
                             <option value="sh">sh</option>
                         </select>

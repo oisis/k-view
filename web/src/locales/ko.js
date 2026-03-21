@@ -395,5 +395,6 @@ export const ko = {
     "template": "템플릿",
     "raw_manifest": "원시 매니페스트",
     "resource_kind": "리소스 종류",
-    "download_logs": "로그 다운로드"
+    "download_logs": "로그 다운로드",
+    "shell_auto": "자동"
 };

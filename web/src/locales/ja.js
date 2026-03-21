@@ -395,5 +395,6 @@ export const ja = {
     "template": "テンプレート",
     "raw_manifest": "生のマニフェスト",
     "resource_kind": "リソースの種類",
-    "download_logs": "ログをダウンロード"
+    "download_logs": "ログをダウンロード",
+    "shell_auto": "自動"
 };

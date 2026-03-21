@@ -40,12 +40,13 @@ class ErrorBoundary extends React.Component {
                             {this.state.error?.toString()}
                         </div>
 
-                        <button 
+                        <button
                             onClick={() => window.location.reload()}
-                            className="px-6 py-2.5 bg-accent text-primary-foreground rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all"
+                            className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-black uppercase tracking-wider shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                         >
                             Reload Application
                         </button>
+
                     </div>
                 </div>
             );

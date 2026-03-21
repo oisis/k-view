@@ -395,5 +395,6 @@ export const fr = {
     "template": "Modèle",
     "raw_manifest": "Manifeste brut",
     "resource_kind": "Type de ressource",
-    "download_logs": "Télécharger les logs"
+    "download_logs": "Télécharger les logs",
+    "shell_auto": "Auto"
 };

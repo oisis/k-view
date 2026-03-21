@@ -395,5 +395,6 @@ export const de = {
     "template": "Vorlage",
     "raw_manifest": "Roh-Manifest",
     "resource_kind": "Ressourcenart",
-    "download_logs": "Logs herunterladen"
+    "download_logs": "Logs herunterladen",
+    "shell_auto": "Auto"
 };
