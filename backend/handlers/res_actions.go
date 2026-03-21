@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 )
+
+type ScaleRequest struct {
+	Replicas int `json:"replicas"`
+}
 
 func (h *ResourceHandler) Create(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
@@ -82,12 +87,24 @@ func (h *ResourceHandler) Scale(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
 	ns := c.Param("namespace")
-	replicas := c.Query("replicas")
+
+	var req ScaleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: replicas must be an integer"})
+		return
+	}
 
 	dynClient, _ := h.k8sClient.GetDynamicClient(c.Request.Context())
 	gvr := getGVR(kind)
 	
-	patch := []byte(fmt.Sprintf(`{"spec":{"replicas":%s}}`, replicas))
+	// Securely build the patch using a map and json.Marshal
+	patchData := map[string]interface{}{
+		"spec": map[string]interface{}{
+			"replicas": req.Replicas,
+		},
+	}
+	patch, _ := json.Marshal(patchData)
+
 	_, err := dynClient.Resource(gvr).Namespace(ns).Patch(c.Request.Context(), name, types.MergePatchType, patch, metav1.PatchOptions{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -105,7 +122,20 @@ func (h *ResourceHandler) Restart(c *gin.Context) {
 	gvr := getGVR(kind)
 	
 	timestamp := time.Now().Format(time.RFC3339)
-	patch := []byte(fmt.Sprintf(`{"spec":{"template":{"metadata":{"annotations":{"kubectl.kubernetes.io/restartedAt":"%s"}}}}}`, timestamp))
+	
+	// Securely build the patch using nested maps and json.Marshal
+	patchData := map[string]interface{}{
+		"spec": map[string]interface{}{
+			"template": map[string]interface{}{
+				"metadata": map[string]interface{}{
+					"annotations": map[string]interface{}{
+						"kubectl.kubernetes.io/restartedAt": timestamp,
+					},
+				},
+			},
+		},
+	}
+	patch, _ := json.Marshal(patchData)
 	
 	_, err := dynClient.Resource(gvr).Namespace(ns).Patch(c.Request.Context(), name, types.StrategicMergePatchType, patch, metav1.PatchOptions{})
 	if err != nil {
