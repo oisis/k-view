@@ -100,6 +100,7 @@ func (a *LocalAuthenticator) Authenticate(username, password string) bool {
 func (a *LocalAuthenticator) GenerateJWT(username string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
+		"groups":   []string{}, // Local users don't have OIDC groups
 		"exp":      time.Now().Add(time.Hour * 24).Unix(), // 24 hours expiry
 		"iat":      time.Now().Unix(),
 		"iss":      "k-view-auth",
@@ -109,8 +110,8 @@ func (a *LocalAuthenticator) GenerateJWT(username string) (string, error) {
 	return token.SignedString(a.JWTSecret)
 }
 
-// VerifyJWT checks a token string and returns the username if valid.
-func (a *LocalAuthenticator) VerifyJWT(tokenString string) (string, error) {
+// VerifyJWT checks a token string and returns the username and groups if valid.
+func (a *LocalAuthenticator) VerifyJWT(tokenString string) (string, []string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -119,15 +120,26 @@ func (a *LocalAuthenticator) VerifyJWT(tokenString string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if username, ok := claims["username"].(string); ok {
-			return username, nil
+		username, _ := claims["username"].(string)
+		if username == "" {
+			return "", nil, fmt.Errorf("jwt missing username claim")
 		}
-		return "", fmt.Errorf("jwt missing username claim")
+
+		groups := []string{}
+		if g, ok := claims["groups"].([]interface{}); ok {
+			for _, val := range g {
+				if s, ok := val.(string); ok {
+					groups = append(groups, s)
+				}
+			}
+		}
+
+		return username, groups, nil
 	}
 
-	return "", fmt.Errorf("invalid token claims")
+	return "", nil, fmt.Errorf("invalid token claims")
 }

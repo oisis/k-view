@@ -215,10 +215,16 @@ func (h *RBACHandler) GetMyDetails(c *gin.Context) {
 		role = "viewer"
 	}
 	ns, _ := c.Get("namespace")
+	groups, _ := c.Get("groups")
 	
 	namespace := ""
 	if ns != nil {
 		namespace = ns.(string)
+	}
+
+	// Ensure groups is never nil in JSON
+	if groups == nil {
+		groups = []string{}
 	}
 
 	var rules []Rule
@@ -246,6 +252,7 @@ func (h *RBACHandler) GetMyDetails(c *gin.Context) {
 		"email":     email.(string),
 		"role":      role.(string),
 		"namespace": namespace,
+		"groups":    groups,
 		"rules":     rules,
 	})
 }

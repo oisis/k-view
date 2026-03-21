@@ -311,13 +311,15 @@ func verifyDevToken(token string) (string, bool) {
 func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var email string
+		var groups []string
 		var ok bool
 
 		// 0. Check for token query param (used by WebSocket connections which can't set headers)
 		if tokenParam := c.Query("token"); tokenParam != "" && h.localAuth != nil {
-			username, err := h.localAuth.VerifyJWT(tokenParam)
+			username, g, err := h.localAuth.VerifyJWT(tokenParam)
 			if err == nil && username != "" {
 				email = username
+				groups = g
 				ok = true
 			}
 		}
@@ -327,9 +329,10 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 			authHeader := c.GetHeader("Authorization")
 			if strings.HasPrefix(authHeader, "Bearer ") && h.localAuth != nil {
 				tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-				username, err := h.localAuth.VerifyJWT(tokenStr)
+				username, g, err := h.localAuth.VerifyJWT(tokenStr)
 				if err == nil && username != "" {
 					email = username // For static local users, 'email' is just their username string
+					groups = g
 					ok = true
 				}
 			}
@@ -347,10 +350,12 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 				idToken, err := h.verifier.Verify(c, tokenStr)
 				if err == nil {
 					var claims struct {
-						Email string `json:"email"`
+						Email  string   `json:"email"`
+						Groups []string `json:"groups"`
 					}
 					if err := idToken.Claims(&claims); err == nil {
 						email = claims.Email
+						groups = claims.Groups
 						ok = true
 					}
 				}
@@ -368,7 +373,7 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Determine Role based on static config
-		role, namespace := h.rbacConfig.GetRoleForUser(email, []string{})
+		role, namespace := h.rbacConfig.GetRoleForUser(email, groups)
 		
 		userCtx := k8s.UserContext{
 			Email: email,
@@ -379,6 +384,7 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		c.Set("email", email)
 		c.Set("role", role)
 		c.Set("namespace", namespace)
+		c.Set("groups", groups)
 		c.Set("userCtx", userCtx)
 
 		// Also wrap the Go context for downstream K8s calls

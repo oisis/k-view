@@ -38,23 +38,43 @@ func LoadStaticConfig(path string) (*RBACConfig, error) {
 	return &config, nil
 }
 
+var roleWeights = map[string]int{
+	"kview-cluster-admin":     100,
+	"admin":                   90,
+	"kview-cluster-developer": 80,
+	"kview-namespace-admin":   70,
+	"kview-namespace-developer": 60,
+	"kview-cluster-viewer":    50,
+	"kview-namespace-viewer":  40,
+	"viewer":                  10,
+}
+
 // GetRoleForUser returns the role and namespace for a given user email and groups.
 func (c *RBACConfig) GetRoleForUser(email string, groups []string) (string, string) {
-	// Check static assignments for specific user
+	bestRole := "viewer"
+	bestNamespace := ""
+	maxWeight := -1
+
+	// 1. Check static assignments for specific user (highest priority)
 	for _, a := range c.Assignments {
 		if a.User != "" && a.User == email {
 			return a.Role, a.Namespace
 		}
 	}
 
-	// Check static assignments for groups
+	// 2. Check static assignments for groups
 	for _, group := range groups {
 		for _, a := range c.Assignments {
 			if a.Group != "" && a.Group == group {
-				return a.Role, a.Namespace
+				weight := roleWeights[a.Role]
+				if weight > maxWeight {
+					maxWeight = weight
+					bestRole = a.Role
+					bestNamespace = a.Namespace
+				}
 			}
 		}
 	}
 
-	return "viewer", "" // Default fallback
+	return bestRole, bestNamespace
 }
