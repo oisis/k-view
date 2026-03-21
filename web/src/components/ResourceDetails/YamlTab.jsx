@@ -230,7 +230,7 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                         <>
                             <button
                                 onClick={() => setShowDiff(!showDiff)}
-                                className={`text-xs font-bold px-3 py-1 rounded transition-colors uppercase tracking-wider flex items-center gap-1.5 ${showDiff ? 'bg-accent text-primary-foreground shadow-lg' : 'bg-muted text-foreground hover:bg-accent hover:text-primary-foreground'}`}
+                                className={`text-xs font-bold px-3 py-1 rounded transition-all uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${showDiff ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-accent'}`}
                             >
                                 <icons.list size={12} />
                                 {showDiff ? t('hide_diff') : t('show_diff')}
