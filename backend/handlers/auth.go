@@ -19,6 +19,7 @@ import (
 	"k-view/k8s"
 	"k-view/auth"
 	"k-view/pkg/audit"
+	"k-view/pkg/contextutils"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
@@ -397,7 +398,7 @@ func (h *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		c.Set("userCtx", userCtx)
 
 		// Also wrap the Go context for downstream K8s calls
-		ctx := context.WithValue(c.Request.Context(), "user", userCtx)
+		ctx := contextutils.WithUser(c.Request.Context(), userCtx)
 		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()

@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"io"
+	"k-view/pkg/contextutils"
 
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -61,12 +62,14 @@ func NewClient() (*Client, error) {
 
 func (c *Client) GetConfig(ctx context.Context) *rest.Config {
 	config := rest.CopyConfig(c.baseConfig)
-	if user, ok := ctx.Value("user").(UserContext); ok && user.Email != "" {
-		isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
-		if !isAdmin {
-			config.Impersonate = rest.ImpersonationConfig{
-				UserName: user.Email,
-				Groups:   user.Groups,
+	if val, ok := contextutils.GetUser(ctx); ok {
+		if user, ok := val.(UserContext); ok && user.Email != "" {
+			isAdmin := user.Role == "kview-cluster-admin" || user.Role == "admin"
+			if !isAdmin {
+				config.Impersonate = rest.ImpersonationConfig{
+					UserName: user.Email,
+					Groups:   user.Groups,
+				}
 			}
 		}
 	}

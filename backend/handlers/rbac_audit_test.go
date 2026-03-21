@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"k-view/k8s"
+	"k-view/pkg/contextutils"
 	corev1 "k8s.io/api/core/v1"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +23,8 @@ type MockKubernetesProvider struct {
 
 func (m *MockKubernetesProvider) ListNodes(ctx context.Context) ([]corev1.Node, error) {
 	// Simulate K8s RBAC check based on impersonation headers in context
-	user, _ := ctx.Value("user").(k8s.UserContext)
+	val, _ := contextutils.GetUser(ctx)
+	user, _ := val.(k8s.UserContext)
 	
 	// If it's an admin (no impersonation) or a user with node access
 	if user.Role == "kview-cluster-admin" || user.Role == "admin" {
@@ -50,7 +52,7 @@ func TestRBACMatrix_Nodes(t *testing.T) {
 		// Setup context with Admin user
 		userCtx := k8s.UserContext{Email: "admin@kview.local", Role: "admin"}
 		req, _ := http.NewRequest("GET", "/api/nodes", nil)
-		c.Request = req.WithContext(context.WithValue(req.Context(), "user", userCtx))
+		c.Request = req.WithContext(contextutils.WithUser(req.Context(), userCtx))
 		
 		handler.ListNodes(c)
 		
@@ -64,7 +66,7 @@ func TestRBACMatrix_Nodes(t *testing.T) {
 		// Setup context with Viewer user
 		userCtx := k8s.UserContext{Email: "user@kview.local", Role: "viewer"}
 		req, _ := http.NewRequest("GET", "/api/nodes", nil)
-		c.Request = req.WithContext(context.WithValue(req.Context(), "user", userCtx))
+		c.Request = req.WithContext(contextutils.WithUser(req.Context(), userCtx))
 		
 		handler.ListNodes(c)
 		
