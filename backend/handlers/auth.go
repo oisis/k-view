@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
@@ -8,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -465,6 +467,31 @@ func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
 		path := c.Request.URL.Path
 		method := c.Request.Method
 
+		var payload string
+		if method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch {
+			// Read body for auditing
+			if c.Request.Body != nil {
+				bodyBytes, err := io.ReadAll(c.Request.Body)
+				if err == nil {
+					// Restore body for actual handler
+					c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+					if strings.Contains(strings.ToLower(path), "/secrets/") {
+						payload = "[MASKED]"
+					} else {
+						// Limit payload size to 4KB
+						if len(bodyBytes) > 4096 {
+							payload = string(bodyBytes[:4096]) + "... [TRUNCATED]"
+						} else {
+							payload = string(bodyBytes)
+						}
+					}
+				} else {
+					logrus.WithError(err).Warn("Audit: failed to read request body")
+				}
+			}
+		}
+
 		// Process request
 		c.Next()
 
@@ -474,7 +501,7 @@ func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
 		email, _ := c.Get("email")
 		role, _ := c.Get("role")
 
-		entry := logrus.WithFields(logrus.Fields{
+		fields := logrus.Fields{
 			"status":  status,
 			"method":  method,
 			"path":    path,
@@ -482,7 +509,13 @@ func (h *AuthHandler) AuditMiddleware() gin.HandlerFunc {
 			"latency": latency.String(),
 			"user":    email,
 			"role":    role,
-		})
+		}
+
+		if payload != "" {
+			fields["payload"] = payload
+		}
+
+		entry := logrus.WithFields(fields)
 
 		if method == http.MethodPost || method == http.MethodDelete || method == http.MethodPut || method == http.MethodPatch {
 			entry.Info("Audit: mutation action")
