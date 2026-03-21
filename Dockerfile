@@ -1,21 +1,22 @@
-# Stage 1: Build the Go backend
+# Stage 1: Build the React frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/web
+COPY web/package.json web/package-lock.json* ./
+RUN npm install --legacy-peer-deps
+COPY web/ .
+RUN npm run build
+
+# Stage 2: Build the Go backend (Single Binary)
 FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum* ./
 RUN go mod tidy
 COPY backend/ .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o k-view-server .
+# Copy frontend assets to the location expected by go:embed
+COPY --from=frontend-builder /app/web/dist ./handlers/dist
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -a -o k-view-server .
 
-# Stage 2: Build the React frontend
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/web
-COPY web/package.json web/package-lock.json* ./
-# Use --legacy-peer-deps because some libs are not yet updated for React 19
-RUN npm install --legacy-peer-deps
-COPY web/ .
-RUN npm run build
-
-# Stage 3: Final image
+# Stage 3: Final image (Minimal)
 FROM alpine:3.19
 WORKDIR /app
 
@@ -25,11 +26,8 @@ RUN apk add --no-cache ca-certificates tzdata curl && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
 
-# Copy backend binary
+# Copy ONLY the single binary
 COPY --from=backend-builder /app/backend/k-view-server /app/
-
-# Copy frontend build
-COPY --from=frontend-builder /app/web/dist /app/web/dist
 
 # Expose the port the app runs on
 EXPOSE 8080

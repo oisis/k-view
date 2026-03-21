@@ -102,18 +102,8 @@ func main() {
 	}))
 	router.GET("/readyz", gin.WrapH(r.Handler()))
 
-	// Serve static frontend assets (JS, CSS, images compiled by Vite)
-	router.Static("/assets", "./web/dist/assets")
-
-	// SPA catch-all: any path that is not an API route will serve index.html,
-	// allowing React Router to handle client-side routing (e.g. /admin, /login).
-	router.NoRoute(func(c *gin.Context) {
-		// Set headers to prevent caching of index.html
-		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0")
-		c.Header("Pragma", "no-cache")
-		c.Header("Expires", "0")
-		c.File("./web/dist/index.html")
-	})
+	// Serve static frontend assets from embedded FS (Single Binary mode)
+	router.Use(handlers.ServeStatic())
 
 	// API Routes
 	api := router.Group("/api")
