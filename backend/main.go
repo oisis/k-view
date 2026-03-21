@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"bufio"
 	"strings"
+
+	"github.com/hellofresh/health-go/v5"
 )
 
 func loadEnv(path string) {
@@ -65,6 +67,10 @@ func main() {
 	execHandler := handlers.NewExecHandler(k8sProvider)
 
 	router := gin.Default()
+
+	// Health check endpoint
+	h, _ := health.New()
+	router.GET("/healthz", gin.WrapH(h.Handler()))
 
 	// Serve static frontend assets (JS, CSS, images compiled by Vite)
 	router.Static("/assets", "./web/dist/assets")
