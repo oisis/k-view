@@ -272,6 +272,7 @@ export const en = {
     "yaml": "YAML",
     "logs": "Logs",
     "trace": "Trace",
+    "topology": "Topology",
     "terminal": "Terminal",
     "metadata": "Metadata",
     "uid": "UID",

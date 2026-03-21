@@ -19,6 +19,7 @@ import ErrorBoundary from './ErrorBoundary';
 const TABS = [
     { id: 'overview', label: 'overview' },
     { id: 'yaml', label: 'yaml' },
+    { id: 'topology', label: 'topology' },
     { id: 'logs', label: 'logs' },
     { id: 'events', label: 'events' },
     { id: 'exec', label: 'exec' },
@@ -198,6 +199,7 @@ export default function ResourceDetails() {
         if (t.id === 'logs' && !['Pods', 'Pod'].includes(kind)) return false;
         if (t.id === 'exec' && !['Pods', 'Pod'].includes(kind)) return false;
         if (t.id === 'trace' && !['Pods', 'Pod', 'Services', 'Service', 'Ingresses', 'Ingress', 'Deployments', 'Deployment', 'DaemonSets', 'DaemonSet', 'StatefulSets', 'StatefulSet'].includes(kind)) return false;
+        if (t.id === 'topology' && !['Pods', 'Pod', 'Deployments', 'Deployment', 'StatefulSets', 'StatefulSet', 'DaemonSets', 'DaemonSet', 'ReplicaSets', 'ReplicaSet', 'Services', 'Service', 'PersistentVolumeClaims', 'PersistentVolumeClaim'].includes(kind)) return false;
         return true;
     });
 
@@ -366,6 +368,17 @@ export default function ResourceDetails() {
                                     namespace={namespace}
                                     name={name}
                                 />
+                            )}
+                            {activeTab === 'topology' && (
+                                <div className="bg-glass glass rounded-2xl border border-border flex flex-col items-center justify-center p-12 min-h-[500px] text-center">
+                                    <div className="p-6 rounded-full bg-primary/10 text-primary mb-6">
+                                        {icons.network ? <icons.network size={48} /> : <div className="w-12 h-12 bg-primary/20 rounded-full" />}
+                                    </div>
+                                    <h3 className="text-2xl font-black italic uppercase tracking-tight mb-2">Resource Topology</h3>
+                                    <p className="text-muted-foreground font-medium max-w-md">
+                                        Coming Soon: Interactive graph visualization of resource dependencies and relationships.
+                                    </p>
+                                </div>
                             )}
                         </ErrorBoundary>
                     </motion.div>

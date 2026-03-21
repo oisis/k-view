@@ -271,6 +271,7 @@ export const ja = {
     "yaml": "YAML",
     "logs": "ログ",
     "trace": "トレース",
+    "topology": "トポロジー",
     "terminal": "ターミナル",
     "metadata": "メタデータ",
     "uid": "UID",

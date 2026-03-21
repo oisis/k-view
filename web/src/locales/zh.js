@@ -271,6 +271,7 @@ export const zh = {
     "yaml": "YAML",
     "logs": "日志",
     "trace": "追踪",
+    "topology": "拓扑",
     "terminal": "终端",
     "metadata": "元数据",
     "uid": "UID",

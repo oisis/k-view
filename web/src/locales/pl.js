@@ -271,6 +271,7 @@ export const pl = {
     "yaml": "YAML",
     "logs": "Logi",
     "trace": "Trace",
+    "topology": "Topologia",
     "terminal": "Terminal",
     "metadata": "Metadane",
     "uid": "UID",

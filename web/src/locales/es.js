@@ -270,8 +270,10 @@ export const es = {
     "overview": "Resumen",
     "yaml": "YAML",
     "logs": "Registros",
-    "trace": "Traza",
+    "trace": "Trace",
+    "topology": "Topología",
     "terminal": "Terminal",
+
     "metadata": "Metadatos",
     "uid": "UID",
     "annotations": "Anotaciones",

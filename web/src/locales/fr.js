@@ -270,6 +270,7 @@ export const fr = {
     "yaml": "YAML",
     "logs": "Logs",
     "trace": "Trace",
+    "topology": "Topologie",
     "terminal": "Terminal",
     "metadata": "Métadonnées",
     "uid": "UID",

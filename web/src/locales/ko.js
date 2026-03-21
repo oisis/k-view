@@ -270,6 +270,7 @@ export const ko = {
     "yaml": "YAML",
     "logs": "로그",
     "trace": "추적",
+    "topology": "토폴로지",
     "terminal": "터미널",
     "metadata": "메타데이터",
     "uid": "UID",
