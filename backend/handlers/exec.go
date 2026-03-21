@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -17,7 +19,37 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Allow all origins for the console
+		origin := r.Header.Get("Origin")
+		host := r.Host
+
+		if origin == "" {
+			return true // Not a cross-origin request
+		}
+
+		// Allow same origin
+		if host != "" && strings.Contains(origin, host) {
+			return true
+		}
+
+		// Check allowed origins from env
+		allowedOrigins := os.Getenv("KVIEW_ALLOWED_ORIGINS")
+		if allowedOrigins != "" {
+			origins := strings.Split(allowedOrigins, ",")
+			for _, o := range origins {
+				if strings.TrimSpace(o) == origin {
+					return true
+				}
+			}
+		}
+
+		log.Printf("WebSocket Origin Denied: %s (Host: %s)", origin, host)
+
+		// In DEV_MODE we might want to be more lenient, but security first.
+		if os.Getenv("DEV_MODE") == "true" {
+			return true
+		}
+
+		return false
 	},
 }
 
