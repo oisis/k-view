@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../ThemeContext';
 import { useSettings } from '../../SettingsContext';
-import * as ReactWindow from 'react-window';
-const { FixedSizeList: List } = ReactWindow;
 
 export default function LogsTab({ kind, namespace, name, containers, t }) {
     const { icons } = useTheme();
@@ -18,7 +16,7 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const [logWrapLines, setLogWrapLines] = useState(false);
     const [logFontSize, setLogFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
-    const listRef = useRef(null);
+    const scrollRef = useRef(null);
 
     // Update logContainer when containers list changes (e.g. after async load)
     useEffect(() => {
@@ -113,26 +111,6 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const displayedLines = logPaginationEnabled
         ? filteredLines.slice((logPage - 1) * logLinesPerPage, logPage * logLinesPerPage)
         : filteredLines;
-
-    const Row = ({ index, style }) => {
-        const line = displayedLines[index];
-        if (line === undefined) return null;
-        
-        const isError = /error|fail|severe/i.test(line);
-        const isWarn = /warn|attention/i.test(line);
-        const isInfo = /info|success/i.test(line);
-
-        return (
-            <div 
-                style={style} 
-                className={`hover:bg-accent/30 px-6 transition-colors flex items-center ${isError ? 'text-destructive font-semibold' : isWarn ? 'text-orange-500 font-semibold' : isInfo ? 'text-emerald-500 font-semibold' : 'text-foreground'}`}
-            >
-                <span className={logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}>
-                    {line}
-                </span>
-            </div>
-        );
-    };
 
     return (
         <div className="bg-glass glass rounded-2xl border border-border flex flex-col h-[620px] resize-y overflow-hidden shadow-xl">
@@ -294,20 +272,22 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
             </div>
 
             <div
-                className="flex-1 font-mono bg-muted/20 overflow-hidden"
+                ref={scrollRef}
+                className={`flex-1 pt-2 px-6 pb-6 font-mono overflow-auto scrollbar-thin scrollbar-thumb-border bg-muted/20 ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}
                 style={{ fontSize: `${logFontSize}px` }}
             >
                 {displayedLines.length > 0 ? (
-                    <List
-                        ref={listRef}
-                        height={570}
-                        itemCount={displayedLines.length}
-                        itemSize={logFontSize + 8}
-                        width="100%"
-                        className="scrollbar-thin scrollbar-thumb-border"
-                    >
-                        {Row}
-                    </List>
+                    displayedLines.map((line, i) => {
+                        const isError = /error|fail|severe/i.test(line);
+                        const isWarn = /warn|attention/i.test(line);
+                        const isInfo = /info|success/i.test(line);
+
+                        return (
+                            <div key={i} className={`hover:bg-accent/30 px-2 -mx-2 transition-colors ${isError ? 'text-destructive font-semibold' : isWarn ? 'text-orange-500 font-semibold' : isInfo ? 'text-emerald-500 font-semibold' : 'text-foreground'}`}>
+                                {line}
+                            </div>
+                        );
+                    })
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-text-muted gap-3 italic">
                         <icons.search size={32} className="opacity-20" />
