@@ -144,6 +144,9 @@ export default function Nodes() {
     const controlPlane = nodes.filter(n => n.role === 'control-plane').length;
     const workers = nodes.filter(n => n.role === 'worker').length;
 
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const shortcutText = isMac ? '⌘K' : 'Ctrl+K';
+
     return (
         <div className="p-4 md:pt-4 md:px-8 md:pb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -157,7 +160,7 @@ export default function Nodes() {
                 <div className="flex items-center gap-3">
                     <input
                         type="text"
-                        placeholder="Search nodes..."
+                        placeholder={`Search nodes... (${shortcutText})`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="bg-[var(--bg-input)] border border-border px-3 py-2 rounded-lg text-sm text-[var(--text-input)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors h-10 w-64"

@@ -447,6 +447,9 @@ export default function ResourceList({ kind: propKind }) {
     const headerHeight = density === 'compact' ? "py-2 px-3" : "py-3 px-4";
     const rowHeight = density === 'compact' ? "py-1.5" : "py-3";
 
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const shortcutText = isMac ? '⌘K' : 'Ctrl+K';
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:pt-4 md:px-8 md:pb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
@@ -466,7 +469,7 @@ export default function ResourceList({ kind: propKind }) {
                 <div className="flex items-center gap-4">
                     <div className="relative group">
                         <icons.search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={14} />
-                        <input type="text" placeholder={t('search_placeholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm" />
+                        <input type="text" placeholder={`${t('search_placeholder')} (${shortcutText})`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-background border-2 border-border pl-9 pr-4 py-2 rounded-xl text-xs font-medium text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all h-11 w-64 shadow-sm" />
                     </div>
                     {isNamespaced && <NamespaceSelect namespaces={namespaces} selected={namespace} onChange={setNamespace} />}
                     <VisibilityMenu table={table} t={t} icons={icons} />

@@ -151,6 +151,7 @@ func main() {
 			protected.GET("/nodes", nodeHandler.ListNodes)
 			protected.POST("/console/exec", consoleHandler.Exec)
 			protected.GET("/cluster/events", resourceHandler.GetClusterEvents)
+			protected.GET("/search", resourceHandler.Search)
 			protected.GET("/resources/:kind", resourceHandler.List)
 			protected.GET("/cluster/stats", resourceHandler.GetStats)
 			protected.POST("/resources/:kind", resourceHandler.Create)
