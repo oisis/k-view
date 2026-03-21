@@ -158,6 +158,7 @@ func main() {
 			protected.POST("/resources/:kind/:namespace", resourceHandler.Create)
 			protected.GET("/resources/:kind/:namespace/:name", resourceHandler.GetDetails)
 			protected.GET("/resources/:kind/:namespace/:name/yaml", resourceHandler.GetYAML)
+			protected.GET("/resources/:kind/:namespace/:name/topology", resourceHandler.GetTopology)
 			protected.PUT("/resources/:kind/:namespace/:name/yaml", resourceHandler.UpdateYAML)
 			protected.PUT("/resources/:kind/:namespace/:name/restart", resourceHandler.Restart)
 			protected.PUT("/resources/:kind/:namespace/:name/scale", resourceHandler.Scale)

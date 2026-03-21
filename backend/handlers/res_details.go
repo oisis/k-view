@@ -324,6 +324,160 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+type TopologyNode struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Kind      string `json:"kind"`
+	Namespace string `json:"namespace,omitempty"`
+	Status    string `json:"status,omitempty"`
+}
+
+type TopologyEdge struct {
+	ID     string `json:"id"`
+	Source string `json:"source"`
+	Target string `json:"target"`
+	Type   string `json:"type"`
+}
+
+type TopologyResponse struct {
+	Nodes []TopologyNode `json:"nodes"`
+	Edges []TopologyEdge `json:"edges"`
+}
+
+func (h *ResourceHandler) GetTopology(c *gin.Context) {
+	kind := strings.ToLower(c.Param("kind"))
+	name := c.Param("name")
+	ns := c.Param("namespace")
+	if ns == "-" {
+		ns = ""
+	}
+
+	ctx := c.Request.Context()
+	dynClient, err := h.k8sClient.GetDynamicClient(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get dynamic client"})
+		return
+	}
+
+	gvr := getGVR(kind)
+	var resInterface dynamic.ResourceInterface
+	if ns != "" && !isClusterScoped(kind) {
+		resInterface = dynClient.Resource(gvr).Namespace(ns)
+	} else {
+		resInterface = dynClient.Resource(gvr)
+	}
+
+	rootItem, err := resInterface.Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
+		return
+	}
+
+	nodes := make([]TopologyNode, 0)
+	edges := make([]TopologyEdge, 0)
+	nodeMap := make(map[string]bool)
+
+	// Add root node
+	rootID := fmt.Sprintf("%s/%s/%s", rootItem.GetKind(), rootItem.GetNamespace(), rootItem.GetName())
+	nodes = append(nodes, TopologyNode{
+		ID:        rootID,
+		Name:      rootItem.GetName(),
+		Kind:      rootItem.GetKind(),
+		Namespace: rootItem.GetNamespace(),
+		Status:    "Active",
+	})
+	nodeMap[rootID] = true
+
+	// 1. Find Children (via OwnerReferences)
+	// We search for resources that have this rootItem as owner
+	childKinds := []string{"ReplicaSets", "Pods", "Jobs"}
+	for _, ck := range childKinds {
+		cgvr := getGVR(ck)
+		list, err := dynClient.Resource(cgvr).Namespace(ns).List(ctx, metav1.ListOptions{})
+		if err == nil {
+			for _, item := range list.Items {
+				for _, owner := range item.GetOwnerReferences() {
+					if owner.UID == rootItem.GetUID() {
+						childID := fmt.Sprintf("%s/%s/%s", item.GetKind(), item.GetNamespace(), item.GetName())
+						if !nodeMap[childID] {
+							nodes = append(nodes, TopologyNode{
+								ID:        childID,
+								Name:      item.GetName(),
+								Kind:      item.GetKind(),
+								Namespace: item.GetNamespace(),
+							})
+							nodeMap[childID] = true
+						}
+						edges = append(edges, TopologyEdge{
+							ID:     fmt.Sprintf("e-%s-%s", rootID, childID),
+							Source: rootID,
+							Target: childID,
+							Type:   "owner",
+						})
+					}
+				}
+			}
+		}
+	}
+
+	// 2. Find Parents (via OwnerReferences of the root item)
+	for _, owner := range rootItem.GetOwnerReferences() {
+		parentID := fmt.Sprintf("%s/%s/%s", owner.Kind, rootItem.GetNamespace(), owner.Name)
+		if !nodeMap[parentID] {
+			nodes = append(nodes, TopologyNode{
+				ID:        parentID,
+				Name:      owner.Name,
+				Kind:      owner.Kind,
+				Namespace: rootItem.GetNamespace(),
+			})
+			nodeMap[parentID] = true
+		}
+		edges = append(edges, TopologyEdge{
+			ID:     fmt.Sprintf("e-%s-%s", parentID, rootID),
+			Source: parentID,
+			Target: rootID,
+			Type:   "owner",
+		})
+	}
+
+	// 3. Special Case: Service -> Pods (via Selectors)
+	if strings.ToLower(rootItem.GetKind()) == "service" {
+		selector, found, _ := unstructured.NestedStringMap(rootItem.Object, "spec", "selector")
+		if found && len(selector) > 0 {
+			labelSelector := metav1.FormatLabelSelector(&metav1.LabelSelector{MatchLabels: selector})
+			podGVR := getGVR("pods")
+			pods, err := dynClient.Resource(podGVR).Namespace(ns).List(ctx, metav1.ListOptions{
+				LabelSelector: labelSelector,
+			})
+			if err == nil {
+				for _, pod := range pods.Items {
+					podID := fmt.Sprintf("%s/%s/%s", pod.GetKind(), pod.GetNamespace(), pod.GetName())
+					if !nodeMap[podID] {
+						nodes = append(nodes, TopologyNode{
+							ID:        podID,
+							Name:      pod.GetName(),
+							Kind:      pod.GetKind(),
+							Namespace: pod.GetNamespace(),
+						})
+						nodeMap[podID] = true
+					}
+					edges = append(edges, TopologyEdge{
+						ID:     fmt.Sprintf("e-%s-%s", rootID, podID),
+						Source: rootID,
+						Target: podID,
+						Type:   "selector",
+					})
+				}
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, TopologyResponse{
+		Nodes: nodes,
+		Edges: edges,
+	})
+}
+
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
