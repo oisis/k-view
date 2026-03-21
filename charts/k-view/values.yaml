@@ -47,6 +47,11 @@ podSecurityContext:
 # -- Container-level security context
 # Ensures the container runs as a non-root user (1000) for better security
 securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
   runAsUser: 1000
   runAsGroup: 1000
 
