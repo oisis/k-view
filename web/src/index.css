@@ -1,6 +1,55 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Core Variables Mapping */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-info: hsl(var(--info));
+  --color-warning: hsl(var(--warning));
+  --color-error: hsl(var(--destructive));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Animations */
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  --animation-accordion-down: accordion-down 0.2s ease-out;
+  --animation-accordion-up: accordion-up 0.2s ease-out;
+}
 
 /* ==========================================================================
    1. CORE VARIABLES (HSL Palette)
@@ -25,7 +74,6 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     
-    /* Pastel Accents for Hovers */
     --accent: 210 100% 96%; 
     --accent-foreground: 221.2 83.2% 40%;
     
@@ -110,23 +158,6 @@
     font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
-  :root, .dark, .theme-k-view, .light {
-    --text-primary: hsl(var(--foreground));
-    --text-secondary: hsl(var(--muted-foreground));
-    --text-muted: hsl(var(--muted-foreground));
-    --text-white: hsl(var(--foreground));
-    --color-text-white: hsl(var(--foreground));
-    --color-text-primary: hsl(var(--foreground));
-    --bg-main: hsl(var(--background));
-    --bg-card: hsl(var(--card));
-    --border-color: hsl(var(--border));
-  }
-
-  .dark, .theme-k-view {
-    --text-white: #ffffff;
-    --color-text-white: #ffffff;
-  }
-
   /* Table Style with Visible Grid */
   table { @apply w-full border-collapse text-sm border-spacing-0; }
   thead { @apply bg-muted/50 border-b-2 border-border; }
@@ -143,10 +174,6 @@
   .glass-glow { @apply shadow-[0_0_20px_rgba(var(--primary),0.1)] border-primary/20; }
   .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important; }
   
-  /* Saturated pastel shadows for Light mode */
-  .light .shadow-pastel-blue { shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.1); }
-  .light .shadow-pastel-green { shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.1); }
-
   /* Mesh Gradient Animation */
   @keyframes mesh-gradient {
     0% { transform: translate(0, 0) scale(1); }
