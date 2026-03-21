@@ -16,6 +16,7 @@ import NetworkTrace from './NetworkTrace';
 import TopologyTab from './ResourceDetails/TopologyTab';
 import PodTerminal from './PodTerminal';
 import ErrorBoundary from './ErrorBoundary';
+import ErrorPage from './ErrorPage';
 
 const TABS = [
     { id: 'overview', label: 'overview' },
@@ -62,6 +63,7 @@ export default function ResourceDetails() {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const isVisible = useRef(true);
     const [quotas, setQuotas] = useState([]);
     const [limits, setLimits] = useState([]);
@@ -91,13 +93,17 @@ export default function ResourceDetails() {
                 : `/api/resources/${kind}/-/${name}`;
             
             const res = await fetch(url);
-            if (!res.ok) throw new Error('Failed to fetch resource');
+            if (!res.ok) {
+                setErrorCode(res.status);
+                throw new Error('Failed to fetch resource');
+            }
             const detailsData = await res.json();
             
             setData(prev => {
                 if (prev && JSON.stringify(prev) === JSON.stringify(detailsData)) return prev;
                 return detailsData;
             });
+            setErrorCode(null);
 
             if (activeTab === 'overview') {
                 if (kind === 'Namespaces') {
@@ -193,6 +199,10 @@ export default function ResourceDetails() {
             </Card>
         </div>
     );
+
+    if (errorCode) {
+        return <ErrorPage code={String(errorCode)} />;
+    }
 
     if (!data) return null;
 

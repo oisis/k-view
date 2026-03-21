@@ -11,6 +11,7 @@ import AdminPanel from './components/AdminPanel';
 import ResourceList from './components/ResourceList';
 import ResourceDetails from './components/ResourceDetails';
 import About from './components/About';
+import ErrorPage from './components/ErrorPage';
 import MainLayout from './components/MainLayout';
 
 import { useTranslation, useSettings } from './SettingsContext';
@@ -199,9 +200,8 @@ function App() {
                                 <Route path="cluster/:kind" element={<RedirectToResources />} />
                                 <Route path=":kind/:namespace/:name" element={<RedirectToDetails />} />
                                 <Route path="namespaces/-/:name" element={<NavigateToNamespace />} />
+                                <Route path="*" element={<ErrorPage code="404" />} />
                             </Route>
-
-                            <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </div>
                 </Router>

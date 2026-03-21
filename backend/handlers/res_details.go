@@ -160,7 +160,7 @@ func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	if manager != h.registry.fallback {
 		response, err := manager.GetDetails(c.Request.Context(), dynClient, *item)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 			return
 		}
 		c.JSON(http.StatusOK, response)
@@ -509,7 +509,7 @@ func (h *ResourceHandler) GetYAML(c *gin.Context) {
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 	gvr := getGVR(kind)

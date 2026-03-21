@@ -144,6 +144,7 @@ export function useResourceDetails(kind, namespace, name) {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
 
     const load = useCallback(async (isInitial = false) => {
         if (document.visibilityState !== 'visible') return;
@@ -159,11 +160,13 @@ export function useResourceDetails(kind, namespace, name) {
             
             const res = await fetch(url);
             if (!res.ok) {
+                setErrorCode(res.status);
                 const errData = await res.json().catch(() => ({}));
                 throw new Error(errData.error || 'Failed to fetch resource details');
             }
             const dto = await res.json();
             setData(dto);
+            setErrorCode(null);
         } catch (err) {
             setError(err.message);
         } finally {

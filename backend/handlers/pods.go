@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"k-view/k8s"
+	"k-view/pkg/k8sutils"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,7 +38,7 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 
 	pods, err := h.k8sClient.ListPods(c.Request.Context(), namespace)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list pods: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 
@@ -74,7 +75,7 @@ func (h *PodHandler) ListNamespaces(c *gin.Context) {
 	namespaces, err := h.k8sClient.ListNamespaces(c.Request.Context())
 	if err != nil {
 		log.Printf("ERROR: Failed to list namespaces: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list namespaces: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list namespaces: " + k8sutils.SanitizeError(err)})
 		return
 	}
 	c.JSON(http.StatusOK, namespaces)
@@ -194,7 +195,7 @@ func (h *PodHandler) GetLogs(c *gin.Context) {
 
 	logs, err := h.k8sClient.GetPodLogs(ctx, namespace, targetPod, container, tail)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get logs: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get logs: " + k8sutils.SanitizeError(err)})
 		return
 	}
 	c.String(http.StatusOK, logs)

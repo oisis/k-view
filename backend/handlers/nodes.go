@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"k-view/k8s"
+	"k-view/pkg/k8sutils"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -107,13 +108,13 @@ func (h *NodeHandler) ListNodes(c *gin.Context) {
 	ctx := c.Request.Context()
 	nodes, err := h.k8sClient.ListNodes(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list nodes: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list nodes: " + k8sutils.SanitizeError(err)})
 		return
 	}
 
 	pods, err := h.k8sClient.ListPods(ctx, "")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list pods for node stats: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list pods for node stats: " + k8sutils.SanitizeError(err)})
 		return
 	}
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"k-view/pkg/k8sutils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
@@ -39,7 +40,7 @@ func (h *ResourceHandler) Create(c *gin.Context) {
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 
@@ -54,7 +55,7 @@ func (h *ResourceHandler) Create(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 	c.JSON(http.StatusCreated, created)
@@ -77,7 +78,7 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 	c.Status(http.StatusNoContent)
@@ -107,7 +108,7 @@ func (h *ResourceHandler) Scale(c *gin.Context) {
 
 	_, err := dynClient.Resource(gvr).Namespace(ns).Patch(c.Request.Context(), name, types.MergePatchType, patch, metav1.PatchOptions{})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 	c.Status(http.StatusOK)
@@ -139,7 +140,7 @@ func (h *ResourceHandler) Restart(c *gin.Context) {
 	
 	_, err := dynClient.Resource(gvr).Namespace(ns).Patch(c.Request.Context(), name, types.StrategicMergePatchType, patch, metav1.PatchOptions{})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 	c.Status(http.StatusOK)
@@ -222,7 +223,7 @@ func (h *ResourceHandler) Trigger(c *gin.Context) {
 
 		_, err = dynClient.Resource(jobGVR).Namespace(ns).Create(c.Request.Context(), newJob, metav1.CreateOptions{})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 			return
 		}
 		c.Status(http.StatusCreated)

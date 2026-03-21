@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"k-view/pkg/k8sutils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -27,7 +28,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 
 	dynClient, err := h.k8sClient.GetDynamicClient(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
 	}
 
@@ -69,7 +70,7 @@ func (h *ResourceHandler) List(c *gin.Context) {
 	}
 
 	if errList != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errList.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(errList)})
 		return
 	}
 
