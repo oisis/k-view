@@ -1,16 +1,17 @@
 package main
 
 import (
+	"bufio"
+	"context"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"k-view/handlers"
 	"k-view/k8s"
 
 	"github.com/gin-gonic/gin"
-	"bufio"
-	"strings"
-
 	"github.com/hellofresh/health-go/v5"
 )
 
@@ -68,9 +69,26 @@ func main() {
 
 	router := gin.Default()
 
-	// Health check endpoint
+	// Health check endpoints
 	h, _ := health.New()
+	// Basic Liveness
 	router.GET("/healthz", gin.WrapH(h.Handler()))
+
+	// Readiness with K8s API check
+	r, _ := health.New(health.WithComponent(health.Component{
+		Name:    "k8s-api",
+		Version: "v1",
+	}), health.WithChecks(health.Config{
+		Name:      "k8s-connectivity",
+		Timeout:   time.Second * 5,
+		SkipOnErr: false,
+		Check: func(ctx context.Context) error {
+			// Simple check: list namespaces to verify connectivity
+			_, err := k8sProvider.ListNamespaces(ctx)
+			return err
+		},
+	}))
+	router.GET("/readyz", gin.WrapH(r.Handler()))
 
 	// Serve static frontend assets (JS, CSS, images compiled by Vite)
 	router.Static("/assets", "./web/dist/assets")
