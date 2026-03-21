@@ -73,9 +73,9 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
         setStatus("connecting");
 
         try {
-            const { Terminal } = await import('xterm');
-            const { FitAddon } = await import('xterm-addon-fit');
-            import('xterm/css/xterm.css');
+            const { Terminal } = await import('@xterm/xterm');
+            const { FitAddon } = await import('@xterm/addon-fit');
+            import('@xterm/xterm/css/xterm.css');
 
             const isLight = !isDarkMode;
 

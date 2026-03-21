@@ -10,7 +10,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o k-view-server .
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json* ./
-RUN npm install
+# Use --legacy-peer-deps because some libs are not yet updated for React 19
+RUN npm install --legacy-peer-deps
 COPY web/ .
 RUN npm run build
 
