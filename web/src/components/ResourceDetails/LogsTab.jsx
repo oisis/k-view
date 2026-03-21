@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../ThemeContext';
 import { useSettings } from '../../SettingsContext';
+import * as ReactWindow from 'react-window';
+const { FixedSizeList: List } = ReactWindow;
 
 export default function LogsTab({ kind, namespace, name, containers, t }) {
     const { icons } = useTheme();
@@ -16,6 +18,14 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
     const [logWrapLines, setLogWrapLines] = useState(false);
     const [logFontSize, setLogFontSize] = useState(13);
     const [loading, setLoading] = useState(true);
+    const listRef = useRef(null);
+
+    // Update logContainer when containers list changes (e.g. after async load)
+    useEffect(() => {
+        if (containers && containers.length > 0 && !logContainer) {
+            setLogContainer(containers[0].name || containers[0].containerName || '');
+        }
+    }, [containers]);
 
     const downloadLogs = () => {
         if (!logs) return;
@@ -29,13 +39,6 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
-
-    // Update logContainer when containers list changes (e.g. after async load)
-    useEffect(() => {
-        if (containers && containers.length > 0 && !logContainer) {
-            setLogContainer(containers[0].name || containers[0].containerName || '');
-        }
-    }, [containers]);
 
     const fetchLogs = async () => {
         if (!logContainer && (!containers || containers.length === 0)) return;
@@ -111,6 +114,26 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
         ? filteredLines.slice((logPage - 1) * logLinesPerPage, logPage * logLinesPerPage)
         : filteredLines;
 
+    const Row = ({ index, style }) => {
+        const line = displayedLines[index];
+        if (line === undefined) return null;
+        
+        const isError = /error|fail|severe/i.test(line);
+        const isWarn = /warn|attention/i.test(line);
+        const isInfo = /info|success/i.test(line);
+
+        return (
+            <div 
+                style={style} 
+                className={`hover:bg-accent/30 px-6 transition-colors flex items-center ${isError ? 'text-destructive font-semibold' : isWarn ? 'text-orange-500 font-semibold' : isInfo ? 'text-emerald-500 font-semibold' : 'text-foreground'}`}
+            >
+                <span className={logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}>
+                    {line}
+                </span>
+            </div>
+        );
+    };
+
     return (
         <div className="bg-glass glass rounded-2xl border border-border flex flex-col h-[620px] resize-y overflow-hidden shadow-xl">
             <div className="px-4 py-3 bg-[var(--bg-muted)]/30 border-b border-border flex flex-wrap items-center justify-between gap-2 flex-none">
@@ -124,97 +147,97 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
                             onChange={(e) => { setLogSearchTerm(e.target.value); setLogPage(1); }}
                             className="pl-9 pr-4 py-1.5 bg-[var(--bg-input)] border border-border rounded-md text-xs text-[var(--text-input)] placeholder:text-text-muted focus:outline-none focus:border-[var(--accent)]/50 w-64 transition-all"
                         />
-                                                <button
-                                                    onClick={() => setLogSearchRegex(!logSearchRegex)}
-                                                    className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black transition-colors ${logSearchRegex ? 'bg-accent text-primary-foreground' : 'bg-transparent text-text-muted hover:text-primary'}`}
-                                                    title={t('regex_tooltip')}
-                                                >
-                                                    .*
-                                                </button>
-                                            </div>
-                        
-                                            <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title={t('refresh')}>
-                                                <div className="pl-1.5 text-text-muted">
-                                                    <icons.refresh size={12} />
-                                                </div>
-                                                <select
-                                                    value={logRefreshInterval}
-                                                    onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
-                                                    className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
-                                                >
-                                                    <option value="0">OFF</option>
-                                                    <option value="5">5s</option>
-                                                    <option value="10">10s</option>
-                                                    <option value="15">15s</option>
-                                                    <option value="30">30s</option>
-                                                    <option value="60">60s</option>
-                                                </select>
-                                            </div>
-                        
-                                            <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title="Font Size">
-                                                <div className="pl-1.5 text-text-muted">
-                                                    <icons.hash size={12} />
-                                                </div>
-                                                <select
-                                                    value={logFontSize}
-                                                    onChange={(e) => setLogFontSize(parseInt(e.target.value))}
-                                                    className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
-                                                >
-                                                    {[10, 12, 13, 14, 16].map(size => (
-                                                        <option key={size} value={size}>{size}px</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                        
-                                            {containers && containers.length > 1 && (
-                                                <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50 ml-1" title={t('label_container')}>
-                                                    <div className="pl-1.5 text-text-muted">
-                                                        <icons.box size={12} />
-                                                    </div>
-                                                    <select
-                                                        value={logContainer}
-                                                        onChange={(e) => {
-                                                            setLogContainer(e.target.value);
-                                                            setLogPage(1);
-                                                            setLogs('');
-                                                        }}
-                                                        className="bg-transparent text-xs font-bold text-accent outline-none pr-1 px-2 py-0.5 cursor-pointer"
-                                                    >
-                                                        {(containers || []).map(c => (
-                                                            <option key={c.name} value={c.name}>{c.name}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            )}
-                                        </div>
-                        
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={downloadLogs}
-                                                disabled={!logs}
-                                                className="p-1.5 text-text-muted hover:text-accent disabled:opacity-30 transition-colors"
-                                                title={t('download_logs')}
-                                            >
-                                                <icons.download size={16} />
-                                            </button>
-                                            <label className="flex items-center gap-1.5 cursor-pointer group" title={t('wrap_lines')}>
-                                                <div
-                                                    className={`w-7 h-3.5 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
-                                                    onClick={() => setLogWrapLines(!logWrapLines)}
-                                                >
-                                                    <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-3' : ''}`} />
-                                                </div>
-                                                <icons.list size={14} className="text-text-muted group-hover:text-primary transition-colors" />
-                                            </label>
-                                            <label className="flex items-center gap-1.5 cursor-pointer group" title={t('pagination')}>
-                                                <div
-                                                    className={`w-7 h-3.5 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
-                                                    onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
-                                                >
-                                                    <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-3' : ''}`} />
-                                                </div>
-                                                <icons.layers size={14} className="text-text-muted group-hover:text-primary transition-colors" />
-                                            </label>
+                        <button
+                            onClick={() => setLogSearchRegex(!logSearchRegex)}
+                            className={`absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-black transition-colors ${logSearchRegex ? 'bg-accent text-primary-foreground' : 'bg-transparent text-text-muted hover:text-primary'}`}
+                            title={t('regex_tooltip')}
+                        >
+                            .*
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title={t('refresh')}>
+                        <div className="pl-1.5 text-text-muted">
+                            <icons.refresh size={12} />
+                        </div>
+                        <select
+                            value={logRefreshInterval}
+                            onChange={(e) => setLogRefreshInterval(parseInt(e.target.value))}
+                            className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
+                        >
+                            <option value="0">OFF</option>
+                            <option value="5">5s</option>
+                            <option value="10">10s</option>
+                            <option value="15">15s</option>
+                            <option value="30">30s</option>
+                            <option value="60">60s</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50" title="Font Size">
+                        <div className="pl-1.5 text-text-muted">
+                            <icons.hash size={12} />
+                        </div>
+                        <select
+                            value={logFontSize}
+                            onChange={(e) => setLogFontSize(parseInt(e.target.value))}
+                            className="bg-input text-xs font-bold text-input-text outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
+                        >
+                            {[10, 12, 13, 14, 16].map(size => (
+                                <option key={size} value={size}>{size}px</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {containers && containers.length > 1 && (
+                        <div className="flex items-center gap-1 bg-bg-muted/50 p-0.5 rounded-md border border-border/50 ml-1" title={t('label_container')}>
+                            <div className="pl-1.5 text-text-muted">
+                                <icons.box size={12} />
+                            </div>
+                            <select
+                                value={logContainer}
+                                onChange={(e) => {
+                                    setLogContainer(e.target.value);
+                                    setLogPage(1);
+                                    setLogs('');
+                                }}
+                                className="bg-transparent text-xs font-bold text-accent outline-none pr-1 px-2 py-0.5 cursor-pointer"
+                            >
+                                {(containers || []).map(c => (
+                                    <option key={c.name} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={downloadLogs}
+                        disabled={!logs}
+                        className="p-1.5 text-text-muted hover:text-accent disabled:opacity-30 transition-colors"
+                        title={t('download_logs')}
+                    >
+                        <icons.download size={16} />
+                    </button>
+                    <label className="flex items-center gap-1.5 cursor-pointer group" title={t('wrap_lines')}>
+                        <div
+                            className={`w-7 h-3.5 rounded-full relative transition-colors ${logWrapLines ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                            onClick={() => setLogWrapLines(!logWrapLines)}
+                        >
+                            <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logWrapLines ? 'translate-x-3' : ''}`} />
+                        </div>
+                        <icons.list size={14} className="text-text-muted group-hover:text-primary transition-colors" />
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer group" title={t('pagination')}>
+                        <div
+                            className={`w-7 h-3.5 rounded-full relative transition-colors ${logPaginationEnabled ? 'bg-accent' : 'bg-slate-400/40 border border-border'}`}
+                            onClick={() => setLogPaginationEnabled(!logPaginationEnabled)}
+                        >
+                            <div className={`absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform ${logPaginationEnabled ? 'translate-x-3' : ''}`} />
+                        </div>
+                        <icons.layers size={14} className="text-text-muted group-hover:text-primary transition-colors" />
+                    </label>
 
                     {logPaginationEnabled && totalPages > 1 && (
                         <div className="flex items-center gap-1 bg-[var(--bg-muted)]/50 rounded px-2 py-1 border border-border/30">
@@ -271,21 +294,20 @@ export default function LogsTab({ kind, namespace, name, containers, t }) {
             </div>
 
             <div
-                className={`flex-1 pt-2 px-6 pb-6 font-mono overflow-auto scrollbar-thin scrollbar-thumb-border bg-muted/20 ${logWrapLines ? 'whitespace-pre-wrap break-all' : 'whitespace-pre'}`}
+                className="flex-1 font-mono bg-muted/20 overflow-hidden"
                 style={{ fontSize: `${logFontSize}px` }}
             >
                 {displayedLines.length > 0 ? (
-                    displayedLines.map((line, i) => {
-                        const isError = /error|fail|severe/i.test(line);
-                        const isWarn = /warn|attention/i.test(line);
-                        const isInfo = /info|success/i.test(line);
-
-                        return (
-                            <div key={i} className={`hover:bg-accent/30 px-2 -mx-2 transition-colors ${isError ? 'text-destructive font-semibold' : isWarn ? 'text-orange-500 font-semibold' : isInfo ? 'text-emerald-500 font-semibold' : 'text-foreground'}`}>
-                                {line}
-                            </div>
-                        );
-                    })
+                    <List
+                        ref={listRef}
+                        height={570}
+                        itemCount={displayedLines.length}
+                        itemSize={logFontSize + 8}
+                        width="100%"
+                        className="scrollbar-thin scrollbar-thumb-border"
+                    >
+                        {Row}
+                    </List>
                 ) : (
                     <div className="h-full flex flex-col items-center justify-center text-text-muted gap-3 italic">
                         <icons.search size={32} className="opacity-20" />
