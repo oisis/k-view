@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -105,7 +104,7 @@ func (h *NodeHandler) GetNodeDetails(c *gin.Context) {
 }
 
 func (h *NodeHandler) ListNodes(c *gin.Context) {
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	nodes, err := h.k8sClient.ListNodes(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list nodes: " + err.Error()})
