@@ -136,6 +136,10 @@ export const en = {
     "theme_midnight_desc": "Pure darkness for focused work",
     "theme_system": "System",
     "theme_system_desc": "Follow your operating system appearance",
+    "search_placeholder": "Search resources or actions...",
+    "search_resources": "Resources",
+    "search_actions": "Actions",
+    "search_no_results": "No results found.",
     "template_k-view": "K-view",
 
     "template_light": "Light",

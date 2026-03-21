@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import CreateResourceModal from './CreateResourceModal';
+import CommandMenu from './CommandMenu';
 
 export default function MainLayout({ 
     user, 
@@ -43,6 +44,8 @@ export default function MainLayout({
                 onClose={() => setIsCreateModalOpen(false)}
                 namespaces={namespaces}
             />
+
+            <CommandMenu />
 
             {/* Variable Content Area */}
             <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col relative z-10 custom-scrollbar">

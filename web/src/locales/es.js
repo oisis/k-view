@@ -136,7 +136,12 @@ export const es = {
     "theme_midnight_desc": "Oscuridad pura para un trabajo enfocado",
     "theme_system": "Sistema",
     "theme_system_desc": "Sigue la apariencia de tu sistema operativo",
+    "search_placeholder": "Buscar recursos o acciones...",
+    "search_resources": "Recursos",
+    "search_actions": "Acciones",
+    "search_no_results": "No se encontraron resultados.",
     "template_k-view": "K-view",
+
     "template_light": "Claro",
     "template_dark": "Oscuro",
     "theme_dark": "Oscuro",

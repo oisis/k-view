@@ -136,6 +136,10 @@ export const de = {
     "theme_midnight_desc": "Reine Dunkelheit für konzentriertes Arbeiten",
     "theme_system": "System",
     "theme_system_desc": "Folgen Sie dem Erscheinungsbild Ihres Betriebssystems",
+    "search_placeholder": "Ressourcen lub Aktionen suchen...",
+    "search_resources": "Ressourcen",
+    "search_actions": "Aktionen",
+    "search_no_results": "Keine Ergebnisse gefunden.",
     "template_k-view": "K-view",
 
     "template_light": "Hell",
