@@ -20,9 +20,14 @@ export default function ContainerDetails({ containers, statuses, t }) {
                     const stateInfo = stateKey ? status.state[stateKey] : null;
 
                     return (
-                        <DetailSection key={i} title={`${t('label_container')}: ${c.name}`}>
+                        <div key={i} className="border border-border/40 rounded-xl overflow-hidden mb-6 last:mb-0">
+                            <div className="bg-primary/5 px-4 py-2 border-b border-border/40 flex justify-between items-center">
+                                <h4 className="text-xs font-black uppercase tracking-widest text-primary">
+                                    {t('label_container')}: {c.name}
+                                </h4>
+                            </div>
                             <table className="w-full text-sm text-left border-collapse">
-                                <tbody className="divide-y divide-border">
+                                <tbody className="divide-y divide-border/40 bg-transparent">
                                     <DetailRow label={t('label_image')}>
                                         <ExpandableCell value={c.image} type="images" />
                                     </DetailRow>
@@ -55,20 +60,20 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                     <DetailRow label={t('label_env_variables')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-1">
                                             {c.env?.map(ev => (
-                                                <div key={ev.name} className="bg-sidebar/10 rounded p-2 font-mono text-xs flex flex-col gap-0.5 overflow-hidden">
-                                                    <span className="text-info font-bold truncate" title={ev.name}>{ev.name}</span>
-                                                    <span className="text-text-muted truncate" title={typeof ev.value === 'string' ? ev.value : (ev.valueFrom ? 'ValueFrom (Secret/ConfigMap)' : '—')}>
+                                                <div key={ev.name} className="bg-primary/5 border border-border/20 rounded p-2 font-mono text-xs flex flex-col gap-0.5 overflow-hidden">
+                                                    <span className="text-primary font-bold truncate" title={ev.name}>{ev.name}</span>
+                                                    <span className="text-muted-foreground truncate" title={typeof ev.value === 'string' ? ev.value : (ev.valueFrom ? 'ValueFrom (Secret/ConfigMap)' : '—')}>
                                                         {typeof ev.value === 'string' ? ev.value : (ev.valueFrom ? '<secret/cm>' : '—')}
                                                     </span>
                                                 </div>
-                                            )) || <span className="text-text-muted italic">{t('none')}</span>}
+                                            )) || <span className="text-muted-foreground italic">{t('none')}</span>}
                                         </div>
                                     </DetailRow>
                                     <DetailRow label={t('label_mounts')}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-1">
                                             {c.volumeMounts?.map(vm => (
-                                                <div key={vm.mountPath} className="p-3 bg-sidebar/10 rounded-xl text-xs flex flex-col gap-2 relative overflow-hidden group">
-                                                    <div className="font-bold text-info pb-1.5 flex justify-between items-center">
+                                                <div key={vm.mountPath} className="p-3 bg-primary/5 border border-border/20 rounded-xl text-xs flex flex-col gap-2 relative overflow-hidden group">
+                                                    <div className="font-bold text-primary pb-1.5 flex justify-between items-center">
                                                         <div className="flex items-center gap-2">
                                                             <icons.clipboard size={12} />
                                                             {vm.name}
@@ -79,18 +84,18 @@ export default function ContainerDetails({ containers, statuses, t }) {
                                                     </div>
                                                     <div className="space-y-1">
                                                         <div className="flex gap-2">
-                                                            <span className="text-text-muted w-16 shrink-0">{t('label_path')}:</span>
-                                                            <span className="text-primary font-mono break-all">{vm.mountPath}</span>
+                                                            <span className="text-muted-foreground w-16 shrink-0">{t('label_path')}:</span>
+                                                            <span className="text-foreground font-mono break-all">{vm.mountPath}</span>
                                                         </div>
                                                         {vm.subPath && (
-                                                            <div className="flex gap-2 text-indigo-400/80">
-                                                                <span className="text-text-muted w-16 shrink-0">Sub:</span>
+                                                            <div className="flex gap-2 text-primary/70">
+                                                                <span className="text-muted-foreground w-16 shrink-0">Sub:</span>
                                                                 <span className="font-mono break-all">{vm.subPath}</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                            )) || <span className="text-text-muted italic">{t('none')}</span>}
+                                            )) || <span className="text-muted-foreground italic">{t('none')}</span>}
                                         </div>
                                     </DetailRow>
                                     <DetailRow label={t('health_probes')}>
