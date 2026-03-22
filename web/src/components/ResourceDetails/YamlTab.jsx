@@ -186,12 +186,12 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-2 ml-4 px-3 py-1 bg-background/30 rounded-lg border border-border/30 group cursor-pointer hover:border-primary/30 transition-colors" 
+                            <div className="flex items-center gap-2 ml-4 px-3 py-1 bg-background/50 rounded-lg border border-border group cursor-pointer hover:border-primary transition-colors shadow-sm" 
                                  onClick={() => setShowManagedFields(!showManagedFields)}
                                  title={t('hide_managed_fields_desc')}>
                                 <div className={cn(
                                     "w-7 h-3.5 rounded-full relative transition-colors",
-                                    showManagedFields ? "bg-primary" : "bg-slate-400/40"
+                                    showManagedFields ? "bg-primary shadow-[0_0_8px_rgba(var(--primary-rgb),0.4)]" : "bg-muted-foreground/30 border border-border"
                                 )}>
                                     <div className={cn(
                                         "absolute top-0.5 left-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-transform",
@@ -204,12 +204,12 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 bg-[var(--bg-muted)]/50 p-1 rounded-md mr-2">
-                        <span className="text-xs uppercase font-black text-text-muted pl-2">Size</span>
+                    <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-md mr-2 border border-border/50">
+                        <span className="text-[10px] uppercase font-black text-muted-foreground pl-2">Size</span>
                         <select
                             value={editorFontSize}
                             onChange={(e) => setEditorFontSize(parseInt(e.target.value))}
-                            className="bg-[var(--bg-input)] text-xs font-bold text-[var(--text-input)] outline-none rounded px-2 py-0.5 cursor-pointer border border-border"
+                            className="bg-background text-xs font-bold text-foreground outline-none rounded px-2 py-0.5 cursor-pointer border border-border hover:border-primary transition-all"
                         >
                             {[10, 11, 12, 13, 14, 16].map(size => (
                                 <option key={size} value={size}>{size}px</option>

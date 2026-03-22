@@ -82,7 +82,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                 value={query}
                                 onChange={e => setQuery(e.target.value)}
                                 placeholder="Search namespaces..."
-                                className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none flex-1 w-full font-medium"
+                                className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none flex-1 w-full font-medium"
                             />
                             {query && (
                                 <button onClick={() => setQuery('')}>
@@ -111,7 +111,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                                 ? "bg-accent text-accent-foreground font-bold shadow-sm" 
                                                 : cn(
                                                     "text-foreground hover:bg-accent hover:text-accent-foreground",
-                                                    isSystem && "text-muted-foreground/80 hover:text-destructive"
+                                                    isSystem && "text-muted-foreground font-semibold hover:text-destructive"
                                                   )
                                         )}
                                     >
@@ -119,7 +119,7 @@ export default function NamespaceSelect({ namespaces, selected, onChange }) {
                                             "p-1 rounded",
                                             isSelected ? "bg-background/50" : "bg-muted/50"
                                         )}>
-                                            {icons.nodes && <icons.nodes size={12} className={cn(isSelected ? "text-accent-foreground" : (isSystem ? "text-destructive/50" : "text-muted-foreground"))} />}
+                                            {icons.nodes && <icons.nodes size={12} className={cn(isSelected ? "text-accent-foreground" : (isSystem ? "text-destructive" : "text-muted-foreground"))} />}
                                         </div>
                                         <span className="flex-1 text-left truncate">{ns}</span>
                                         {isSelected && <icons.check size={14} className="text-accent-foreground" />}
