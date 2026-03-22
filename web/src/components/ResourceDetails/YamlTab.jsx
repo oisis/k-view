@@ -163,8 +163,8 @@ export default function YamlTab({ kind, namespace, name, canEdit, t, onRefresh }
     };
 
     return (
-        <div className="bg-card rounded-2xl border border-border overflow-hidden flex flex-col flex-none">
-            <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border/20">
+        <div className="glass rounded-2xl overflow-hidden flex flex-col flex-none shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-2 glass-header">
                 <div className="flex items-center gap-4">
                     <span className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                         {isEditing ? t('edit_manifest', { format: format.toUpperCase() }) : `${format.toUpperCase()} ${t('manifest') || 'Manifest'}`}

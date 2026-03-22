@@ -91,6 +91,11 @@
     --info: 199 89% 48%;
 
     --wallpaper-opacity: 0.25;
+
+    /* RGB Helpers */
+    --glass-bg-rgb: 255, 255, 255;
+    --primary-rgb: 37, 99, 235;
+    --border-rgb: 214, 219, 220;
   }
 
   /* Standard Dark Mode (Zinc) */
@@ -116,6 +121,11 @@
     --ring: 240 4.9% 83.9%;
 
     --wallpaper-opacity: 0.35;
+
+    /* RGB Helpers */
+    --glass-bg-rgb: 9, 9, 11;
+    --primary-rgb: 250, 250, 250;
+    --border-rgb: 39, 39, 42;
   }
 
   /* K-View Theme (Blue) */
@@ -170,7 +180,39 @@
 }
 
 @layer utilities {
-  .glass { @apply backdrop-blur-xl bg-background/60 border border-white/10 shadow-2xl; }
+  .glass { 
+    background-color: rgba(var(--glass-bg-rgb, 255, 255, 255), 0.4) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dark .glass {
+    background-color: rgba(var(--glass-bg-rgb, 9, 9, 11), 0.4) !important;
+  }
+  
+  .glass-header {
+    background-color: rgba(var(--primary-rgb, 37, 99, 235), 0.05) !important;
+    border-bottom: 1px solid rgba(var(--border-rgb, 214, 219, 220), 0.4);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Force Prism Transparency */
+  pre[class*="language-"],
+  code[class*="language-"],
+  .prism-code {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  /* Xterm Terminal Transparency */
+  .xterm-viewport,
+  .xterm-screen,
+  .xterm-container,
+  .xterm-rows {
+    background-color: transparent !important;
+  }
+
   .glass-glow { @apply shadow-[0_0_20px_rgba(var(--primary),0.1)] border-primary/20; }
   .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace !important; }
   

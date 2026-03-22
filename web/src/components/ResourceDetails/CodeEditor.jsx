@@ -13,10 +13,10 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
     const highlighterStyle = isLightTheme ? prism : vscDarkPlus;
 
     return (
-        <div className="bg-main/20 border-t border-border/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
+        <div className="bg-transparent border-t border-border/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
             <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-[var(--border-color)] flex items-start relative">
                 <div
-                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-[var(--bg-sidebar)] border-r border-border/20 py-4 font-mono text-xs text-text-muted text-right pr-3 select-none"
+                    className="sticky left-0 z-10 w-12 flex-shrink-0 bg-primary/5 border-r border-border/20 py-4 font-mono text-xs text-muted-foreground text-right pr-3 select-none"
                     style={{ fontSize: `${fontSize}px` }}
                 >
                     {(lines || []).map((_, i) => (
@@ -29,6 +29,8 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
                         <SyntaxHighlighter
                             language={language}
                             style={highlighterStyle}
+                            useInlineStyles={false}
+                            className="prism-code"
                             customStyle={{
                                 margin: 0,
                                 padding: '1rem',

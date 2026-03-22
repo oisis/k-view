@@ -82,7 +82,7 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
             const term = new Terminal({
                 cursorBlink: true,
                 theme: {
-                    background: isLight ? '#FFFFFF' : '#0d1117',
+                    background: 'rgba(0,0,0,0)',
                     foreground: isLight ? '#0F172A' : '#c9d1d9',
                     cursor: isLight ? '#2563EB' : '#58a6ff',
                     selectionBackground: isLight ? 'rgba(37, 99, 235, 0.3)' : 'rgba(88, 166, 255, 0.3)',
@@ -103,6 +103,7 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
                     brightCyan: isLight ? '#0891B2' : '#56d4dd',
                     brightWhite: isLight ? '#0F172A' : '#ffffff',
                 },
+                allowTransparency: true,
                 fontFamily: 'Menlo, Monaco, "Courier New", monospace',
                 fontSize: 13,
                 scrollback: 5000,
@@ -210,12 +211,12 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
     };
 
     return (
-        <div className="bg-glass glass rounded-2xl border border-border overflow-hidden flex flex-col h-[600px] resize-y shadow-2xl relative">
+        <div className="glass rounded-2xl border border-border overflow-hidden flex flex-col h-[600px] resize-y shadow-2xl relative">
             {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-sidebar)]/60 border-b border-border shrink-0 backdrop-blur-md">
+            <div className="flex items-center justify-between px-4 py-3 glass-header shrink-0">
                 <div className="flex items-center gap-3">
-                    {icons.terminal && <icons.terminal size={18} className="text-info" />}
-                    <span className="text-xs uppercase font-bold text-text-muted tracking-wider">
+                    {icons.terminal && <icons.terminal size={18} className="text-primary" />}
+                    <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
                         Interactive Shell
                     </span>
                     {status === "connected" && (
@@ -314,7 +315,7 @@ const PodTerminal = memo(function PodTerminal({ pod, namespace, containers = [] 
                 {/* xTerm Container */}
                 <div
                     ref={terminalRef}
-                    style={{ backgroundColor: isDarkMode ? '#0d1117' : '#FFFFFF' }}
+                    style={{ backgroundColor: 'transparent' }}
                     className={`absolute inset-0 w-full h-full p-2 pl-4 transition-opacity duration-300 ${status === "idle" || (status === "error" && !terminalInstance.current) ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 />
             </div>
