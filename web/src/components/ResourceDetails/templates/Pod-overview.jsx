@@ -55,7 +55,7 @@ export default function PodOverview({ data, spec, status, t, icons, namespace })
             <DetailSection title="Containers" className="!border-none !shadow-none bg-transparent">
                 <div className="grid grid-cols-1 gap-6">
                     {containers.map((c, i) => (
-                        <div key={i} className="bg-card rounded-3xl border border-border p-6 flex flex-col gap-4 shadow-sm">
+                        <div key={i} className="rounded-3xl border border-border/40 p-6 flex flex-col gap-4 shadow-sm bg-transparent">
                             {/* Header */}
                             <div className="flex items-center justify-between border-b border-border/50 pb-4">
                                 <div className="flex items-center gap-3">

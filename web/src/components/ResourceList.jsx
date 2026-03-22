@@ -482,14 +482,14 @@ export default function ResourceList({ kind: propKind }) {
                 {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl text-xs font-bold uppercase tracking-widest">{error}</motion.div>}
             </AnimatePresence>
 
-            <Card className="border-border/50 bg-card overflow-hidden shadow-xl transition-all duration-500">
+            <div className="glass rounded-2xl overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table style={{ minWidth: '100%', width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
-                        <thead className="bg-muted text-muted-foreground font-black uppercase tracking-[0.15em] border-b border-border">
+                        <thead className="glass-header text-muted-foreground font-black uppercase tracking-[0.15em]">
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
-                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", headerHeight, header.id === 'actions' && "bg-muted/30")}>
+                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", headerHeight, header.id === 'actions' && "bg-primary/5")}>
                                             <div className="flex items-center justify-center h-full w-full cursor-pointer hover:text-primary transition-colors" onClick={header.column.getToggleSortingHandler()}>{flexRender(header.column.columnDef.header, header.getContext())}</div>
                                             <div onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()} className={cn("absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20", header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent")} />
                                         </th>
@@ -497,13 +497,13 @@ export default function ResourceList({ kind: propKind }) {
                                 </tr>
                             ))}
                         </thead>
-                        <tbody className="divide-y divide-border/20">
+                        <tbody className="bg-transparent">
                             {loading && paginatedItems.length === 0 ? (
                                 <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">{t('loading')}...</td></tr>
                             ) : table.getRowModel().rows.length === 0 ? (
                                 <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
                             ) : table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className="hover:bg-muted/50 transition-all group border-b border-border/20">
+                                <tr key={row.id} className="glass-row group border-b border-border/20">
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0 transition-all duration-300", rowHeight, getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                                     ))}
@@ -512,7 +512,7 @@ export default function ResourceList({ kind: propKind }) {
                         </tbody>
                     </table>
                 </div>
-            </Card>
+            </div>
 
             {totalPages > 1 && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/30 backdrop-blur-md rounded-2xl border border-border/50 px-6 py-3 shadow-xl">

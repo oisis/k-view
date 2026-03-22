@@ -181,14 +181,14 @@
 
 @layer utilities {
   .glass { 
-    background-color: rgba(var(--glass-bg-rgb, 255, 255, 255), 0.4) !important;
+    background-color: rgba(var(--glass-bg-rgb, 255, 255, 255), 0.3) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .dark .glass {
-    background-color: rgba(var(--glass-bg-rgb, 9, 9, 11), 0.4) !important;
+    background-color: rgba(var(--glass-bg-rgb, 9, 9, 11), 0.3) !important;
   }
   
   .glass-header {
