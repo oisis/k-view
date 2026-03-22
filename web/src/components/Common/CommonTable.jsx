@@ -4,6 +4,7 @@ import DetailSection from '../ResourceDetails/DetailSection';
 /**
  * CommonTable - Standardized table component for resource details.
  * Matches the structure expected by frozen view tests.
+ * Updated to support Glassmorphism via DetailSection.
  */
 export default function CommonTable({ 
     title, 
@@ -20,7 +21,7 @@ export default function CommonTable({
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr className="bg-muted/50 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
+                        <tr className="bg-primary/5 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
                             {columns.map((col, idx) => (
                                 <th 
                                     key={idx} 
@@ -31,12 +32,12 @@ export default function CommonTable({
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="">
+                    <tbody className="bg-transparent">
                         {!hasData ? (
                             <tr>
                                 <td 
                                     colSpan={columns.length} 
-                                    className="px-4 py-8 text-center text-muted-foreground italic bg-sidebar/5 border-b border-border border-r border-border/40"
+                                    className="px-4 py-8 text-center text-muted-foreground italic border-b border-border border-r border-border/40"
                                 >
                                     {t?.('no_data_available') || 'No data available'}
                                 </td>
@@ -45,7 +46,7 @@ export default function CommonTable({
                             data.map((item, rowIdx) => (
                                 <tr 
                                     key={rowIdx} 
-                                    className="hover:bg-muted/50 transition-colors group"
+                                    className="hover:bg-primary/5 transition-colors group"
                                 >
                                     {columns.map((col, colIdx) => (
                                         <td 
