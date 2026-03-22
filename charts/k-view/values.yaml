@@ -14,7 +14,7 @@ image:
   # -- Image pull policy (Always, IfNotPresent, Never)
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion
-  tag: "v0.50.0"
+  tag: "v0.51.0"
   # -- Internal port used by the K-View application container
   containerPort: 8080
 
