@@ -10,7 +10,22 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
     const LINE_HEIGHT = '1.25rem';
     
     const isLightTheme = activeTheme === 'light';
-    const highlighterStyle = isLightTheme ? prism : vscDarkPlus;
+    
+    // Create a modified theme object to force transparent background while keeping syntax colors
+    const baseStyle = isLightTheme ? prism : vscDarkPlus;
+    const highlighterStyle = {
+        ...baseStyle,
+        'pre[class*="language-"]': {
+            ...baseStyle['pre[class*="language-"]'],
+            background: 'transparent',
+            backgroundColor: 'transparent',
+        },
+        'code[class*="language-"]': {
+            ...baseStyle['code[class*="language-"]'],
+            background: 'transparent',
+            backgroundColor: 'transparent',
+        }
+    };
 
     return (
         <div className="bg-transparent border-t border-border/20 overflow-hidden flex flex-col" style={{ maxHeight: '70vh' }}>
@@ -29,12 +44,11 @@ export default function CodeEditor({ value, onChange, readOnly, fontSize = 13, l
                         <SyntaxHighlighter
                             language={language}
                             style={highlighterStyle}
-                            useInlineStyles={false}
-                            className="prism-code"
                             customStyle={{
                                 margin: 0,
                                 padding: '1rem',
                                 background: 'transparent',
+                                backgroundColor: 'transparent',
                                 fontSize: `${fontSize}px`,
                                 lineHeight: LINE_HEIGHT,
                                 width: '100%',

@@ -197,14 +197,6 @@
     backdrop-filter: blur(10px);
   }
 
-  /* Force Prism Transparency */
-  pre[class*="language-"],
-  code[class*="language-"],
-  .prism-code {
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-
   /* Xterm Terminal Transparency */
   .xterm-viewport,
   .xterm-screen,
