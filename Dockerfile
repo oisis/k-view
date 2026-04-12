@@ -26,6 +26,9 @@ FROM alpine:3.19
 ARG TARGETARCH
 WORKDIR /app
 
+# Create a non-root user
+RUN addgroup -S kview && adduser -S kview -G kview
+
 # Install kubectl for terminal features and ca-certificates for OIDC
 # Use TARGETARCH to download correct kubectl binary
 RUN apk add --no-cache ca-certificates tzdata curl && \
@@ -36,6 +39,12 @@ RUN apk add --no-cache ca-certificates tzdata curl && \
 
 # Copy ONLY the single binary
 COPY --from=backend-builder /app/backend/k-view-server /app/
+
+# Set ownership to non-root user
+RUN chown -R kview:kview /app
+
+# Switch to non-root user
+USER kview
 
 # Expose the port the app runs on
 EXPOSE 8080

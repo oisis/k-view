@@ -24,6 +24,8 @@ var allowedKubectlCommands = map[string]bool{
 
 var forbiddenKubectlFlags = []string{
 	"--as",
+	"--as-group",
+	"--as-uid",
 	"--token",
 	"--server",
 	"--certificate-authority",

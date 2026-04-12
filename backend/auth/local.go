@@ -28,8 +28,7 @@ func NewLocalAuthenticator(jwtSecret string) (*LocalAuthenticator, error) {
 	if jwtSecret == "" {
 		jwtSecret = os.Getenv("KVIEW_JWT_SECRET")
 		if jwtSecret == "" {
-			// Fallback generated safely if not set
-			jwtSecret = "kview-default-jwt-secret-replace-in-production"
+			return nil, fmt.Errorf("KVIEW_JWT_SECRET environment variable is not set. This is required for security")
 		}
 	}
 

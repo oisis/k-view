@@ -26,8 +26,8 @@ var upgrader = websocket.Upgrader{
 			return true // Not a cross-origin request
 		}
 
-		// Allow same origin
-		if host != "" && strings.Contains(origin, host) {
+		// Allow same origin (exact match)
+		if host != "" && (origin == "http://"+host || origin == "https://"+host) {
 			return true
 		}
 
@@ -91,7 +91,11 @@ func (t *wsPtyHandler) Read(p []byte) (int, error) {
 	var xtermMsg TerminalMessage
 	if err := json.Unmarshal(msg, &xtermMsg); err == nil {
 		if xtermMsg.Op == "resize" {
-			t.sizeChan <- remotecommand.TerminalSize{Width: xtermMsg.Cols, Height: xtermMsg.Rows}
+			select {
+			case t.sizeChan <- remotecommand.TerminalSize{Width: xtermMsg.Cols, Height: xtermMsg.Rows}:
+			default:
+				// Drop resize event if channel is full to prevent blocking
+			}
 			return 0, nil
 		}
 		if xtermMsg.Op == "stdin" {
@@ -160,7 +164,7 @@ func (h *ExecHandler) HandleExec(c *gin.Context) {
 
 	pty := &wsPtyHandler{
 		conn:     conn,
-		sizeChan: make(chan remotecommand.TerminalSize),
+		sizeChan: make(chan remotecommand.TerminalSize, 10), // Buffered channel to prevent blocking
 		doneChan: make(chan struct{}),
 	}
 

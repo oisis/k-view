@@ -29,6 +29,13 @@ import (
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")
+	limitStr := c.DefaultQuery("limit", "0")
+	continueToken := c.Query("continue")
+
+	var limit int64
+	if l, err := strconv.ParseInt(limitStr, 10, 64); err == nil {
+		limit = l
+	}
 
 	// CRITICAL RBAC REQUIREMENT: Apply namespace restriction from auth context
 	if rbacNs, exists := c.Get("namespace"); exists && rbacNs.(string) != "" {
@@ -73,15 +80,20 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		isClusterScopedRes = manager.IsClusterScoped()
 	}
 
+	listOpts := metav1.ListOptions{
+		Limit:    limit,
+		Continue: continueToken,
+	}
+
 	if ns != "" && !isClusterScopedRes && group == "" {
-		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), listOpts)
 	} else if ns != "" && group != "" {
-		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), metav1.ListOptions{})
+		list, errList = dynClient.Resource(gvr).Namespace(ns).List(c.Request.Context(), listOpts)
 		if errList != nil {
-			list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
+			list, errList = dynClient.Resource(gvr).List(c.Request.Context(), listOpts)
 		}
 	} else {
-		list, errList = dynClient.Resource(gvr).List(c.Request.Context(), metav1.ListOptions{})
+		list, errList = dynClient.Resource(gvr).List(c.Request.Context(), listOpts)
 	}
 
 	if errList != nil {
@@ -119,5 +131,6 @@ func (h *ResourceHandler) List(c *gin.Context) {
 		}
 	}
 
+	c.Header("X-Kubernetes-Continue", list.GetContinue())
 	c.JSON(http.StatusOK, result)
 }

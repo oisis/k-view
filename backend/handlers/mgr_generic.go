@@ -58,6 +58,9 @@ func (m *GenericManager) MapItem(item unstructured.Unstructured, metricsMap map[
 }
 
 func (m *GenericManager) GetDetails(ctx context.Context, dynClient dynamic.Interface, item unstructured.Unstructured) (gin.H, error) {
+	// Remove managedFields to reduce payload size
+	unstructured.RemoveNestedField(item.Object, "metadata", "managedFields")
+
 	// DTO Isolation: map specific fields, do not leak raw struct
 	statusData, _, _ := unstructured.NestedMap(item.Object, "status")
 	metaData, _, _ := unstructured.NestedMap(item.Object, "metadata")
