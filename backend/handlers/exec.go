@@ -130,6 +130,16 @@ func (t *wsPtyHandler) Done() {
 }
 
 // HandleExec upgrades the connection and starts the PTY session
+// @Summary Pod Terminal (WebSocket)
+// @Description Upgrade connection to WebSocket for interactive pod terminal access
+// @Tags Workloads
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Pod Name"
+// @Param container path string true "Container Name"
+// @Param shell query string false "Shell to use (sh, bash)" default(sh)
+// @Success 101
+// @Security BearerAuth
+// @Router /api/exec/{namespace}/{name}/{container} [get]
 func (h *ExecHandler) HandleExec(c *gin.Context) {
 	namespace := c.Param("namespace")
 	pod := c.Param("name")

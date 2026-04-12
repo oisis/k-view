@@ -52,6 +52,15 @@ type ExecRequest struct {
 }
 
 // Exec executes a kubectl command and returns its output.
+// @Summary Kubectl Exec
+// @Description Execute a restricted kubectl command and return its output
+// @Tags Console
+// @Accept json
+// @Produce json
+// @Param body body ExecRequest true "Kubectl command"
+// @Success 200 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/console/exec [post]
 func (h *ConsoleHandler) Exec(c *gin.Context) {
 	var req ExecRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

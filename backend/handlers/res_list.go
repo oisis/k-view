@@ -11,6 +11,21 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+// List returns a list of Kubernetes resources of a specific kind.
+// @Summary List Resources
+// @Description Generic endpoint to list any Kubernetes resource kind, with support for custom resources and namespace filtering
+// @Tags Resources
+// @Produce json
+// @Param kind path string true "Resource Kind (e.g. pods, deployments, mycustomresources)"
+// @Param namespace query string false "Namespace filter"
+// @Param group query string false "API Group (for CRDs)"
+// @Param version query string false "API Version (for CRDs)"
+// @Param plural query string false "Resource Plural (for CRDs)"
+// @Success 200 {array} ResourceItem
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind} [get]
 func (h *ResourceHandler) List(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Query("namespace")

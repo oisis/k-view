@@ -19,6 +19,14 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+// GetStats returns global cluster resource usage and counts.
+// @Summary Cluster Stats
+// @Description Get global cluster resource usage (CPU, RAM) and resource counts (Nodes, Pods, Namespaces)
+// @Tags Cluster
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/stats [get]
 func (h *ResourceHandler) GetStats(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -118,6 +126,18 @@ func (h *ResourceHandler) GetStats(c *gin.Context) {
 	})
 }
 
+// GetDetails returns detailed information about a specific resource.
+// @Summary Resource Details
+// @Description Get detailed information about a specific Kubernetes resource, including metadata, spec, status, and related resources
+// @Tags Resources
+// @Produce json
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind}/{namespace}/{name} [get]
 func (h *ResourceHandler) GetDetails(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
@@ -352,6 +372,18 @@ type TopologyResponse struct {
 	Edges []TopologyEdge `json:"edges"`
 }
 
+// GetTopology returns the relationship graph for a specific resource.
+// @Summary Resource Topology
+// @Description Get a graph of related resources (owners, children, selectors) for a specific resource
+// @Tags Resources
+// @Produce json
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Success 200 {object} TopologyResponse
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/topology/{kind}/{namespace}/{name} [get]
 func (h *ResourceHandler) GetTopology(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
@@ -506,6 +538,19 @@ func (h *ResourceHandler) GetTopology(c *gin.Context) {
 	})
 }
 
+// GetYAML returns the raw manifest of a resource in YAML or JSON format.
+// @Summary Get Resource YAML/JSON
+// @Description Get the raw manifest of a specific Kubernetes resource
+// @Tags Resources
+// @Produce plain
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Param format query string false "Output format (yaml or json)" default(yaml)
+// @Success 200 {string} string "Manifest content"
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind}/{namespace}/{name}/yaml [get]
 func (h *ResourceHandler) GetYAML(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")

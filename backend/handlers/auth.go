@@ -141,6 +141,11 @@ func generateStateOauthCookie(w http.ResponseWriter, devMode bool) string {
 
 // Login redirects the user to the Google OIDC login page.
 // In dev mode it redirects to the dev-login endpoint instead.
+// @Summary Login
+// @Description Redirect to Google OIDC login page
+// @Tags Auth
+// @Success 307
+// @Router /api/auth/login [get]
 func (h *AuthHandler) Login(c *gin.Context) {
 	if h.verifier == nil {
 		if h.devMode {
@@ -169,6 +174,11 @@ func (h *AuthHandler) isAuthorized(email string) bool {
 }
 
 // Callback handles the OAuth2 callback from Google.
+// @Summary Auth Callback
+// @Description Handle Google OIDC callback and issue session cookie
+// @Tags Auth
+// @Success 307
+// @Router /api/auth/callback [get]
 func (h *AuthHandler) Callback(c *gin.Context) {
 	if h.verifier == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "OIDC is not configured"})
@@ -228,6 +238,13 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 
 // DevLogin is a special endpoint for dev mode. It issues a signed session token for a mock admin user.
 // Returns 403 if DEV_MODE is not active.
+// @Summary Dev Login
+// @Description Mock login for development (only in DEV_MODE)
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Failure 403 {object} map[string]string
+// @Router /api/auth/dev-login [post]
 func (h *AuthHandler) DevLogin(c *gin.Context) {
 	if !h.devMode {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Dev login is only available in DEV_MODE"})
@@ -259,6 +276,12 @@ func (h *AuthHandler) DevLogin(c *gin.Context) {
 }
 
 // Logout clears the auth cookie.
+// @Summary Logout
+// @Description Clear authentication session
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /api/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "auth_token",
@@ -432,6 +455,12 @@ func (h *AuthHandler) GetRBACConfig() *rbac.RBACConfig {
 }
 
 // GetProviders returns the available authentication methods to the frontend.
+// @Summary Auth Providers
+// @Description Get available authentication methods (OIDC, Local, Dev)
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} map[string]bool
+// @Router /api/auth/providers [get]
 func (h *AuthHandler) GetProviders(c *gin.Context) {
 	fmt.Printf("DEBUG: GetProviders called. OIDC: %v, Local: %v, Dev: %v\n", h.verifier != nil, h.localAuth != nil, h.devMode)
 	c.JSON(http.StatusOK, gin.H{
@@ -441,17 +470,28 @@ func (h *AuthHandler) GetProviders(c *gin.Context) {
 	})
 }
 
+type LocalLoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 // LocalLogin handles traditional username/password authentication.
+// @Summary Local Login
+// @Description Authenticate with username and password to get a JWT
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body LocalLoginRequest true "Credentials"
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /api/auth/login [post]
 func (h *AuthHandler) LocalLogin(c *gin.Context) {
 	if h.localAuth == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Local authentication is not enabled"})
 		return
 	}
 
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var req LocalLoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})

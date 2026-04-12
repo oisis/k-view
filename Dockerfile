@@ -12,9 +12,12 @@ ARG TARGETARCH
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum* ./
 RUN go mod tidy
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 COPY backend/ .
 # Copy frontend assets to the location expected by go:embed
 COPY --from=frontend-builder /app/web/dist ./handlers/dist
+# Generate Swagger documentation
+RUN swag init
 # Use TARGETARCH (provided by buildx) or default to amd64
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH:-amd64} go build -ldflags="-s -w" -a -o k-view-server .
 

@@ -1,0 +1,918 @@
+basePath: /
+definitions:
+  handlers.ExecRequest:
+    properties:
+      command:
+        type: string
+    required:
+    - command
+    type: object
+  handlers.LocalLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.NodeResponse:
+    properties:
+      age:
+        type: string
+      architecture:
+        type: string
+      containerRuntime:
+        type: string
+      cpuAllocatable:
+        type: string
+      cpuCapacity:
+        type: string
+      cpuLimits:
+        type: string
+      cpuRequests:
+        type: string
+      kubeletVersion:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      memoryAllocatable:
+        type: string
+      memoryCapacity:
+        type: string
+      name:
+        type: string
+      os:
+        type: string
+      podsCount:
+        type: integer
+      ramLimits:
+        type: string
+      ramRequests:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.PodResponse:
+    properties:
+      age:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.ResourceItem:
+    properties:
+      age:
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.Rule:
+    properties:
+      resource:
+        type: string
+      verbs:
+        type: string
+    type: object
+  handlers.ScaleRequest:
+    properties:
+      replicas:
+        type: integer
+    type: object
+  handlers.StatusResponse:
+    properties:
+      assignments:
+        items:
+          $ref: '#/definitions/rbac.Assignment'
+        type: array
+      email:
+        type: string
+      namespace:
+        type: string
+      role:
+        type: string
+      rules:
+        items:
+          $ref: '#/definitions/handlers.Rule'
+        type: array
+    type: object
+  handlers.TopologyEdge:
+    properties:
+      id:
+        type: string
+      source:
+        type: string
+      target:
+        type: string
+      type:
+        type: string
+    type: object
+  handlers.TopologyNode:
+    properties:
+      id:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.TopologyResponse:
+    properties:
+      edges:
+        items:
+          $ref: '#/definitions/handlers.TopologyEdge'
+        type: array
+      nodes:
+        items:
+          $ref: '#/definitions/handlers.TopologyNode'
+        type: array
+    type: object
+  rbac.Assignment:
+    properties:
+      group:
+        type: string
+      namespace:
+        type: string
+      role:
+        type: string
+      user:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@k-view.local
+    name: API Support
+    url: http://github.com/oisis/k-view
+  description: Modern, lightweight Kubernetes dashboard API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: K-View API
+  version: "1.0"
+paths:
+  /api/auth/callback:
+    get:
+      description: Handle Google OIDC callback and issue session cookie
+      responses:
+        "307":
+          description: Temporary Redirect
+      summary: Auth Callback
+      tags:
+      - Auth
+  /api/auth/dev-login:
+    post:
+      description: Mock login for development (only in DEV_MODE)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Dev Login
+      tags:
+      - Auth
+  /api/auth/login:
+    get:
+      description: Redirect to Google OIDC login page
+      responses:
+        "307":
+          description: Temporary Redirect
+      summary: Login
+      tags:
+      - Auth
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with username and password to get a JWT
+      parameters:
+      - description: Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LocalLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Local Login
+      tags:
+      - Auth
+  /api/auth/logout:
+    post:
+      description: Clear authentication session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout
+      tags:
+      - Auth
+  /api/auth/me:
+    get:
+      description: Get the current user's computed permissions and profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: My Details
+      tags:
+      - Auth
+  /api/auth/providers:
+    get:
+      description: Get available authentication methods (OIDC, Local, Dev)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      summary: Auth Providers
+      tags:
+      - Auth
+  /api/console/exec:
+    post:
+      consumes:
+      - application/json
+      description: Execute a restricted kubectl command and return its output
+      parameters:
+      - description: Kubectl command
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ExecRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kubectl Exec
+      tags:
+      - Console
+  /api/exec/{namespace}/{name}/{container}:
+    get:
+      description: Upgrade connection to WebSocket for interactive pod terminal access
+      parameters:
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Pod Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Container Name
+        in: path
+        name: container
+        required: true
+        type: string
+      - default: sh
+        description: Shell to use (sh, bash)
+        in: query
+        name: shell
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols
+      security:
+      - BearerAuth: []
+      summary: Pod Terminal (WebSocket)
+      tags:
+      - Workloads
+  /api/logs/{kind}/{namespace}/{name}:
+    get:
+      description: Get logs for a pod or other workload resource
+      parameters:
+      - description: Resource Kind (e.g. pods, deployments)
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Container Name
+        in: query
+        name: container
+        type: string
+      - default: 1000
+        description: Number of lines to tail
+        in: query
+        name: tail
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Logs content
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Logs
+      tags:
+      - Workloads
+  /api/namespaces:
+    get:
+      description: Get a list of all namespaces in the cluster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Namespaces
+      tags:
+      - Cluster
+  /api/network/trace/{type}/{namespace}/{name}:
+    get:
+      description: Get the network trace (connectivity, policies) for a specific resource
+      parameters:
+      - description: Resource Type
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Network Trace
+      tags:
+      - Network
+  /api/nodes:
+    get:
+      description: Get a list of all nodes with their roles, status, and resource
+        allocation stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.NodeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Nodes
+      tags:
+      - Cluster
+  /api/nodes/{name}:
+    get:
+      description: Get detailed information about a node, including metadata, spec,
+        status, and related pods
+      parameters:
+      - description: Node Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Node Details
+      tags:
+      - Cluster
+  /api/pods:
+    get:
+      description: Get a list of pods in a specific namespace or all namespaces
+      parameters:
+      - description: Namespace (use '-' for all namespaces)
+        in: query
+        name: namespace
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.PodResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Pods
+      tags:
+      - Workloads
+  /api/rbac/audit:
+    get:
+      description: Get the last 100 audit events from memory
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Audit Logs
+      tags:
+      - RBAC
+  /api/rbac/roles:
+    get:
+      description: List all ClusterRoles labeled as part of k-view
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List Roles
+      tags:
+      - RBAC
+  /api/rbac/status:
+    get:
+      description: Get the RBAC assignments and the current user's computed permissions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.StatusResponse'
+      security:
+      - BearerAuth: []
+      summary: RBAC Status
+      tags:
+      - RBAC
+  /api/resources/{kind}:
+    get:
+      description: Generic endpoint to list any Kubernetes resource kind, with support
+        for custom resources and namespace filtering
+      parameters:
+      - description: Resource Kind (e.g. pods, deployments, mycustomresources)
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace filter
+        in: query
+        name: namespace
+        type: string
+      - description: API Group (for CRDs)
+        in: query
+        name: group
+        type: string
+      - description: API Version (for CRDs)
+        in: query
+        name: version
+        type: string
+      - description: Resource Plural (for CRDs)
+        in: query
+        name: plural
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.ResourceItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List Resources
+      tags:
+      - Resources
+  /api/resources/{kind}/{namespace}:
+    post:
+      consumes:
+      - application/json
+      - text/plain
+      description: Create a new Kubernetes resource from a YAML or JSON manifest
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Manifest (YAML or JSON)
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Resource
+      tags:
+      - Resources
+  /api/resources/{kind}/{namespace}/{name}:
+    delete:
+      description: Delete a specific Kubernetes resource by kind, namespace, and name
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Resource
+      tags:
+      - Resources
+    get:
+      description: Get detailed information about a specific Kubernetes resource,
+        including metadata, spec, status, and related resources
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Resource Details
+      tags:
+      - Resources
+  /api/resources/{kind}/{namespace}/{name}/scale:
+    patch:
+      consumes:
+      - application/json
+      description: Update the replica count for a Deployment, StatefulSet, or ReplicaSet
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Scale parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ScaleRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Scale Resource
+      tags:
+      - Resources
+  /api/resources/{kind}/{namespace}/{name}/yaml:
+    get:
+      description: Get the raw manifest of a specific Kubernetes resource
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - default: yaml
+        description: Output format (yaml or json)
+        in: query
+        name: format
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Manifest content
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Resource YAML/JSON
+      tags:
+      - Resources
+  /api/stats:
+    get:
+      description: Get global cluster resource usage (CPU, RAM) and resource counts
+        (Nodes, Pods, Namespaces)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cluster Stats
+      tags:
+      - Cluster
+  /api/topology/{kind}/{namespace}/{name}:
+    get:
+      description: Get a graph of related resources (owners, children, selectors)
+        for a specific resource
+      parameters:
+      - description: Resource Kind
+        in: path
+        name: kind
+        required: true
+        type: string
+      - description: Namespace
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: Resource Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TopologyResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Resource Topology
+      tags:
+      - Resources
+securityDefinitions:
+  BearerAuth:
+    description: Type 'Bearer ' followed by your token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

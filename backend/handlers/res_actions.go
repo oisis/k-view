@@ -20,6 +20,21 @@ type ScaleRequest struct {
 	Replicas int `json:"replicas"`
 }
 
+// Create creates a new Kubernetes resource.
+// @Summary Create Resource
+// @Description Create a new Kubernetes resource from a YAML or JSON manifest
+// @Tags Resources
+// @Accept json
+// @Accept plain
+// @Produce json
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param body body string true "Resource Manifest (YAML or JSON)"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind}/{namespace} [post]
 func (h *ResourceHandler) Create(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	ns := c.Param("namespace")
@@ -61,6 +76,17 @@ func (h *ResourceHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, created)
 }
 
+// Delete deletes a Kubernetes resource.
+// @Summary Delete Resource
+// @Description Delete a specific Kubernetes resource by kind, namespace, and name
+// @Tags Resources
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Success 204
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind}/{namespace}/{name} [delete]
 func (h *ResourceHandler) Delete(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")
@@ -84,6 +110,20 @@ func (h *ResourceHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// Scale updates the number of replicas for a workload resource.
+// @Summary Scale Resource
+// @Description Update the replica count for a Deployment, StatefulSet, or ReplicaSet
+// @Tags Resources
+// @Accept json
+// @Param kind path string true "Resource Kind"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Param body body ScaleRequest true "Scale parameters"
+// @Success 200
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/resources/{kind}/{namespace}/{name}/scale [patch]
 func (h *ResourceHandler) Scale(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	name := c.Param("name")

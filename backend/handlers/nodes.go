@@ -64,6 +64,16 @@ func nodeStatus(node corev1.Node) string {
 	return "Unknown"
 }
 
+// GetNodeDetails returns detailed information about a specific node.
+// @Summary Node Details
+// @Description Get detailed information about a node, including metadata, spec, status, and related pods
+// @Tags Cluster
+// @Produce json
+// @Param name path string true "Node Name"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/nodes/{name} [get]
 func (h *NodeHandler) GetNodeDetails(c *gin.Context) {
 	nodeName := c.Param("name")
 	ctx := c.Request.Context()
@@ -104,6 +114,15 @@ func (h *NodeHandler) GetNodeDetails(c *gin.Context) {
 	})
 }
 
+// ListNodes returns a list of all nodes in the cluster.
+// @Summary List Nodes
+// @Description Get a list of all nodes with their roles, status, and resource allocation stats
+// @Tags Cluster
+// @Produce json
+// @Success 200 {array} NodeResponse
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/nodes [get]
 func (h *NodeHandler) ListNodes(c *gin.Context) {
 	ctx := c.Request.Context()
 	nodes, err := h.k8sClient.ListNodes(ctx)

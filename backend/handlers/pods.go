@@ -25,6 +25,24 @@ func NewPodHandler(client k8s.KubernetesProvider) *PodHandler {
 	return &PodHandler{k8sClient: client}
 }
 
+type PodResponse struct {
+	Name      string            `json:"name"`
+	Namespace string            `json:"namespace"`
+	Status    string            `json:"status"`
+	Age       string            `json:"age"`
+	Labels    map[string]string `json:"labels,omitempty"`
+}
+
+// ListPods returns a list of pods in a namespace.
+// @Summary List Pods
+// @Description Get a list of pods in a specific namespace or all namespaces
+// @Tags Workloads
+// @Produce json
+// @Param namespace query string false "Namespace (use '-' for all namespaces)"
+// @Success 200 {array} PodResponse
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/pods [get]
 func (h *PodHandler) ListPods(c *gin.Context) {
 	namespace := c.Query("namespace")
 	if namespace == "-" {
@@ -40,14 +58,6 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": k8sutils.SanitizeError(err)})
 		return
-	}
-
-	type PodResponse struct {
-		Name      string            `json:"name"`
-		Namespace string            `json:"namespace"`
-		Status    string            `json:"status"`
-		Age       string            `json:"age"`
-		Labels    map[string]string `json:"labels,omitempty"`
 	}
 
 	var response []PodResponse
@@ -71,6 +81,15 @@ func (h *PodHandler) ListPods(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// ListNamespaces returns a list of all namespaces.
+// @Summary List Namespaces
+// @Description Get a list of all namespaces in the cluster
+// @Tags Cluster
+// @Produce json
+// @Success 200 {array} map[string]interface{}
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/namespaces [get]
 func (h *PodHandler) ListNamespaces(c *gin.Context) {
 	namespaces, err := h.k8sClient.ListNamespaces(c.Request.Context())
 	if err != nil {
@@ -81,6 +100,22 @@ func (h *PodHandler) ListNamespaces(c *gin.Context) {
 	c.JSON(http.StatusOK, namespaces)
 }
 
+// GetLogs returns the logs for a specific resource.
+// @Summary Get Logs
+// @Description Get logs for a pod or other workload resource
+// @Tags Workloads
+// @Produce plain
+// @Param kind path string true "Resource Kind (e.g. pods, deployments)"
+// @Param namespace path string true "Namespace"
+// @Param name path string true "Resource Name"
+// @Param container query string false "Container Name"
+// @Param tail query int false "Number of lines to tail" default(1000)
+// @Success 200 {string} string "Logs content"
+// @Failure 403 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Security BearerAuth
+// @Router /api/logs/{kind}/{namespace}/{name} [get]
 func (h *PodHandler) GetLogs(c *gin.Context) {
 	kind := strings.ToLower(c.Param("kind"))
 	if kind == "" { kind = "pods" }

@@ -45,6 +45,13 @@ type StatusResponse struct {
 }
 
 // GetStatus returns the RBAC assignments and the current user's computed permissions.
+// @Summary RBAC Status
+// @Description Get the RBAC assignments and the current user's computed permissions
+// @Tags RBAC
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Security BearerAuth
+// @Router /api/rbac/status [get]
 func (h *RBACHandler) GetStatus(c *gin.Context) {
 	email, _ := c.Get("email")
 	role, _ := c.Get("role")
@@ -168,6 +175,13 @@ func deduplicateAssignments(assignments []rbac.Assignment) []rbac.Assignment {
 }
 
 // ListRoles returns all ClusterRoles labeled as part of k-view.
+// @Summary List Roles
+// @Description List all ClusterRoles labeled as part of k-view
+// @Tags RBAC
+// @Produce json
+// @Success 200 {array} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/rbac/roles [get]
 func (h *RBACHandler) ListRoles(c *gin.Context) {
 	dyn, err := h.k8sProvider.GetDynamicClient(c.Request.Context())
 	if err != nil {
@@ -198,12 +212,26 @@ func (h *RBACHandler) ListRoles(c *gin.Context) {
 }
 
 // GetAuditLogs returns the last 100 audit events from memory.
+// @Summary Audit Logs
+// @Description Get the last 100 audit events from memory
+// @Tags RBAC
+// @Produce json
+// @Success 200 {array} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/rbac/audit [get]
 func (h *RBACHandler) GetAuditLogs(c *gin.Context) {
 	entries := audit.GetStore().GetEntries()
 	c.JSON(http.StatusOK, entries)
 }
 
 // GetMyDetails returns the current user's computed permissions.
+// @Summary My Details
+// @Description Get the current user's computed permissions and profile
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/auth/me [get]
 func (h *RBACHandler) GetMyDetails(c *gin.Context) {
 	email, exists := c.Get("email")
 	if !exists {

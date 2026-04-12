@@ -10,10 +10,13 @@ import (
 
 	"k-view/handlers"
 	"k-view/k8s"
+	_ "k-view/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hellofresh/health-go/v5"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func loadEnv(path string) {
@@ -37,6 +40,27 @@ func loadEnv(path string) {
 		}
 	}
 }
+
+// @title K-View API
+// @version 1.0
+// @description Modern, lightweight Kubernetes dashboard API.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://github.com/oisis/k-view
+// @contact.email support@k-view.local
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
+// @query.collection.format multi
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type 'Bearer ' followed by your token.
 
 func main() {
 	// Configure global logger
@@ -111,6 +135,9 @@ func main() {
 	// API Routes
 	api := router.Group("/api")
 	{
+		// Swagger documentation
+		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 		// Public Auth routes
 		api.GET("/auth/login", authHandler.Login)           // OIDC initiation
 		api.POST("/auth/login", authHandler.LocalLogin)     // Local credential POST
