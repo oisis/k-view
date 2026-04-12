@@ -479,6 +479,66 @@ func (h *ResourceHandler) GetTopology(c *gin.Context) {
 		}
 	}
 
+	// 1.1 Discover NetworkPolicies (Security)
+	if ns != "" {
+		netPolGVR := schema.GroupVersionResource{Group: "networking.k8s.io", Version: "v1", Resource: "networkpolicies"}
+		netPols, err := dynClient.Resource(netPolGVR).Namespace(ns).List(ctx, metav1.ListOptions{})
+		if err == nil {
+			for _, np := range netPols.Items {
+				selector, found, _ := unstructured.NestedMap(np.Object, "spec", "podSelector", "matchLabels")
+				if found && len(selector) > 0 {
+					sMap := make(map[string]string)
+					for k, v := range selector {
+						sMap[k] = fmt.Sprintf("%v", v)
+					}
+					podSelector := labels.SelectorFromSet(sMap)
+
+					// Check all nodes in graph if they are pods and match this policy
+					for _, node := range nodes {
+						if node.Kind == "Pod" && node.Namespace == ns {
+							// We need the actual pod labels to match
+							podGVR := getGVR("pods")
+							pod, err := dynClient.Resource(podGVR).Namespace(ns).Get(ctx, node.Name, metav1.GetOptions{})
+							if err == nil && podSelector.Matches(labels.Set(pod.GetLabels())) {
+								npID := addNode(&np)
+								edges = append(edges, TopologyEdge{
+									ID:     fmt.Sprintf("e-%s-%s", npID, node.ID),
+									Source: npID,
+									Target: node.ID,
+									Type:   "security",
+								})
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 1.2 Discover HPAs (Scaling)
+	if ns != "" {
+		hpaGVR := schema.GroupVersionResource{Group: "autoscaling", Version: "v2", Resource: "horizontalpodautoscalers"}
+		hpas, err := dynClient.Resource(hpaGVR).Namespace(ns).List(ctx, metav1.ListOptions{})
+		if err == nil {
+			for _, hpa := range hpas.Items {
+				targetKind, _, _ := unstructured.NestedString(hpa.Object, "spec", "scaleTargetRef", "kind")
+				targetName, _, _ := unstructured.NestedString(hpa.Object, "spec", "scaleTargetRef", "name")
+
+				for _, node := range nodes {
+					if node.Kind == targetKind && node.Name == targetName && node.Namespace == ns {
+						hpaID := addNode(&hpa)
+						edges = append(edges, TopologyEdge{
+							ID:     fmt.Sprintf("e-%s-%s", hpaID, node.ID),
+							Source: hpaID,
+							Target: node.ID,
+							Type:   "scaling",
+						})
+					}
+				}
+			}
+		}
+	}
+
 	// 2. Find Parents (only for the root item)
 	for _, owner := range rootItem.GetOwnerReferences() {
 		parentID := fmt.Sprintf("%s/%s/%s", owner.Kind, rootItem.GetNamespace(), owner.Name)
