@@ -1,5 +1,6 @@
 import React from 'react';
 import DetailSection from '../ResourceDetails/DetailSection';
+import CopyButton from '../ui/CopyButton';
 
 /**
  * CommonTable - Standardized table component for resource details.
@@ -21,7 +22,7 @@ export default function CommonTable({
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr className="bg-primary/5 uppercase text-[10px] tracking-widest font-black text-muted-foreground">
+                        <tr className="bg-primary/10 uppercase text-xs tracking-widest font-black text-foreground/70">
                             {columns.map((col, idx) => (
                                 <th 
                                     key={idx} 
@@ -53,9 +54,16 @@ export default function CommonTable({
                                             key={colIdx} 
                                             className={`px-4 py-3 text-foreground border-b border-border border-r border-border/40 ${col.className || ''}`}
                                         >
-                                            {typeof col.accessor === 'function' 
-                                                ? col.accessor(item) 
-                                                : (item[col.accessor] ?? '—')}
+                                            <div className="flex items-center gap-2 group/cell">
+                                                <span className="truncate">
+                                                    {typeof col.accessor === 'function' 
+                                                        ? col.accessor(item) 
+                                                        : (item[col.accessor] ?? '—')}
+                                                </span>
+                                                {(typeof col.accessor !== 'function' && item[col.accessor] && typeof item[col.accessor] === 'string') && (
+                                                    <CopyButton value={item[col.accessor]} className="opacity-0 group-hover/cell:opacity-100 transition-opacity" />
+                                                )}
+                                            </div>
                                         </td>
                                     ))}
                                 </tr>

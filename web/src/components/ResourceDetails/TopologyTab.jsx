@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, memo } from 'react';
 import ReactFlow, { 
     Background, 
     Controls, 
@@ -50,7 +50,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     return { nodes, edges };
 };
 
-const CustomNode = ({ data }) => {
+const CustomNode = memo(({ data }) => {
     const { icons } = useTheme();
     const Icon = icons[data.kind.toLowerCase()] || icons.box;
     const ShieldIcon = icons.shield_check;
@@ -85,7 +85,7 @@ const CustomNode = ({ data }) => {
             />
         </div>
     );
-};
+});
 
 const nodeTypes = {
     custom: CustomNode,

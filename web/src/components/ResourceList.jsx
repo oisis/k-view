@@ -8,6 +8,7 @@ import ResourceActionMenu from './ResourceActionMenu';
 import NamespaceSelect from './NamespaceSelect';
 import CreateResourceModal from './CreateResourceModal';
 import ExpandableCell from './ResourceDetails/ExpandableCell';
+import CopyButton from './ui/CopyButton';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -189,6 +190,8 @@ function ScheduleCell({ value, nextRun }) {
 }
 
 import { useResourceData } from '../hooks/useResourceData';
+import * as ReactWindow from 'react-window';
+const { FixedSizeList } = ReactWindow;
 
 // --- Column Visibility Dropdown ---
 function VisibilityMenu({ table, t, icons }) {
@@ -395,7 +398,12 @@ export default function ResourceList({ kind: propKind }) {
                     
                     const textClass = density === 'compact' ? "text-[11px]" : "text-[13px]";
 
-                    if (col.key === 'name') return <Link to={`/resources/${kind}/${item.namespace || '-'}/${val}`} className={cn("font-mono font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary", textClass)} title={val}>{val}</Link>;
+                    if (col.key === 'name') return (
+                        <div className="flex items-center gap-2 group/name">
+                            <Link to={`/resources/${kind}/${item.namespace || '-'}/${val}`} className={cn("font-mono font-semibold tracking-tight transition-all truncate block text-foreground hover:text-primary", textClass)} title={val}>{val}</Link>
+                            <CopyButton value={val} className="opacity-0 group-hover/name:opacity-100 transition-opacity" />
+                        </div>
+                    );
                     if (col.key === 'namespace' && val !== '-') return <Link to={`/resources/Namespaces/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block text-center font-semibold text-[11px]" title={val}>{val}</Link>;
                     if (col.key === 'extra.node') return <Link to={`/resources/Nodes/-/${val}`} className="text-primary hover:text-primary hover:underline truncate block font-mono text-[11px] text-center font-semibold" title={val}>{val}</Link>;
                     return <span className={cn("text-muted-foreground font-medium truncate block", density === 'compact' ? "text-[10px]" : "text-xs")} title={val}>{val}</span>;
@@ -444,8 +452,29 @@ export default function ResourceList({ kind: propKind }) {
         return density === 'compact' ? "px-3" : "px-4";
     };
 
+    const rowHeightValue = density === 'compact' ? 32 : 48;
     const headerHeight = density === 'compact' ? "py-2 px-3" : "py-3 px-4";
     const rowHeight = density === 'compact' ? "py-1.5" : "py-3";
+
+    const VirtualizedRow = ({ index, style }) => {
+        const row = table.getRowModel().rows[index];
+        return (
+            <div style={style} className="flex items-center border-b border-border/20 glass-row group">
+                {row.getVisibleCells().map(cell => (
+                    <div 
+                        key={cell.id} 
+                        style={{ width: cell.column.getSize() }} 
+                        className={cn(
+                            "overflow-hidden border-r border-border/40 last:border-r-0 transition-all duration-300 flex items-center", 
+                            getCellAlignmentClass(cell.column.id)
+                        )}
+                    >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const shortcutText = isMac ? '⌘K' : 'Ctrl+K';
@@ -484,33 +513,36 @@ export default function ResourceList({ kind: propKind }) {
 
             <div className="glass rounded-2xl overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
-                    <table style={{ minWidth: '100%', width: table.getTotalSize() }} className="text-xs text-left text-foreground border-separate border-spacing-0 table-fixed">
-                        <thead className="glass-header text-muted-foreground font-black uppercase tracking-[0.15em]">
+                    <div style={{ minWidth: '100%', width: table.getTotalSize() }}>
+                        <div className="glass-header text-muted-foreground font-black uppercase tracking-[0.15em] flex border-b-2 border-border">
                             {table.getHeaderGroups().map(headerGroup => (
-                                <tr key={headerGroup.id}>
+                                <React.Fragment key={headerGroup.id}>
                                     {headerGroup.headers.map(header => (
-                                        <th key={header.id} style={{ width: header.getSize() }} className={cn("relative whitespace-nowrap group select-none font-semibold text-center border-b-2 border-border border-r border-border/60 last:border-r-0", headerHeight, header.id === 'actions' && "bg-primary/5")}>
+                                        <div key={header.id} style={{ width: header.getSize() }} className={cn("relative whitespace-nowrap group select-none font-semibold text-center border-r border-border/60 last:border-r-0 flex items-center justify-center", headerHeight, header.id === 'actions' && "bg-primary/5")}>
                                             <div className="flex items-center justify-center h-full w-full cursor-pointer hover:text-primary transition-colors" onClick={header.column.getToggleSortingHandler()}>{flexRender(header.column.columnDef.header, header.getContext())}</div>
                                             <div onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()} className={cn("absolute right-0 top-0 h-full w-1.5 cursor-col-resize select-none touch-none hover:bg-primary/50 transition-colors z-20", header.column.getIsResizing() ? "bg-primary w-1" : "bg-transparent")} />
-                                        </th>
+                                        </div>
                                     ))}
-                                </tr>
+                                </React.Fragment>
                             ))}
-                        </thead>
-                        <tbody className="bg-transparent">
-                            {loading && paginatedItems.length === 0 ? (
-                                <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">{t('loading')}...</td></tr>
-                            ) : table.getRowModel().rows.length === 0 ? (
-                                <tr><td colSpan={table.getVisibleFlatColumns().length} className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</td></tr>
-                            ) : table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className="glass-row group border-b border-border/20">
-                                    {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} style={{ width: cell.column.getSize() }} className={cn("overflow-hidden border-r border-border/40 border-b border-border/60 last:border-r-0 transition-all duration-300", rowHeight, getCellAlignmentClass(cell.column.id))}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                        </div>
+                        
+                        {loading && paginatedItems.length === 0 ? (
+                            <div className="px-8 py-20 text-center text-muted-foreground italic font-medium animate-pulse">{t('loading')}...</div>
+                        ) : table.getRowModel().rows.length === 0 ? (
+                            <div className="px-8 py-20 text-center text-muted-foreground font-medium uppercase tracking-wider text-xs opacity-50">{t('no_resources_found', { kind: t(kind) || kind.replace(/-/g, ' ') })}</div>
+                        ) : (
+                            <FixedSizeList
+                                height={Math.min(table.getRowModel().rows.length * rowHeightValue, 600)}
+                                itemCount={table.getRowModel().rows.length}
+                                itemSize={rowHeightValue}
+                                width="100%"
+                                className="custom-scrollbar"
+                            >
+                                {VirtualizedRow}
+                            </FixedSizeList>
+                        )}
+                    </div>
                 </div>
             </div>
 

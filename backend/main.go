@@ -134,16 +134,21 @@ func main() {
 
 	// API Routes
 	api := router.Group("/api")
+	api.Use(handlers.RateLimitMiddleware(100, time.Minute))
 	{
 		// Swagger documentation
 		api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 		// Public Auth routes
-		api.GET("/auth/login", authHandler.Login)           // OIDC initiation
-		api.POST("/auth/login", authHandler.LocalLogin)     // Local credential POST
-		api.GET("/auth/providers", authHandler.GetProviders) // Get available auth methods
-		api.GET("/auth/callback", authHandler.Callback)
-		api.POST("/auth/logout", authHandler.Logout)
+		authGroup := api.Group("/auth")
+		authGroup.Use(handlers.RateLimitMiddleware(10, time.Minute))
+		{
+			authGroup.GET("/login", authHandler.Login)           // OIDC initiation
+			authGroup.POST("/login", authHandler.LocalLogin)     // Local credential POST
+			authGroup.GET("/providers", authHandler.GetProviders) // Get available auth methods
+			authGroup.GET("/callback", authHandler.Callback)
+			authGroup.POST("/logout", authHandler.Logout)
+		}
 
 		// Dev-mode only: bypass SSO login
 		if devMode {

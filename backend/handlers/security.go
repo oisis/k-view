@@ -2,8 +2,23 @@ package handlers
 
 import (
 	"os"
+	"time"
 	"github.com/gin-gonic/gin"
+	"github.com/ulule/limiter/v3"
+	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
+	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
+
+// RateLimitMiddleware creates a rate limiter middleware.
+func RateLimitMiddleware(requests int64, period time.Duration) gin.HandlerFunc {
+	rate := limiter.Rate{
+		Period: period,
+		Limit:  requests,
+	}
+	store := memory.NewStore()
+	instance := limiter.New(store, rate)
+	return mgin.NewMiddleware(instance)
+}
 
 // SecurityHeadersMiddleware adds security-related HTTP headers to every response.
 func SecurityHeadersMiddleware() gin.HandlerFunc {
